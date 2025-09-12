@@ -1292,16 +1292,25 @@ async function loadSatellites() {
                 // 1. Intentar archivo local
                 const responseLocal = await fetch(localFile + '?v=' + Date.now()); // evitar caché
                 if (!responseLocal.ok) throw new Error("Error cargando archivo local");
+
                 const textLocal = await responseLocal.text();
 
-                // Guardar en localStorage con timestamp
+                // Guardar en localStorage
                 localStorage.setItem('backupTLE', textLocal);
                 localStorage.setItem('lastUpdate', new Date().toISOString());
 
-                console.log("📂 Satélites cargados de archivo local");
-                console.log("⏰ Última actualización detectada:", new Date().toLocaleString());
+                // Obtener fecha real de actualización si Netlify lo da
+                const lastModified = responseLocal.headers.get('last-modified');
+                if (lastModified) {
+                    console.log(`📂 Satélites cargados de archivo local (Last-Modified: ${lastModified})`);
+                    console.log("⏰ Última actualización detectada:", new Date(lastModified).toLocaleString());
+                } else {
+                    console.log("📂 Satélites cargados de archivo local");
+                    console.log("⏰ Última actualización detectada (fallback):", new Date().toLocaleString());
+                }
 
                 return textLocal;
+
             } catch (localError) {
                 console.warn("⚠️ Error en archivo local, probando backup...");
 
@@ -1352,6 +1361,7 @@ async function loadSatellites() {
         alert('No se pudieron cargar los satélites.');
     }
 }
+
 
     // Mostrar satélites en el mapa
     function displaySatellites(satellites) {
