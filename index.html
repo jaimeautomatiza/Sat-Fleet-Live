@@ -1298,16 +1298,16 @@ async function fetchTLE() {
         // Guardar en localStorage
         localStorage.setItem('backupTLE', textLocal);
 
-        // Buscar línea de última actualización
-        const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
-        if (lastUpdateLine) {
-            const lastUpdate = lastUpdateLine.replace('# Last update:', '').trim();
-            console.log("📂 Satélites cargados de archivo local");
-            console.log("⏰ Última actualización TLE:", new Date(lastUpdate).toLocaleString());
-        } else {
-            console.log("📂 Satélites cargados de archivo local");
-            console.log("⏰ Última actualización detectada (fallback):", new Date().toLocaleString());
-        }
+// Buscar línea de última actualización
+const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
+if (lastUpdateLine) {
+    const lastUpdate = lastUpdateLine.replace('# Last update:', '').trim();
+    console.log("📂 Satélites cargados de archivo local");
+    console.log("⏰ Última actualización TLE:", new Date(lastUpdate).toLocaleString());
+} else {
+    console.log("📂 Satélites cargados de archivo local");
+    console.log("⏰ Última actualización TLE: desconocida");
+}
 
         return textLocal;
 
