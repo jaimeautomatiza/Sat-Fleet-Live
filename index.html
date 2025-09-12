@@ -1299,19 +1299,31 @@ async function fetchTLE() {
 
         // Buscar línea de última actualización
         const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
-        let lastUpdate;
+        let lastUpdate = null;
+
         if (lastUpdateLine) {
-            lastUpdate = lastUpdateLine.replace('# Last update:', '').trim();
-        } else {
-            // Si por alguna razón no existe la línea, usamos backup en localStorage si existe
-            lastUpdate = localStorage.getItem('lastUpdateBackup') || 'desconocida';
+            const lastUpdateStr = lastUpdateLine.replace('# Last update:', '').trim();
+            const parsedDate = Date.parse(lastUpdateStr); // parse explícito
+            if (!isNaN(parsedDate)) {
+                lastUpdate = new Date(parsedDate);
+            }
         }
 
-        // Guardamos la última actualización en localStorage
-        localStorage.setItem('lastUpdateBackup', lastUpdate);
+        // Si no se pudo parsear, usar backup o desconocida
+        if (!lastUpdate) {
+            const backupStr = localStorage.getItem('lastUpdateBackup');
+            lastUpdate = backupStr ? new Date(backupStr) : null;
+        }
+
+        // Guardamos la última actualización en localStorage si es válida
+        if (lastUpdate) localStorage.setItem('lastUpdateBackup', lastUpdate.toISOString());
 
         console.log("📂 Satélites cargados de archivo local");
-        console.log("⏰ Última actualización TLE:", new Date(lastUpdate).toLocaleString());
+        if (lastUpdate) {
+            console.log("⏰ Última actualización TLE:", lastUpdate.toLocaleString());
+        } else {
+            console.log("⏰ Última actualización TLE: desconocida");
+        }
 
         return textLocal;
 
@@ -1320,16 +1332,20 @@ async function fetchTLE() {
 
         const backup = localStorage.getItem('backupTLE');
         if (backup) {
-            const lastUpdate = localStorage.getItem('lastUpdateBackup') || 'desconocida';
+            const backupStr = localStorage.getItem('lastUpdateBackup');
+            const backupDate = backupStr ? new Date(backupStr) : null;
             console.log("♻️ Satélites cargados de backup en localStorage");
-            console.log("⏰ Última actualización TLE guardada:", new Date(lastUpdate).toLocaleString());
+            if (backupDate) {
+                console.log("⏰ Última actualización TLE guardada:", backupDate.toLocaleString());
+            } else {
+                console.log("⏰ Última actualización TLE guardada: desconocida");
+            }
             return backup;
         }
 
         throw new Error('❌ No hay datos de satélites disponibles');
     }
 }
-
 
         // Parsear TLE
         function parseTLEWithType(tleText) {
