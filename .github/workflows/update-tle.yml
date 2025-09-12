@@ -27,6 +27,9 @@ jobs:
           echo "⏳ Descargando TLE de Celestrak..."
           curl -sfSL "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle" -o tle/TODOS_PRUEBA.txt
           echo "✅ TLE descargado. Tamaño: $(wc -c < tle/TODOS_PRUEBA.txt) bytes"
+          # Añadir línea de última actualización al final
+          echo "# Last update: $(date -u '+%Y-%m-%dT%H:%M:%SZ')" >> tle/TODOS_PRUEBA.txt
+          echo "🕒 Línea de última actualización añadida"
 
       - name: Commit and push if changed
         run: |

@@ -1286,47 +1286,48 @@ const translations = {
 async function loadSatellites() {
     try {
         // Función para cargar TLE
-        async function fetchTLE() {
-            const localFile = 'tle/TODOS_PRUEBA.txt';
-            try {
-                // 1. Intentar archivo local
-                const responseLocal = await fetch(localFile + '?v=' + Date.now()); // evitar caché
-                if (!responseLocal.ok) throw new Error("Error cargando archivo local");
+async function fetchTLE() {
+    const localFile = 'tle/TODOS_PRUEBA.txt';
+    try {
+        // 1. Intentar archivo local
+        const responseLocal = await fetch(localFile + '?v=' + Date.now()); // evitar caché
+        if (!responseLocal.ok) throw new Error("Error cargando archivo local");
 
-                const textLocal = await responseLocal.text();
+        const textLocal = await responseLocal.text();
 
-                // Guardar en localStorage
-                localStorage.setItem('backupTLE', textLocal);
-                localStorage.setItem('lastUpdate', new Date().toISOString());
+        // Guardar en localStorage
+        localStorage.setItem('backupTLE', textLocal);
 
-                // Obtener fecha real de actualización si Netlify lo da
-                const lastModified = responseLocal.headers.get('last-modified');
-                if (lastModified) {
-                    console.log(`📂 Satélites cargados de archivo local (Last-Modified: ${lastModified})`);
-                    console.log("⏰ Última actualización detectada:", new Date(lastModified).toLocaleString());
-                } else {
-                    console.log("📂 Satélites cargados de archivo local");
-                    console.log("⏰ Última actualización detectada (fallback):", new Date().toLocaleString());
-                }
-
-                return textLocal;
-
-            } catch (localError) {
-                console.warn("⚠️ Error en archivo local, probando backup...");
-
-                const backup = localStorage.getItem('backupTLE');
-                if (backup) {
-                    const lastUpdate = localStorage.getItem('lastUpdate');
-                    console.log("♻️ Satélites cargados de backup en localStorage");
-                    if (lastUpdate) {
-                        console.log("⏰ Última actualización guardada:", new Date(lastUpdate).toLocaleString());
-                    }
-                    return backup;
-                }
-
-                throw new Error('❌ No hay datos de satélites disponibles');
-            }
+        // Buscar línea de última actualización
+        const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
+        if (lastUpdateLine) {
+            const lastUpdate = lastUpdateLine.replace('# Last update:', '').trim();
+            console.log("📂 Satélites cargados de archivo local");
+            console.log("⏰ Última actualización TLE:", new Date(lastUpdate).toLocaleString());
+        } else {
+            console.log("📂 Satélites cargados de archivo local");
+            console.log("⏰ Última actualización detectada (fallback):", new Date().toLocaleString());
         }
+
+        return textLocal;
+
+    } catch (localError) {
+        console.warn("⚠️ Error en archivo local, probando backup...");
+
+        const backup = localStorage.getItem('backupTLE');
+        if (backup) {
+            const lastUpdate = localStorage.getItem('lastUpdate');
+            console.log("♻️ Satélites cargados de backup en localStorage");
+            if (lastUpdate) {
+                console.log("⏰ Última actualización guardada:", new Date(lastUpdate).toLocaleString());
+            }
+            return backup;
+        }
+
+        throw new Error('❌ No hay datos de satélites disponibles');
+    }
+}
+
 
         // Parsear TLE
         function parseTLEWithType(tleText) {
