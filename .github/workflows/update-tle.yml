@@ -2,7 +2,7 @@ name: Auto update TLE
 
 on:
   schedule:
-    - cron: '0 */2 * * *'   # cada 2 horas (UTC)
+     - cron: "0 0 */2 * *"
   workflow_dispatch:        # permite ejecutar manualmente desde GitHub
 
 permissions:
@@ -43,5 +43,4 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Auto-update TLE: $(date -u '+%Y-%m-%d %H:%M:%S') UTC [skip ci]"
             git push origin HEAD
-
-        
+          fi
