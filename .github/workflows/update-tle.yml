@@ -1,0 +1,41 @@
+name: Auto update TLE
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'   # cada 2 horas (UTC)
+  workflow_dispatch:        # permite ejecutar manualmente desde GitHub
+
+permissions:
+  contents: write
+
+jobs:
+  update-tle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Ensure tle directory exists
+        run: mkdir -p tle
+
+      - name: Download TLE from Celestrak
+        run: |
+          echo "⏳ Descargando TLE de Celestrak..."
+          curl -sfSL "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle" -o tle/TODOS_PRUEBA.txt
+          echo "✅ TLE descargado. Tamaño: $(wc -c < tle/TODOS_PRUEBA.txt) bytes"
+
+      - name: Commit and push if changed
+        run: |
+          git add tle/TODOS_PRUEBA.txt
+          if git diff --cached --quiet; then
+            echo "No hay cambios en TLE, no se hace commit."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Auto-update TLE: $(date -u '+%Y-%m-%d %H:%M:%S') UTC [skip ci]"
+            git push origin HEAD
+          fi
