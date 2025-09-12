@@ -1383,80 +1383,91 @@ async function fetchTLE() {
 
 
     // Mostrar satélites en el mapa
-    function displaySatellites(satellites) {
-        satelliteMarkers.forEach(marker => map.removeLayer(marker));
-        satelliteMarkers = [];
+   function displaySatellites(satellites) {
+    satelliteMarkers.forEach(marker => map.removeLayer(marker));
+    satelliteMarkers = [];
 
-        const now = new Date();
+    const now = new Date();
 
-        satellites.forEach((sat, index) => {
-            try {
-                const pv = window.satellite.propagate(sat.satrec, new Date());
-                
-                if (!pv || !pv.position) {
-                    console.warn(`Satélite ${sat.name} no tiene posición válida.`);
-                    return;
-                }
+    satellites.forEach((sat, index) => {
+        try {
+            const pv = window.satellite.propagate(sat.satrec, now);
 
-                const gmst = satellite.gstime(new Date());
-                const geo = satellite.eciToGeodetic(pv.position, gmst);
-                const lat = satellite.degreesLat(geo.latitude);
-                const lng = satellite.degreesLong(geo.longitude);
-                const alt = geo.height;
-                const vel = Math.sqrt(
-                    pv.velocity.x ** 2 +
-                    pv.velocity.y ** 2 +
-                    pv.velocity.z ** 2
-                ) * 3.6;
-
-                sat.lat = lat;
-                sat.lng = lng;
-                sat.altitude = alt;
-                sat.velocity = vel;
-
-                const color = getSatelliteColor(sat.name);
-
-                const marker = L.circleMarker([lat, lng], {
-                    radius: 6,
-                    fillColor: color,
-                    color: color,
-                    weight: 2,
-                    opacity: 0.8,
-                    fillOpacity: 0.6
-                });
-
-                marker.satellite = sat;
-                marker.on('click', function() { showSatelliteInfo(sat); });
-                marker.addTo(map);
-                satelliteMarkers.push(marker);
-
-            } catch (err) {
-                console.warn(`No se pudo propagar el satélite ${sat.name}:`, err);
+            if (!pv || !pv.position) {
+                console.warn(`Satélite ${sat.name} no tiene posición válida.`);
+                return;
             }
-        });
-    }
+
+            const gmst = satellite.gstime(now);
+            const geo = satellite.eciToGeodetic(pv.position, gmst);
+            const lat = satellite.degreesLat(geo.latitude);
+            const lng = satellite.degreesLong(geo.longitude);
+
+            // Validar lat/lng antes de crear el marcador
+            if (isNaN(lat) || isNaN(lng)) {
+                console.warn(`No se pudo propagar el satélite ${sat.name}: lat/lng inválidos`);
+                return;
+            }
+
+            const alt = geo.height;
+            const vel = Math.sqrt(
+                pv.velocity.x ** 2 +
+                pv.velocity.y ** 2 +
+                pv.velocity.z ** 2
+            ) * 3.6;
+
+            sat.lat = lat;
+            sat.lng = lng;
+            sat.altitude = alt;
+            sat.velocity = vel;
+
+            const color = getSatelliteColor(sat.name);
+
+            const marker = L.circleMarker([lat, lng], {
+                radius: 6,
+                fillColor: color,
+                color: color,
+                weight: 2,
+                opacity: 0.8,
+                fillOpacity: 0.6
+            });
+
+            marker.satellite = sat;
+            marker.on('click', function() { showSatelliteInfo(sat); });
+            marker.addTo(map);
+            satelliteMarkers.push(marker);
+
+        } catch (err) {
+            console.warn(`Error inesperado propagando satélite ${sat.name}:`, err);
+        }
+    });
+}
+
 
     // Generar puntos de órbita para un satélite
-    function generateOrbitPath(satellite) {
-        const points = [];
-        const now = new Date();
-        const numPoints = 100;
+function generateOrbitPath(satellite) {
+    const points = [];
+    const now = new Date();
+    const numPoints = 100;
 
-        for (let i = 0; i < numPoints; i++) {
-            const future = new Date(now.getTime() + (i * 60 * 1000));
-            const pv = window.satellite.propagate(satellite.satrec, future);
-            if (!pv.position) continue;
+    for (let i = 0; i < numPoints; i++) {
+        const future = new Date(now.getTime() + (i * 60 * 1000));
+        const pv = window.satellite.propagate(satellite.satrec, future);
+        if (!pv.position) continue;
 
-            const gmst = window.satellite.gstime(future);
-            const geo = window.satellite.eciToGeodetic(pv.position, gmst);
-            const lat = window.satellite.degreesLat(geo.latitude);
-            const lng = window.satellite.degreesLong(geo.longitude);
+        const gmst = window.satellite.gstime(future);
+        const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+        const lat = window.satellite.degreesLat(geo.latitude);
+        const lng = window.satellite.degreesLong(geo.longitude);
 
-            points.push([lat, lng]);
-        }
+        // Validar lat/lng antes de añadir
+        if (isNaN(lat) || isNaN(lng)) continue;
 
-        return points;
+        points.push([lat, lng]);
     }
+
+    return points;
+}
 
     // Mostrar información del satélite
     function showSatelliteInfo(satellite) {
@@ -1502,40 +1513,47 @@ async function fetchTLE() {
     }
 
     // Función para actualizar posiciones de todos los satélites
-    function updateSatellitePositions() {
-        const now = new Date();
+function updateSatellitePositions() {
+    const now = new Date();
 
-        satelliteMarkers.forEach(marker => {
-            const sat = marker.satellite;
-            if (!sat.satrec) return;
+    satelliteMarkers.forEach(marker => {
+        const sat = marker.satellite;
+        if (!sat.satrec) return;
 
-            const pv = window.satellite.propagate(sat.satrec, now);
-            if (!pv.position) return;
+        const pv = window.satellite.propagate(sat.satrec, now);
+        if (!pv.position) return;
 
-            const gmst = window.satellite.gstime(now);
-            const geo = window.satellite.eciToGeodetic(pv.position, gmst);
-            const lat = window.satellite.degreesLat(geo.latitude);
-            const lng = window.satellite.degreesLong(geo.longitude);
-            const alt = geo.height;
-            const vel = Math.sqrt(
-                pv.velocity.x ** 2 +
-                pv.velocity.y ** 2 +
-                pv.velocity.z ** 2
-            ) * 3.6;
+        const gmst = window.satellite.gstime(now);
+        const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+        const lat = window.satellite.degreesLat(geo.latitude);
+        const lng = window.satellite.degreesLong(geo.longitude);
 
-            // Actualizar datos del satélite
-            sat.lat = lat;
-            sat.lng = lng;
-            sat.altitude = alt;
-            sat.velocity = vel;
+        // Validar lat/lng antes de actualizar
+        if (isNaN(lat) || isNaN(lng)) {
+            console.warn(`Satélite ${sat.name} tiene posición inválida y se salta.`);
+            return;
+        }
 
-            // Mover marcador
-            marker.setLatLng([lat, lng]);
-        });
-    }
+        const alt = geo.height;
+        const vel = Math.sqrt(
+            pv.velocity.x ** 2 +
+            pv.velocity.y ** 2 +
+            pv.velocity.z ** 2
+        ) * 3.6;
 
-    // Llamar cada 1 segundo
-    setInterval(updateSatellitePositions, 1000);
+        // Actualizar datos del satélite
+        sat.lat = lat;
+        sat.lng = lng;
+        sat.altitude = alt;
+        sat.velocity = vel;
+
+        // Mover marcador
+        marker.setLatLng([lat, lng]);
+    });
+}
+
+// Llamar cada 1 segundo
+setInterval(updateSatellitePositions, 1000);
 
     // Cerrar panel de información
     function closeSatelliteInfo() {
