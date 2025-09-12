@@ -22,14 +22,16 @@ jobs:
       - name: Ensure tle directory exists
         run: mkdir -p tle
 
-      - name: Download TLE from Celestrak
+      - name: Download TLE from Celestrak and prepend last update
         run: |
           echo "⏳ Descargando TLE de Celestrak..."
-          curl -sfSL "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle" -o tle/TODOS_PRUEBA.txt
-          echo "✅ TLE descargado. Tamaño: $(wc -c < tle/TODOS_PRUEBA.txt) bytes"
-          # Añadir línea de última actualización al final
-          echo "# Last update: $(date -u '+%Y-%m-%dT%H:%M:%SZ')" >> tle/TODOS_PRUEBA.txt
-          echo "🕒 Línea de última actualización añadida"
+          curl -sfSL "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle" -o tle/temp_TLE.txt
+          echo "✅ TLE descargado. Tamaño: $(wc -c < tle/temp_TLE.txt) bytes"
+
+          # Prepend línea de última actualización al inicio del archivo
+          echo "# Last update: $(date -u '+%Y-%m-%dT%H:%M:%SZ')" | cat - tle/temp_TLE.txt > tle/TODOS_PRUEBA.txt
+          rm tle/temp_TLE.txt
+          echo "🕒 Línea de última actualización añadida al inicio del archivo"
 
       - name: Commit and push if changed
         run: |
@@ -41,4 +43,5 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -m "Auto-update TLE: $(date -u '+%Y-%m-%d %H:%M:%S') UTC [skip ci]"
             git push origin HEAD
-          fi
+
+        
