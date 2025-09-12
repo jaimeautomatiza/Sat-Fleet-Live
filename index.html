@@ -1289,7 +1289,6 @@ async function loadSatellites() {
 async function fetchTLE() {
     const localFile = 'tle/TODOS_PRUEBA.txt';
     try {
-        // 1. Intentar archivo local
         const responseLocal = await fetch(localFile + '?v=' + Date.now()); // evitar caché
         if (!responseLocal.ok) throw new Error("Error cargando archivo local");
 
@@ -1298,16 +1297,21 @@ async function fetchTLE() {
         // Guardar en localStorage
         localStorage.setItem('backupTLE', textLocal);
 
-// Buscar línea de última actualización
-const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
-if (lastUpdateLine) {
-    const lastUpdate = lastUpdateLine.replace('# Last update:', '').trim();
-    console.log("📂 Satélites cargados de archivo local");
-    console.log("⏰ Última actualización TLE:", new Date(lastUpdate).toLocaleString());
-} else {
-    console.log("📂 Satélites cargados de archivo local");
-    console.log("⏰ Última actualización TLE: desconocida");
-}
+        // Buscar línea de última actualización
+        const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
+        let lastUpdate;
+        if (lastUpdateLine) {
+            lastUpdate = lastUpdateLine.replace('# Last update:', '').trim();
+        } else {
+            // Si por alguna razón no existe la línea, usamos backup en localStorage si existe
+            lastUpdate = localStorage.getItem('lastUpdateBackup') || 'desconocida';
+        }
+
+        // Guardamos la última actualización en localStorage
+        localStorage.setItem('lastUpdateBackup', lastUpdate);
+
+        console.log("📂 Satélites cargados de archivo local");
+        console.log("⏰ Última actualización TLE:", new Date(lastUpdate).toLocaleString());
 
         return textLocal;
 
@@ -1316,11 +1320,9 @@ if (lastUpdateLine) {
 
         const backup = localStorage.getItem('backupTLE');
         if (backup) {
-            const lastUpdate = localStorage.getItem('lastUpdate');
+            const lastUpdate = localStorage.getItem('lastUpdateBackup') || 'desconocida';
             console.log("♻️ Satélites cargados de backup en localStorage");
-            if (lastUpdate) {
-                console.log("⏰ Última actualización guardada:", new Date(lastUpdate).toLocaleString());
-            }
+            console.log("⏰ Última actualización TLE guardada:", new Date(lastUpdate).toLocaleString());
             return backup;
         }
 
