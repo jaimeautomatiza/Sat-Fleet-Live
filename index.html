@@ -1348,24 +1348,36 @@ async function fetchTLE() {
 }
 
         // Parsear TLE
-        function parseTLEWithType(tleText) {
-            let satellites = [];
-            const lines = tleText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+function parseTLEWithType(tleText) {
+    let satellites = [];
+    const lines = tleText
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
 
-            for (let i = 0; i < lines.length; i += 3) {
-                if (i + 2 < lines.length) {
-                    const name = lines[i];
-                    const line1 = lines[i + 1];
-                    const line2 = lines[i + 2];
+    for (let i = 0; i < lines.length; i += 3) {
+        const name = lines[i];
+        const line1 = lines[i + 1];
+        const line2 = lines[i + 2];
 
-                    const satrec = satellite.twoline2satrec(line1, line2);
-                    const type = getSatelliteType(name);
-
-                    satellites.push({ name, type, satrec });
-                }
-            }
-            return satellites;
+        // Ignorar líneas de comentario
+        if (!name || name.startsWith('#')) {
+            i -= 2; // retrocedemos para no saltarnos satélites
+            continue;
         }
+
+        if (!line1 || !line2) continue;
+
+        try {
+            const satrec = satellite.twoline2satrec(line1, line2);
+            const type = getSatelliteType(name);
+            satellites.push({ name, type, satrec });
+        } catch (err) {
+            console.warn(`No se pudo parsear satélite ${name}:`, err);
+        }
+    }
+    return satellites;
+}
 
         // Cargar todos los satélites
         const todoTLE = await fetchTLE();
