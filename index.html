@@ -1,0 +1,2120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-THHVVZCJ4B');
+</script>
+
+    <!-- Favicon principal y compatibilidad general -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="shortcut icon" href="logo.png" type="image/png">
+    <!-- Icono para dispositivos Apple -->
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <!-- Título SEO-friendly -->
+    <title>Sat Fleet Live</title>
+
+    <!-- Meta etiquetas principales -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Descripción optimizada -->
+    <meta name="description" content="Sat Fleet Live te permite seguir satélites en tiempo real, incluyendo GPS, ISS, Starlink y otros. Información actualizada y precisa de órbitas satelitales. Proyecto personal de Jaime Guzmán.">
+    
+    <!-- Palabras clave -->
+    <meta name="keywords" content="satélite, seguimiento satélites, GPS, ISS, Starlink, espacio, órbita, NORAD, rastreo satélites, satélites en tiempo real">
+    
+    <!-- Autor -->
+    <meta name="author" content="Jaime Guzmán García-Rivera">
+    
+    <!-- Robots -->
+    <meta name="robots" content="index, follow">
+    
+    <!-- Canonical -->
+    <link rel="canonical" href="https://satfleetlive.com/">
+
+    <!-- Open Graph (para redes sociales y enlaces compartidos) -->
+    <meta property="og:title" content="Sat Fleet Live – Seguimiento de satélites en tiempo real">
+    <meta property="og:description" content="Visualiza la posición de satélites como GPS, ISS y Starlink en tiempo real. Información actualizada y precisa de órbitas satelitales.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://satfleetlive.com/">
+    <meta property="og:image" content="logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sat Fleet Live – Seguimiento de satélites en tiempo real">
+    <meta name="twitter:description" content="Visualiza la posición de satélites como GPS, ISS y Starlink en tiempo real. Información actualizada y precisa de órbitas satelitales.">
+    <meta name="twitter:image" content="logo.png">
+
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --light-bg: #ffffff;
+            --light-secondary: #f5f5f5;
+            --light-tertiary: #e0e0e0;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+            --text-primary-light: #333333;
+            --text-secondary-light: #666666;
+            --gps-color: #4285f4;
+            --iss-color: #ffffff;
+            --comm-color: #ff6b35;
+            --starlink-color: #00d26a;
+            --military-color: #ff0000;
+            --weather-color: #ffd700;
+            --geo-color: #00ced1;
+            --tech-color: #9400d3;
+            --misc-color: #ff69b4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        body.light-mode {
+            background-color: var(--light-bg);
+            color: var(--text-primary-light);
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--dark-secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1000;
+        }
+
+        body.light-mode .header {
+            background-color: var(--light-secondary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .logo-placeholder {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 2px solid var(--primary-purple);
+            color: var(--primary-purple);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--primary-purple);
+            color: white;
+        }
+
+        /* Search and Filters */
+        .controls {
+            background-color: var(--dark-secondary);
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        body.light-mode .controls {
+            background-color: var(--light-secondary);
+        }
+
+        .search-container {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--dark-tertiary);
+            border-radius: 25px;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-purple);
+        }
+
+        body.light-mode .search-input {
+            background-color: var(--light-bg);
+            color: var(--text-primary-light);
+            border-color: var(--light-tertiary);
+        }
+
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--dark-tertiary);
+            background: none;
+            color: var(--text-secondary-dark);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            border-color: var(--primary-purple);
+            color: var(--primary-purple);
+        }
+
+        .filter-btn.active {
+    background-color: var(--primary-purple);
+    color: white;
+}
+
+.mobile-filter-btn.active {
+    background-color: var(--primary-purple);
+    color: white;
+}
+
+        body.light-mode .filter-btn {
+            color: var(--text-secondary-light);
+            border-color: var(--light-tertiary);
+        }
+
+        /* Map */
+        #map {
+            height: calc(100vh - 140px);
+            width: 100%;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
+            z-index: 2000;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+        }
+
+        /* Mobile Panel */
+        .mobile-panel {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--dark-secondary);
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 20px 20px 0 0;
+            z-index: 2000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        }
+
+        .mobile-panel.active {
+            transform: translateY(0);
+        }
+
+        body.light-mode .mobile-panel {
+            background-color: var(--light-secondary);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        }
+
+        .mobile-panel-header {
+            padding: 1.5rem 1rem 1rem;
+            border-bottom: 1px solid var(--dark-tertiary);
+            position: sticky;
+            top: 0;
+            background-color: var(--dark-secondary);
+            z-index: 10;
+        }
+
+        body.light-mode .mobile-panel-header {
+            background-color: var(--light-secondary);
+            border-color: var(--light-tertiary);
+        }
+
+        .mobile-panel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary-dark);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-close-btn:hover {
+            background-color: var(--dark-tertiary);
+        }
+
+        body.light-mode .mobile-close-btn {
+            color: var(--text-secondary-light);
+        }
+
+        body.light-mode .mobile-close-btn:hover {
+            background-color: var(--light-tertiary);
+        }
+
+        .mobile-panel-content {
+            padding: 0 1rem 2rem;
+        }
+
+        .mobile-section {
+            margin-bottom: 2rem;
+        }
+
+        .mobile-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-purple);
+        }
+
+        /* Satellite Info Panel - Desktop */
+        .satellite-info {
+            position: absolute;
+            top: 160px;
+            right: 20px;
+            background-color: var(--dark-secondary);
+            border-radius: 10px;
+            padding: 1.5rem;
+            width: 300px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transform: translateX(320px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .satellite-info.active {
+            transform: translateX(0);
+        }
+
+        body.light-mode .satellite-info {
+            background-color: var(--light-secondary);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .satellite-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary-dark);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.light-mode .close-btn {
+            color: var(--text-secondary-light);
+        }
+
+        .info-item {
+            margin-bottom: 0.75rem;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        body.light-mode .info-label {
+            color: var(--text-secondary-light);
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Legend - Desktop */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--dark-secondary);
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        body.light-mode .legend {
+            background-color: var(--light-secondary);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .legend-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--primary-purple);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        /* Mobile Filters */
+        .mobile-filters {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .mobile-filter-btn {
+            padding: 0.75rem;
+            border: 2px solid var(--dark-tertiary);
+            background: none;
+            color: var(--text-secondary-dark);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .mobile-filter-btn:hover, .mobile-filter-btn.active {
+            border-color: var(--primary-purple);
+            color: var(--primary-purple);
+            background-color: rgba(156, 39, 176, 0.1);
+        }
+
+        body.light-mode .mobile-filter-btn {
+            color: var(--text-secondary-light);
+            border-color: var(--light-tertiary);
+        }
+
+        /* Mobile Satellite Info */
+        .mobile-satellite-info {
+            background-color: var(--dark-tertiary);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        body.light-mode .mobile-satellite-info {
+            background-color: var(--light-tertiary);
+        }
+
+        .mobile-satellite-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin-bottom: 0.75rem;
+        }
+
+        .mobile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .mobile-info-item {
+            text-align: center;
+        }
+
+        /* Mobile Legend */
+        .mobile-legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--dark-secondary);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 2000;
+        }
+
+        body.light-mode .loading {
+            background-color: var(--light-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--dark-tertiary);
+            border-left: 4px solid var(--primary-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* RESPONSIVE - MOBILE */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.75rem 1rem;
+            }
+
+            .logo-section .title {
+                font-size: 1.3rem;
+            }
+
+            .controls {
+                padding: 0.75rem 1rem;
+            }
+
+            .search-input {
+                font-size: 0.95rem;
+                padding: 0.6rem 1rem;
+            }
+
+            .filters {
+                display: none; /* Ocultamos los filtros desktop en móvil */
+            }
+
+            #map {
+                height: calc(100vh - 160px);
+            }
+
+            /* Mostrar elementos móviles */
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .mobile-overlay {
+                display: block;
+            }
+
+            .mobile-panel {
+                display: block;
+            }
+
+            /* Ocultar elementos desktop en móvil */
+            .satellite-info {
+                display: none;
+            }
+
+            .legend {
+                display: none;
+            }
+
+            /* Ajustar header info */
+            .header > div:nth-child(2) {
+                display: block; /* Ocultar info del centro en móvil */
+            }
+
+            #map {
+    touch-action: pan-x pan-y; /* permite zoom y arrastre táctil */
+}
+
+.mobile-overlay:not(.active) {
+    pointer-events: none; /* solo interactúa cuando está activo */
+}
+        }
+
+        /* DESKTOP - mantener todo igual */
+        @media (min-width: 769px) {
+            .mobile-menu-toggle {
+                display: none !important;
+            }
+
+            .mobile-overlay {
+                display: none !important;
+            }
+
+            .mobile-panel {
+                display: none !important;
+            }
+        }
+
+        /* Visibility Toggle Button */
+.visibility-toggle {
+    background: none;
+    border: 2px solid var(--starlink-color);
+    color: var(--starlink-color);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.visibility-toggle:hover, .visibility-toggle.active {
+    background-color: var(--starlink-color);
+    color: white;
+}
+
+.visibility-filter-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.elevation-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.elevation-slider {
+    width: 100px;
+}
+
+/* Mobile visibility controls */
+.mobile-visibility-section {
+    background-color: var(--dark-tertiary);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+body.light-mode .mobile-visibility-section {
+    background-color: var(--light-tertiary);
+}
+
+.mobile-visibility-toggle {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--starlink-color);
+    background: none;
+    color: var(--starlink-color);
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.mobile-visibility-toggle:hover, .mobile-visibility-toggle.active {
+    background-color: var(--starlink-color);
+    color: white;
+}
+
+/* User location marker */
+.user-location-marker {
+    width: 20px;
+    height: 20px;
+    background-color: #ff4444;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    position: relative;
+}
+
+.user-location-marker::after {
+    content: '📍';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+}
+
+.user-location-pulse {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ff4444;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    opacity: 0.6;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="logo-section">
+        <div class="logo">
+            <img src="logo.png" alt="Sat Fleet Live Logo" onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+        </div>
+        <h1 class="title">Sat Fleet Live</h1>
+    </div>
+
+<div style="text-align:center; font-size:12px; flex:1;">
+    <div id="copyrightText">© 2025 Jaime Guzmán García-Rivera – Personal project</div>
+    <div>
+        <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank" style="color:#4da6ff;">CelesTrak / NORAD</a>  
+        | <a href="mailto:jaime.automatiza@gmail.com" style="color:#4da6ff;" id="contactText">Contact</a>
+    </div>
+</div>
+
+    <div style="display: flex; align-items: center;">
+        <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Tema</button>
+        <button class="theme-toggle" onclick="toggleLanguage()" style="margin-left: 10px;">🌐 ES/EN</button>
+        <button class="visibility-toggle" id="visibilityToggle" onclick="toggleVisibility()">🔭 Solo Visibles</button>
+    </div>
+</div>
+
+<!-- Search and Filters (Desktop) -->
+<div class="controls">
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Buscar satélite..." id="searchInput" onkeyup="searchSatellites()">
+    </div>
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterSatellites('all')">Todos</button>
+        <button class="filter-btn" onclick="filterSatellites('gps')">GPS</button>
+        <button class="filter-btn" onclick="filterSatellites('iss')">Estación Espacial</button>
+        <button class="filter-btn" onclick="filterSatellites('comm')">Comunicaciones</button>
+        <button class="filter-btn" onclick="filterSatellites('starlink')">Starlink</button>
+        <button class="filter-btn" onclick="filterSatellites('military')">Militar / Espía</button>
+        <button class="filter-btn" onclick="filterSatellites('weather')">Meteorológicos / Clima</button>
+        <button class="filter-btn" onclick="filterSatellites('geo')">Geodésicos / Seguimiento</button>
+        <button class="filter-btn" onclick="filterSatellites('tech')">Tecnología / Experimental</button>
+        <button class="filter-btn" onclick="filterSatellites('misc')">Otros / Misceláneos</button>
+    </div>
+    <div class="visibility-filter-controls" id="visibilityControls" style="display: none;">
+        <div class="elevation-control">
+            <label>Elevación mín:</label>
+            <input type="range" class="elevation-slider" id="elevationSlider" min="0" max="90" value="10" oninput="updateElevationFilter()">
+            <span id="elevationValue">10°</span>
+        </div>
+    </div>
+</div>
+
+<!-- Map -->
+<div id="map"></div>
+
+<!-- Mobile Menu Toggle Button -->
+<button class="mobile-menu-toggle" onclick="toggleMobilePanel()">
+    📊
+</button>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobilePanel()"></div>
+
+<!-- Mobile Panel -->
+<div class="mobile-panel" id="mobilePanel">
+    <div class="mobile-panel-header">
+        <button class="mobile-close-btn" onclick="closeMobilePanel()">×</button>
+        <div class="mobile-panel-title">Panel de Control</div>
+    </div>
+    
+    <div class="mobile-panel-content">
+        <!-- Satellite Info Section -->
+        <div class="mobile-section" id="mobileSatelliteSection" style="display: none;">
+            <div class="mobile-section-title">Información del Satélite</div>
+            <div class="mobile-satellite-info">
+                <div class="mobile-satellite-name" id="mobileSatelliteName">Selecciona un satélite</div>
+                <div class="mobile-info-grid">
+                    <div class="mobile-info-item">
+                        <div class="info-label">Altura</div>
+                        <div class="info-value" id="mobileSatelliteAltitude">--- km</div>
+                    </div>
+                    <div class="mobile-info-item">
+                        <div class="info-label">Velocidad</div>
+                        <div class="info-value" id="mobileSatelliteVelocity">--- km/h</div>
+                    </div>
+                    <div class="mobile-info-item">
+                        <div class="info-label">Latitud</div>
+                        <div class="info-value" id="mobileSatelliteLatitude">---°</div>
+                    </div>
+                    <div class="mobile-info-item">
+                        <div class="info-label">Longitud</div>
+                        <div class="info-value" id="mobileSatelliteLongitude">---°</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Filtros</div>
+            <div class="mobile-filters">
+                <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('all')">Todos</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('gps')">GPS</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('iss')">Estación Espacial</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('comm')">Comunicaciones</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('starlink')">Starlink</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('military')">Militar / Espía</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('weather')">Meteorológicos</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('geo')">Geodésicos</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('tech')">Tecnología</button>
+                <button class="mobile-filter-btn" onclick="mobileFilterSatellites('misc')">Otros</button>
+            </div>
+        </div>
+
+        <!-- Visibility Section -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Visibilidad</div>
+            <div class="mobile-visibility-section">
+                <button class="mobile-visibility-toggle" id="mobileVisibilityToggle" onclick="toggleMobileVisibility()">🔭 Mostrar Solo Visibles</button>
+                <div id="mobileVisibilityControls" style="display: none;">
+                    <div class="elevation-control">
+                        <label>Elevación mínima: <span id="mobileElevationValue">10°</span></label>
+                        <input type="range" style="width: 100%; margin-top: 0.5rem;" id="mobileElevationSlider" min="0" max="90" value="10" oninput="updateMobileElevationFilter()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend Section -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Leyenda</div>
+            <div class="mobile-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--gps-color);"></div>
+                    <span>GPS / Navegación</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--iss-color);"></div>
+                    <span>Estación Espacial</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--starlink-color);"></div>
+                    <span>Starlink / Internet</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--comm-color);"></div>
+                    <span>Comunicaciones</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--military-color);"></div>
+                    <span>Militares / Espía</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--weather-color);"></div>
+                    <span>Meteorológicos</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--geo-color);"></div>
+                    <span>Geodésicos</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--tech-color);"></div>
+                    <span>Tecnología</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: var(--misc-color);"></div>
+                    <span>Otros</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Satellite Info Panel -->
+<div class="satellite-info" id="satelliteInfo">
+    <div class="info-header">
+        <div class="satellite-name" id="satelliteName">Nombre del Satélite</div>
+        <button class="close-btn" onclick="closeSatelliteInfo()">×</button>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Altura</div>
+        <div class="info-value" id="satelliteAltitude">--- km</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Velocidad</div>
+        <div class="info-value" id="satelliteVelocity">--- km/h</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Latitud</div>
+        <div class="info-value" id="satelliteLatitude">---°</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Longitud</div>
+        <div class="info-value" id="satelliteLongitude">---°</div>
+    </div>
+</div>
+
+<!-- Desktop Legend -->
+<div class="legend">
+    <div class="legend-title">Tipos de Satélites</div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--gps-color);"></div>
+        <span>GPS / Navegación</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--iss-color);"></div>
+        <span>Estación Espacial</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--starlink-color);"></div>
+        <span>Starlink / Internet</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--comm-color);"></div>
+        <span>Comunicaciones</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--military-color);"></div>
+        <span>Militares / Espía</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--weather-color);"></div>
+        <span>Meteorológicos / Clima</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--geo-color);"></div>
+        <span>Geodésicos / Seguimiento</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--tech-color);"></div>
+        <span>Tecnología / Experimental</span>
+    </div>
+    <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--misc-color);"></div>
+        <span>Otros / Misceláneos</span>
+    </div>
+</div>
+
+<!-- Loading -->
+<div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Cargando satélites...</p>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Variables globales
+    let map;
+    let satelliteMarkers = [];
+    let allSatellites = [];
+    let activeFilters = new Set(['all']); // Usar Set para filtros múltiples
+    let isDarkMode = true;
+    let currentOrbitPath = null;
+
+    // Variables de idioma
+let currentLanguage = 'en';
+const translations = {
+    es: {
+        title: 'Sat Fleet Live',
+        loading: 'Cargando satélites...',
+        searchPlaceholder: 'Buscar satélite...',
+        themeToggle: '🌙/☀️ Tema',
+        visibilityToggle: '🔭 Solo Visibles',
+        visibilityToggleActive: '🔭 Mostrando Visibles',
+        filters: {
+            all: 'Todos',
+            gps: 'GPS',
+            iss: 'Estación Espacial',
+            comm: 'Comunicaciones',
+            starlink: 'Starlink',
+            military: 'Militar / Espía',
+            weather: 'Meteorológicos / Clima',
+            geo: 'Geodésicos / Seguimiento',
+            tech: 'Tecnología / Experimental',
+            misc: 'Otros / Misceláneos'
+        },
+        info: {
+            altitude: 'Altura',
+            velocity: 'Velocidad',
+            latitude: 'Latitud',
+            longitude: 'Longitud'
+        },
+        legend: {
+            title: 'Tipos de Satélites',
+            gps: 'GPS / Navegación',
+            iss: 'Estación Espacial',
+            starlink: 'Starlink / Internet',
+            comm: 'Comunicaciones',
+            military: 'Militares / Espía',
+            weather: 'Meteorológicos / Clima',
+            geo: 'Geodésicos / Seguimiento',
+            tech: 'Tecnología / Experimental',
+            misc: 'Otros / Misceláneos'
+        },
+        mobile: {
+            controlPanel: 'Panel de Control',
+            satelliteInfo: 'Información del Satélite',
+            selectSatellite: 'Selecciona un satélite',
+            filters: 'Filtros',
+            visibility: 'Visibilidad',
+            legend: 'Leyenda',
+            showOnlyVisible: '🔭 Mostrar Solo Visibles',
+            showingVisible: '🔭 Mostrando Visibles'
+        },
+        elevation: {
+            label: 'Elevación mín',
+            min: 'Elevación mínima'
+        },
+        userLocation: 'Tu ubicación',
+        copyright: '© 2025 Jaime Guzmán García-Rivera – Proyecto personal',
+        source: 'Fuente:',
+        contact: 'Contacto'
+    },
+    en: {
+        title: 'Sat Fleet Live',
+        loading: 'Loading satellites...',
+        searchPlaceholder: 'Search satellite...',
+        themeToggle: '🌙/☀️ Theme',
+        visibilityToggle: '🔭 Only Visible',
+        visibilityToggleActive: '🔭 Showing Visible',
+        filters: {
+            all: 'All',
+            gps: 'GPS',
+            iss: 'Space Station',
+            comm: 'Communications',
+            starlink: 'Starlink',
+            military: 'Military / Spy',
+            weather: 'Weather / Climate',
+            geo: 'Geodetic / Tracking',
+            tech: 'Technology / Experimental',
+            misc: 'Other / Miscellaneous'
+        },
+        info: {
+            altitude: 'Altitude',
+            velocity: 'Velocity',
+            latitude: 'Latitude',
+            longitude: 'Longitude'
+        },
+        legend: {
+            title: 'Satellite Types',
+            gps: 'GPS / Navigation',
+            iss: 'Space Station',
+            starlink: 'Starlink / Internet',
+            comm: 'Communications',
+            military: 'Military / Spy',
+            weather: 'Weather / Climate',
+            geo: 'Geodetic / Tracking',
+            tech: 'Technology / Experimental',
+            misc: 'Other / Miscellaneous'
+        },
+        mobile: {
+            controlPanel: 'Control Panel',
+            satelliteInfo: 'Satellite Information',
+            selectSatellite: 'Select a satellite',
+            filters: 'Filters',
+            visibility: 'Visibility',
+            legend: 'Legend',
+            showOnlyVisible: '🔭 Show Only Visible',
+            showingVisible: '🔭 Showing Visible'
+        },
+        elevation: {
+            label: 'Min elevation',
+            min: 'Minimum elevation'
+        },
+        userLocation: 'Your location',
+        copyright: '© 2025 Jaime Guzmán García-Rivera – Personal project',
+        source: 'Source:',
+        contact: 'Contact'
+    }
+};
+
+    // Inicializar mapa
+    function initMap() {
+        map = L.map('map').setView([0, 0], 2);
+        
+        // Tiles para tema oscuro
+        const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '©OpenStreetMap, ©CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
+        });
+        
+        // Tiles para tema claro
+        const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '©OpenStreetMap contributors',
+            maxZoom: 19
+        });
+        
+        // Agregar tiles según el tema
+        if (isDarkMode) {
+            darkTiles.addTo(map);
+        } else {
+            lightTiles.addTo(map);
+        }
+        
+        // Guardar tiles para cambio de tema
+        window.darkTiles = darkTiles;
+        window.lightTiles = lightTiles;
+    }
+
+
+    // Función para obtener color según tipo de satélite
+    function getSatelliteColor(name) {
+        const type = getSatelliteType(name);
+        switch(type) {
+            case 'gps': return 'var(--gps-color)';
+            case 'iss': return 'var(--iss-color)';
+            case 'starlink': return 'var(--starlink-color)';
+            case 'comm': return 'var(--comm-color)';
+            case 'military': return 'var(--military-color)';
+            case 'weather': return 'var(--weather-color)';
+            case 'geo': return 'var(--geo-color)';
+            case 'tech': return 'var(--tech-color)';
+            case 'misc': return 'var(--misc-color)';
+            default: return 'var(--misc-color)';
+        }
+    }
+
+    // Función para obtener tipo de satélite
+    function getSatelliteType(name) {
+        const n = (name || '').toLowerCase().trim();
+
+        // helper: coincide palabra completa o prefijo típico
+        const has = (kw) => n.includes(kw);
+        const any = (...kws) => kws.some(has);
+        const word = (re) => re.test(n);
+
+        // GPS / Navegación
+        if (
+            any('gps', 'navstar', 'galileo', 'glonass', 'beidou', 'bei dou', 'bds', 'glo', 'navic', 'irnss') ||
+            word(/\bgsat0?\d{2}\b/)
+        ) return 'gps';
+
+        // ISS / Estación Espacial
+        if (
+            any('iss', 'zarya', 'space station', 'css', 'tiangong', 'tianghe', 'tianhe', 'wentian', 'mengtian', 'nauka',
+            'progress', 'soyuz', 'shenzhou', 'crew dragon', 'dragon ', ' starliner') ||
+            word(/\bdragon-?\d\b/)
+        ) return 'iss';
+
+        // Starlink / Internet
+        if (any('starlink', 'oneweb', 'kuiper')) return 'starlink';
+
+        // Comunicaciones
+        if (
+            any('intelsat', 'eutelsat', 'ses ', ' ses-', 'astra', 'hotbird', 'telecom', 'viasat', 'echo', 'echostar', 'comsat',
+            'inmarsat', 'thuraya', 'arabsat', 'hispasat', 'nilesat', 'optus', 'sky ', 'skynet', 'galaxy', 'telstar',
+            'anik', 'amos', 'yamal', 'badr', 'yahsat', 'sirius', 'paksat', 'rascom', 'measat', 'apstar', 'horizons',
+            'quetzsat', 'hellas-sat', 'turksat')
+        ) return 'comm';
+
+        // Militares / Espía
+        if (
+            any('yaogan', 'nro', ' spy', 'military', 'classified', 'lacrosse', 'noss', 'electro', 'kosmos', 'cosmos',
+            'navy', 'kh-', 'sbirs', 'wgs ', 'aehf', 'tjs-', 'meridian') ||
+            word(/\busa\s*\d+\b/)
+        ) return 'military';
+
+        // Meteorológicos / Clima
+        if (
+            any('noaa', 'goes', 'metop', 'himawari', 'weather', 'meteo', 'meteor', 'fy-', 'fengyun', 'arktika', 'meteosat', 'smos', 'ewsg')
+        ) return 'weather';
+
+        // Geodésicos / Seguimiento / Láser
+        if (
+            any('geosat', 'geodesy', 'tracking', 'laser', 'lagesat', 'gravity', 'grace', 'champ', 'goce',
+            'lageos', 'lares', 'larets', 'starlette', 'stella', 'ajisai', 'etalon')
+        ) return 'geo';
+
+        // Tecnología / Demostración / Experimental
+        if (
+            any('demo', 'test', 'tech', 'prototype', 'expres', 'x-', 'demons', 'techdemo', 'proba', 'pathfinder', 'experiment',
+            'xss', 'otv', 'cubesat', 'cube-sat', 'cute-', 'cubex', 'protosat', 'skysat')
+        ) return 'tech';
+
+        // Otros / Misceláneos
+        return 'misc';
+    }
+
+// Cargar satélites desde archivo local (sin llamadas directas a Celestrak)
+async function loadSatellites() {
+    try {
+        // Función para cargar TLE
+        async function fetchTLE() {
+            const localFile = 'tle/TODOS_PRUEBA.txt';
+            try {
+                // 1. Intentar archivo local
+                const responseLocal = await fetch(localFile + '?v=' + Date.now()); // evitar caché
+                if (!responseLocal.ok) throw new Error("Error cargando archivo local");
+                const textLocal = await responseLocal.text();
+
+                // Guardar en localStorage con timestamp
+                localStorage.setItem('backupTLE', textLocal);
+                localStorage.setItem('lastUpdate', new Date().toISOString());
+
+                console.log("📂 Satélites cargados de archivo local");
+                console.log("⏰ Última actualización detectada:", new Date().toLocaleString());
+
+                return textLocal;
+            } catch (localError) {
+                console.warn("⚠️ Error en archivo local, probando backup...");
+
+                const backup = localStorage.getItem('backupTLE');
+                if (backup) {
+                    const lastUpdate = localStorage.getItem('lastUpdate');
+                    console.log("♻️ Satélites cargados de backup en localStorage");
+                    if (lastUpdate) {
+                        console.log("⏰ Última actualización guardada:", new Date(lastUpdate).toLocaleString());
+                    }
+                    return backup;
+                }
+
+                throw new Error('❌ No hay datos de satélites disponibles');
+            }
+        }
+
+        // Parsear TLE
+        function parseTLEWithType(tleText) {
+            let satellites = [];
+            const lines = tleText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+            for (let i = 0; i < lines.length; i += 3) {
+                if (i + 2 < lines.length) {
+                    const name = lines[i];
+                    const line1 = lines[i + 1];
+                    const line2 = lines[i + 2];
+
+                    const satrec = satellite.twoline2satrec(line1, line2);
+                    const type = getSatelliteType(name);
+
+                    satellites.push({ name, type, satrec });
+                }
+            }
+            return satellites;
+        }
+
+        // Cargar todos los satélites
+        const todoTLE = await fetchTLE();
+        allSatellites = parseTLEWithType(todoTLE);
+
+        displaySatellites(allSatellites);
+        hideLoading();
+
+    } catch (error) {
+        console.error('Error cargando satélites:', error);
+        hideLoading();
+        alert('No se pudieron cargar los satélites.');
+    }
+}
+
+    // Mostrar satélites en el mapa
+    function displaySatellites(satellites) {
+        satelliteMarkers.forEach(marker => map.removeLayer(marker));
+        satelliteMarkers = [];
+
+        const now = new Date();
+
+        satellites.forEach((sat, index) => {
+            try {
+                const pv = window.satellite.propagate(sat.satrec, new Date());
+                
+                if (!pv || !pv.position) {
+                    console.warn(`Satélite ${sat.name} no tiene posición válida.`);
+                    return;
+                }
+
+                const gmst = satellite.gstime(new Date());
+                const geo = satellite.eciToGeodetic(pv.position, gmst);
+                const lat = satellite.degreesLat(geo.latitude);
+                const lng = satellite.degreesLong(geo.longitude);
+                const alt = geo.height;
+                const vel = Math.sqrt(
+                    pv.velocity.x ** 2 +
+                    pv.velocity.y ** 2 +
+                    pv.velocity.z ** 2
+                ) * 3.6;
+
+                sat.lat = lat;
+                sat.lng = lng;
+                sat.altitude = alt;
+                sat.velocity = vel;
+
+                const color = getSatelliteColor(sat.name);
+
+                const marker = L.circleMarker([lat, lng], {
+                    radius: 6,
+                    fillColor: color,
+                    color: color,
+                    weight: 2,
+                    opacity: 0.8,
+                    fillOpacity: 0.6
+                });
+
+                marker.satellite = sat;
+                marker.on('click', function() { showSatelliteInfo(sat); });
+                marker.addTo(map);
+                satelliteMarkers.push(marker);
+
+            } catch (err) {
+                console.warn(`No se pudo propagar el satélite ${sat.name}:`, err);
+            }
+        });
+    }
+
+    // Generar puntos de órbita para un satélite
+    function generateOrbitPath(satellite) {
+        const points = [];
+        const now = new Date();
+        const numPoints = 100;
+
+        for (let i = 0; i < numPoints; i++) {
+            const future = new Date(now.getTime() + (i * 60 * 1000));
+            const pv = window.satellite.propagate(satellite.satrec, future);
+            if (!pv.position) continue;
+
+            const gmst = window.satellite.gstime(future);
+            const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+            const lat = window.satellite.degreesLat(geo.latitude);
+            const lng = window.satellite.degreesLong(geo.longitude);
+
+            points.push([lat, lng]);
+        }
+
+        return points;
+    }
+
+    // Mostrar información del satélite
+    function showSatelliteInfo(satellite) {
+        // Desktop
+        document.getElementById('satelliteName').textContent = satellite.name;
+        document.getElementById('satelliteAltitude').textContent = satellite.altitude.toLocaleString() + ' km';
+        document.getElementById('satelliteVelocity').textContent = satellite.velocity.toLocaleString() + ' km/h';
+        document.getElementById('satelliteLatitude').textContent = satellite.lat.toFixed(4) + '°';
+        document.getElementById('satelliteLongitude').textContent = satellite.lng.toFixed(4) + '°';
+        
+        // Mobile
+        const t = translations[currentLanguage];
+        document.getElementById('mobileSatelliteName').textContent = satellite.name;
+        document.getElementById('mobileSatelliteAltitude').textContent = satellite.altitude.toLocaleString() + ' km';
+        document.getElementById('mobileSatelliteVelocity').textContent = satellite.velocity.toLocaleString() + ' km/h';
+        document.getElementById('mobileSatelliteLatitude').textContent = satellite.lat.toFixed(4) + '°';
+        document.getElementById('mobileSatelliteLongitude').textContent = satellite.lng.toFixed(4) + '°';
+        
+        // Mostrar sección móvil
+        document.getElementById('mobileSatelliteSection').style.display = 'block';
+        
+        // Limpiar órbita anterior
+        if (currentOrbitPath) {
+            map.removeLayer(currentOrbitPath);
+        }
+        
+        // Dibujar nueva órbita
+        const orbitPoints = generateOrbitPath(satellite);
+        const orbitColor = getSatelliteColor(satellite.name);
+        
+        currentOrbitPath = L.polyline(orbitPoints, {
+            color: orbitColor,
+            weight: 2,
+            opacity: 0.7,
+            dashArray: '5, 10'
+        }).addTo(map);
+        
+        // Centrar mapa en el satélite
+        map.setView([satellite.lat, satellite.lng], 4);
+        
+        // Mostrar panel desktop
+        document.getElementById('satelliteInfo').classList.add('active');
+    }
+
+    // Función para actualizar posiciones de todos los satélites
+    function updateSatellitePositions() {
+        const now = new Date();
+
+        satelliteMarkers.forEach(marker => {
+            const sat = marker.satellite;
+            if (!sat.satrec) return;
+
+            const pv = window.satellite.propagate(sat.satrec, now);
+            if (!pv.position) return;
+
+            const gmst = window.satellite.gstime(now);
+            const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+            const lat = window.satellite.degreesLat(geo.latitude);
+            const lng = window.satellite.degreesLong(geo.longitude);
+            const alt = geo.height;
+            const vel = Math.sqrt(
+                pv.velocity.x ** 2 +
+                pv.velocity.y ** 2 +
+                pv.velocity.z ** 2
+            ) * 3.6;
+
+            // Actualizar datos del satélite
+            sat.lat = lat;
+            sat.lng = lng;
+            sat.altitude = alt;
+            sat.velocity = vel;
+
+            // Mover marcador
+            marker.setLatLng([lat, lng]);
+        });
+    }
+
+    // Llamar cada 1 segundo
+    setInterval(updateSatellitePositions, 1000);
+
+    // Cerrar panel de información
+    function closeSatelliteInfo() {
+        document.getElementById('satelliteInfo').classList.remove('active');
+        
+        // Limpiar órbita cuando se cierra el panel
+        if (currentOrbitPath) {
+            map.removeLayer(currentOrbitPath);
+            currentOrbitPath = null;
+        }
+    }
+
+    // Ocultar loading
+    function hideLoading() {
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    // Buscar satélites
+    function searchSatellites() {
+        const query = document.getElementById("searchInput").value.toLowerCase().trim();
+        
+        if (!query) return;
+
+        let found = false;
+
+        for (let sat of allSatellites) {
+            if (sat.name.toLowerCase().includes(query)) {
+                showSatelliteInfo(sat);
+
+                if (sat.marker && sat.marker.getLatLng) {
+                    const pos = sat.marker.getLatLng();
+                    map.flyTo(pos, 4, { animate: true, duration: 1.5 }); 
+                }
+
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            console.log("No se encontró el satélite:", query);
+        }
+    }
+
+    // Filtrar satélites (Desktop)
+function filterSatellites(type) {
+    if (type === 'all') {
+        // Si selecciona "Todos", limpiar otros filtros
+        activeFilters.clear();
+        activeFilters.add('all');
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+    } else {
+        // Quitar "Todos" si estaba activo
+        if (activeFilters.has('all')) {
+            activeFilters.delete('all');
+            document.querySelector('.filter-btn[onclick="filterSatellites(\'all\')"]').classList.remove('active');
+        }
+        
+        // Toggle del filtro específico
+        if (activeFilters.has(type)) {
+            activeFilters.delete(type);
+            event.target.classList.remove('active');
+        } else {
+            activeFilters.add(type);
+            event.target.classList.add('active');
+        }
+        
+        // Si no hay filtros activos, activar "Todos"
+        if (activeFilters.size === 0) {
+            activeFilters.add('all');
+            document.querySelector('.filter-btn[onclick="filterSatellites(\'all\')"]').classList.add('active');
+        }
+    }
+
+    filterVisibleSatellites();
+}
+
+
+    // Filtrar satélites (Mobile)
+function mobileFilterSatellites(type) {
+    if (type === 'all') {
+        activeFilters.clear();
+        activeFilters.add('all');
+    } else {
+        if (activeFilters.has('all')) {
+            activeFilters.delete('all');
+        }
+        
+        if (activeFilters.has(type)) {
+            activeFilters.delete(type);
+        } else {
+            activeFilters.add(type);
+        }
+        
+        if (activeFilters.size === 0) {
+            activeFilters.add('all');
+        }
+    }
+
+    // Actualizar TODOS los botones basándose en activeFilters
+    document.querySelectorAll('.mobile-filter-btn').forEach(btn => {
+        const btnOnClick = btn.getAttribute('onclick');
+        if (btnOnClick) {
+            const btnType = btnOnClick.match(/'([^']+)'/)[1];
+            if (activeFilters.has(btnType)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+    });
+
+    filterVisibleSatellites();
+}
+
+    // Funciones del panel móvil
+    function toggleMobilePanel() {
+        const panel = document.getElementById('mobilePanel');
+        const overlay = document.getElementById('mobileOverlay');
+        
+        if (panel.classList.contains('active')) {
+            closeMobilePanel();
+        } else {
+            panel.classList.add('active');
+            overlay.classList.add('active');
+        }
+    }
+
+    function closeMobilePanel() {
+        const panel = document.getElementById('mobilePanel');
+        const overlay = document.getElementById('mobileOverlay');
+        
+        panel.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    // Cambiar tema
+    function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('light-mode');
+        
+        const themeBtn = document.querySelector('.theme-toggle');
+        themeBtn.textContent = isDarkMode ? '🌙 Tema Claro' : '☀️ Tema Oscuro';
+        
+        // Cambiar tiles del mapa
+        if (isDarkMode) {
+            map.removeLayer(window.lightTiles);
+            window.darkTiles.addTo(map);
+        } else {
+            map.removeLayer(window.darkTiles);
+            window.lightTiles.addTo(map);
+        }
+    }
+
+    // Cambiar idioma
+function toggleLanguage() {
+    currentLanguage = currentLanguage === 'es' ? 'en' : 'es';
+    updateLanguage();
+}
+
+function updateLanguage() {
+    const t = translations[currentLanguage];
+    
+    // Header
+    document.querySelector('.title').textContent = t.title;
+    
+    // Loading
+    const loadingText = document.querySelector('#loading p');
+    if (loadingText) loadingText.textContent = t.loading;
+    
+    // Search
+    document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+    
+    // Theme button
+    document.querySelector('.theme-toggle').textContent = t.themeToggle;
+    
+    // Visibility toggle
+    const visToggle = document.getElementById('visibilityToggle');
+    if (visToggle) {
+        visToggle.textContent = showOnlyVisible ? t.visibilityToggleActive : t.visibilityToggle;
+    }
+    
+    // Desktop filters
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const filterTypes = ['all', 'gps', 'iss', 'comm', 'starlink', 'military', 'weather', 'geo', 'tech', 'misc'];
+    filterBtns.forEach((btn, index) => {
+        if (filterTypes[index]) {
+            btn.textContent = t.filters[filterTypes[index]];
+        }
+    });
+    
+    // Mobile filters
+    const mobileFilterBtns = document.querySelectorAll('.mobile-filter-btn');
+    mobileFilterBtns.forEach((btn, index) => {
+        if (filterTypes[index]) {
+            btn.textContent = t.filters[filterTypes[index]];
+        }
+    });
+    
+    // Desktop info labels
+    const infoLabels = document.querySelectorAll('.satellite-info .info-label');
+    const infoTypes = ['altitude', 'velocity', 'latitude', 'longitude'];
+    infoLabels.forEach((label, index) => {
+        if (infoTypes[index]) {
+            label.textContent = t.info[infoTypes[index]];
+        }
+    });
+    
+    // Mobile info labels
+    const mobileInfoLabels = document.querySelectorAll('.mobile-info-item .info-label');
+    mobileInfoLabels.forEach((label, index) => {
+        if (infoTypes[index]) {
+            label.textContent = t.info[infoTypes[index]];
+        }
+    });
+    
+    // Legend
+    document.querySelector('.legend-title').textContent = t.legend.title;
+    const desktopLegendItems = document.querySelectorAll('.legend .legend-item span');
+    const legendTypes = ['gps', 'iss', 'starlink', 'comm', 'military', 'weather', 'geo', 'tech', 'misc'];
+    desktopLegendItems.forEach((item, index) => {
+    if (legendTypes[index]) {
+        item.textContent = t.legend[legendTypes[index]];
+    }
+});
+    
+    // Mobile sections
+    document.querySelector('.mobile-panel-title').textContent = t.mobile.controlPanel;
+    const mobileSections = document.querySelectorAll('.mobile-section-title');
+    const sectionTitles = [t.mobile.satelliteInfo, t.mobile.filters, t.mobile.visibility, t.mobile.legend];
+    mobileSections.forEach((section, index) => {
+        if (sectionTitles[index]) {
+            section.textContent = sectionTitles[index];
+        }
+    });
+    
+    // Mobile visibility toggle
+    const mobileVisToggle = document.getElementById('mobileVisibilityToggle');
+    if (mobileVisToggle) {
+        mobileVisToggle.textContent = showOnlyVisible ? t.mobile.showingVisible : t.mobile.showOnlyVisible;
+    }
+    
+    // Elevation labels
+// Desktop elevation labels
+const desktopElevationLabel = document.querySelector('.visibility-filter-controls .elevation-control label');
+if (desktopElevationLabel) {
+    const currentValue = document.getElementById('elevationValue').textContent;
+    desktopElevationLabel.innerHTML = `${t.elevation.label}: <span id="elevationValue">${currentValue}</span>`;
+}
+
+// Mobile elevation labels  
+const mobileElevationLabel = document.querySelector('.mobile-visibility-section .elevation-control label');
+if (mobileElevationLabel) {
+    const currentValue = document.getElementById('mobileElevationValue').textContent;
+    mobileElevationLabel.innerHTML = `${t.elevation.min}: <span id="mobileElevationValue">${currentValue}</span>`;
+}
+
+    // Copyright y footer
+    document.getElementById('copyrightText').textContent = t.copyright;
+    document.getElementById('sourceText').textContent = t.source;
+    document.getElementById('contactText').textContent = t.contact;
+    
+    // Mobile legend
+    const mobileLegendItems = document.querySelectorAll('.mobile-legend .legend-item span');
+    mobileLegendItems.forEach((item, index) => {
+    if (legendTypes[index]) {
+        item.textContent = t.legend[legendTypes[index]];
+    }
+});
+}
+
+// Variables para visibilidad
+    let showOnlyVisible = false;
+    let minElevation = 10;
+    let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
+    let userLocationMarker = null;
+
+    // Obtener ubicación del usuario
+    function getUserLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation.lat = position.coords.latitude;
+                    userLocation.lng = position.coords.longitude;
+                    console.log('Ubicación obtenida:', userLocation);
+                    
+                    // Añadir o actualizar marcador de ubicación
+                    updateUserLocationMarker();
+                    
+                    if (showOnlyVisible) {
+                        filterVisibleSatellites();
+                    }
+                },
+                (error) => {
+                    console.warn('No se pudo obtener la ubicación, usando Madrid por defecto');
+                    updateUserLocationMarker(); // Mostrar Madrid por defecto
+                }
+            );
+        } else {
+            updateUserLocationMarker(); // Mostrar Madrid por defecto
+        }
+    }
+
+    // Añadir/actualizar marcador de ubicación del usuario
+    function updateUserLocationMarker() {
+        // Remover marcador anterior si existe
+        if (userLocationMarker) {
+            map.removeLayer(userLocationMarker);
+        }
+
+        // Crear icono personalizado para la ubicación del usuario
+        const userIcon = L.divIcon({
+            className: 'user-location-marker',
+            html: '<div class="user-location-pulse"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        // Añadir nuevo marcador
+        userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
+            icon: userIcon,
+            zIndexOffset: 1000 // Asegurar que esté encima de otros marcadores
+        }).addTo(map);
+
+        // Añadir popup informativo
+        userLocationMarker.bindPopup(`
+            <strong>Tu ubicación</strong><br>
+            Lat: ${userLocation.lat.toFixed(4)}°<br>
+            Lng: ${userLocation.lng.toFixed(4)}°
+        `);
+    }
+
+    // Calcular posición del Sol (mejorado)
+// BLOQUE 1: Reemplaza la función calculateSunPosition existente
+function calculateSunPosition(date, lat, lng) {
+    // Calcular día juliano
+    const julianDay = (date.getTime() / 86400000) + 2440587.5;
+    const n = julianDay - 2451545.0;
+    
+    // Longitud media del Sol
+    const L = (280.460 + 0.9856474 * n) % 360;
+    
+    // Anomalía media del Sol
+    const M = (357.528 + 0.9856003 * n) % 360;
+    const MRad = M * Math.PI / 180;
+    
+    // Longitud eclíptica del Sol
+    const lambda = (L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360;
+    const lambdaRad = lambda * Math.PI / 180;
+    
+    // Inclinación de la eclíptica
+    const epsilon = 23.439 - 0.0000004 * n;
+    const epsilonRad = epsilon * Math.PI / 180;
+    
+    // Coordenadas ecuatoriales del Sol
+    const alpha = Math.atan2(Math.cos(epsilonRad) * Math.sin(lambdaRad), Math.cos(lambdaRad)) * 180 / Math.PI;
+    const delta = Math.asin(Math.sin(epsilonRad) * Math.sin(lambdaRad)) * 180 / Math.PI;
+    
+    // Tiempo sideral local
+    const UT = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+    const GST = (6.697375 + 0.0657098242 * n + UT) % 24;
+    const LST = (GST + lng / 15) % 24;
+    
+    // Ángulo horario
+    const H = (LST * 15 - alpha) % 360;
+    const HRad = H * Math.PI / 180;
+    
+    // Coordenadas horizontales
+    const latRad = lat * Math.PI / 180;
+    const deltaRad = delta * Math.PI / 180;
+    
+    const elevation = Math.asin(
+        Math.sin(latRad) * Math.sin(deltaRad) + 
+        Math.cos(latRad) * Math.cos(deltaRad) * Math.cos(HRad)
+    ) * 180 / Math.PI;
+    
+    const azimuth = Math.atan2(
+        -Math.sin(HRad),
+        Math.tan(deltaRad) * Math.cos(latRad) - Math.sin(latRad) * Math.cos(HRad)
+    ) * 180 / Math.PI;
+    
+    return { elevation, azimuth };
+}
+
+// BLOQUE 2: Reemplaza la función isSatelliteVisible existente
+function isSatelliteVisible(satellite, observerLat, observerLng) {
+    if (!satellite.lat || !satellite.lng || !satellite.altitude) return false;
+
+    // Convertir a radianes
+    const obsLatRad = observerLat * Math.PI / 180;
+    const obsLngRad = observerLng * Math.PI / 180;
+    const satLatRad = satellite.lat * Math.PI / 180;
+    const satLngRad = satellite.lng * Math.PI / 180;
+
+    // Calcular vector desde observador al satélite
+    const earthRadius = 6371; // km
+    const satRadius = earthRadius + satellite.altitude;
+    
+    // Posición del observador
+    const obsX = earthRadius * Math.cos(obsLatRad) * Math.cos(obsLngRad);
+    const obsY = earthRadius * Math.cos(obsLatRad) * Math.sin(obsLngRad);
+    const obsZ = earthRadius * Math.sin(obsLatRad);
+    
+    // Posición del satélite
+    const satX = satRadius * Math.cos(satLatRad) * Math.cos(satLngRad);
+    const satY = satRadius * Math.cos(satLatRad) * Math.sin(satLngRad);
+    const satZ = satRadius * Math.sin(satLatRad);
+    
+    // Vector del observador al satélite
+    const dx = satX - obsX;
+    const dy = satY - obsY;
+    const dz = satZ - obsZ;
+    const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    
+    // Vector normal hacia arriba desde el observador
+    const normalX = obsX / earthRadius;
+    const normalY = obsY / earthRadius;
+    const normalZ = obsZ / earthRadius;
+    
+    // Calcular elevación usando producto escalar
+    const dotProduct = (dx * normalX + dy * normalY + dz * normalZ) / distance;
+    const elevation = Math.asin(Math.max(-1, Math.min(1, dotProduct))) * 180 / Math.PI;
+    
+    // Verificar elevación mínima
+    if (elevation < minElevation) return false;
+
+    const now = new Date();
+    const sunPosition = calculateSunPosition(now, observerLat, observerLng);
+    const satSunPosition = calculateSunPosition(now, satellite.lat, satellite.lng);
+    
+    // CONDICIONES MÁS RESTRICTIVAS PARA VISIBILIDAD:
+    
+    // 1. El Sol debe estar por debajo del horizonte del observador (noche o crepúsculo)
+    const observerSunElevation = sunPosition.elevation;
+    
+    // 2. Diferentes niveles de oscuridad
+    const isDeepNight = observerSunElevation < -18; // Noche astronómica
+    const isNight = observerSunElevation < -12; // Noche náutica
+    const isCivilTwilight = observerSunElevation >= -6 && observerSunElevation < 0; // Crepúsculo civil
+    const isNauticalTwilight = observerSunElevation >= -12 && observerSunElevation < -6; // Crepúsculo náutico
+    const isAstronomicalTwilight = observerSunElevation >= -18 && observerSunElevation < -12; // Crepúsculo astronómico
+    
+    // 3. El satélite debe estar iluminado por el Sol
+    const isSatelliteIlluminated = satSunPosition.elevation > -6;
+    
+    // 4. Para que sea visible durante el día, debe estar MUY alto y ser muy brillante
+    const isHighElevation = elevation > 80;
+    const isDaylight = observerSunElevation > 0;
+    
+    // LÓGICA DE VISIBILIDAD MÁS RESTRICTIVA:
+    
+    // Durante el día (sol arriba): solo satélites extremadamente altos
+    if (isDaylight) {
+        return isHighElevation && isSatelliteIlluminated && elevation > 85;
+    }
+    
+    // Crepúsculo civil: solo satélites altos y bien iluminados
+    if (isCivilTwilight) {
+        return elevation > 40 && isSatelliteIlluminated;
+    }
+    
+    // Crepúsculo náutico: satélites moderadamente altos
+    if (isNauticalTwilight) {
+        return elevation > 25 && isSatelliteIlluminated;
+    }
+    
+    // Crepúsculo astronómico: condiciones más permisivas
+    if (isAstronomicalTwilight) {
+        return elevation > 15 && isSatelliteIlluminated;
+    }
+    
+    // Noche completa: condiciones más permisivas pero aún restrictivas
+    if (isNight || isDeepNight) {
+        return isSatelliteIlluminated;
+    }
+    
+    // Por defecto, no visible
+    return false;
+}
+
+
+    // Filtrar satélites visibles
+function filterVisibleSatellites() {
+    let filteredSatellites = allSatellites;
+
+    // Aplicar filtros de tipo (múltiples)
+    if (!activeFilters.has('all')) {
+        filteredSatellites = allSatellites.filter(satellite => 
+            activeFilters.has(getSatelliteType(satellite.name))
+        );
+    }
+
+    // Si está activado "solo visibles", filtrar por visibilidad
+    if (showOnlyVisible) {
+        filteredSatellites = filteredSatellites.filter(satellite => 
+            isSatelliteVisible(satellite, userLocation.lat, userLocation.lng)
+        );
+        console.log(`Satélites visibles encontrados: ${filteredSatellites.length} de ${allSatellites.length}`);
+    }
+
+    // Aplicar búsqueda si existe
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    if (searchTerm) {
+        filteredSatellites = filteredSatellites.filter(satellite => 
+            satellite.name.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    displaySatellites(filteredSatellites);
+}
+
+    // Toggle visibilidad (Desktop)
+    function toggleVisibility() {
+        showOnlyVisible = !showOnlyVisible;
+        const toggleBtn = document.getElementById('visibilityToggle');
+        const controls = document.getElementById('visibilityControls'); 
+        const t = translations[currentLanguage];
+if (showOnlyVisible) {
+    toggleBtn.classList.add('active');
+    toggleBtn.textContent = t.visibilityToggleActive;
+    controls.style.display = 'flex';
+    getUserLocation();
+} else {
+    toggleBtn.classList.remove('active');
+    toggleBtn.textContent = t.visibilityToggle;
+    controls.style.display = 'none';
+}
+        
+        filterVisibleSatellites();
+    }
+
+    // Toggle visibilidad (Mobile)
+    function toggleMobileVisibility() {
+        showOnlyVisible = !showOnlyVisible;
+        const toggleBtn = document.getElementById('mobileVisibilityToggle');
+        const controls = document.getElementById('mobileVisibilityControls');
+        const t = translations[currentLanguage];
+if (showOnlyVisible) {
+    toggleBtn.classList.add('active');
+    toggleBtn.textContent = t.mobile.showingVisible;
+    controls.style.display = 'block';
+    getUserLocation();
+} else {
+    toggleBtn.classList.remove('active');
+    toggleBtn.textContent = t.mobile.showOnlyVisible;
+    controls.style.display = 'none';
+}
+        
+        filterVisibleSatellites();
+    }
+
+    // Actualizar filtro de elevación (Desktop)
+    function updateElevationFilter() {
+        const slider = document.getElementById('elevationSlider');
+        const valueDisplay = document.getElementById('elevationValue');
+        minElevation = parseInt(slider.value);
+        valueDisplay.textContent = minElevation + '°';
+        
+        if (showOnlyVisible) {
+            filterVisibleSatellites();
+        }
+    }
+
+    // Actualizar filtro de elevación (Mobile)
+    function updateMobileElevationFilter() {
+        const slider = document.getElementById('mobileElevationSlider');
+        const valueDisplay = document.getElementById('mobileElevationValue');
+        minElevation = parseInt(slider.value);
+        valueDisplay.textContent = minElevation + '°';
+        
+        if (showOnlyVisible) {
+            filterVisibleSatellites();
+        }
+    }
+
+    
+// Inicializar aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+        // Activar interacción táctil en móviles
+        map.touchZoom.enable();
+        map.dragging.enable();
+        map.tap = true;
+        updateLanguage();
+
+        // Asegurarse de que el overlay no bloquee interacciones
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        mobileOverlay.addEventListener('touchstart', (e) => {
+            if (!mobileOverlay.classList.contains('active')) {
+                e.stopPropagation();
+            }
+        });
+
+        // Evitar que el input de búsqueda se bloquee en móviles
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+        });
+
+        updateLanguage();
+
+        // Obtener ubicación del usuario al cargar (siempre mostrar marcador)
+        getUserLocation();
+        
+        loadSatellites();
+    });
+
+</script>
+</body>
+</html>
