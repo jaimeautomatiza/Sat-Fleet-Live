@@ -20,7 +20,7 @@
     <link rel="apple-touch-icon" href="logo.png">
 
     <!-- Título SEO-friendly -->
-    <title>Sat Fleet Live</title>
+    <title>SatFleet Live</title>
 
     <!-- Meta etiquetas principales -->
     <meta charset="UTF-8">
@@ -28,7 +28,7 @@
 
     <!-- Descripción optimizada -->
     <meta name="description"
-        content="Sat Fleet Live te permite seguir satélites en tiempo real, incluyendo GPS, ISS, Starlink y otros. Información actualizada y precisa de órbitas satelitales. Proyecto personal de Jaime Guzmán.">
+        content="SatFleet Live te permite seguir satélites en tiempo real, incluyendo GPS, ISS, Starlink y otros. Información actualizada y precisa de órbitas satelitales. Proyecto personal de Jaime Guzmán.">
 
     <!-- Palabras clave -->
     <meta name="keywords"
@@ -44,7 +44,7 @@
     <link rel="canonical" href="https://satfleetlive.com/">
 
     <!-- Open Graph (para redes sociales y enlaces compartidos) -->
-    <meta property="og:title" content="Sat Fleet Live – Seguimiento de satélites en tiempo real">
+    <meta property="og:title" content="SatFleet Live – Seguimiento de satélites en tiempo real">
     <meta property="og:description"
         content="Visualiza la posición de satélites como GPS, ISS y Starlink en tiempo real. Información actualizada y precisa de órbitas satelitales.">
     <meta property="og:type" content="website">
@@ -53,7 +53,7 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sat Fleet Live – Seguimiento de satélites en tiempo real">
+    <meta name="twitter:title" content="SatFleet Live – Seguimiento de satélites en tiempo real">
     <meta name="twitter:description"
         content="Visualiza la posición de satélites como GPS, ISS y Starlink en tiempo real. Información actualizada y precisa de órbitas satelitales.">
     <meta name="twitter:image" content="logo.png">
@@ -843,19 +843,20 @@ body.light-mode .mobile-filter-btn:focus {
     <div class="header">
         <div class="logo-section">
             <div class="logo">
-                <img src="logo.png" alt="Sat Fleet Live Logo"
+                <img src="logo.png" alt="SatFleet Live Logo"
                     onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
             </div>
-            <h1 class="title">Sat Fleet Live</h1>
+            <h1 class="title">SatFleet Live</h1>
         </div>
 
         <div style="text-align:center; font-size:12px; flex:1;">
             <div id="copyrightText">© 2025 Jaime Guzmán García-Rivera – Personal project</div>
-            <div>
-                <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank"
-                    style="color:#4da6ff;">CelesTrak / NORAD</a>
-                | <a href="mailto:jaime.automatiza@gmail.com" style="color:#4da6ff;" id="contactText">Contact</a>
-            </div>
+<div>
+    <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank"
+        style="color:#4da6ff;">CelesTrak / NORAD</a>
+    | <a href="mailto:jaime.automatiza@gmail.com" style="color:#4da6ff;" id="contactText">Contact</a>
+    | <a href="https://satfleetlive.com/privacy-policy" target="_blank" style="color:#4da6ff;" id="privacyPolicyText">Privacy Policy</a>
+</div>
         </div>
 
         <div style="display: flex; align-items: center;">
@@ -1107,7 +1108,7 @@ body.light-mode .mobile-filter-btn:focus {
         let currentLanguage = 'en';
         const translations = {
             es: {
-                title: 'Sat Fleet Live',
+                title: 'SatFleet Live',
                 loading: 'Cargando satélites...',
                 searchPlaceholder: 'Buscar satélite...',
                 themeToggle: '🌙/☀️ Tema',
@@ -1160,10 +1161,11 @@ body.light-mode .mobile-filter-btn:focus {
                 userLocation: 'Tu ubicación',
                 copyright: '© 2025 Jaime Guzmán García-Rivera – Proyecto personal',
                 source: 'Fuente:',
-                contact: 'Contacto'
+                contact: 'Contacto',
+                privacyPolicy: 'Política de privacidad'
             },
             en: {
-                title: 'Sat Fleet Live',
+                title: 'SatFleet Live',
                 loading: 'Loading satellites...',
                 searchPlaceholder: 'Search satellite...',
                 themeToggle: '🌙/☀️ Theme',
@@ -1216,7 +1218,8 @@ body.light-mode .mobile-filter-btn:focus {
                 userLocation: 'Your location',
                 copyright: '© 2025 Jaime Guzmán García-Rivera – Personal project',
                 source: 'Source:',
-                contact: 'Contact'
+                contact: 'Contact',
+                privacyPolicy: 'Privacy Policy'
             }
         };
 
@@ -1891,6 +1894,7 @@ body.light-mode .mobile-filter-btn:focus {
             document.getElementById('copyrightText').textContent = t.copyright;
             document.getElementById('sourceText').textContent = t.source;
             document.getElementById('contactText').textContent = t.contact;
+            document.getElementById('privacyPolicyText').textContent = t.privacyPolicy;
 
             // Mobile legend
             const mobileLegendItems = document.querySelectorAll('.mobile-legend .legend-item span');
