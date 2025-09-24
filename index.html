@@ -874,15 +874,15 @@ body.light-mode .mobile-filter-btn:focus {
                 onkeyup="searchSatellites()">
         </div>
         <div class="filters">
-            <button class="filter-btn active" onclick="filterSatellites('all')">Todos</button>
-            <button class="filter-btn" onclick="filterSatellites('gps')">GPS</button>
-            <button class="filter-btn" onclick="filterSatellites('iss')">Estación Espacial</button>
-            <button class="filter-btn" onclick="filterSatellites('comm')">Comunicaciones</button>
+            <button class="filter-btn" onclick="filterSatellites('all')">Todos</button>
+            <button class="filter-btn active" onclick="filterSatellites('gps')">GPS</button>
+            <button class="filter-btn active" onclick="filterSatellites('iss')">Estación Espacial</button>
+            <button class="filter-btn active" onclick="filterSatellites('comm')">Comunicaciones</button>
             <button class="filter-btn" onclick="filterSatellites('starlink')">Starlink/Internet</button>
-            <button class="filter-btn" onclick="filterSatellites('military')">Militar / Espía</button>
-            <button class="filter-btn" onclick="filterSatellites('weather')">Meteorológicos / Clima</button>
-            <button class="filter-btn" onclick="filterSatellites('geo')">Geodésicos / Seguimiento</button>
-            <button class="filter-btn" onclick="filterSatellites('tech')">Tecnología / Experimental</button>
+            <button class="filter-btn active" onclick="filterSatellites('military')">Militar / Espía</button>
+            <button class="filter-btn active" onclick="filterSatellites('weather')">Meteorológicos / Clima</button>
+            <button class="filter-btn active" onclick="filterSatellites('geo')">Geodésicos / Seguimiento</button>
+            <button class="filter-btn active" onclick="filterSatellites('tech')">Tecnología / Experimental</button>
             <button class="filter-btn" onclick="filterSatellites('misc')">Otros / Misceláneos</button>
         </div>
         <div class="visibility-filter-controls" id="visibilityControls" style="display: none;">
@@ -944,18 +944,18 @@ body.light-mode .mobile-filter-btn:focus {
             <div class="mobile-section">
                 <div class="mobile-section-title">Filtros</div>
                 <div class="mobile-filters">
-                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('all')">Todos</button>
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('gps')">GPS</button>
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('iss')">Estación Espacial</button>
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('comm')">Comunicaciones</button>
+                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('all')">Todos</button>
+                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('gps')">GPS</button>
+                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('iss')">Estación Espacial</button>
+                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('comm')">Comunicaciones</button>
                     <button class="mobile-filter-btn"
                         onclick="mobileFilterSatellites('starlink')">Starlink/Internet</button>
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('military')">Militar /
+                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('military')">Militar /
                         Espía</button>
-                    <button class="mobile-filter-btn"
+                    <button class="mobile-filter-btn active"
                         onclick="mobileFilterSatellites('weather')">Meteorológicos</button>
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('geo')">Geodésicos</button>
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('tech')">Tecnología</button>
+                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('geo')">Geodésicos</button>
+                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('tech')">Tecnología</button>
                     <button class="mobile-filter-btn" onclick="mobileFilterSatellites('misc')">Otros</button>
                 </div>
             </div>
@@ -1100,7 +1100,7 @@ body.light-mode .mobile-filter-btn:focus {
         let map;
         let satelliteMarkers = [];
         let allSatellites = [];
-        let activeFilters = new Set(['all']); // Usar Set para filtros múltiples
+        let activeFilters = new Set(['gps', 'iss', 'comm', 'military', 'weather', 'geo', 'tech']); // Todos menos starlink y misc
         let isDarkMode = true;
         let currentOrbitPath = null;
 
@@ -1448,8 +1448,8 @@ body.light-mode .mobile-filter-btn:focus {
                 // Cargar todos los satélites
                 const todoTLE = await fetchTLE();
                 allSatellites = parseTLEWithType(todoTLE);
-
-                displaySatellites(allSatellites);
+                
+                filterVisibleSatellites();
                 hideLoading();
 
             } catch (error) {
