@@ -853,7 +853,7 @@ body.light-mode .mobile-filter-btn:focus {
             <div id="copyrightText">© 2025 Jaime Guzmán García-Rivera – Personal project</div>
 <div>
     <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank"
-        style="color:#4da6ff;">CelesTrak / NORAD</a>
+        style="color:#4da6ff;">CelesTrak / NORAD</a> | <a href="https://www.wikidata.org" target="_blank" style="color:#4da6ff;">Wikidata</a>
     | <a href="mailto:jaime.automatiza@gmail.com" style="color:#4da6ff;" id="contactText">Contact</a>
     | <a href="https://satfleetlive.com/privacy-policy" target="_blank" style="color:#4da6ff;" id="privacyPolicyText">Privacy Policy</a>
 </div>
@@ -1437,7 +1437,9 @@ body.light-mode .mobile-filter-btn:focus {
                         try {
                             const satrec = satellite.twoline2satrec(line1, line2);
                             const type = getSatelliteType(name);
-                            satellites.push({ name, type, satrec });
+                            // Extraer NORAD ID de la línea 1 del TLE (posiciones 2-7)
+                            const noradId = line1.substring(2, 7).trim();
+                            satellites.push({ name, type, satrec, noradId });
                         } catch (err) {
                             console.warn(`No se pudo parsear satélite ${name}:`, err);
                         }
@@ -1458,8 +1460,7 @@ body.light-mode .mobile-filter-btn:focus {
                 alert('No se pudieron cargar los satélites.');
             }
         }
-
-
+        
         // Mostrar satélites en el mapa
         function displaySatellites(satellites) {
             satelliteMarkers.forEach(marker => map.removeLayer(marker));
@@ -1549,8 +1550,16 @@ body.light-mode .mobile-filter-btn:focus {
 
         // Mostrar información del satélite
         function showSatelliteInfo(satellite) {
+            console.log('Showing satellite info:', satellite);
             // Desktop
-            document.getElementById('satelliteName').textContent = satellite.name;
+            const satelliteNameElement = document.getElementById('satelliteName');
+            satelliteNameElement.textContent = satellite.name;
+            satelliteNameElement.style.cursor = 'pointer';
+            satelliteNameElement.style.textDecoration = 'underline';
+            satelliteNameElement.onclick = function() {
+                openSatelliteDetail(satellite.noradId);
+            };
+            
             document.getElementById('satelliteAltitude').textContent = satellite.altitude.toLocaleString() + ' km';
             document.getElementById('satelliteVelocity').textContent = satellite.velocity.toLocaleString() + ' km/h';
             document.getElementById('satelliteLatitude').textContent = satellite.lat.toFixed(4) + '°';
@@ -1558,7 +1567,14 @@ body.light-mode .mobile-filter-btn:focus {
 
             // Mobile
             const t = translations[currentLanguage];
-            document.getElementById('mobileSatelliteName').textContent = satellite.name;
+            const mobileSatelliteNameElement = document.getElementById('mobileSatelliteName');
+            mobileSatelliteNameElement.textContent = satellite.name;
+            mobileSatelliteNameElement.style.cursor = 'pointer';
+            mobileSatelliteNameElement.style.textDecoration = 'underline';
+            mobileSatelliteNameElement.onclick = function() {
+                openSatelliteDetail(satellite.noradId);
+            };
+            
             document.getElementById('mobileSatelliteAltitude').textContent = satellite.altitude.toLocaleString() + ' km';
             document.getElementById('mobileSatelliteVelocity').textContent = satellite.velocity.toLocaleString() + ' km/h';
             document.getElementById('mobileSatelliteLatitude').textContent = satellite.lat.toFixed(4) + '°';
@@ -2209,6 +2225,21 @@ body.light-mode .mobile-filter-btn:focus {
             }
         }
 
+
+        // Abrir página de detalles del satélite
+        function openSatelliteDetail(noradId) {
+            console.log('Opening satellite detail for NORAD ID:', noradId);
+            
+            // Buscar el satélite en allSatellites para obtener su nombre
+            const satellite = allSatellites.find(sat => sat.noradId === noradId);
+            
+            // Si es un satélite Starlink, redirigir a la entrada genérica
+            if (satellite && satellite.name && satellite.name.toLowerCase().includes('starlink')) {
+                window.open(`satellite-detail.html?id=STARLINK`, '_blank');
+            } else {
+                window.open(`satellite-detail.html?id=${noradId}`, '_blank');
+            }
+        }
 
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', function () {

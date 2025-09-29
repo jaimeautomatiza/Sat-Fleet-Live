@@ -1,0 +1,810 @@
+{
+  "00900": {
+    "name": "CALSPHERE 1",
+    "launch_date": "1964-08-25",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "60+ years (still active)",
+    "image": null,
+    "description": "Calsphere 1 is a passive geodetic satellite used for precise measurements of Earth's gravitational field and for calibrating ground-based tracking systems."
+  },
+  "00902": {
+    "name": "CALSPHERE 2",
+    "launch_date": "1964-08-25",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "60+ years (still active)",
+    "image": null,
+    "description": "Calsphere 2 is a passive geodetic satellite designed for Earth observation and gravitational field studies, part of the early satellite geodesy program."
+  },
+  "01361": {
+    "name": "LCS 1",
+    "launch_date": "1965-05-06",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "59+ years (still active)",
+    "image": null,
+    "description": "Lincoln Calibration Sphere 1 (LCS 1) is a passive calibration satellite used for radar cross-section measurements and tracking system calibration."
+  },
+  "01512": {
+    "name": "TEMPSAT 1",
+    "launch_date": "1965-08-10",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "59+ years (still active)",
+    "image": null,
+    "description": "Temperature Satellite 1 was designed to study atmospheric temperature variations and provide data for meteorological research."
+  },
+  "01520": {
+    "name": "CALSPHERE 4A",
+    "launch_date": "1965-08-10",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "59+ years (still active)",
+    "image": null,
+    "description": "Calsphere 4A is part of the geodetic satellite series used for precise Earth measurements and gravitational field studies."
+  },
+  "02826": {
+    "name": "OPS 5712 (P/L 160)",
+    "launch_date": "1967-06-15",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "57+ years (still active)",
+    "image": null,
+    "description": "OPS 5712 is a military surveillance satellite used for reconnaissance and intelligence gathering operations."
+  },
+  "02866": {
+    "name": "LES-5",
+    "launch_date": "1967-07-01",
+    "launch_site": "Cape Kennedy",
+    "lifetime": "57+ years (still active)",
+    "image": null,
+    "description": "Lincoln Experimental Satellite 5 (LES-5) was an experimental communications satellite designed to test advanced communication technologies."
+  },
+  "02872": {
+    "name": "SURCAL 159",
+    "launch_date": "1967-06-15",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "57+ years (still active)",
+    "image": null,
+    "description": "SURCAL 159 is a surveillance calibration satellite used for radar tracking and calibration purposes."
+  },
+  "02874": {
+    "name": "OPS 5712 (P/L 153)",
+    "launch_date": "1967-06-15",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "57+ years (still active)",
+    "image": null,
+    "description": "OPS 5712 P/L 153 is a military surveillance satellite part of the early reconnaissance satellite program."
+  },
+  "02909": {
+    "name": "SURCAL 150B",
+    "launch_date": "1967-06-15",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "57+ years (still active)",
+    "image": null,
+    "description": "SURCAL 150B is a surveillance calibration satellite designed for radar cross-section measurements and tracking system validation."
+  },
+  "05204": {
+    "name": "OPS 3811 (DSP 2)",
+    "launch_date": "1971-05-05",
+    "launch_site": "Cape Kennedy",
+    "lifetime": "53+ years (still active)",
+    "image": null,
+    "description": "Defense Support Program satellite 2 (DSP 2) is an early warning satellite designed to detect missile launches and nuclear explosions."
+  },
+  "05398": {
+    "name": "RIGIDSPHERE 2 (LCS 4)",
+    "launch_date": "1971-08-12",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "53+ years (still active)",
+    "image": null,
+    "description": "Rigidsphere 2, also known as LCS 4, is a passive calibration satellite used for radar tracking and geodetic measurements."
+  },
+  "07530": {
+    "name": "OSCAR 7 (AO-7)",
+    "launch_date": "1974-11-15",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "50+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/OSCAR_7_satellite.jpg/300px-OSCAR_7_satellite.jpg",
+    "description": "OSCAR 7 (AO-7) is an amateur radio satellite that provides communication services for ham radio operators worldwide. Despite its age, it still operates intermittently."
+  },
+  "07646": {
+    "name": "STARLETTE",
+    "launch_date": "1975-02-06",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "49+ years (still active)",
+    "image": null,
+    "description": "Starlette is a French geodetic satellite covered with laser retroreflectors, used for precise satellite laser ranging and geodetic measurements."
+  },
+  "08820": {
+    "name": "LAGEOS 1",
+    "launch_date": "1976-05-04",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "48+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/LAGEOS-1.jpg/300px-LAGEOS-1.jpg",
+    "description": "LAGEOS 1 (Laser Geodynamics Satellite) is a passive satellite covered with retroreflectors, used for precise laser ranging to study Earth's rotation, polar motion, and crustal dynamics."
+  },
+  "13086": {
+    "name": "OPS 8701 (DSP 10)",
+    "launch_date": "1982-02-14",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "42+ years (still active)",
+    "image": null,
+    "description": "Defense Support Program satellite 10 (DSP 10) is an early warning satellite designed to detect ballistic missile launches and nuclear detonations using infrared sensors."
+  },
+  "14129": {
+    "name": "PHASE 3B (AO-10)",
+    "launch_date": "1983-06-16",
+    "launch_site": "Kourou",
+    "lifetime": "41+ years (still active)",
+    "image": null,
+    "description": "AMSAT Phase 3B (AO-10) is an amateur radio satellite that provides communication services for ham radio operators worldwide. It operates in a highly elliptical orbit."
+  },
+  "14781": {
+    "name": "UOSAT 2 (UO-11)",
+    "launch_date": "1984-03-01",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "40+ years (still active)",
+    "image": null,
+    "description": "UoSAT-2 (UO-11) is a microsatellite built by the University of Surrey for amateur radio communications and technology demonstration."
+  },
+  "16908": {
+    "name": "AJISAI (EGS)",
+    "launch_date": "1986-08-12",
+    "launch_site": "Tanegashima Space Center",
+    "lifetime": "38+ years (still active)",
+    "image": null,
+    "description": "AJISAI (Experimental Geodetic Satellite) is a Japanese passive geodetic satellite covered with mirrors for laser ranging experiments and precise orbit determination."
+  },
+  "19548": {
+    "name": "TDRS 3",
+    "launch_date": "1988-09-29",
+    "launch_site": "Kennedy Space Center",
+    "lifetime": "36+ years (still active)",
+    "image": null,
+    "description": "TDRS-3 (Tracking and Data Relay Satellite) provides communication relay services for NASA missions, including the Space Shuttle and International Space Station."
+  },
+  "19751": {
+    "name": "COSMOS 1989 (ETALON 1)",
+    "launch_date": "1989-01-10",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "35+ years (still active)",
+    "image": null,
+    "description": "ETALON 1 is a Soviet/Russian geodetic satellite covered with laser retroreflectors, used for precise satellite laser ranging and geodetic measurements."
+  },
+  "20026": {
+    "name": "COSMOS 2024 (ETALON 2)",
+    "launch_date": "1989-05-23",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "35+ years (still active)",
+    "image": null,
+    "description": "ETALON 2 is a Soviet/Russian geodetic satellite, twin to ETALON 1, used for laser ranging and precise geodetic measurements."
+  },
+  "20253": {
+    "name": "FLTSATCOM 8 (USA 46)",
+    "launch_date": "1989-09-25",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "35+ years (still active)",
+    "image": null,
+    "description": "FLTSATCOM 8 is a US Navy communications satellite providing secure communications for military operations worldwide."
+  },
+  "20442": {
+    "name": "LUSAT (LO-19)",
+    "launch_date": "1990-01-22",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "34+ years (still active)",
+    "image": null,
+    "description": "LUSAT (LO-19) is an amateur radio satellite built by AMSAT for ham radio communications and educational purposes."
+  },
+  "20580": {
+    "name": "HST",
+    "launch_date": "1990-04-24",
+    "launch_site": "Kennedy Space Center",
+    "lifetime": "34+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/HST-SM4.jpeg/300px-HST-SM4.jpeg",
+    "description": "The Hubble Space Telescope (HST) is a space telescope that has revolutionized astronomy by providing unprecedented deep-field views of the universe in visible, ultraviolet, and near-infrared light."
+  },
+  "20776": {
+    "name": "SKYNET 4C",
+    "launch_date": "1990-08-30",
+    "launch_site": "Kourou",
+    "lifetime": "34+ years (still active)",
+    "image": null,
+    "description": "SKYNET 4C is a British military communications satellite providing secure communications for UK armed forces worldwide."
+  },
+  "20929": {
+    "name": "USA 65 (DSP 15)",
+    "launch_date": "1990-11-13",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "34+ years (still active)",
+    "image": null,
+    "description": "USA 65 (DSP 15) is a Defense Support Program satellite for early warning of ballistic missile launches and nuclear detonations."
+  },
+  "21639": {
+    "name": "TDRS 5",
+    "launch_date": "1991-08-02",
+    "launch_site": "Kennedy Space Center",
+    "lifetime": "33+ years (still active)",
+    "image": null,
+    "description": "TDRS-5 is part of NASA's Tracking and Data Relay Satellite System, providing communication relay services for spacecraft and the International Space Station."
+  },
+  "21805": {
+    "name": "USA 75 (DSP 16)",
+    "launch_date": "1991-11-24",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "33+ years (still active)",
+    "image": null,
+    "description": "USA 75 (DSP 16) is a Defense Support Program satellite designed for early warning of missile launches and space surveillance."
+  },
+  "22195": {
+    "name": "LAGEOS 2",
+    "launch_date": "1992-10-22",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "32+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/LAGEOS-1.jpg/300px-LAGEOS-1.jpg",
+    "description": "LAGEOS 2 is a passive satellite covered with retroreflectors, used for precise laser ranging to study Earth's rotation, polar motion, and crustal dynamics. It's the twin of LAGEOS 1."
+  },
+  "22314": {
+    "name": "TDRS 6",
+    "launch_date": "1993-01-13",
+    "launch_site": "Kennedy Space Center",
+    "lifetime": "31+ years (still active)",
+    "image": null,
+    "description": "TDRS-6 provides communication relay services for NASA missions, enabling continuous contact with spacecraft and astronauts."
+  },
+  "22490": {
+    "name": "SCD 1",
+    "launch_date": "1993-02-09",
+    "launch_site": "Kourou",
+    "lifetime": "31+ years (still active)",
+    "image": null,
+    "description": "SCD-1 (Satélite de Coleta de Dados 1) is a Brazilian environmental data collection satellite for monitoring weather and environmental conditions."
+  },
+  "22787": {
+    "name": "UFO 2 (USA 95)",
+    "launch_date": "1993-09-03",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "31+ years (still active)",
+    "image": null,
+    "description": "UFO 2 (USA 95) is a classified US military satellite, likely used for signals intelligence and electronic surveillance."
+  },
+  "22824": {
+    "name": "STELLA",
+    "launch_date": "1993-09-26",
+    "launch_site": "Kourou",
+    "lifetime": "31+ years (still active)",
+    "image": null,
+    "description": "STELLA is a French geodetic satellite covered with laser retroreflectors, used for satellite laser ranging and atmospheric studies."
+  },
+  "22825": {
+    "name": "EYESAT A (AO-27)",
+    "launch_date": "1993-09-26",
+    "launch_site": "Kourou",
+    "lifetime": "31+ years (still active)",
+    "image": null,
+    "description": "EYESAT-A (AO-27) is an amateur radio satellite that provides communication services for ham radio operators and educational purposes."
+  },
+  "22826": {
+    "name": "ITAMSAT (IO-26)",
+    "launch_date": "1993-09-26",
+    "launch_site": "Kourou",
+    "lifetime": "31+ years (still active)",
+    "image": null,
+    "description": "ITAMSAT (IO-26) is an Italian amateur radio satellite built for ham radio communications and technology demonstration."
+  },
+  "22988": {
+    "name": "USA 99 (MILSTAR-1 1)",
+    "launch_date": "1994-02-07",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "30+ years (still active)",
+    "image": null,
+    "description": "MILSTAR-1 1 is a US military strategic communications satellite providing secure, jam-resistant communications for military operations."
+  },
+  "23439": {
+    "name": "RADIO ROSTO (RS-15)",
+    "launch_date": "1994-12-26",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "30+ years (still active)",
+    "image": null,
+    "description": "Radio ROSTO (RS-15) is a Russian amateur radio satellite providing communication services for ham radio operators."
+  },
+  "23467": {
+    "name": "UFO 4 (USA 108)",
+    "launch_date": "1995-01-24",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "29+ years (still active)",
+    "image": null,
+    "description": "UFO 4 (USA 108) is a classified US military satellite, likely used for signals intelligence and electronic surveillance operations."
+  },
+  "23613": {
+    "name": "TDRS 7",
+    "launch_date": "1995-07-13",
+    "launch_site": "Kennedy Space Center",
+    "lifetime": "29+ years (still active)",
+    "image": null,
+    "description": "TDRS-7 is part of NASA's communication relay satellite system, providing continuous contact with spacecraft and the International Space Station."
+  },
+  "23712": {
+    "name": "USA 115 (MILSTAR-1 2)",
+    "launch_date": "1995-11-06",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "29+ years (still active)",
+    "image": null,
+    "description": "MILSTAR-1 2 is a US military strategic communications satellite providing secure, survivable communications for defense operations."
+  },
+  "23802": {
+    "name": "POLAR",
+    "launch_date": "1996-02-24",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "28+ years (still active)",
+    "image": null,
+    "description": "POLAR is a NASA scientific satellite designed to study the polar regions of Earth's magnetosphere and aurora phenomena."
+  },
+  "23839": {
+    "name": "INMARSAT 3-F1",
+    "launch_date": "1996-04-03",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "28+ years (still active)",
+    "image": null,
+    "description": "INMARSAT 3-F1 is a maritime and mobile communications satellite providing global satellite communications services."
+  },
+  "23893": {
+    "name": "USA 119",
+    "launch_date": "1996-05-12",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "28+ years (still active)",
+    "image": null,
+    "description": "USA 119 is a classified US military satellite, likely used for reconnaissance and intelligence gathering operations."
+  },
+  "24278": {
+    "name": "JAS-2 (FO-29)",
+    "launch_date": "1996-08-17",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "28+ years (still active)",
+    "image": null,
+    "description": "JAS-2 (FO-29) is a Japanese amateur radio satellite providing communication services for ham radio operators worldwide."
+  },
+  "24307": {
+    "name": "INMARSAT 3-F2",
+    "launch_date": "1996-09-06",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "28+ years (still active)",
+    "image": null,
+    "description": "INMARSAT 3-F2 provides global mobile satellite communications services for maritime, aeronautical, and land mobile users."
+  },
+  "24674": {
+    "name": "INMARSAT 3-F3",
+    "launch_date": "1996-12-18",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "27+ years (still active)",
+    "image": null,
+    "description": "INMARSAT 3-F3 is part of the global mobile satellite communications constellation serving users worldwide."
+  },
+  "24876": {
+    "name": "NAVSTAR 43 (USA 132)",
+    "launch_date": "1997-07-23",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "27+ years (still active)",
+    "image": null,
+    "description": "NAVSTAR 43 is a GPS satellite (Block IIA) that provides global positioning, navigation, and timing services as part of the GPS constellation."
+  },
+  "24920": {
+    "name": "FORTE",
+    "launch_date": "1997-08-29",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "27+ years (still active)",
+    "image": null,
+    "description": "FORTE (Fast On-orbit Recording of Transient Events) is a Los Alamos National Laboratory satellite designed to detect and analyze lightning and radio frequency emissions."
+  },
+  "24936": {
+    "name": "AMC-3",
+    "launch_date": "1997-09-04",
+    "launch_site": "Kourou",
+    "lifetime": "27+ years (still active)",
+    "image": null,
+    "description": "AMC-3 is a commercial communications satellite providing television broadcasting and telecommunications services across the Americas."
+  },
+  "25019": {
+    "name": "USA 134",
+    "launch_date": "1997-10-24",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "27+ years (still active)",
+    "image": null,
+    "description": "USA 134 is a classified military satellite, likely part of the Defense Support Program (DSP) for early warning and missile detection."
+  },
+  "25118": {
+    "name": "ORBCOMM FM06",
+    "launch_date": "1997-12-23",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "27+ years (still active)",
+    "image": null,
+    "description": "ORBCOMM FM06 is part of the ORBCOMM constellation providing low-Earth orbit satellite communications for messaging and data services."
+  },
+  "25153": {
+    "name": "INMARSAT 3-F5",
+    "launch_date": "1998-02-04",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "INMARSAT 3-F5 provides global mobile satellite communications services for maritime, aeronautical, and land mobile applications."
+  },
+  "25159": {
+    "name": "ORBCOMM FM04",
+    "launch_date": "1998-02-10",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "ORBCOMM FM04 is part of the ORBCOMM low-Earth orbit satellite constellation for messaging and data communications."
+  },
+  "25160": {
+    "name": "CELESTIS-02 & TAURUS R/B",
+    "launch_date": "1998-02-10",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "CELESTIS-02 is a memorial spaceflight satellite carrying cremated remains, launched along with the Taurus rocket body."
+  },
+  "25397": {
+    "name": "TECHSAT 1B (GO-32)",
+    "launch_date": "1998-07-10",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "TECHSAT 1B (GO-32) is an amateur radio satellite built by AMSAT for ham radio communications and educational purposes."
+  },
+  "25398": {
+    "name": "WESTPAC",
+    "launch_date": "1998-07-10",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "WESTPAC is a microsatellite designed for technology demonstration and amateur radio communications."
+  },
+  "25415": {
+    "name": "ORBCOMM FM19",
+    "launch_date": "1998-08-02",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "ORBCOMM FM19 is part of the ORBCOMM constellation providing global messaging and data communications services."
+  },
+  "25416": {
+    "name": "ORBCOMM FM20",
+    "launch_date": "1998-08-02",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "ORBCOMM FM20 provides low-Earth orbit satellite communications for messaging and data services worldwide."
+  },
+  "25481": {
+    "name": "ORBCOMM FM27",
+    "launch_date": "1998-09-23",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "ORBCOMM FM27 is part of the ORBCOMM satellite constellation for global messaging and data communications."
+  },
+  "25504": {
+    "name": "SCD 2",
+    "launch_date": "1998-10-23",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "SCD-2 (Satélite de Coleta de Dados 2) is a Brazilian environmental data collection satellite for monitoring weather and environmental conditions."
+  },
+  "25544": {
+    "name": "ISS (ZARYA)",
+    "launch_date": "1998-11-20",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "25+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/International_Space_Station_after_undocking_of_STS-132.jpg/400px-International_Space_Station_after_undocking_of_STS-132.jpg",
+    "description": "The International Space Station (ISS) is a habitable artificial satellite and research laboratory in low Earth orbit. It serves as a microgravity research laboratory where crew members conduct experiments in biology, physics, astronomy, and other fields."
+  },
+  "25560": {
+    "name": "SWAS",
+    "launch_date": "1998-12-05",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "26+ years (still active)",
+    "image": null,
+    "description": "SWAS (Submillimeter Wave Astronomy Satellite) is a NASA space telescope designed to study star formation and interstellar chemistry through submillimeter observations."
+  },
+  "25639": {
+    "name": "SKYNET 4E",
+    "launch_date": "1999-02-26",
+    "launch_site": "Kourou",
+    "lifetime": "25+ years (still active)",
+    "image": null,
+    "description": "SKYNET 4E is a British military communications satellite providing secure communications for UK armed forces worldwide."
+  },
+  "25757": {
+    "name": "DLR-TUBSAT",
+    "launch_date": "1999-05-26",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "25+ years (still active)",
+    "image": null,
+    "description": "DLR-TUBSAT is a German microsatellite built by the Technical University of Berlin for Earth observation and technology demonstration."
+  },
+  "25867": {
+    "name": "CXO",
+    "launch_date": "1999-07-23",
+    "launch_site": "Kennedy Space Center",
+    "lifetime": "25+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Chandra_X-ray_Observatory.jpg/300px-Chandra_X-ray_Observatory.jpg",
+    "description": "The Chandra X-ray Observatory (CXO) is NASA's flagship X-ray telescope, providing unprecedented high-resolution images of X-ray sources throughout the universe."
+  },
+  "25924": {
+    "name": "ABS-6",
+    "launch_date": "1999-09-23",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "25+ years (still active)",
+    "image": null,
+    "description": "ABS-6 is a commercial communications satellite providing television broadcasting and telecommunications services across Asia and the Pacific."
+  },
+  "25933": {
+    "name": "NAVSTAR 46 (USA 145)",
+    "launch_date": "1999-10-07",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "25+ years (still active)",
+    "image": null,
+    "description": "NAVSTAR 46 is a GPS satellite (Block IIR) providing enhanced global positioning, navigation, and timing services with improved accuracy and anti-jamming capabilities."
+  },
+  "25967": {
+    "name": "UFO 10 (USA 146)",
+    "launch_date": "1999-12-12",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "25+ years (still active)",
+    "image": null,
+    "description": "UFO 10 (USA 146) is a classified US military satellite, likely used for signals intelligence and electronic surveillance operations."
+  },
+  "25982": {
+    "name": "ORBCOMM FM32",
+    "launch_date": "1999-12-23",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "25+ years (still active)",
+    "image": null,
+    "description": "ORBCOMM FM32 is part of the ORBCOMM constellation providing global messaging and data communications services."
+  },
+  "25989": {
+    "name": "XMM-NEWTON",
+    "launch_date": "1999-12-10",
+    "launch_site": "Kourou",
+    "lifetime": "25+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/XMM-Newton_spacecraft_model.jpg/300px-XMM-Newton_spacecraft_model.jpg",
+    "description": "XMM-Newton is ESA's X-ray Multi-Mirror Mission, one of the most sensitive X-ray telescopes ever built, studying black holes, neutron stars, and galaxy clusters."
+  },
+  "25994": {
+    "name": "TERRA",
+    "launch_date": "1999-12-18",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "25+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Terra_satellite.jpg/300px-Terra_satellite.jpg",
+    "description": "Terra is NASA's flagship Earth observing satellite, studying land, oceans, atmosphere, ice, and energy budget with five scientific instruments including MODIS."
+  },
+  "26107": {
+    "name": "ASIASTAR",
+    "launch_date": "2000-03-21",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "ASIASTAR is a commercial communications satellite providing broadcasting and telecommunications services across Asia."
+  },
+  "26113": {
+    "name": "IMAGE",
+    "launch_date": "2000-03-25",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "IMAGE (Imager for Magnetopause-to-Aurora Global Exploration) is a NASA satellite that studies Earth's magnetosphere and aurora phenomena."
+  },
+  "26356": {
+    "name": "USA 149 (DSP 20)",
+    "launch_date": "2000-05-08",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "USA 149 (DSP 20) is a Defense Support Program satellite for early warning of ballistic missile launches and nuclear detonations."
+  },
+  "26388": {
+    "name": "TDRS 8",
+    "launch_date": "2000-06-30",
+    "launch_site": "Kennedy Space Center",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "TDRS-8 is part of NASA's Tracking and Data Relay Satellite System, providing communication relay services for spacecraft and the International Space Station."
+  },
+  "26407": {
+    "name": "NAVSTAR 48 (USA 151)",
+    "launch_date": "2000-05-11",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "NAVSTAR 48 is a GPS satellite (Block IIR) providing global positioning services with enhanced capabilities and improved signal structure."
+  },
+  "26410": {
+    "name": "CLUSTER II-FM7 (SAMBA)",
+    "launch_date": "2000-07-16",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "CLUSTER II SAMBA is one of four ESA satellites studying Earth's magnetosphere in three dimensions, providing unprecedented insights into space plasma physics."
+  },
+  "26463": {
+    "name": "CLUSTER II-FM5 (RUMBA)",
+    "launch_date": "2000-08-09",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "CLUSTER II RUMBA is part of ESA's four-satellite mission studying the interaction between solar wind and Earth's magnetic field."
+  },
+  "26464": {
+    "name": "CLUSTER II-FM8 (TANGO)",
+    "launch_date": "2000-08-09",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "CLUSTER II TANGO works with three other identical satellites to study Earth's magnetosphere and space weather phenomena."
+  },
+  "26554": {
+    "name": "NSS-11",
+    "launch_date": "2000-12-15",
+    "launch_site": "Kourou",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "NSS-11 is a commercial communications satellite providing broadcasting and telecommunications services."
+  },
+  "26575": {
+    "name": "USA 153",
+    "launch_date": "2000-12-20",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "USA 153 is a classified US military satellite, likely used for reconnaissance and intelligence gathering operations."
+  },
+  "26580": {
+    "name": "AMC-6",
+    "launch_date": "2000-12-21",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "AMC-6 is a commercial communications satellite providing television broadcasting and telecommunications services across North America."
+  },
+  "26605": {
+    "name": "NAVSTAR 49 (USA 154)",
+    "launch_date": "2000-11-10",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "24+ years (still active)",
+    "image": null,
+    "description": "NAVSTAR 49 is a GPS satellite (Block IIR) contributing to the global positioning system constellation with enhanced anti-jamming capabilities."
+  },
+  "26702": {
+    "name": "ODIN",
+    "launch_date": "2001-02-20",
+    "launch_site": "Svobodny Cosmodrome",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "ODIN is a Swedish-led international satellite studying both astronomy and aeronomy, observing molecular clouds, star formation, and Earth's atmosphere."
+  },
+  "26715": {
+    "name": "USA 157 (MILSTAR-2 2)",
+    "launch_date": "2001-02-27",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "MILSTAR-2 2 is a US military strategic communications satellite providing secure, survivable communications for defense operations worldwide."
+  },
+  "26720": {
+    "name": "BSAT-2A",
+    "launch_date": "2001-03-08",
+    "launch_site": "Kourou",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "BSAT-2A is a Japanese broadcasting satellite providing direct-to-home television services across Japan."
+  },
+  "26766": {
+    "name": "INTELSAT 10 (IS-10)",
+    "launch_date": "2001-04-11",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "INTELSAT 10 is a commercial communications satellite providing global telecommunications and broadcasting services."
+  },
+  "26857": {
+    "name": "OMNI-M1",
+    "launch_date": "2001-06-15",
+    "launch_site": "Baikonur Cosmodrome",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "OMNI-M1 is a commercial communications satellite providing mobile satellite services."
+  },
+  "26880": {
+    "name": "USA 159 (DSP 21)",
+    "launch_date": "2001-08-08",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "USA 159 (DSP 21) is a Defense Support Program satellite for early warning of ballistic missile launches and nuclear detonations."
+  },
+  "26900": {
+    "name": "INTELSAT 902 (IS-902)",
+    "launch_date": "2001-08-30",
+    "launch_site": "Kourou",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "INTELSAT 902 is a commercial communications satellite providing global telecommunications and broadcasting services."
+  },
+  "26931": {
+    "name": "PCSAT (NO-44)",
+    "launch_date": "2001-09-30",
+    "launch_site": "Kodiak Launch Complex",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "PCSAT (Personal Communications Satellite) is an amateur radio satellite built by the US Naval Academy for ham radio communications and educational purposes."
+  },
+  "26958": {
+    "name": "PROBA-1",
+    "launch_date": "2001-10-22",
+    "launch_site": "Sriharikota",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "PROBA-1 is ESA's first Project for On-Board Autonomy satellite, demonstrating autonomous spacecraft operations and Earth observation technologies."
+  },
+  "26998": {
+    "name": "TIMED",
+    "launch_date": "2001-12-07",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "TIMED (Thermosphere Ionosphere Mesosphere Energetics Dynamics) is a NASA satellite studying the upper atmosphere and its response to solar variability."
+  },
+  "27004": {
+    "name": "MAROC-TUBSAT",
+    "launch_date": "2001-12-10",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "MAROC-TUBSAT is a Moroccan microsatellite built by the Technical University of Berlin for Earth observation and technology demonstration."
+  },
+  "27056": {
+    "name": "COSMOS 2385",
+    "launch_date": "2001-12-25",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "COSMOS 2385 is a Russian GLONASS navigation satellite providing global positioning and timing services as part of Russia's satellite navigation system."
+  },
+  "27057": {
+    "name": "COSMOS 2386",
+    "launch_date": "2001-12-25",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "23+ years (still active)",
+    "image": null,
+    "description": "COSMOS 2386 is a Russian GLONASS navigation satellite contributing to Russia's global positioning and navigation constellation."
+  },
+  "27168": {
+    "name": "USA 164 (MILSTAR-2 3)",
+    "launch_date": "2002-01-16",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "22+ years (still active)",
+    "image": null,
+    "description": "MILSTAR-2 3 is a US military strategic communications satellite providing secure, jam-resistant communications for military operations worldwide."
+  },
+  "27380": {
+    "name": "INTELSAT 904 (IS-904)",
+    "launch_date": "2002-02-15",
+    "launch_site": "Kourou",
+    "lifetime": "22+ years (still active)",
+    "image": null,
+    "description": "INTELSAT 904 is a commercial communications satellite providing global telecommunications and broadcasting services."
+  },
+  "27424": {
+    "name": "AQUA",
+    "launch_date": "2002-05-04",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "22+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Aqua_satellite.jpg/300px-Aqua_satellite.jpg",
+    "description": "Aqua is NASA's Earth observing satellite focusing on water cycle studies, carrying six instruments including MODIS and AIRS for climate and weather research."
+  },
+  "STARLINK": {
+    "name": "Starlink Constellation",
+    "launch_date": "2019-present",
+    "launch_site": "Kennedy Space Center / Vandenberg",
+    "lifetime": "5-7 years (typical)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Starlink_Mission_%2849027140668%29.jpg/300px-Starlink_Mission_%2849027140668%29.jpg",
+    "description": "Starlink is SpaceX's satellite internet constellation providing high-speed broadband internet to locations around the world. The constellation consists of thousands of mass-produced small satellites in low Earth orbit, communicating with designated ground transceivers. The constellation aims to provide global internet coverage with low latency and high bandwidth."
+  }
+}
