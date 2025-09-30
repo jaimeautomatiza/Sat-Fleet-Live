@@ -4,7 +4,7 @@
     "launch_date": "1964-08-25",
     "launch_site": "Vandenberg Air Force Base",
     "lifetime": "60+ years (still active)",
-    "image": null,
+    "image": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Calsphere_1.jpg",
     "description": "Calsphere 1 is a passive geodetic satellite used for precise measurements of Earth's gravitational field and for calibrating ground-based tracking systems."
   },
   "00902": {
@@ -12,7 +12,7 @@
     "launch_date": "1964-08-25",
     "launch_site": "Vandenberg Air Force Base",
     "lifetime": "60+ years (still active)",
-    "image": null,
+    "image": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Calsphere_1.jpg",
     "description": "Calsphere 2 is a passive geodetic satellite designed for Earth observation and gravitational field studies, part of the early satellite geodesy program."
   },
   "01361": {
@@ -799,12 +799,164 @@
     "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Aqua_satellite.jpg/300px-Aqua_satellite.jpg",
     "description": "Aqua is NASA's Earth observing satellite focusing on water cycle studies, carrying six instruments including MODIS and AIRS for climate and weather research."
   },
+  "45536": {
+    "name": "SWOT (Surface Water and Ocean Topography)",
+    "launch_date": "2022-12-16",
+    "launch_site": "Vandenberg Space Force Base",
+    "lifetime": "7+ years (planned)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/e/e8/SWOT_Satellite_Artist_Concept.jpg",
+    "description": "SWOT is a NASA/French/CNES satellite mission designed to provide high-resolution measurements of surface water on Earth, including lakes, rivers, and oceans. Its radar altimeter improves understanding of sea-level rise, coastal hazards, and freshwater resource management."
+  },
+  "48058": {
+    "name": "Sentinel-6 Michael Freilich",
+    "launch_date": "2020-11-21",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "5-7 years (planned)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/51/Sentinel-6_Michael_Freilich_carrying_ROSE-L_patches.jpg",
+    "description": "Sentinel-6 Michael Freilich is part of the Copernicus program, providing precise sea surface height measurements to monitor global sea level rise. It continues the legacy of the Jason mission series, delivering critical data for climate change research."
+  },
+  "28884": {
+    "name": "Envisat",
+    "launch_date": "2002-03-01",
+    "launch_site": "Kourou",
+    "lifetime": "10+ years (decommissioned 2012)",
+    "image": "SEGUIRAQUI",
+    "description": "Envisat was an ESA Earth observation satellite that operated for over 10 years providing data on atmosphere, ocean, land, and ice. It contributed extensively to environmental monitoring and climate science before it was decommissioned."
+  },
+  "33508": {
+    "name": "Jason-2 (OSTM)",
+    "launch_date": "2008-06-20",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "10+ years (decommissioned 2019)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Jason-3_Satellite_Rendering_%2816979948568%29.jpg/640px-Jason-3_Satellite_Rendering_%2816979948568%29.jpg",
+    "description": "Jason-2 was an ocean surface topography satellite continuing the TOPEX/Poseidon mission, measuring sea surface height and ocean circulation changes. It provided essential data for oceanography and climate studies until its decommissioning."
+  },
+  "28350": {
+    "name": "TerraSAR-X",
+    "launch_date": "2007-06-15",
+    "launch_site": "Plesetsk Cosmodrome",
+    "lifetime": "15+ years (still active)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/TDX-Formation.jpg/640px-TDX-Formation.jpg",
+    "description": "TerraSAR-X is a German radar Earth observation satellite providing high-resolution imaging regardless of weather conditions, supporting disaster management, mapping, and environmental monitoring."
+  },
   "STARLINK": {
     "name": "Starlink Constellation",
     "launch_date": "2019-present",
     "launch_site": "Kennedy Space Center / Vandenberg",
     "lifetime": "5-7 years (typical)",
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Starlink_Mission_%2849027140668%29.jpg/300px-Starlink_Mission_%2849027140668%29.jpg",
-    "description": "Starlink is SpaceX's satellite internet constellation providing high-speed broadband internet to locations around the world. The constellation consists of thousands of mass-produced small satellites in low Earth orbit, communicating with designated ground transceivers. The constellation aims to provide global internet coverage with low latency and high bandwidth."
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Starlink_01.webp/640px-Starlink_01.webp.png",
+    "description": "Starlink is SpaceX's satellite internet constellation providing high-speed broadband internet worldwide. The constellation consists of thousands of small satellites in low Earth orbit, aiming to deliver low latency and high bandwidth connectivity."
+  },
+  "ONEWEB": {
+    "name": "OneWeb Constellation",
+    "launch_date": "2019-present",
+    "launch_site": "Baikonur / Kourou / Vostochny / Kennedy",
+    "lifetime": "5+ years",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/KSC-20170316-PH_KLS01_0007~orig.jpg/640px-KSC-20170316-PH_KLS01_0007~orig.jpg",
+    "description": "OneWeb is a LEO satellite internet constellation operated by Eutelsat Group providing global broadband coverage, especially targeting underserved regions with high-speed, low-latency connections."
+  },
+  "IRIDIUM": {
+    "name": "Iridium NEXT Constellation",
+    "launch_date": "2017-present",
+    "launch_site": "Vandenberg Air Force Base",
+    "lifetime": "15+ years (operational)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Iridium_Satellite.jpg/640px-Iridium_Satellite.jpg",
+    "description": "Iridium NEXT is a constellation of 66 cross-linked satellites in LEO providing truly global voice and data communications, including polar coverage, for commercial and governmental users."
+  },
+  "GLOBALSTAR": {
+    "name": "Globalstar Constellation",
+    "launch_date": "1999-present",
+    "launch_site": "Cape Canaveral",
+    "lifetime": "15+ years (extended operational)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Globalstar_logo.svg",
+    "description": "Globalstar operates a LEO constellation providing satellite phone and low-speed data communications services globally, focusing on remote and rural coverage."
+  },
+  "KUIPER": {
+    "name": "Amazon Kuiper Constellation",
+    "launch_date": "2023-present",
+    "launch_site": "Various",
+    "lifetime": "5-7 years (expected)",
+    "image": null,
+    "description": "Kuiper is Amazon's planned satellite internet constellation for global broadband connectivity, designed to complement terrestrial networks and foster digital inclusion."
+  },
+  "SES_O3b": {
+    "name": "SES O3b Constellation",
+    "launch_date": "2013-present",
+    "launch_site": "Various",
+    "lifetime": "10+ years (operational)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/9/93/O3b_mPower_Satellite_Model.jpg",
+    "description": "SES O3b is a medium Earth orbit satellite constellation providing high throughput, low latency broadband services primarily targeted at enterprise, maritime, and remote communications."
+  },
+  "CHINA_QIANFAN": {
+    "name": "China Qianfan Constellation",
+    "launch_date": "2021-present",
+    "launch_site": "Various",
+    "lifetime": "5+ years (planned)",
+    "image": null,
+    "description": "Qianfan is a Chinese planned megaconstellation aimed at global broadband internet deployment, leveraging high density low Earth orbit satellites."
+  },
+  "CHINA_HONGYU": {
+    "name": "China Hongyu Constellation",
+    "launch_date": "2023-present",
+    "launch_site": "Various",
+    "lifetime": "5+ years (planned)",
+    "image": null,
+    "description": "Hongyu is a Chinese satellite constellation focusing on IoT services and broadband across regions with a LEO network."
+  },
+  "SPIRE": {
+    "name": "Spire Constellation",
+    "launch_date": "2015-present",
+    "launch_site": "Various",
+    "lifetime": "3-5 years (typical satellite lifetime)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Spire_Global.png",
+    "description": "Spire operates a constellation of nano-satellites providing weather, maritime, and aviation tracking data using radio occultation and AIS signal detection."
+  },
+  "SATELIOT": {
+    "name": "Sateliot Constellation",
+    "launch_date": "2022-present",
+    "launch_site": "Various",
+    "lifetime": "3-5 years (typical)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/2/28/Sateliot_Enxaneta.jpg",
+    "description": "Sateliot is a low Earth orbit satellite constellation dedicated to IoT connectivity, enabling worldwide coverage for IoT devices through small and cost-effective terminals."
+  },
+  "SICRAL": {
+    "name": "SICRAL Constellation",
+    "launch_date": "2001-present",
+    "launch_site": "Various",
+    "lifetime": "15+ years (operational)",
+    "image": "https://upload.wikimedia.org/wikipedia/pt/e/e2/SICRAL-2.jpg",
+    "description": "SICRAL is an Italian military communications satellite system designed to provide secure and resilient SATCOM services to Italian armed forces and allies."
+  },
+  "SYRACUSE": {
+    "name": "Syracuse Constellation",
+    "launch_date": "2005-present",
+    "launch_site": "Various",
+    "lifetime": "15+ years (operational)",
+    "image": "https://upload.wikimedia.org/wikipedia/pt/e/ed/Comsat-NG_1.jpg",
+    "description": "Syracuse is a French military communications satellite constellation providing secure global communications to the French armed forces."
+  },
+  "SATCOMBW": {
+    "name": "SATCOMbw Constellation",
+    "launch_date": "2020-present",
+    "launch_site": "Various",
+    "lifetime": "10+ years (planned)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/2/28/BSdynM_at_TdBw_Brandenburg_2023.JPG",
+    "description": "SATCOMbw is a German secure communications satellite system offering military-grade SATCOM services and classified communications for defense applications."
+  },
+  "SWARM": {
+    "name": "Swarm Technologies Constellation",
+    "launch_date": "2018-present",
+    "launch_site": "Various",
+    "lifetime": "3-5 years (typical)",
+    "image": "https://upload.wikimedia.org/wikipedia/en/7/7b/Swarm_spacecraft.jpg",
+    "description": "Swarm Technologies operates a constellation of CubeSats providing global IoT connectivity, enabling low-cost communication for sensor networks and remote monitoring."
+  },
+  "TELESAT_LIGHTSPEED": {
+    "name": "Telesat Lightspeed Constellation",
+    "launch_date": "2023-present",
+    "launch_site": "Various",
+    "lifetime": "10+ years (planned)",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/f/f7/STS-7_Anik_C2_deployment.jpg",
+    "description": "Telesat Lightspeed is a planned LEO satellite constellation focused on delivering secure, global, high-throughput, and low-latency broadband connectivity for enterprise and government clients."
   }
 }
