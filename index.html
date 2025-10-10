@@ -1588,6 +1588,14 @@
             // Mostrar sección móvil
             document.getElementById('mobileSatelliteSection').style.display = 'block';
 
+            // Nuevo Despliegue del Panel   
+            if (window.innerWidth <= 768) {
+        const panel = document.getElementById('mobilePanel');
+        const overlay = document.getElementById('mobileOverlay');
+        panel.classList.add('active');
+        overlay.classList.add('active');
+    }
+
             // Limpiar órbita anterior
             if (currentOrbitPath) {
                 map.removeLayer(currentOrbitPath);
