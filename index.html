@@ -1118,7 +1118,7 @@
             es: {
                 title: 'SatFleet Live',
                 loading: 'Cargando satélites...',
-                searchPlaceholder: 'Buscar satélite...',
+                searchPlaceholder: 'Buscar satélite por nombre o NORAD ID',
                 themeToggle: '🌙/☀️ Tema',
                 visibilityToggle: 'Solo Visibles',
                 nextPassesBtn: 'Próximos Pases',
@@ -1176,7 +1176,7 @@
             en: {
                 title: 'SatFleet Live',
                 loading: 'Loading satellites...',
-                searchPlaceholder: 'Search satellite...',
+                searchPlaceholder: 'Search satellite by name or NORAD ID',
                 themeToggle: '🌙/☀️ Theme',
                 visibilityToggle: 'Only Visible',
                 nextPassesBtn: 'Next Passes',
@@ -1684,59 +1684,63 @@
         }
 
         // Buscar satélites
-        function searchSatellites() {
-            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+function searchSatellites() {
+    const query = document.getElementById("searchInput").value.toLowerCase().trim();
 
-            if (!query) return;
+    if (!query) return;
 
-            let found = false;
+    let found = false;
 
-            for (let sat of allSatellites) {
-                if (sat.name.toLowerCase().includes(query)) {
-                    // Calcular propiedades del satélite si no están disponibles
-                    if (!sat.altitude || !sat.velocity || !sat.lat || !sat.lng) {
-                        try {
-                            const now = new Date();
-                            const positionAndVelocity = satellite.propagate(sat.satrec, now);
+    for (let sat of allSatellites) {
+        // Buscar por nombre O por NORAD ID
+        const matchesName = sat.name.toLowerCase().includes(query);
+        const matchesNorad = sat.noradId && sat.noradId.toString().includes(query);
+        
+        if (matchesName || matchesNorad) {
+            // Calcular propiedades del satélite si no están disponibles
+            if (!sat.altitude || !sat.velocity || !sat.lat || !sat.lng) {
+                try {
+                    const now = new Date();
+                    const positionAndVelocity = satellite.propagate(sat.satrec, now);
 
-                            if (positionAndVelocity.position && positionAndVelocity.velocity) {
-                                const positionEci = positionAndVelocity.position;
-                                const velocityEci = positionAndVelocity.velocity;
+                    if (positionAndVelocity.position && positionAndVelocity.velocity) {
+                        const positionEci = positionAndVelocity.position;
+                        const velocityEci = positionAndVelocity.velocity;
 
-                                const gmst = satellite.gstime(now);
-                                const positionGd = satellite.eciToGeodetic(positionEci, gmst);
+                        const gmst = satellite.gstime(now);
+                        const positionGd = satellite.eciToGeodetic(positionEci, gmst);
 
-                                const lat = satellite.degreesLat(positionGd.latitude);
-                                const lng = satellite.degreesLong(positionGd.longitude);
-                                const alt = positionGd.height;
-                                const vel = Math.sqrt(velocityEci.x * velocityEci.x + velocityEci.y * velocityEci.y + velocityEci.z * velocityEci.z) * 3.6;
+                        const lat = satellite.degreesLat(positionGd.latitude);
+                        const lng = satellite.degreesLong(positionGd.longitude);
+                        const alt = positionGd.height;
+                        const vel = Math.sqrt(velocityEci.x * velocityEci.x + velocityEci.y * velocityEci.y + velocityEci.z * velocityEci.z) * 3.6;
 
-                                sat.lat = lat;
-                                sat.lng = lng;
-                                sat.altitude = alt;
-                                sat.velocity = vel;
-                            }
-                        } catch (error) {
-                            console.warn('Error calculating satellite position for search:', sat.name, error);
-                        }
+                        sat.lat = lat;
+                        sat.lng = lng;
+                        sat.altitude = alt;
+                        sat.velocity = vel;
                     }
-
-                    showSatelliteInfo(sat);
-
-                    if (sat.marker && sat.marker.getLatLng) {
-                        const pos = sat.marker.getLatLng();
-                        map.flyTo(pos, 4, { animate: true, duration: 1.5 });
-                    }
-
-                    found = true;
-                    break;
+                } catch (error) {
+                    console.warn('Error calculating satellite position for search:', sat.name, error);
                 }
             }
 
-            if (!found) {
-                console.log("No se encontró el satélite:", query);
+            showSatelliteInfo(sat);
+
+            if (sat.marker && sat.marker.getLatLng) {
+                const pos = sat.marker.getLatLng();
+                map.flyTo(pos, 4, { animate: true, duration: 1.5 });
             }
+
+            found = true;
+            break;
         }
+    }
+
+    if (!found) {
+        console.log("No se encontró el satélite:", query);
+    }
+}
 
         // Filtrar satélites (Desktop)
         function filterSatellites(type) {

@@ -443,6 +443,18 @@
             </div>
             <h1 class="title">SatFleet Live</h1>
         </div>
+
+        <div style="text-align:center; font-size:12px; flex:1;">
+    <div id="copyrightText">© 2025 Jaime Guzmán García-Rivera – Personal project</div>
+    <div>
+        <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank"
+            style="color:#4da6ff;">CelesTrak / NORAD</a> | <a href="https://www.wikidata.org" target="_blank"
+            style="color:#4da6ff;">Wikidata</a>
+        | <a href="mailto:jaime.automatiza@gmail.com" style="color:#4da6ff;" id="contactText">Contact</a>
+        | <a href="https://satfleetlive.com/privacy-policy" target="_blank" style="color:#4da6ff;"
+            id="privacyPolicyText">Privacy Policy</a>
+    </div>
+</div>
         <div class="header-buttons">
             <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Theme</button>
             <button class="theme-toggle" onclick="toggleLanguage()">🌐 ES/EN</button>
@@ -538,7 +550,11 @@
                     normal: 'Normal',
                     dim: 'Dim'
                 },
-                showOnMap: 'Show on Map'
+                showOnMap: 'Show on Map',
+                copyright: '© 2025 Jaime Guzmán García-Rivera – Personal project',
+                source: 'Source:',
+                contact: 'Contact',
+                privacyPolicy: 'Privacy Policy'
             },
             es: {
                 pageTitle: 'Próximos Pases Visibles desde tu Ubicación',
@@ -572,31 +588,55 @@
                     dim: 'Poco brillante'
                 },
                 showOnMap: 'Ver en Mapa',
-                minutes: 'min'
+                minutes: 'min',
+                copyright: '© 2025 Jaime Guzmán García-Rivera – Proyecto personal',
+                source: 'Fuente:',
+                contact: 'Contacto',
+                privacyPolicy: 'Política de privacidad'
             }
         };
 
         // Obtener ubicación del usuario
-        function getUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-                        updateLocationInfo();
-                    },
-                    (error) => {
-                        userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
-                        updateLocationInfo();
-                    }
-                );
-            } else {
-                userLocation = { lat: 40.4168, lng: -3.7038 };
+// Obtener ubicación del usuario
+function getUserLocation() {
+    // Cargar ubicación anterior del localStorage
+    const cached = localStorage.getItem('userLocation');
+    if (cached) {
+        userLocation = JSON.parse(cached);
+        updateLocationInfo();
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                // Guardar para próximas veces
+                localStorage.setItem('userLocation', JSON.stringify(userLocation));
                 updateLocationInfo();
+            },
+            (error) => {
+                // Si hay caché, mantenerla; si no, usar Madrid
+                if (!userLocation) {
+                    userLocation = { lat: 40.4168, lng: -3.7038 };
+                    updateLocationInfo();
+                }
+            },
+            {
+                timeout: 5000, // Timeout de 5 segundos
+                maximumAge: 300000, // Acepta ubicación de hasta 5 minutos
+                enableHighAccuracy: false // Más rápido pero menos preciso
             }
+        );
+    } else {
+        if (!userLocation) {
+            userLocation = { lat: 40.4168, lng: -3.7038 };
+            updateLocationInfo();
         }
+    }
+}
 
         function updateLocationInfo() {
             const t = translations[currentLanguage];
@@ -1072,6 +1112,11 @@
             if (calculatedPasses.length > 0) {
                 displayPasses();
             }
+            // Copyright y footer
+document.getElementById('copyrightText').textContent = t.copyright;
+document.getElementById('sourceText').textContent = t.source;
+document.getElementById('contactText').textContent = t.contact;
+document.getElementById('privacyPolicyText').textContent = t.privacyPolicy;
         }
 
         function goBack() {
