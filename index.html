@@ -163,8 +163,10 @@
 
         .title {
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 650;
             color: var(--primary-purple);
+            letter-spacing: -0.2px;  /* Opcional: mejora visual */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
         }
 
         .theme-toggle {
@@ -861,12 +863,13 @@
             </div>
         </div>
 
-        <div style="display: flex; align-items: center;">
-            <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Tema</button>
-            <button class="theme-toggle" onclick="toggleLanguage()" style="margin-left: 10px;">🌐 ES/EN</button>
-            <button class="visibility-toggle" id="visibilityToggle" onclick="toggleVisibility()">🔭 Solo
-                Visibles</button>
-        </div>
+<div style="display: flex; align-items: center; gap: 0.5rem;">
+    <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Tema</button>
+    <button class="theme-toggle" onclick="toggleLanguage()">🌐 ES/EN</button>
+    <button class="visibility-toggle" id="visibilityToggle" onclick="toggleVisibility()">Solo
+        Visibles</button>
+    <button class="theme-toggle" onclick="window.location.href='next-passes.html'">Next Passes</button>
+</div>
     </div>
 
     <!-- Search and Filters (Desktop) -->
@@ -970,7 +973,7 @@
                 <div class="mobile-section-title">Visibilidad</div>
                 <div class="mobile-visibility-section">
                     <button class="mobile-visibility-toggle" id="mobileVisibilityToggle"
-                        onclick="toggleMobileVisibility()">🔭 Mostrar Solo Visibles</button>
+                        onclick="toggleMobileVisibility()">Mostrar Solo Visibles</button>
                     <div id="mobileVisibilityControls" style="display: none;">
                         <div class="elevation-control">
                             <label>Elevación mínima: <span id="mobileElevationValue">10°</span></label>
@@ -1117,8 +1120,9 @@
                 loading: 'Cargando satélites...',
                 searchPlaceholder: 'Buscar satélite...',
                 themeToggle: '🌙/☀️ Tema',
-                visibilityToggle: '🔭 Solo Visibles',
-                visibilityToggleActive: '🔭 Mostrando Visibles',
+                visibilityToggle: 'Solo Visibles',
+                nextPassesBtn: 'Próximos Pases',
+                visibilityToggleActive: 'Mostrando Visibles',
                 filters: {
                     all: 'Todos',
                     gps: 'GPS',
@@ -1174,8 +1178,9 @@
                 loading: 'Loading satellites...',
                 searchPlaceholder: 'Search satellite...',
                 themeToggle: '🌙/☀️ Theme',
-                visibilityToggle: '🔭 Only Visible',
-                visibilityToggleActive: '🔭 Showing Visible',
+                visibilityToggle: 'Only Visible',
+                nextPassesBtn: 'Next Passes',
+                visibilityToggleActive: 'Showing Visible',
                 filters: {
                     all: 'All',
                     gps: 'GPS',
@@ -1860,6 +1865,10 @@
             const loadingText = document.querySelector('#loading p');
             if (loadingText) loadingText.textContent = t.loading;
 
+            // Actualizar botón Next Passes si existe
+            const nextPassesBtn = document.querySelector('button[onclick*="next-passes"]');
+            if (nextPassesBtn) nextPassesBtn.textContent = t.nextPassesBtn;
+
             // Search
             document.getElementById('searchInput').placeholder = t.searchPlaceholder;
 
@@ -2321,6 +2330,18 @@
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', function () {
             initMap();
+            // Comprobar si viene de next-passes.html con un satélite seleccionado
+    const selectedNoradId = sessionStorage.getItem('selectedSatelliteNoradId');
+    if (selectedNoradId) {
+        sessionStorage.removeItem('selectedSatelliteNoradId');
+        // Esperar a que se carguen los satélites
+        setTimeout(() => {
+            const satellite = allSatellites.find(sat => sat.noradId === selectedNoradId);
+            if (satellite) {
+                showSatelliteInfo(satellite);
+            }
+        }, 2000);
+    }
             // Activar interacción táctil en móviles
             map.touchZoom.enable();
             map.dragging.enable();

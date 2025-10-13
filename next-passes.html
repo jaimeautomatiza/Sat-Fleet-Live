@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Passes - SatFleet Live</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="logo.png">
+    
+    <!-- Satellite.js -->
+    <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --light-bg: #ffffff;
+            --light-secondary: #f5f5f5;
+            --light-tertiary: #e0e0e0;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+            --text-primary-light: #333333;
+            --text-secondary-light: #666666;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        body.light-mode {
+            background-color: var(--light-bg);
+            color: var(--text-primary-light);
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--dark-secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        body.light-mode .header {
+            background-color: var(--light-secondary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background-color: transparent;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .logo-placeholder {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 650;
+            color: var(--primary-purple);
+            letter-spacing: -0.2px;  /* Opcional: mejora visual */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .theme-toggle, .back-btn {
+            background: none;
+            border: 2px solid var(--primary-purple);
+            color: var(--primary-purple);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .theme-toggle:hover, .back-btn:hover {
+            background-color: var(--primary-purple);
+            color: white;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-purple);
+        }
+
+        /* Controls */
+        .controls-section {
+            background-color: var(--dark-secondary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        body.light-mode .controls-section {
+            background-color: var(--light-secondary);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary-dark);
+            font-weight: 500;
+        }
+
+        body.light-mode .control-label {
+            color: var(--text-secondary-light);
+        }
+
+        .select-input {
+            padding: 0.75rem;
+            border: 2px solid var(--dark-tertiary);
+            border-radius: 10px;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-input:focus {
+            outline: none;
+            border-color: var(--primary-purple);
+        }
+
+        body.light-mode .select-input {
+            background-color: var(--light-bg);
+            color: var(--text-primary-light);
+            border-color: var(--light-tertiary);
+        }
+
+        .calculate-btn {
+            padding: 0.75rem 2rem;
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
+        }
+
+        .calculate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            display: none;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--dark-tertiary);
+            border-left: 4px solid var(--primary-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Passes List */
+        .passes-container {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .pass-card {
+            background-color: var(--dark-secondary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .pass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(156, 39, 176, 0.3);
+            border-color: var(--primary-purple);
+        }
+
+        body.light-mode .pass-card {
+            background-color: var(--light-secondary);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .pass-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .satellite-info {
+            flex: 1;
+        }
+
+        .satellite-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-purple);
+            margin-bottom: 0.25rem;
+        }
+
+        .norad-id {
+            font-size: 0.9rem;
+            color: var(--text-secondary-dark);
+        }
+
+        body.light-mode .norad-id {
+            color: var(--text-secondary-light);
+        }
+
+        .brightness-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .brightness-very-bright {
+            background-color: #ffd700;
+            color: #1a1a1a;
+        }
+
+        .brightness-bright {
+            background-color: #ffeb3b;
+            color: #1a1a1a;
+        }
+
+        .brightness-normal {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .brightness-dim {
+            background-color: #607d8b;
+            color: white;
+        }
+
+        .pass-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary-dark);
+        }
+
+        body.light-mode .detail-label {
+            color: var(--text-secondary-light);
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .show-map-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .show-map-btn:hover {
+            background-color: #7b1fa2;
+        }
+
+        .no-passes {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: var(--text-secondary-dark);
+        }
+
+        body.light-mode .no-passes {
+            color: var(--text-secondary-light);
+        }
+
+        .location-info {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: var(--dark-tertiary);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        body.light-mode .location-info {
+            background-color: var(--light-tertiary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pass-header {
+                flex-direction: column;
+            }
+
+            .pass-details {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo">
+                <img src="logo.png" alt="SatFleet Live Logo" 
+                     onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <h1 class="title">SatFleet Live</h1>
+        </div>
+        <div class="header-buttons">
+            <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Theme</button>
+            <button class="theme-toggle" onclick="toggleLanguage()">🌐 ES/EN</button>
+            <button class="back-btn" onclick="goBack()">← Back to Map</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h2 class="page-title" id="pageTitle">Next Visible Passes from Your Location</h2>
+        
+        <div class="location-info" id="locationInfo">
+            📍 Detecting your location...
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label class="control-label" id="daysLabel">Days to calculate:</label>
+                    <select class="select-input" id="daysSelect">
+                        <option value="1">1 day</option>
+                        <option value="3" selected>3 days</option>
+                        <option value="7">7 days</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" id="sortLabel">Sort by:</label>
+                    <select class="select-input" id="sortSelect">
+                        <option value="time">Earliest first</option>
+                        <option value="brightness">Brightest first</option>
+                        <option value="elevation">Highest elevation</option>
+                        <option value="duration">Longest duration</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" style="opacity: 0;">Action</label>
+                    <button class="calculate-btn" onclick="calculatePasses()" id="calculateBtn">
+                        Calculate Passes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="loadingText">Calculating visible passes...</p>
+        </div>
+
+        <!-- Passes Container -->
+        <div class="passes-container" id="passesContainer"></div>
+    </div>
+
+    <script>
+        // Variables globales
+        let userLocation = null;
+        let allSatellites = [];
+        let calculatedPasses = [];
+        let currentLanguage = 'en';
+        let isDarkMode = true;
+
+        // Traducciones
+        const translations = {
+            en: {
+                pageTitle: 'Next Visible Passes from Your Location',
+                detectingLocation: '📍 Detecting your location...',
+                locationFound: '📍 Your location:',
+                daysLabel: 'Days to calculate:',
+                sortLabel: 'Sort by:',
+                calculateBtn: 'Calculate Passes',
+                backBtn: '← Back to Map',
+                themeBtn: '🌙/☀️ Theme',
+                loadingText: 'Calculating visible passes...',
+                noPasses: 'No visible passes found for the selected period. Try selecting more days or check back later when it\'s nighttime.',
+                days: ['day', 'days'],
+                sortOptions: {
+                    time: 'Earliest first',
+                    brightness: 'Brightest first',
+                    elevation: 'Highest elevation',
+                    duration: 'Longest duration'
+                },
+                passDetails: {
+                    datetime: 'Start Time',
+                    maxElevation: 'Max Elevation',
+                    direction: 'Direction',
+                    brightness: 'Brightness',
+                    duration: 'Visible Period'
+                },
+                brightnessLevels: {
+                    veryBright: 'VERY BRIGHT',
+                    bright: 'Bright',
+                    normal: 'Normal',
+                    dim: 'Dim'
+                },
+                showOnMap: 'Show on Map'
+            },
+            es: {
+                pageTitle: 'Próximos Pases Visibles desde tu Ubicación',
+                detectingLocation: '📍 Detectando tu ubicación...',
+                locationFound: '📍 Tu ubicación:',
+                daysLabel: 'Días a calcular:',
+                sortLabel: 'Ordenar por:',
+                calculateBtn: 'Calcular Pases',
+                backBtn: '← Volver al Mapa',
+                themeBtn: '🌙/☀️ Tema',
+                loadingText: 'Calculando pases visibles...',
+                noPasses: 'No se encontraron pases visibles para el período seleccionado. Intenta seleccionar más días o espera a que sea de noche.',
+                days: ['día', 'días'],
+                sortOptions: {
+                    time: 'Más temprano primero',
+                    brightness: 'Más brillante primero',
+                    elevation: 'Mayor elevación',
+                    duration: 'Mayor duración'
+                },
+                passDetails: {
+                    datetime: 'Hora de Inicio',
+                    maxElevation: 'Elevación Máx',
+                    direction: 'Dirección',
+                    brightness: 'Brillo',
+                    duration: 'Período Visible'
+                },
+                brightnessLevels: {
+                    veryBright: 'MUY BRILLANTE',
+                    bright: 'Brillante',
+                    normal: 'Normal',
+                    dim: 'Poco brillante'
+                },
+                showOnMap: 'Ver en Mapa',
+                minutes: 'min'
+            }
+        };
+
+        // Obtener ubicación del usuario
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        updateLocationInfo();
+                    },
+                    (error) => {
+                        userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
+                        updateLocationInfo();
+                    }
+                );
+            } else {
+                userLocation = { lat: 40.4168, lng: -3.7038 };
+                updateLocationInfo();
+            }
+        }
+
+        function updateLocationInfo() {
+            const t = translations[currentLanguage];
+            const info = document.getElementById('locationInfo');
+            info.textContent = `${t.locationFound} ${userLocation.lat.toFixed(4)}°, ${userLocation.lng.toFixed(4)}°`;
+        }
+
+        // Cargar satélites
+        async function loadSatellites() {
+            try {
+                const response = await fetch('tle/TODOS_PRUEBA.txt?v=' + Date.now());
+                const text = await response.text();
+                allSatellites = parseTLE(text);
+                console.log(`Loaded ${allSatellites.length} satellites`);
+            } catch (error) {
+                console.error('Error loading satellites:', error);
+            }
+        }
+
+        function parseTLE(tleText) {
+            const satellites = [];
+            const lines = tleText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            
+            for (let i = 0; i < lines.length; i += 3) {
+                const name = lines[i];
+                const line1 = lines[i + 1];
+                const line2 = lines[i + 2];
+                
+                if (!name || name.startsWith('#')) {
+                    i -= 2;
+                    continue;
+                }
+                
+                if (!line1 || !line2) continue;
+                
+                try {
+                    const satrec = satellite.twoline2satrec(line1, line2);
+                    const noradId = line1.substring(2, 7).trim();
+                    satellites.push({ name, noradId, satrec });
+                } catch (err) {
+                    console.warn(`Could not parse satellite ${name}`);
+                }
+            }
+            
+            return satellites;
+        }
+
+        // Filtrar satélites relevantes (no Starlink ni basura espacial)
+        function getRelevantSatellites() {
+            return allSatellites.filter(sat => {
+                const name = sat.name.toLowerCase();
+                
+                // Excluir Starlink y constelaciones masivas
+                if (name.includes('starlink')) return false;
+                if (name.includes('oneweb')) return false;
+                if (name.includes('debris')) return false;
+                if (name.includes('rocket body')) return false;
+                
+                // Incluir satélites interesantes
+                return (
+                    name.includes('iss') ||
+                    name.includes('hubble') ||
+                    name.includes('tiangong') ||
+                    name.includes('gps') ||
+                    name.includes('galileo') ||
+                    name.includes('glonass') ||
+                    name.includes('beidou') ||
+                    name.includes('iridium') ||
+                    name.includes('cosmos') ||
+                    name.includes('yaogan') ||
+                    name.includes('noaa') ||
+                    name.includes('goes') ||
+                    name.includes('metop') ||
+                    name.includes('landsat') ||
+                    name.includes('sentinel') ||
+                    name.includes('terra') ||
+                    name.includes('aqua') ||
+                    name.includes('envisat') ||
+                    name.includes('spot') ||
+                    name.includes('worldview') ||
+                    sat.name.length < 30 // Satélites con nombres cortos suelen ser relevantes
+                );
+            });
+        }
+
+        // Calcular pases
+        async function calculatePasses() {
+            if (!userLocation) {
+                alert('Please wait for location detection');
+                return;
+            }
+
+            const days = parseInt(document.getElementById('daysSelect').value);
+            const loading = document.getElementById('loading');
+            const container = document.getElementById('passesContainer');
+            const btn = document.getElementById('calculateBtn');
+            
+            loading.classList.add('active');
+            container.innerHTML = '';
+            btn.disabled = true;
+            
+            calculatedPasses = [];
+            const now = new Date();
+            const endTime = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+            
+            // Filtrar satélites relevantes
+            const relevantSatellites = getRelevantSatellites();
+            console.log(`Calculating passes for ${relevantSatellites.length} satellites (filtered from ${allSatellites.length})`);
+            
+            // Calcular pases con límite de procesamiento
+            let processed = 0;
+            const maxSatellites = 200; // Límite de seguridad
+            
+            for (const sat of relevantSatellites.slice(0, maxSatellites)) {
+                const passes = findPasses(sat, now, endTime);
+                calculatedPasses.push(...passes);
+                processed++;
+                
+                // Actualizar progreso cada 20 satélites
+                if (processed % 20 === 0) {
+                    const progress = Math.round((processed / Math.min(relevantSatellites.length, maxSatellites)) * 100);
+                    document.getElementById('loadingText').textContent = `Calculating... ${progress}%`;
+                    await new Promise(resolve => setTimeout(resolve, 0)); // Permitir que el navegador respire
+                }
+            }
+            
+            console.log(`Found ${calculatedPasses.length} visible passes`);
+            sortAndDisplayPasses();
+            loading.classList.remove('active');
+            btn.disabled = false;
+        }
+
+        function findPasses(satellite, startTime, endTime) {
+            const passes = [];
+            const stepMinutes = 2;
+            let currentTime = new Date(startTime);
+            let inPass = false;
+            let passData = null;
+            
+            while (currentTime < endTime) {
+                const position = getSatellitePosition(satellite, currentTime);
+                
+                if (!position) {
+                    currentTime = new Date(currentTime.getTime() + stepMinutes * 60 * 1000);
+                    continue;
+                }
+                
+                // Verificar que sea de noche para el observador Y que el satélite esté iluminado
+                const observerSunPos = calculateSunPosition(currentTime, userLocation.lat, userLocation.lng);
+                const isNight = observerSunPos.elevation < -6; // Crepúsculo civil o más oscuro
+                
+                // El satélite debe estar iluminado por el Sol
+                const satIlluminated = position.satSunlit;
+                
+                // Visible = está sobre el horizonte + es de noche + satélite iluminado
+                const isVisible = position.elevation > 10 && isNight && satIlluminated;
+                
+                if (isVisible && !inPass) {
+                    inPass = true;
+                    passData = {
+                        satellite: satellite,
+                        startTime: new Date(currentTime),
+                        maxElevation: position.elevation,
+                        maxElevationTime: new Date(currentTime),
+                        startAzimuth: position.azimuth,
+                        brightness: estimateBrightness(satellite.name, position.elevation)
+                    };
+                } else if (isVisible && inPass) {
+                    if (position.elevation > passData.maxElevation) {
+                        passData.maxElevation = position.elevation;
+                        passData.maxElevationTime = new Date(currentTime);
+                    }
+                } else if (!isVisible && inPass) {
+                    inPass = false;
+                    passData.endTime = new Date(currentTime);
+                    passData.endAzimuth = position.azimuth;
+                    passData.duration = (passData.endTime - passData.startTime) / 60000;
+                    
+                    // Solo guardar pases de al menos 1 minuto
+                    if (passData.duration >= 1) {
+                        passes.push(passData);
+                    }
+                    passData = null;
+                }
+                
+                currentTime = new Date(currentTime.getTime() + stepMinutes * 60 * 1000);
+            }
+            
+            return passes;
+        }
+
+        function getSatellitePosition(satellite, time) {
+            try {
+                const pv = window.satellite.propagate(satellite.satrec, time);
+                if (!pv || !pv.position) return null;
+                
+                const gmst = window.satellite.gstime(time);
+                const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+                const satLat = window.satellite.degreesLat(geo.latitude);
+                const satLng = window.satellite.degreesLong(geo.longitude);
+                const altitude = geo.height;
+                
+                // Validar coordenadas
+                if (isNaN(satLat) || isNaN(satLng) || isNaN(altitude)) return null;
+                
+                const position = calculateAzElev(userLocation.lat, userLocation.lng, satLat, satLng, altitude);
+                
+                // Calcular si el satélite está iluminado por el Sol
+                const satSunPos = calculateSunPosition(time, satLat, satLng);
+                position.satSunlit = satSunPos.elevation > -6; // El satélite ve el Sol
+                
+                return position;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function calculateSunPosition(date, lat, lng) {
+            const julianDay = (date.getTime() / 86400000) + 2440587.5;
+            const n = julianDay - 2451545.0;
+            const L = (280.460 + 0.9856474 * n) % 360;
+            const M = (357.528 + 0.9856003 * n) % 360;
+            const MRad = M * Math.PI / 180;
+            const lambda = (L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360;
+            const lambdaRad = lambda * Math.PI / 180;
+            const epsilon = 23.439 - 0.0000004 * n;
+            const epsilonRad = epsilon * Math.PI / 180;
+            const alpha = Math.atan2(Math.cos(epsilonRad) * Math.sin(lambdaRad), Math.cos(lambdaRad)) * 180 / Math.PI;
+            const delta = Math.asin(Math.sin(epsilonRad) * Math.sin(lambdaRad)) * 180 / Math.PI;
+            const UT = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
+            const GST = (6.697375 + 0.0657098242 * n + UT) % 24;
+            const LST = (GST + lng / 15) % 24;
+            const H = (LST * 15 - alpha) % 360;
+            const HRad = H * Math.PI / 180;
+            const latRad = lat * Math.PI / 180;
+            const deltaRad = delta * Math.PI / 180;
+            const elevation = Math.asin(Math.sin(latRad) * Math.sin(deltaRad) + Math.cos(latRad) * Math.cos(deltaRad) * Math.cos(HRad)) * 180 / Math.PI;
+            return { elevation };
+        }
+
+        function calculateAzElev(obsLat, obsLng, satLat, satLng, satAlt) {
+            const earthRadius = 6371;
+            const obsLatRad = obsLat * Math.PI / 180;
+            const obsLngRad = obsLng * Math.PI / 180;
+            const satLatRad = satLat * Math.PI / 180;
+            const satLngRad = satLng * Math.PI / 180;
+            
+            const satRadius = earthRadius + satAlt;
+            
+            const obsX = earthRadius * Math.cos(obsLatRad) * Math.cos(obsLngRad);
+            const obsY = earthRadius * Math.cos(obsLatRad) * Math.sin(obsLngRad);
+            const obsZ = earthRadius * Math.sin(obsLatRad);
+            
+            const satX = satRadius * Math.cos(satLatRad) * Math.cos(satLngRad);
+            const satY = satRadius * Math.cos(satLatRad) * Math.sin(satLngRad);
+            const satZ = satRadius * Math.sin(satLatRad);
+            
+            const dx = satX - obsX;
+            const dy = satY - obsY;
+            const dz = satZ - obsZ;
+            const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            
+            const normalX = obsX / earthRadius;
+            const normalY = obsY / earthRadius;
+            const normalZ = obsZ / earthRadius;
+            
+            const dotProduct = (dx * normalX + dy * normalY + dz * normalZ) / distance;
+            const elevation = Math.asin(Math.max(-1, Math.min(1, dotProduct))) * 180 / Math.PI;
+            
+            const northX = -Math.sin(obsLatRad) * Math.cos(obsLngRad);
+            const northY = -Math.sin(obsLatRad) * Math.sin(obsLngRad);
+            const northZ = Math.cos(obsLatRad);
+            
+            const eastX = -Math.sin(obsLngRad);
+            const eastY = Math.cos(obsLngRad);
+            const eastZ = 0;
+            
+            const northDist = (dx * northX + dy * northY + dz * northZ);
+            const eastDist = (dx * eastX + dy * eastY + dz * eastZ);
+            
+            let azimuth = Math.atan2(eastDist, northDist) * 180 / Math.PI;
+            if (azimuth < 0) azimuth += 360;
+            
+            return { elevation, azimuth };
+        }
+
+        function estimateBrightness(satName, elevation) {
+            const name = satName.toLowerCase();
+            let baseMag = 3;
+            
+            if (name.includes('iss')) baseMag = -2;
+            else if (name.includes('iridium')) baseMag = -1;
+            else if (name.includes('starlink')) baseMag = 2;
+            else if (name.includes('hubble')) baseMag = 1;
+            else if (name.includes('tiangong')) baseMag = -1;
+            
+            const elevationFactor = (90 - elevation) / 90;
+            return baseMag + elevationFactor * 2;
+        }
+
+        function getBrightnessClass(magnitude) {
+            if (magnitude < 0) return 'very-bright';
+            if (magnitude < 2) return 'bright';
+            if (magnitude < 4) return 'normal';
+            return 'dim';
+        }
+
+        function getBrightnessText(magnitude) {
+            const t = translations[currentLanguage].brightnessLevels;
+            if (magnitude < 0) return t.veryBright;
+            if (magnitude < 2) return t.bright;
+            if (magnitude < 4) return t.normal;
+            return t.dim;
+        }
+
+        function getDirectionText(startAz, endAz) {
+            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            const getDir = (az) => dirs[Math.round(az / 45) % 8];
+            return `${getDir(startAz)} → ${getDir(endAz)}`;
+        }
+
+        function sortAndDisplayPasses() {
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            calculatedPasses.sort((a, b) => {
+                switch(sortBy) {
+                    case 'time':
+                        return a.startTime - b.startTime;
+                    case 'brightness':
+                        return a.brightness - b.brightness;
+                    case 'elevation':
+                        return b.maxElevation - a.maxElevation;
+                    case 'duration':
+                        return b.duration - a.duration;
+                    default:
+                        return a.startTime - b.startTime;
+                }
+            });
+            
+            displayPasses();
+        }
+
+        function displayPasses() {
+            const container = document.getElementById('passesContainer');
+            const t = translations[currentLanguage];
+            
+            if (calculatedPasses.length === 0) {
+                container.innerHTML = `<div class="no-passes">${t.noPasses}</div>`;
+                return;
+            }
+            
+            container.innerHTML = calculatedPasses.map(pass => {
+                const brightnessClass = getBrightnessClass(pass.brightness);
+                const brightnessText = getBrightnessText(pass.brightness);
+                const direction = getDirectionText(pass.startAzimuth, pass.endAzimuth);
+                
+                return `
+                    <div class="pass-card">
+                        <div class="pass-header">
+                            <div class="satellite-info">
+                                <div class="satellite-name">${pass.satellite.name}</div>
+                                <div class="norad-id">NORAD ID: ${pass.satellite.noradId}</div>
+                            </div>
+                            <div class="brightness-badge brightness-${brightnessClass}">
+                                ${brightnessText} (${pass.brightness >= 0 ? '+' : ''}${pass.brightness.toFixed(1)})
+                            </div>
+                        </div>
+                        <div class="pass-details">
+                            <div class="detail-item">
+                                <div class="detail-label">${t.passDetails.datetime}</div>
+                                <div class="detail-value">${formatDateTime(pass.startTime)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">${t.passDetails.maxElevation}</div>
+                                <div class="detail-value">${pass.maxElevation.toFixed(1)}°</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">${t.passDetails.direction}</div>
+                                <div class="detail-value">${direction}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">${t.passDetails.duration}</div>
+                                <div class="detail-value">${formatTimeRange(pass.startTime, pass.endTime)}</div>
+                            </div>
+                        </div>
+                        <button class="show-map-btn" onclick="showOnMap('${pass.satellite.noradId}')">
+                            ${t.showOnMap}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatDateTime(date) {
+            const options = { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit'
+            };
+            return date.toLocaleDateString(currentLanguage === 'es' ? 'es-ES' : 'en-US', options);
+        }
+
+        function formatTimeRange(startDate, endDate) {
+            const startTime = startDate.toLocaleTimeString(currentLanguage === 'es' ? 'es-ES' : 'en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false
+            });
+            const endTime = endDate.toLocaleTimeString(currentLanguage === 'es' ? 'es-ES' : 'en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false
+            });
+            return `${startTime} - ${endTime}`;
+        }
+
+        function showOnMap(noradId) {
+            // Guardar el NORAD ID en sessionStorage para que index.html lo detecte
+            sessionStorage.setItem('selectedSatelliteNoradId', noradId);
+            window.location.href = 'index.html';
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('light-mode');
+        }
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'es' ? 'en' : 'es';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+            document.getElementById('daysLabel').textContent = t.daysLabel;
+            document.getElementById('sortLabel').textContent = t.sortLabel;
+            document.getElementById('calculateBtn').innerHTML = t.calculateBtn;
+            document.querySelector('.back-btn').innerHTML = t.backBtn;
+            document.getElementById('loadingText').textContent = t.loadingText;
+            
+            // Update days options
+            const daysSelect = document.getElementById('daysSelect');
+            const daysValue = daysSelect.value;
+            daysSelect.innerHTML = `
+                <option value="1">1 ${t.days[0]}</option>
+                <option value="3">3 ${t.days[1]}</option>
+                <option value="7">7 ${t.days[1]}</option>
+            `;
+            daysSelect.value = daysValue;
+            
+            // Update sort options
+            const sortSelect = document.getElementById('sortSelect');
+            const sortValue = sortSelect.value;
+            sortSelect.innerHTML = `
+                <option value="time">${t.sortOptions.time}</option>
+                <option value="brightness">${t.sortOptions.brightness}</option>
+                <option value="elevation">${t.sortOptions.elevation}</option>
+                <option value="duration">${t.sortOptions.duration}</option>
+            `;
+            sortSelect.value = sortValue;
+            
+            // Update location info
+            if (userLocation) {
+                updateLocationInfo();
+            } else {
+                document.getElementById('locationInfo').textContent = t.detectingLocation;
+            }
+            
+            // Redisplay passes if they exist
+            if (calculatedPasses.length > 0) {
+                displayPasses();
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Sort selector listener
+        document.getElementById('sortSelect').addEventListener('change', sortAndDisplayPasses);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            getUserLocation();
+            await loadSatellites();
+        });
+    </script>
+</body>
+</html>
