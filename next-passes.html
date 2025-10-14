@@ -926,31 +926,114 @@ function applyFilter() {
             return passes;
         }
 
-        function getSatellitePosition(satellite, time) {
-            try {
-                const pv = window.satellite.propagate(satellite.satrec, time);
-                if (!pv || !pv.position) return null;
-                
-                const gmst = window.satellite.gstime(time);
-                const geo = window.satellite.eciToGeodetic(pv.position, gmst);
-                const satLat = window.satellite.degreesLat(geo.latitude);
-                const satLng = window.satellite.degreesLong(geo.longitude);
-                const altitude = geo.height;
-                
-                // Validar coordenadas
-                if (isNaN(satLat) || isNaN(satLng) || isNaN(altitude)) return null;
-                
-                const position = calculateAzElev(userLocation.lat, userLocation.lng, satLat, satLng, altitude);
-                
-                // Calcular si el satélite está iluminado por el Sol
-                const satSunPos = calculateSunPosition(time, satLat, satLng);
-                position.satSunlit = satSunPos.elevation > -6; // El satélite ve el Sol
-                
-                return position;
-            } catch (error) {
-                return null;
-            }
+function getSatellitePosition(satellite, time) {
+    try {
+        const pv = window.satellite.propagate(satellite.satrec, time);
+        if (!pv || !pv.position) return null;
+        
+        const gmst = window.satellite.gstime(time);
+        const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+        const satLat = window.satellite.degreesLat(geo.latitude);
+        const satLng = window.satellite.degreesLong(geo.longitude);
+        const altitude = geo.height;
+        
+        // Validar coordenadas
+        if (isNaN(satLat) || isNaN(satLng) || isNaN(altitude)) return null;
+        
+        const position = calculateAzElev(userLocation.lat, userLocation.lng, satLat, satLng, altitude);
+        
+        // Calcular si el satélite está iluminado por el Sol
+        position.satSunlit = isSatelliteInSunlight(pv.position, time);
+        
+        return position;
+    } catch (error) {
+        return null;
+    }
+}
+
+        // Calcular si el satélite está en la sombra de la Tierra o iluminado por el Sol
+function isSatelliteInSunlight(satPositionEci, time) {
+    // Calcular posición del Sol en coordenadas ECI
+    const sunPositionEci = calculateSunPositionECI(time);
+    
+    // Vector del satélite al Sol
+    const sunDirX = sunPositionEci.x - satPositionEci.x;
+    const sunDirY = sunPositionEci.y - satPositionEci.y;
+    const sunDirZ = sunPositionEci.z - satPositionEci.z;
+    
+    // Normalizar vector Sol
+    const sunDist = Math.sqrt(sunDirX * sunDirX + sunDirY * sunDirY + sunDirZ * sunDirZ);
+    const sunDirNormX = sunDirX / sunDist;
+    const sunDirNormY = sunDirY / sunDist;
+    const sunDirNormZ = sunDirZ / sunDist;
+    
+    // Producto escalar entre posición del satélite y dirección al Sol
+    const dotProduct = satPositionEci.x * sunDirNormX + 
+                      satPositionEci.y * sunDirNormY + 
+                      satPositionEci.z * sunDirNormZ;
+    
+    // Distancia del satélite al centro de la Tierra
+    const satDistance = Math.sqrt(
+        satPositionEci.x * satPositionEci.x + 
+        satPositionEci.y * satPositionEci.y + 
+        satPositionEci.z * satPositionEci.z
+    );
+    
+    // Si el producto escalar es positivo, el satélite está del lado del Sol
+    // Si es negativo, verificar si está en la sombra usando geometría del cono
+    if (dotProduct < 0) {
+        // Radio de la Tierra en km
+        const earthRadius = 6371;
+        
+        // Distancia perpendicular del satélite a la línea Tierra-Sol
+        const perpDist = Math.sqrt(satDistance * satDistance - dotProduct * dotProduct);
+        
+        // Si está dentro del cono de sombra de la Tierra
+        if (perpDist < earthRadius) {
+            return false; // En sombra
         }
+    }
+    
+    return true; // Iluminado
+}
+
+// Calcular posición del Sol en coordenadas ECI
+function calculateSunPositionECI(date) {
+    const julianDay = (date.getTime() / 86400000) + 2440587.5;
+    const n = julianDay - 2451545.0;
+    
+    // Longitud media del Sol
+    const L = (280.460 + 0.9856474 * n) % 360;
+    const LRad = L * Math.PI / 180;
+    
+    // Anomalía media del Sol
+    const M = (357.528 + 0.9856003 * n) % 360;
+    const MRad = M * Math.PI / 180;
+    
+    // Longitud eclíptica del Sol
+    const lambda = (L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360;
+    const lambdaRad = lambda * Math.PI / 180;
+    
+    // Inclinación de la eclíptica
+    const epsilon = 23.439 - 0.0000004 * n;
+    const epsilonRad = epsilon * Math.PI / 180;
+    
+    // Distancia Tierra-Sol en AU (aproximación)
+    const r = 1.00014 - 0.01671 * Math.cos(MRad) - 0.00014 * Math.cos(2 * MRad);
+    const rKm = r * 149597870.7; // Convertir AU a km
+    
+    // Posición del Sol en coordenadas eclípticas
+    const xEcl = rKm * Math.cos(lambdaRad);
+    const yEcl = rKm * Math.sin(lambdaRad);
+    const zEcl = 0;
+    
+    // Convertir a coordenadas ecuatoriales (ECI)
+    const xEq = xEcl;
+    const yEq = yEcl * Math.cos(epsilonRad) - zEcl * Math.sin(epsilonRad);
+    const zEq = yEcl * Math.sin(epsilonRad) + zEcl * Math.cos(epsilonRad);
+    
+    return { x: xEq, y: yEq, z: zEq };
+}
 
         function calculateSunPosition(date, lat, lng) {
             const julianDay = (date.getTime() / 86400000) + 2440587.5;
