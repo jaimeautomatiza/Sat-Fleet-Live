@@ -72,6 +72,7 @@
 
         :root {
             --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
             --dark-bg: #1a1a1a;
             --dark-secondary: #2d2d2d;
             --dark-tertiary: #3d3d3d;
@@ -184,6 +185,15 @@
             background-color: var(--primary-purple);
             color: white;
         }
+        .next-passes-btn {
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+}
+
+.next-passes-btn:hover {
+    background-color: var(--primary-blue);
+    color: white;
+}
 
         /* Search and Filters */
         .controls {
@@ -868,7 +878,7 @@
     <button class="theme-toggle" onclick="toggleLanguage()">🌐 ES/EN</button>
     <button class="visibility-toggle" id="visibilityToggle" onclick="toggleVisibility()">Solo
         Visibles</button>
-    <button class="theme-toggle" onclick="window.location.href='next-passes.html'">Next Passes</button>
+    <button class="theme-toggle next-passes-btn" onclick="window.location.href='next-passes.html'">Next Passes</button>
 </div>
     </div>
 

@@ -482,6 +482,22 @@
                     </select>
                 </div>
                 <div class="control-group">
+    <label class="control-label" id="filterLabel">Satellite types:</label>
+    <select class="select-input" id="filterSelect" onchange="applyFilter()">
+        <option value="relevant">Relevant satellites (default)</option>
+        <option value="all">ALL satellites (‼️ Slow, this may take a while...)</option>
+        <option value="gps">GPS / Navigation</option>
+        <option value="iss">Space Stations</option>
+        <option value="comm">Communications</option>
+        <option value="starlink">Starlink / Internet (‼️ Slow, this may take a while...)</option>
+        <option value="military">Military / Spy</option>
+        <option value="weather">Weather / Climate</option>
+        <option value="geo">Geodetic / Tracking</option>
+        <option value="tech">Technology / Experimental</option>
+        <option value="misc">Other / Miscellaneous(‼️ Slow, this may take a while...)</option>
+    </select>
+</div>
+                <div class="control-group">
                     <label class="control-label" id="sortLabel">Sort by:</label>
                     <select class="select-input" id="sortSelect">
                         <option value="time">Earliest first</option>
@@ -524,6 +540,20 @@
                 detectingLocation: '📍 Detecting your location...',
                 locationFound: '📍 Your location:',
                 daysLabel: 'Days to calculate:',
+                filterLabel: 'Satellite types:',
+                filterOptions: {
+                relevant: 'Relevant satellites (default)',
+                all: 'ALL satellites (‼️ Slow, this may take a while...))',
+                gps: 'GPS / Navigation',
+                iss: 'Space Stations',
+                comm: 'Communications',
+                starlink: 'Starlink / Internet (‼️ Slow, this may take a while...)',
+                military: 'Military / Spy',
+                weather: 'Weather / Climate',
+                geo: 'Geodetic / Tracking',
+                tech: 'Technology / Experimental',
+                misc: 'Other / Miscellaneous (‼️ Slow, this may take a while...)'
+                },
                 sortLabel: 'Sort by:',
                 calculateBtn: 'Calculate Passes',
                 backBtn: '← Back to Map',
@@ -561,6 +591,20 @@
                 detectingLocation: '📍 Detectando tu ubicación...',
                 locationFound: '📍 Tu ubicación:',
                 daysLabel: 'Días a calcular:',
+                filterLabel: 'Tipos de satélites:',
+                filterOptions: {
+                relevant: 'Satélites relevantes (predeterminado)',
+                all: 'TODOS los satélites (‼️ Lento, esto podría tardar un tiempo...)',
+                gps: 'GPS / Navegación',
+                iss: 'Estaciones Espaciales',
+                comm: 'Comunicaciones',
+                starlink: 'Starlink / Internet (‼️ Lento, esto podría tardar un tiempo...)',
+                military: 'Militares / Espía',
+                weather: 'Meteorológicos / Clima',
+                geo: 'Geodésicos / Seguimiento',
+                tech: 'Tecnología / Experimental',
+                misc: 'Otros / Misceláneos (‼️ Lento, esto podría tardar un tiempo...)'
+                },
                 sortLabel: 'Ordenar por:',
                 calculateBtn: 'Calcular Pases',
                 backBtn: '← Volver al Mapa',
@@ -685,42 +729,60 @@ function getUserLocation() {
         }
 
         // Filtrar satélites relevantes (no Starlink ni basura espacial)
-        function getRelevantSatellites() {
-            return allSatellites.filter(sat => {
-                const name = sat.name.toLowerCase();
-                
-                // Excluir Starlink y constelaciones masivas
-                if (name.includes('starlink')) return false;
-                if (name.includes('oneweb')) return false;
-                if (name.includes('debris')) return false;
-                if (name.includes('rocket body')) return false;
-                
-                // Incluir satélites interesantes
-                return (
-                    name.includes('iss') ||
-                    name.includes('hubble') ||
-                    name.includes('tiangong') ||
-                    name.includes('gps') ||
-                    name.includes('galileo') ||
-                    name.includes('glonass') ||
-                    name.includes('beidou') ||
-                    name.includes('iridium') ||
-                    name.includes('cosmos') ||
-                    name.includes('yaogan') ||
-                    name.includes('noaa') ||
-                    name.includes('goes') ||
-                    name.includes('metop') ||
-                    name.includes('landsat') ||
-                    name.includes('sentinel') ||
-                    name.includes('terra') ||
-                    name.includes('aqua') ||
-                    name.includes('envisat') ||
-                    name.includes('spot') ||
-                    name.includes('worldview') ||
-                    sat.name.length < 30 // Satélites con nombres cortos suelen ser relevantes
-                );
-            });
-        }
+// Función helper para clasificar satélites
+function getSatelliteType(name) {
+    const n = (name || '').toLowerCase().trim();
+    const has = (kw) => n.includes(kw);
+    const any = (...kws) => kws.some(has);
+    const word = (re) => re.test(n);
+
+    if (any('gps', 'navstar', 'galileo', 'glonass', 'beidou', 'navic', 'irnss') || word(/\bgsat0?\d{2}\b/)) return 'gps';
+    if (any('iss', 'zarya', 'space station', 'tiangong', 'progress', 'soyuz', 'dragon', 'cygnus')) return 'iss';
+    if (any('starlink', 'oneweb', 'kuiper')) return 'starlink';
+    if (any('yaogan', 'nro', 'spy', 'military', 'classified', 'cosmos', 'usa-', 'nrol')) return 'military';
+    if (any('intelsat', 'eutelsat', 'ses', 'astra', 'telecom', 'viasat', 'iridium', 'globalstar', 'orbcomm')) return 'comm';
+    if (any('noaa', 'goes', 'metop', 'himawari', 'weather', 'meteo', 'meteor', 'fengyun')) return 'weather';
+    if (any('landsat', 'spot', 'sentinel', 'worldview', 'terrasar', 'radarsat', 'grace', 'lageos')) return 'geo';
+    if (any('demo', 'test', 'tech', 'cubesat', 'experiment', 'proba')) return 'tech';
+    return 'misc';
+}
+
+// Filtrar satélites según categoría seleccionada
+function getFilteredSatellites() {
+    const filterType = document.getElementById('filterSelect').value;
+    
+    if (filterType === 'all') {
+        console.log('⚠️ Calculating ALL satellites - this may take a while...');
+        return allSatellites;
+    }
+    
+    if (filterType === 'relevant') {
+        return allSatellites.filter(sat => {
+            const name = sat.name.toLowerCase();
+            if (name.includes('starlink')) return false;
+            if (name.includes('oneweb')) return false;
+            if (name.includes('debris')) return false;
+            if (name.includes('rocket body')) return false;
+            
+            return (
+                name.includes('iss') || name.includes('hubble') || name.includes('tiangong') ||
+                name.includes('gps') || name.includes('galileo') || name.includes('glonass') ||
+                name.includes('iridium') || name.includes('cosmos') || name.includes('yaogan') ||
+                name.includes('noaa') || name.includes('goes') || name.includes('metop') ||
+                name.includes('landsat') || name.includes('sentinel') || sat.name.length < 30
+            );
+        });
+    }
+    
+    // Filtrar por tipo específico
+    return allSatellites.filter(sat => getSatelliteType(sat.name) === filterType);
+}
+
+function applyFilter() {
+    // Reset de pases calculados cuando cambia el filtro
+    calculatedPasses = [];
+    document.getElementById('passesContainer').innerHTML = '';
+}
 
         // Calcular pases
         async function calculatePasses() {
@@ -743,22 +805,29 @@ function getUserLocation() {
             const endTime = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
             
             // Filtrar satélites relevantes
-            const relevantSatellites = getRelevantSatellites();
+            const relevantSatellites = getFilteredSatellites();
             console.log(`Calculating passes for ${relevantSatellites.length} satellites (filtered from ${allSatellites.length})`);
             
-            // Calcular pases con límite de procesamiento
+            // Calcular pases con límite de procesamiento inteligente
             let processed = 0;
-            const maxSatellites = 200; // Límite de seguridad
+            const filterType = document.getElementById('filterSelect').value;
             
-            for (const sat of relevantSatellites.slice(0, maxSatellites)) {
+            // Límite solo para "relevant" (más rápido), sin límite para all/starlink
+            const maxSatellites = (filterType === 'relevant') ? 500 : relevantSatellites.length;
+            const satellitesToProcess = relevantSatellites.slice(0, maxSatellites);
+            
+            console.log(`Processing ${satellitesToProcess.length} satellites (filter: ${filterType})`);
+            
+            for (const sat of satellitesToProcess) {
                 const passes = findPasses(sat, now, endTime);
                 calculatedPasses.push(...passes);
                 processed++;
                 
                 // Actualizar progreso cada 20 satélites
                 if (processed % 20 === 0) {
-                    const progress = Math.round((processed / Math.min(relevantSatellites.length, maxSatellites)) * 100);
-                    document.getElementById('loadingText').textContent = `Calculating... ${progress}%`;
+                    const progress = Math.round((processed / satellitesToProcess.length) * 100);
+                    const t = translations[currentLanguage];
+                    document.getElementById('loadingText').textContent = `${t.loadingText} ${progress}% (${processed}/${satellitesToProcess.length})`;
                     await new Promise(resolve => setTimeout(resolve, 0)); // Permitir que el navegador respire
                 }
             }
@@ -1075,6 +1144,7 @@ function getUserLocation() {
             
             document.getElementById('pageTitle').textContent = t.pageTitle;
             document.getElementById('daysLabel').textContent = t.daysLabel;
+            document.getElementById('filterLabel').textContent = t.filterLabel;
             document.getElementById('sortLabel').textContent = t.sortLabel;
             document.getElementById('calculateBtn').innerHTML = t.calculateBtn;
             document.querySelector('.back-btn').innerHTML = t.backBtn;
@@ -1100,6 +1170,24 @@ function getUserLocation() {
                 <option value="duration">${t.sortOptions.duration}</option>
             `;
             sortSelect.value = sortValue;
+
+            // Update filter options
+const filterSelect = document.getElementById('filterSelect');
+const filterValue = filterSelect.value;
+filterSelect.innerHTML = `
+    <option value="relevant">${t.filterOptions.relevant}</option>
+    <option value="all">${t.filterOptions.all}</option>
+    <option value="gps">${t.filterOptions.gps}</option>
+    <option value="iss">${t.filterOptions.iss}</option>
+    <option value="comm">${t.filterOptions.comm}</option>
+    <option value="starlink">${t.filterOptions.starlink}</option>
+    <option value="military">${t.filterOptions.military}</option>
+    <option value="weather">${t.filterOptions.weather}</option>
+    <option value="geo">${t.filterOptions.geo}</option>
+    <option value="tech">${t.filterOptions.tech}</option>
+    <option value="misc">${t.filterOptions.misc}</option>
+`;
+filterSelect.value = filterValue;
             
             // Update location info
             if (userLocation) {
