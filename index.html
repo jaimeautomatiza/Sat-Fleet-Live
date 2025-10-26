@@ -801,25 +801,63 @@
             color: white;
         }
 
-        /* User location marker */
-        .user-location-marker {
-            width: 20px;
-            height: 20px;
-            background-color: #ff4444;
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-            position: relative;
-        }
+        /* Icono de ubicación sin brújula */
+.user-location-marker {
+    width: 20px;
+    height: 20px;
+    background-color: #ff4444;
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    position: relative;
+}
 
-        .user-location-marker::after {
-            content: '📍';
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 16px;
-        }
+.user-location-marker::after {
+    content: '📍';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+}
+
+/* Icono de ubicación CON brújula - FLECHA TRIANGULAR BLANCA */
+.user-location-compass {
+    width: 24px;
+    height: 28px;
+    position: relative;
+    transition: transform 0.2s ease-out;
+}
+
+/* Triángulo principal (flecha hacia arriba) */
+.user-location-compass::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 22px solid #ffffff;
+    top: 0;
+    left: 2px;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+}
+
+/* Base/cola de la flecha (pequeño triángulo invertido para dar forma) */
+.user-location-compass::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #ffffff;
+    bottom: 0;
+    left: 6px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+
 
         .user-location-pulse {
             width: 20px;
@@ -1990,6 +2028,8 @@ function searchSatellites() {
         let minElevation = 10;
         let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
         let userLocationMarker = null;
+        let hasCompass = false;
+        let currentHeading = 0;
 
         // Obtener ubicación del usuario
         function getUserLocation() {
@@ -2017,34 +2057,144 @@ function searchSatellites() {
             }
         }
 
-        // Añadir/actualizar marcador de ubicación del usuario
-        function updateUserLocationMarker() {
-            // Remover marcador anterior si existe
-            if (userLocationMarker) {
-                map.removeLayer(userLocationMarker);
+        // Solicitar y manejar orientación del dispositivo
+function startCompassTracking() {
+    // Verificar si el navegador soporta orientación
+    if (!window.DeviceOrientationEvent) {
+        console.log('❌ Este dispositivo no soporta brújula');
+        return;
+    }
+
+    // Función para pedir permisos en iOS 13+
+    async function requestPermission() {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            try {
+                const permission = await DeviceOrientationEvent.requestPermission();
+                if (permission === 'granted') {
+                    attachOrientationListener();
+                } else {
+                    console.log('⚠️ Permiso de orientación denegado');
+                }
+            } catch (error) {
+                console.error('Error solicitando permiso de orientación:', error);
             }
-
-            // Crear icono personalizado para la ubicación del usuario
-            const userIcon = L.divIcon({
-                className: 'user-location-marker',
-                html: '<div class="user-location-pulse"></div>',
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
-            });
-
-            // Añadir nuevo marcador
-            userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
-                icon: userIcon,
-                zIndexOffset: 1000 // Asegurar que esté encima de otros marcadores
-            }).addTo(map);
-
-            // Añadir popup informativo
-            userLocationMarker.bindPopup(`
-            <strong>Tu ubicación</strong><br>
-            Lat: ${userLocation.lat.toFixed(4)}°<br>
-            Lng: ${userLocation.lng.toFixed(4)}°
-        `);
+        } else {
+            // Android o navegadores que no requieren permiso
+            attachOrientationListener();
         }
+    }
+
+    // Variable para detectar si realmente hay datos de brújula
+    let compassDataReceived = false;
+    let compassTimeout = null;
+
+    // Adjuntar listener de orientación
+    function attachOrientationListener() {
+        // Intentar con deviceorientationabsolute primero (más preciso)
+        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+        
+        // Fallback a deviceorientation normal
+        window.addEventListener('deviceorientation', handleOrientation, true);
+        
+        // Timeout: si no recibe datos en 2 segundos, no hay brújula real
+        compassTimeout = setTimeout(() => {
+            if (!compassDataReceived) {
+                console.log('⚠️ No se detectaron datos de brújula - usando icono normal');
+                hasCompass = false;
+                updateUserLocationMarker();
+            }
+        }, 2000);
+        
+        console.log('🔄 Esperando datos de brújula...');
+    }
+
+    // Manejar evento de orientación
+    function handleOrientation(event) {
+        let heading = null;
+
+        // iOS usa webkitCompassHeading
+        if (event.webkitCompassHeading !== undefined) {
+            heading = event.webkitCompassHeading;
+        } 
+        // Android y otros usan alpha
+        else if (event.alpha !== null) {
+            heading = 360 - event.alpha;
+        }
+
+        // Solo activar brújula si hay datos válidos
+        if (heading !== null && !isNaN(heading)) {
+            if (!compassDataReceived) {
+                compassDataReceived = true;
+                hasCompass = true;
+                clearTimeout(compassTimeout);
+                updateUserLocationMarker();
+                console.log('✅ Brújula activada correctamente');
+            }
+            
+            currentHeading = heading;
+            updateCompassRotation();
+        }
+    }
+
+    // Solicitar permiso
+    requestPermission();
+}
+
+        // Añadir/actualizar marcador de ubicación del usuario
+function updateUserLocationMarker() {
+    // Remover marcador anterior si existe
+    if (userLocationMarker) {
+        map.removeLayer(userLocationMarker);
+    }
+
+    // Crear icono según si hay brújula o no
+    const iconHtml = hasCompass 
+        ? '<div class="user-location-compass"></div>'
+        : '<div class="user-location-pulse"></div>';
+    
+    const iconClass = hasCompass 
+        ? 'user-location-compass' 
+        : 'user-location-marker';
+
+    const userIcon = L.divIcon({
+        className: iconClass,
+        html: iconHtml,
+        iconSize: hasCompass ? [30, 30] : [20, 20],
+        iconAnchor: hasCompass ? [15, 15] : [10, 10]
+    });
+
+    // Añadir nuevo marcador
+    userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
+        icon: userIcon,
+        zIndexOffset: 1000
+    }).addTo(map);
+
+    // Aplicar rotación inicial si hay brújula
+    if (hasCompass) {
+        updateCompassRotation();
+    }
+
+    // Añadir popup informativo
+    const t = translations[currentLanguage];
+    userLocationMarker.bindPopup(`
+        <strong>${t.userLocation}</strong><br>
+        Lat: ${userLocation.lat.toFixed(4)}°<br>
+        Lng: ${userLocation.lng.toFixed(4)}°
+    `);
+}
+
+// Actualizar rotación de la brújula
+function updateCompassRotation() {
+    if (userLocationMarker && hasCompass) {
+        const iconElement = userLocationMarker.getElement();
+        if (iconElement) {
+            const compassDiv = iconElement.querySelector('.user-location-compass');
+            if (compassDiv) {
+                compassDiv.style.transform = `rotate(${currentHeading}deg)`;
+            }
+        }
+    }
+}
 
         // Calcular posición del Sol (mejorado)
         // BLOQUE 1: Reemplaza la función calculateSunPosition existente
@@ -2380,6 +2530,8 @@ function searchSatellites() {
 
             // Obtener ubicación del usuario al cargar (siempre mostrar marcador)
             getUserLocation();
+
+            startCompassTracking();
 
             loadSatellites();
         });
