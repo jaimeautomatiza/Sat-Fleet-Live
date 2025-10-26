@@ -821,85 +821,47 @@
     font-size: 16px;
 }
 
-/* Icono de ubicación CON brújula - CONTENEDOR ROTABLE */
+/* Icono de ubicación CON brújula - SVG ROTABLE */
 .user-location-compass {
     width: 24px !important;
     height: 28px !important;
     position: relative !important;
-    will-change: transform;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Evitar duplicados de Leaflet */
-.user-location-compass > div {
-    display: none;
-}
-
-/* CONTENEDOR INTERNO QUE ROTA */
-.compass-arrow {
-    position: absolute;
-    top: 0;
-    left: 0;
+.user-location-compass svg {
     width: 24px;
     height: 28px;
-    transition: transform 0.3s ease-out;
-    transform-origin: 12px 14px; /* Centro exacto del contenedor */
-}
-
-/* Triángulo principal (flecha hacia arriba) */
-.compass-arrow::before {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 22px solid #ffffff;
-    top: 0;
-    left: 2px;
     filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+    transition: transform 0.3s ease-out;
+    transform-origin: center center;
 }
 
-/* Base/cola de la flecha */
-.compass-arrow::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 8px solid #ffffff;
-    bottom: 0;
-    left: 6px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+.user-location-pulse {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ff4444;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    opacity: 0.6;
 }
 
-
-
-        .user-location-pulse {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ff4444;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-            opacity: 0.6;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.8);
-                opacity: 0.6;
-            }
-
-            50% {
-                transform: scale(1.2);
-                opacity: 0.3;
-            }
-
-            100% {
-                transform: scale(0.8);
-                opacity: 0.6;
-            }
-        }
+@keyframes pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
+    100% {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+}
     </style>
 </head>
 
@@ -2124,7 +2086,7 @@ function startCompassTracking() {
         console.log('🔄 Esperando datos de brújula...');
     }
 
-// Manejar evento de orientación - CON SUAVIZADO
+// Manejar evento de orientación - SIN SUAVIZADO (PRECISO)
 function handleOrientation(event) {
     let heading = null;
 
@@ -2149,28 +2111,10 @@ function handleOrientation(event) {
         console.log('✅ Brújula activada correctamente');
     }
 
-    // SUAVIZADO: evitar saltos bruscos
-    const diff = Math.abs(heading - currentHeading);
+    // Actualizar heading directamente SIN suavizado
+    currentHeading = heading;
     
-    // Si el cambio es menor a 5 grados, ignorar (ruido del sensor)
-    if (diff < 5 && compassDataReceived) return;
-    
-    // Si es mayor a 180°, estamos cruzando el norte (0°/360°)
-    if (diff > 180) {
-        if (heading > currentHeading) {
-            heading -= 360;
-        } else {
-            heading += 360;
-        }
-    }
-    
-    // Aplicar suavizado (promedio ponderado)
-    currentHeading = currentHeading * 0.7 + heading * 0.3;
-    
-    // Normalizar entre 0-360
-    if (currentHeading < 0) currentHeading += 360;
-    if (currentHeading >= 360) currentHeading -= 360;
-    
+    // Actualizar rotación inmediatamente
     updateCompassRotation();
 }
 
@@ -2178,17 +2122,16 @@ function handleOrientation(event) {
     requestPermission();
 }
 
-// Añadir/actualizar marcador de ubicación del usuario - CORREGIDO
 function updateUserLocationMarker() {
-    // Remover marcador anterior si existe
     if (userLocationMarker) {
         map.removeLayer(userLocationMarker);
         userLocationMarker = null;
     }
 
-    // Crear icono según si hay brújula o no
     const iconHtml = hasCompass 
-        ? '<div class="compass-arrow"></div>' // NUEVO: contenedor que rotará
+        ? `<svg viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0 L22 22 L12 18 L2 22 Z" fill="white" stroke="none"/>
+           </svg>`
         : '<div class="user-location-pulse"></div>';
     
     const iconClass = hasCompass 
@@ -2202,18 +2145,15 @@ function updateUserLocationMarker() {
         iconAnchor: hasCompass ? [12, 14] : [10, 10]
     });
 
-    // Añadir nuevo marcador
     userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
         icon: userIcon,
         zIndexOffset: 1000
     }).addTo(map);
 
-    // Aplicar rotación inicial si hay brújula
     if (hasCompass) {
         setTimeout(() => updateCompassRotation(), 100);
     }
 
-    // Añadir popup informativo
     const t = translations[currentLanguage];
     userLocationMarker.bindPopup(`
         <strong>${t.userLocation}</strong><br>
@@ -2222,16 +2162,14 @@ function updateUserLocationMarker() {
     `);
 }
 
-// Actualizar rotación de la brújula - VERSIÓN DEFINITIVA
 function updateCompassRotation() {
     if (userLocationMarker && hasCompass) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
-            // Rotar el div interno .compass-arrow que contiene los pseudo-elementos
-            const compassArrow = iconElement.querySelector('.compass-arrow');
-            if (compassArrow) {
-                compassArrow.style.transform = `rotate(${currentHeading}deg)`;
-                console.log(`🧭 Rotando brújula a ${currentHeading.toFixed(1)}°`); // Para debug
+            const svg = iconElement.querySelector('svg');
+            if (svg) {
+                svg.style.transform = `rotate(${currentHeading}deg)`;
+                console.log(`🧭 ${currentHeading.toFixed(1)}°`);
             }
         }
     }
