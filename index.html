@@ -801,7 +801,7 @@
             color: white;
         }
 
-        /* Icono de ubicación sin brújula */
+/* Icono de ubicación sin brújula */
 .user-location-marker {
     width: 20px;
     height: 20px;
@@ -821,13 +821,12 @@
     font-size: 16px;
 }
 
-/* Icono de ubicación CON brújula - FLECHA TRIANGULAR BLANCA */
+/* Icono de ubicación CON brújula - CONTENEDOR ROTABLE */
 .user-location-compass {
     width: 24px !important;
     height: 28px !important;
-    position: relative;
-    transition: transform 0.3s ease-out;
-    transform-origin: center center;
+    position: relative !important;
+    will-change: transform;
 }
 
 /* Evitar duplicados de Leaflet */
@@ -835,8 +834,19 @@
     display: none;
 }
 
+/* CONTENEDOR INTERNO QUE ROTA */
+.compass-arrow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 28px;
+    transition: transform 0.3s ease-out;
+    transform-origin: 12px 14px; /* Centro exacto del contenedor */
+}
+
 /* Triángulo principal (flecha hacia arriba) */
-.user-location-compass::before {
+.compass-arrow::before {
     content: '';
     position: absolute;
     width: 0;
@@ -849,8 +859,8 @@
     filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
 }
 
-/* Base/cola de la flecha (pequeño triángulo invertido para dar forma) */
-.user-location-compass::after {
+/* Base/cola de la flecha */
+.compass-arrow::after {
     content: '';
     position: absolute;
     width: 0;
@@ -2178,7 +2188,7 @@ function updateUserLocationMarker() {
 
     // Crear icono según si hay brújula o no
     const iconHtml = hasCompass 
-        ? '<div></div>' // Contenedor vacío, el CSS hace el resto
+        ? '<div class="compass-arrow"></div>' // NUEVO: contenedor que rotará
         : '<div class="user-location-pulse"></div>';
     
     const iconClass = hasCompass 
@@ -2195,8 +2205,7 @@ function updateUserLocationMarker() {
     // Añadir nuevo marcador
     userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
         icon: userIcon,
-        zIndexOffset: 1000,
-        rotationOrigin: 'center center' // Rotar desde el centro
+        zIndexOffset: 1000
     }).addTo(map);
 
     // Aplicar rotación inicial si hay brújula
@@ -2213,16 +2222,16 @@ function updateUserLocationMarker() {
     `);
 }
 
+// Actualizar rotación de la brújula - VERSIÓN DEFINITIVA
 function updateCompassRotation() {
     if (userLocationMarker && hasCompass) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
-            // Rotar el div COMPLETO con la clase .user-location-compass
-            // (que contiene los pseudo-elementos ::before y ::after)
-            const compassDiv = iconElement.querySelector('.user-location-compass');
-            if (compassDiv) {
-                compassDiv.style.transform = `rotate(${currentHeading}deg)`;
-                compassDiv.style.transition = 'transform 0.3s ease-out';
+            // Rotar el div interno .compass-arrow que contiene los pseudo-elementos
+            const compassArrow = iconElement.querySelector('.compass-arrow');
+            if (compassArrow) {
+                compassArrow.style.transform = `rotate(${currentHeading}deg)`;
+                console.log(`🧭 Rotando brújula a ${currentHeading.toFixed(1)}°`); // Para debug
             }
         }
     }
