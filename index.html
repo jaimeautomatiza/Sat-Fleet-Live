@@ -2133,7 +2133,7 @@ if (!compassDataReceived) {
     const smoothedHeading = sum / previousHeadings.length;
     
     // Actualizar heading con el valor suavizado
-    currentHeading = smoothedHeading;
+currentHeading = (smoothedHeading + 90) % 360;
     // --------------------------------------------------------------
 
  // Actualizar rotación inmediatamente
