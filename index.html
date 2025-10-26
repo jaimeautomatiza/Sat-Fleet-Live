@@ -823,10 +823,16 @@
 
 /* Icono de ubicación CON brújula - FLECHA TRIANGULAR BLANCA */
 .user-location-compass {
-    width: 24px;
-    height: 28px;
+    width: 24px !important;
+    height: 28px !important;
     position: relative;
-    transition: transform 0.2s ease-out;
+    transition: transform 0.3s ease-out;
+    transform-origin: center center;
+}
+
+/* Evitar duplicados de Leaflet */
+.user-location-compass > div {
+    display: none;
 }
 
 /* Triángulo principal (flecha hacia arriba) */
@@ -2108,48 +2114,71 @@ function startCompassTracking() {
         console.log('🔄 Esperando datos de brújula...');
     }
 
-    // Manejar evento de orientación
-    function handleOrientation(event) {
-        let heading = null;
+// Manejar evento de orientación - CON SUAVIZADO
+function handleOrientation(event) {
+    let heading = null;
 
-        // iOS usa webkitCompassHeading
-        if (event.webkitCompassHeading !== undefined) {
-            heading = event.webkitCompassHeading;
-        } 
-        // Android y otros usan alpha
-        else if (event.alpha !== null) {
-            heading = 360 - event.alpha;
-        }
+    // iOS usa webkitCompassHeading (más preciso)
+    if (event.webkitCompassHeading !== undefined) {
+        heading = event.webkitCompassHeading;
+    } 
+    // Android y otros usan alpha
+    else if (event.alpha !== null) {
+        heading = 360 - event.alpha;
+    }
 
-        // Solo activar brújula si hay datos válidos
-        if (heading !== null && !isNaN(heading)) {
-            if (!compassDataReceived) {
-                compassDataReceived = true;
-                hasCompass = true;
-                clearTimeout(compassTimeout);
-                updateUserLocationMarker();
-                console.log('✅ Brújula activada correctamente');
-            }
-            
-            currentHeading = heading;
-            updateCompassRotation();
+    // Validar datos
+    if (heading === null || isNaN(heading)) return;
+
+    // Activar brújula la primera vez
+    if (!compassDataReceived) {
+        compassDataReceived = true;
+        hasCompass = true;
+        clearTimeout(compassTimeout);
+        updateUserLocationMarker();
+        console.log('✅ Brújula activada correctamente');
+    }
+
+    // SUAVIZADO: evitar saltos bruscos
+    const diff = Math.abs(heading - currentHeading);
+    
+    // Si el cambio es menor a 5 grados, ignorar (ruido del sensor)
+    if (diff < 5 && compassDataReceived) return;
+    
+    // Si es mayor a 180°, estamos cruzando el norte (0°/360°)
+    if (diff > 180) {
+        if (heading > currentHeading) {
+            heading -= 360;
+        } else {
+            heading += 360;
         }
     }
+    
+    // Aplicar suavizado (promedio ponderado)
+    currentHeading = currentHeading * 0.7 + heading * 0.3;
+    
+    // Normalizar entre 0-360
+    if (currentHeading < 0) currentHeading += 360;
+    if (currentHeading >= 360) currentHeading -= 360;
+    
+    updateCompassRotation();
+}
 
     // Solicitar permiso
     requestPermission();
 }
 
-        // Añadir/actualizar marcador de ubicación del usuario
+// Añadir/actualizar marcador de ubicación del usuario - CORREGIDO
 function updateUserLocationMarker() {
     // Remover marcador anterior si existe
     if (userLocationMarker) {
         map.removeLayer(userLocationMarker);
+        userLocationMarker = null;
     }
 
     // Crear icono según si hay brújula o no
     const iconHtml = hasCompass 
-        ? '<div class="user-location-compass"></div>'
+        ? '<div></div>' // Contenedor vacío, el CSS hace el resto
         : '<div class="user-location-pulse"></div>';
     
     const iconClass = hasCompass 
@@ -2159,19 +2188,20 @@ function updateUserLocationMarker() {
     const userIcon = L.divIcon({
         className: iconClass,
         html: iconHtml,
-        iconSize: hasCompass ? [30, 30] : [20, 20],
-        iconAnchor: hasCompass ? [15, 15] : [10, 10]
+        iconSize: hasCompass ? [24, 28] : [20, 20],
+        iconAnchor: hasCompass ? [12, 14] : [10, 10]
     });
 
     // Añadir nuevo marcador
     userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
         icon: userIcon,
-        zIndexOffset: 1000
+        zIndexOffset: 1000,
+        rotationOrigin: 'center center' // Rotar desde el centro
     }).addTo(map);
 
     // Aplicar rotación inicial si hay brújula
     if (hasCompass) {
-        updateCompassRotation();
+        setTimeout(() => updateCompassRotation(), 100);
     }
 
     // Añadir popup informativo
@@ -2183,11 +2213,12 @@ function updateUserLocationMarker() {
     `);
 }
 
-// Actualizar rotación de la brújula
+// Actualizar rotación de la brújula - VERSIÓN FINAL
 function updateCompassRotation() {
     if (userLocationMarker && hasCompass) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
+            // Rotar directamente el icono completo (más simple y eficiente)
             const compassDiv = iconElement.querySelector('.user-location-compass');
             if (compassDiv) {
                 compassDiv.style.transform = `rotate(${currentHeading}deg)`;
