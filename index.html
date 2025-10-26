@@ -2086,7 +2086,7 @@ function startCompassTracking() {
         console.log('🔄 Esperando datos de brújula...');
     }
 
-// Manejar evento de orientación - SIN SUAVIZADO (PRECISO)
+// Manejar evento de orientación - CON COMPENSACIÓN DE ORIENTACIÓN DE PANTALLA
 function handleOrientation(event) {
     let heading = null;
 
@@ -2111,7 +2111,27 @@ function handleOrientation(event) {
         console.log('✅ Brújula activada correctamente');
     }
 
-    // Actualizar heading directamente SIN suavizado
+    // COMPENSAR LA ORIENTACIÓN DE LA PANTALLA
+    const screenOrientation = window.screen.orientation || window.screen.mozOrientation || window.screen.msOrientation;
+    
+    if (screenOrientation) {
+        const orientationType = screenOrientation.type || screenOrientation;
+        
+        // Ajustar según la orientación de la pantalla
+        if (orientationType.includes('landscape-primary')) {
+            // Landscape normal (botón home a la derecha en iOS, a la izquierda en Android)
+            heading = (heading + 90) % 360;
+        } else if (orientationType.includes('landscape-secondary')) {
+            // Landscape invertido (botón home al otro lado)
+            heading = (heading + 270) % 360;
+        } else if (orientationType.includes('portrait-secondary')) {
+            // Portrait invertido (cabeza abajo)
+            heading = (heading + 180) % 360;
+        }
+        // portrait-primary no necesita ajuste
+    }
+
+    // Actualizar heading directamente
     currentHeading = heading;
     
     // Actualizar rotación inmediatamente
