@@ -2091,53 +2091,74 @@ function startCompassTracking() {
         console.log('🔄 Esperando datos de brújula...');
     }
 
-// Manejar evento de orientación - CON SUAVIZADO (sin compensación de pantalla compleja)
+// Variable global para almacenar el último valor ajustado de la brújula
+let previousHeadings = []; 
+const SMOOTHING_FACTOR = 5; 
+const DECLINATION_OFFSET = 2; // Ajuste por Norte Magnético vs Geográfico (ej: Madrid = 2)
+
+
+// Manejar evento de orientación con Compensación de Pantalla y Suavizado
 function handleOrientation(event) {
- let heading = null;
+    let heading = null;
 
- // iOS (Safari) usa webkitCompassHeading (más preciso)
- if (event.webkitCompassHeading !== undefined) {
- heading = event.webkitCompassHeading;
- }
- // Android y otros (usan alpha)
- else if (event.alpha !== null) {
- // Para Android, 360 - alpha suele ser el norte geográfico.
- heading = 360 - event.alpha;
- }
-
- // Validar y asegurar que el heading esté entre 0 y 360
- if (heading === null || isNaN(heading)) return;
-    heading = (heading % 360 + 360) % 360;
-
-
- // Activar brújula la primera vez
-if (!compassDataReceived) {
-        compassDataReceived = true;
- hasCompass = true;
- clearTimeout(compassTimeout);
- updateUserLocationMarker();
- console.log('✅ Brújula activada correctamente');
- }
-
-    // --- NUEVO: SUAVIZADO DE MOVIMIENTO (Filtro Promedio Móvil) ---
-    // Añadir el nuevo heading a la lista
-    previousHeadings.push(heading);
-    
-    // Mantener solo los últimos N valores
-    if (previousHeadings.length > SMOOTHING_FACTOR) {
-        previousHeadings.shift(); // Elimina el valor más antiguo
+    // 1. Obtener la lectura base del sensor
+    if (event.webkitCompassHeading !== undefined) {
+        // iOS: Proporciona el rumbo al Norte Verdadero directamente
+        heading = event.webkitCompassHeading;
+    } else if (event.alpha !== null) {
+        // Android/Otros: Usan alpha (Norte en Z=0, a menudo inverso)
+        heading = 360 - event.alpha;
     }
 
-    // Calcular el promedio de los valores
-    const sum = previousHeadings.reduce((a, b) => a + b, 0);
-    const smoothedHeading = sum / previousHeadings.length;
-    
-    // Actualizar heading con el valor suavizado
-currentHeading = (smoothedHeading + 90) % 360;
-    // --------------------------------------------------------------
+    // 2. Validar y asegurar el rango [0, 360)
+    if (heading === null || isNaN(heading)) return;
+    heading = (heading % 360 + 360) % 360;
 
- // Actualizar rotación inmediatamente
- updateCompassRotation();
+    // 3. Suavizado (Promedio Móvil)
+    previousHeadings.push(heading);
+    if (previousHeadings.length > SMOOTHING_FACTOR) {
+        previousHeadings.shift(); 
+    }
+    const sum = previousHeadings.reduce((a, b) => a + b, 0);
+    let smoothedHeading = sum / previousHeadings.length;
+    
+    // 4. Activar brújula la primera vez (mantener la lógica original)
+    if (!compassDataReceived) {
+        compassDataReceived = true;
+        hasCompass = true;
+        clearTimeout(compassTimeout);
+        updateUserLocationMarker();
+        console.log('✅ Brújula activada correctamente');
+    }
+
+    // 5. Compensación del eje de inclinación del dispositivo (La clave)
+    let screenAdjustment = 0;
+    
+    // Usamos el valor numérico de la orientación, que es más consistente
+    const orientationAngle = window.orientation || 0; // 0, 90, -90, 180 (en grados)
+    
+    // El 'window.orientation' compensa la rotación del dispositivo. 
+    // Lo que queremos es la rotación de la brújula, que es independiente, 
+    // pero debemos corregirla porque el sensor mira hacia el cielo (inclinación).
+    
+    // El valor base es la corrección de +90 grados para la inclinación
+    // El valor de window.orientation se resta para compensar la rotación de pantalla
+    
+    screenAdjustment = -orientationAngle; 
+
+    // 6. Aplicar corrección final
+    // smoothedHeading: rumbo filtrado (0=Norte)
+    // + 90: corrección de inclinación (la flecha debe ir hacia el frente)
+    // + screenAdjustment: compensación de la rotación de la pantalla (0, 90, -90, etc.)
+    // + DECLINATION_OFFSET: corrección geográfica
+    
+    currentHeading = (smoothedHeading + 90 + screenAdjustment + DECLINATION_OFFSET) % 360;
+
+    // Asegurarse que el ángulo esté en el rango correcto
+    currentHeading = (currentHeading + 360) % 360; 
+
+    // Actualizar rotación inmediatamente
+    updateCompassRotation();
 }
 
     // Solicitar permiso
