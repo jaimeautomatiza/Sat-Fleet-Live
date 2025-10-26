@@ -2001,13 +2001,18 @@ function searchSatellites() {
             });
         }
 
-        // Variables para visibilidad
+ // Variables para visibilidad
         let showOnlyVisible = false;
         let minElevation = 10;
         let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
         let userLocationMarker = null;
-        let hasCompass = false;
+       let hasCompass = false;
+        
+        // --- VARIABLES DE BRÚJULA CORREGIDAS ---
         let currentHeading = 0;
+        let previousHeadings = []; // Almacena valores para suavizar
+        const SMOOTHING_FACTOR = 5; // Número de lecturas para el promedio
+        // ----------------------------------------
 
         // Obtener ubicación del usuario
         function getUserLocation() {
@@ -2086,56 +2091,53 @@ function startCompassTracking() {
         console.log('🔄 Esperando datos de brújula...');
     }
 
-// Manejar evento de orientación - CON COMPENSACIÓN DE ORIENTACIÓN DE PANTALLA
+// Manejar evento de orientación - CON SUAVIZADO (sin compensación de pantalla compleja)
 function handleOrientation(event) {
-    let heading = null;
+ let heading = null;
 
-    // iOS usa webkitCompassHeading (más preciso)
-    if (event.webkitCompassHeading !== undefined) {
-        heading = event.webkitCompassHeading;
-    } 
-    // Android y otros usan alpha
-    else if (event.alpha !== null) {
-        heading = 360 - event.alpha;
-    }
+ // iOS (Safari) usa webkitCompassHeading (más preciso)
+ if (event.webkitCompassHeading !== undefined) {
+ heading = event.webkitCompassHeading;
+ }
+ // Android y otros (usan alpha)
+ else if (event.alpha !== null) {
+ // Para Android, 360 - alpha suele ser el norte geográfico.
+ heading = 360 - event.alpha;
+ }
 
-    // Validar datos
-    if (heading === null || isNaN(heading)) return;
+ // Validar y asegurar que el heading esté entre 0 y 360
+ if (heading === null || isNaN(heading)) return;
+    heading = (heading % 360 + 360) % 360;
 
-    // Activar brújula la primera vez
-    if (!compassDataReceived) {
+
+ // Activar brújula la primera vez
+if (!compassDataReceived) {
         compassDataReceived = true;
-        hasCompass = true;
-        clearTimeout(compassTimeout);
-        updateUserLocationMarker();
-        console.log('✅ Brújula activada correctamente');
+ hasCompass = true;
+ clearTimeout(compassTimeout);
+ updateUserLocationMarker();
+ console.log('✅ Brújula activada correctamente');
+ }
+
+    // --- NUEVO: SUAVIZADO DE MOVIMIENTO (Filtro Promedio Móvil) ---
+    // Añadir el nuevo heading a la lista
+    previousHeadings.push(heading);
+    
+    // Mantener solo los últimos N valores
+    if (previousHeadings.length > SMOOTHING_FACTOR) {
+        previousHeadings.shift(); // Elimina el valor más antiguo
     }
 
-    // COMPENSAR LA ORIENTACIÓN DE LA PANTALLA
-    const screenOrientation = window.screen.orientation || window.screen.mozOrientation || window.screen.msOrientation;
+    // Calcular el promedio de los valores
+    const sum = previousHeadings.reduce((a, b) => a + b, 0);
+    const smoothedHeading = sum / previousHeadings.length;
     
-    if (screenOrientation) {
-        const orientationType = screenOrientation.type || screenOrientation;
-        
-        // Ajustar según la orientación de la pantalla
-        if (orientationType.includes('landscape-primary')) {
-            // Landscape normal (botón home a la derecha en iOS, a la izquierda en Android)
-            heading = (heading + 90) % 360;
-        } else if (orientationType.includes('landscape-secondary')) {
-            // Landscape invertido (botón home al otro lado)
-            heading = (heading + 270) % 360;
-        } else if (orientationType.includes('portrait-secondary')) {
-            // Portrait invertido (cabeza abajo)
-            heading = (heading + 180) % 360;
-        }
-        // portrait-primary no necesita ajuste
-    }
+    // Actualizar heading con el valor suavizado
+    currentHeading = smoothedHeading;
+    // --------------------------------------------------------------
 
-    // Actualizar heading directamente
-    currentHeading = heading;
-    
-    // Actualizar rotación inmediatamente
-    updateCompassRotation();
+ // Actualizar rotación inmediatamente
+ updateCompassRotation();
 }
 
     // Solicitar permiso
