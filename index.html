@@ -2218,11 +2218,10 @@ function updateCompassRotation() {
     if (userLocationMarker && hasCompass) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
-            // Rotar directamente el icono completo (más simple y eficiente)
-            const compassDiv = iconElement.querySelector('.user-location-compass');
-            if (compassDiv) {
-                compassDiv.style.transform = `rotate(${currentHeading}deg)`;
-            }
+            // Aplicar rotación al elemento padre del icono
+            iconElement.style.transform = `rotate(${currentHeading}deg)`;
+            iconElement.style.transformOrigin = 'center center';
+            iconElement.style.transition = 'transform 0.3s ease-out';
         }
     }
 }
