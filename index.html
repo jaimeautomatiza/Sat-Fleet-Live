@@ -2213,15 +2213,18 @@ function updateUserLocationMarker() {
     `);
 }
 
-// Actualizar rotación de la brújula - VERSIÓN FINAL
+// Actualizar rotación de la brújula - CORREGIDO
 function updateCompassRotation() {
     if (userLocationMarker && hasCompass) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
-            // Aplicar rotación al elemento padre del icono
-            iconElement.style.transform = `rotate(${currentHeading}deg)`;
-            iconElement.style.transformOrigin = 'center center';
-            iconElement.style.transition = 'transform 0.3s ease-out';
+            // Buscar TODOS los elementos compass y rotarlos (evita duplicados)
+            const compassDivs = iconElement.querySelectorAll('.user-location-compass');
+            compassDivs.forEach(compassDiv => {
+                // Rotar solo el contenedor interno, no el marcador de Leaflet
+                const inner = compassDiv.querySelector('div') || compassDiv;
+                inner.style.transform = `rotate(${currentHeading}deg)`;
+            });
         }
     }
 }
