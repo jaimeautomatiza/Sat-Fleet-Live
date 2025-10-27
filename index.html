@@ -2007,7 +2007,7 @@ let minElevation = 10;
 let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
 let userLocationMarker = null;
 let hasCompass = false;
-let currentHeading = 0;
+let currentHeading = null;
 
 // Obtener ubicación del usuario
 function getUserLocation() {
@@ -2149,11 +2149,8 @@ function startCompassTracking() {
         let diff = heading - currentHeading;
         
         // Normalizar la diferencia para tomar el camino más corto
-        if (diff > 180) {
-            diff -= 360;
-        } else if (diff < -180) {
-            diff += 360;
-        }
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
         
         // Aplicar suavizado a la diferencia (no al valor absoluto)
         currentHeading += diff * 0.2;
