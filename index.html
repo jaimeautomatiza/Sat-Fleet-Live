@@ -2144,23 +2144,25 @@ function startCompassTracking() {
             console.log('✅ Brújula activada correctamente');
         }
 
-        // SUAVIZADO LIGERO (solo 20% para mantener precisión)
-        // Calcular la diferencia más corta entre ángulos
-        let diff = heading - currentHeading;
-        
-        // Normalizar la diferencia para tomar el camino más corto
-        while (diff > 180) diff -= 360;
-        while (diff < -180) diff += 360;
-        
-        // Aplicar suavizado a la diferencia (no al valor absoluto)
-        currentHeading += diff * 0.2;
-        
-        // Normalizar entre 0-360
-        if (currentHeading < 0) currentHeading += 360;
-        if (currentHeading >= 360) currentHeading -= 360;
-        
-        updateCompassRotation();
+    // CORRECCIÓN DEL PROBLEMA DEL NORTE (0°/360°)
+    // Calcular la diferencia más corta entre ángulos
+    let diff = heading - currentHeading;
+    
+    // Normalizar para tomar SIEMPRE el camino más corto
+    if (diff > 180) {
+        diff -= 360;
+    } else if (diff < -180) {
+        diff += 360;
     }
+    
+    // Aplicar suavizado solo a la diferencia (no al valor absoluto)
+    currentHeading += diff * 0.2;
+    
+    // Normalizar currentHeading entre 0-360
+    currentHeading = ((currentHeading % 360) + 360) % 360;
+    
+    updateCompassRotation();
+}
 
     // Solicitar permiso
     requestPermission();
@@ -2211,12 +2213,14 @@ function updateUserLocationMarker() {
 
 // Actualizar rotación de la brújula
 function updateCompassRotation() {
-    if (userLocationMarker && hasCompass) {
+    if (userLocationMarker && hasCompass && currentHeading !== null) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
             const svg = iconElement.querySelector('svg');
             if (svg) {
+                // Usar el valor ya normalizado directamente
                 svg.style.transform = `rotate(${currentHeading}deg)`;
+                svg.style.transition = 'transform 0.3s ease-out';
             }
         }
     }
