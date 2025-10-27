@@ -2037,6 +2037,10 @@ function calculateGeodesicHeading(lat1, lng1, lat2, lng2) {
 
 // Obtener ubicación del usuario y actualizar el rumbo (basado en el movimiento)
 function getUserLocation() {
+    // Activar icono de flecha inmediatamente
+    hasCompass = true;
+    updateUserLocationMarker();
+    
     if (navigator.geolocation) {
         // Usamos watchPosition para recibir actualizaciones continuas
         navigator.geolocation.watchPosition(
@@ -2049,41 +2053,45 @@ function getUserLocation() {
                     const lat1 = previousLocation.lat;
                     const lng1 = previousLocation.lng;
                     
-                    // Solo actualizamos el rumbo si el móvil se ha movido un poco
-                    // Esto es clave para la estabilidad
+                    // Solo actualizamos si el móvil se movió ~10 metros (0.0001°)
                     if (Math.abs(newLat - lat1) > 0.0001 || Math.abs(newLng - lng1) > 0.0001) {
-                        // Calcular el rumbo geodésico (la "dirección")
-const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
-
-// Suavizado: promedio ponderado (70% antiguo, 30% nuevo)
-const diff = Math.abs(heading - currentHeading);
-
-// Manejar cruce de 0°/360°
-let smoothedHeading = heading;
-if (diff > 180) {
-    if (heading > currentHeading) {
-        smoothedHeading = heading - 360;
-    } else {
-        smoothedHeading = heading + 360;
-    }
-}
-
-currentHeading = currentHeading * 0.7 + smoothedHeading * 0.3;
-
-// Normalizar entre 0-360°
-if (currentHeading < 0) currentHeading += 360;
-if (currentHeading >= 360) currentHeading -= 360;
-
-updateCompassRotation();                    
-}
+                        // Calcular el rumbo geodésico
+                        const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
+                        
+                        // SUAVIZADO: evitar saltos bruscos
+                        const diff = Math.abs(heading - currentHeading);
+                        
+                        let smoothedHeading = heading;
+                        
+                        // Manejar cruce de 0°/360°
+                        if (diff > 180) {
+                            if (heading > currentHeading) {
+                                smoothedHeading = heading - 360;
+                            } else {
+                                smoothedHeading = heading + 360;
+                            }
+                        }
+                        
+                        // Promedio ponderado (70% antiguo, 30% nuevo)
+                        currentHeading = currentHeading * 0.7 + smoothedHeading * 0.3;
+                        
+                        // Normalizar entre 0-360°
+                        if (currentHeading < 0) currentHeading += 360;
+                        if (currentHeading >= 360) currentHeading -= 360;
+                        
+                        updateCompassRotation();
+                    }
                 }
 
                 userLocation.lat = newLat;
                 userLocation.lng = newLng;
                 previousLocation = { lat: newLat, lng: newLng };
 
-                // Añadir o actualizar marcador de ubicación
-                updateUserLocationMarker();
+                // Actualizar marcador de ubicación
+                if (!hasCompass) {
+                    hasCompass = true;
+                    updateUserLocationMarker();
+                }
                 
                 // Reprocesar filtros de visibilidad si están activos
                 if (showOnlyVisible) {
@@ -2091,13 +2099,17 @@ updateCompassRotation();
                 }
             },
             (error) => {
-                console.warn('No se pudo obtener la ubicación o hay errores:', error.message);
-                updateUserLocationMarker(); // Mostrar ubicación por defecto (Madrid)
+                console.warn('Error GPS:', error.message);
+                updateUserLocationMarker(); // Mostrar Madrid por defecto
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000 } // Opciones de alta precisión
+            { 
+                enableHighAccuracy: true, 
+                timeout: 10000,      // 10 segundos
+                maximumAge: 1000     // 1 segundo de caché
+            }
         );
     } else {
-        updateUserLocationMarker(); // Mostrar ubicación por defecto (Madrid)
+        updateUserLocationMarker(); // Sin GPS
     }
 }
 
