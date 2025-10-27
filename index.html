@@ -2051,14 +2051,31 @@ function getUserLocation() {
                     
                     // Solo actualizamos el rumbo si el móvil se ha movido un poco
                     // Esto es clave para la estabilidad
-                    if (Math.abs(newLat - lat1) > 0.00001 || Math.abs(newLng - lng1) > 0.00001) {
+                    if (Math.abs(newLat - lat1) > 0.0001 || Math.abs(newLng - lng1) > 0.0001) {
                         // Calcular el rumbo geodésico (la "dirección")
-                        const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
-                        currentHeading = heading;
-                        updateCompassRotation();
-                        // Nota: hasCompass debe seguir siendo true para que el marcador rote.
-                        hasCompass = true; 
-                    }
+const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
+
+// Suavizado: promedio ponderado (70% antiguo, 30% nuevo)
+const diff = Math.abs(heading - currentHeading);
+
+// Manejar cruce de 0°/360°
+let smoothedHeading = heading;
+if (diff > 180) {
+    if (heading > currentHeading) {
+        smoothedHeading = heading - 360;
+    } else {
+        smoothedHeading = heading + 360;
+    }
+}
+
+currentHeading = currentHeading * 0.7 + smoothedHeading * 0.3;
+
+// Normalizar entre 0-360°
+if (currentHeading < 0) currentHeading += 360;
+if (currentHeading >= 360) currentHeading -= 360;
+
+updateCompassRotation();                    
+}
                 }
 
                 userLocation.lat = newLat;
@@ -2077,7 +2094,7 @@ function getUserLocation() {
                 console.warn('No se pudo obtener la ubicación o hay errores:', error.message);
                 updateUserLocationMarker(); // Mostrar ubicación por defecto (Madrid)
             },
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Opciones de alta precisión
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000 } // Opciones de alta precisión
         );
     } else {
         updateUserLocationMarker(); // Mostrar ubicación por defecto (Madrid)
@@ -2131,7 +2148,6 @@ function updateCompassRotation() {
             const svg = iconElement.querySelector('svg');
             if (svg) {
                 svg.style.transform = `rotate(${currentHeading}deg)`;
-                console.log(`🧭 ${currentHeading.toFixed(1)}°`);
             }
         }
     }
