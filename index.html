@@ -2001,175 +2001,87 @@ function searchSatellites() {
             });
         }
 
- // Variables para visibilidad
-        let showOnlyVisible = false;
-        let minElevation = 10;
-        let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
-        let userLocationMarker = null;
-       let hasCompass = false;
-        
-        // --- VARIABLES DE BRÚJULA CORREGIDAS ---
-        let currentHeading = 0;
-        let previousHeadings = []; // Almacena valores para suavizar
-        const SMOOTHING_FACTOR = 5; // Número de lecturas para el promedio
-        // ----------------------------------------
+// Variables para visibilidad
+let showOnlyVisible = false;
+let minElevation = 10;
+let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
+let userLocationMarker = null;
+let hasCompass = false; // Se cambia a 'true' cuando se detecta movimiento GPS
+let currentHeading = 0;
 
-        // Obtener ubicación del usuario
-        function getUserLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        userLocation.lat = position.coords.latitude;
-                        userLocation.lng = position.coords.longitude;
-                        console.log('Ubicación obtenida:', userLocation);
+// Variable global para almacenar la ubicación anterior
+let previousLocation = null;
 
-                        // Añadir o actualizar marcador de ubicación
-                        updateUserLocationMarker();
+// Función para calcular el rumbo (bearing) entre dos puntos Lat/Lng
+function calculateGeodesicHeading(lat1, lng1, lat2, lng2) {
+    const degToRad = (deg) => deg * (Math.PI / 180);
+    const radToDeg = (rad) => rad * (180 / Math.PI);
 
-                        if (showOnlyVisible) {
-                            filterVisibleSatellites();
-                        }
-                    },
-                    (error) => {
-                        console.warn('No se pudo obtener la ubicación, usando Madrid por defecto');
-                        updateUserLocationMarker(); // Mostrar Madrid por defecto
-                    }
-                );
-            } else {
-                updateUserLocationMarker(); // Mostrar Madrid por defecto
-            }
-        }
+    const φ1 = degToRad(lat1);
+    const φ2 = degToRad(lat2);
+    const Δλ = degToRad(lng2 - lng1); // Delta Longitud
 
-        // Solicitar y manejar orientación del dispositivo
-function startCompassTracking() {
-    // Verificar si el navegador soporta orientación
-    if (!window.DeviceOrientationEvent) {
-        console.log('❌ Este dispositivo no soporta brújula');
-        return;
-    }
-
-    // Función para pedir permisos en iOS 13+
-    async function requestPermission() {
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            try {
-                const permission = await DeviceOrientationEvent.requestPermission();
-                if (permission === 'granted') {
-                    attachOrientationListener();
-                } else {
-                    console.log('⚠️ Permiso de orientación denegado');
-                }
-            } catch (error) {
-                console.error('Error solicitando permiso de orientación:', error);
-            }
-        } else {
-            // Android o navegadores que no requieren permiso
-            attachOrientationListener();
-        }
-    }
-
-    // Variable para detectar si realmente hay datos de brújula
-    let compassDataReceived = false;
-    let compassTimeout = null;
-
-    // Adjuntar listener de orientación
-    function attachOrientationListener() {
-        // Intentar con deviceorientationabsolute primero (más preciso)
-        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-        
-        // Fallback a deviceorientation normal
-        window.addEventListener('deviceorientation', handleOrientation, true);
-        
-        // Timeout: si no recibe datos en 2 segundos, no hay brújula real
-        compassTimeout = setTimeout(() => {
-            if (!compassDataReceived) {
-                console.log('⚠️ No se detectaron datos de brújula - usando icono normal');
-                hasCompass = false;
-                updateUserLocationMarker();
-            }
-        }, 2000);
-        
-        console.log('🔄 Esperando datos de brújula...');
-    }
-
-// Variable global para almacenar el último valor ajustado de la brújula
-let previousHeadings = []; 
-const SMOOTHING_FACTOR = 5; 
-const DECLINATION_OFFSET = 2; // Ajuste por Norte Magnético vs Geográfico (ej: Madrid = 2)
-
-
-// Manejar evento de orientación con Compensación de Pantalla y Suavizado
-function handleOrientation(event) {
-    let heading = null;
-
-    // 1. Obtener la lectura base del sensor
-    if (event.webkitCompassHeading !== undefined) {
-        // iOS: Proporciona el rumbo al Norte Verdadero directamente
-        heading = event.webkitCompassHeading;
-    } else if (event.alpha !== null) {
-        // Android/Otros: Usan alpha (Norte en Z=0, a menudo inverso)
-        heading = 360 - event.alpha;
-    }
-
-    // 2. Validar y asegurar el rango [0, 360)
-    if (heading === null || isNaN(heading)) return;
-    heading = (heading % 360 + 360) % 360;
-
-    // 3. Suavizado (Promedio Móvil)
-    previousHeadings.push(heading);
-    if (previousHeadings.length > SMOOTHING_FACTOR) {
-        previousHeadings.shift(); 
-    }
-    const sum = previousHeadings.reduce((a, b) => a + b, 0);
-    let smoothedHeading = sum / previousHeadings.length;
+    // Fórmula del rumbo (bearing)
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
     
-    // 4. Activar brújula la primera vez (mantener la lógica original)
-    if (!compassDataReceived) {
-        compassDataReceived = true;
-        hasCompass = true;
-        clearTimeout(compassTimeout);
-        updateUserLocationMarker();
-        console.log('✅ Brújula activada correctamente');
-    }
+    // Obtener el rumbo en radianes
+    let θ = Math.atan2(y, x);
+    
+    // Convertir a grados y asegurar que esté en el rango [0, 360)
+    let heading = radToDeg(θ);
+    heading = (heading + 360) % 360; 
 
-    // 5. Compensación del eje de inclinación del dispositivo (La clave)
-    let screenAdjustment = 0;
-    
-    // Usamos el valor numérico de la orientación, que es más consistente
-    const orientationAngle = window.orientation || 0; // 0, 90, -90, 180 (en grados)
-    
-    // El 'window.orientation' compensa la rotación del dispositivo. 
-    // Lo que queremos es la rotación de la brújula, que es independiente, 
-    // pero debemos corregirla porque el sensor mira hacia el cielo (inclinación).
-    
-    // El valor base es la corrección de +90 grados para la inclinación
-    // El valor de window.orientation se resta para compensar la rotación de pantalla
-    
-    screenAdjustment = -orientationAngle; 
-
-    // 6. Aplicar corrección final
-    // smoothedHeading: rumbo filtrado (0=Norte)
-    // + 90: corrección de inclinación (la flecha debe ir hacia el frente)
-    // + screenAdjustment: compensación de la rotación de la pantalla (0, 90, -90, etc.)
-    // + DECLINATION_OFFSET: corrección geográfica
-    
-// ⭐ Cambiamos el orden de las operaciones para ver si se estabiliza la compensación
-    let finalHeading = smoothedHeading + DECLINATION_OFFSET;
-    
-    // Aplicamos primero la rotación de la pantalla
-    finalHeading += screenAdjustment;
-    
-    // Aplicamos la corrección de inclinación (90 grados)
-    finalHeading += 90; 
-
-    // Asegurarse que el ángulo esté en el rango correcto [0, 360)
-    currentHeading = (finalHeading % 360 + 360) % 360; 
-
-    // Actualizar rotación inmediatamente
-    updateCompassRotation();
+    return heading;
 }
 
-    // Solicitar permiso
-    requestPermission();
+// Obtener ubicación del usuario y actualizar el rumbo (basado en el movimiento)
+function getUserLocation() {
+    if (navigator.geolocation) {
+        // Usamos watchPosition para recibir actualizaciones continuas
+        navigator.geolocation.watchPosition(
+            (position) => {
+                const newLat = position.coords.latitude;
+                const newLng = position.coords.longitude;
+                
+                // Si tenemos una ubicación anterior, calculamos el rumbo
+                if (previousLocation) {
+                    const lat1 = previousLocation.lat;
+                    const lng1 = previousLocation.lng;
+                    
+                    // Solo actualizamos el rumbo si el móvil se ha movido un poco
+                    // Esto es clave para la estabilidad
+                    if (Math.abs(newLat - lat1) > 0.00001 || Math.abs(newLng - lng1) > 0.00001) {
+                        // Calcular el rumbo geodésico (la "dirección")
+                        const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
+                        currentHeading = heading;
+                        updateCompassRotation();
+                        // Nota: hasCompass debe seguir siendo true para que el marcador rote.
+                        hasCompass = true; 
+                    }
+                }
+
+                userLocation.lat = newLat;
+                userLocation.lng = newLng;
+                previousLocation = { lat: newLat, lng: newLng };
+
+                // Añadir o actualizar marcador de ubicación
+                updateUserLocationMarker();
+                
+                // Reprocesar filtros de visibilidad si están activos
+                if (showOnlyVisible) {
+                    filterVisibleSatellites();
+                }
+            },
+            (error) => {
+                console.warn('No se pudo obtener la ubicación o hay errores:', error.message);
+                updateUserLocationMarker(); // Mostrar ubicación por defecto (Madrid)
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Opciones de alta precisión
+        );
+    } else {
+        updateUserLocationMarker(); // Mostrar ubicación por defecto (Madrid)
+    }
 }
 
 function updateUserLocationMarker() {
@@ -2559,8 +2471,6 @@ function updateCompassRotation() {
 
             // Obtener ubicación del usuario al cargar (siempre mostrar marcador)
             getUserLocation();
-
-            startCompassTracking();
 
             loadSatellites();
         });
