@@ -2004,156 +2004,226 @@ function searchSatellites() {
 // Variables para visibilidad
 let showOnlyVisible = false;
 let minElevation = 10;
-let userLocation = null; // ⚠️ CAMBIADO: null hasta obtener ubicación real
+let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
 let userLocationMarker = null;
 let hasCompass = false;
 let currentHeading = 0;
-let previousLocation = null;
-let locationWatchId = null; // Para poder detener watchPosition si es necesario
 
-// Función para calcular el rumbo (bearing) entre dos puntos Lat/Lng
-function calculateGeodesicHeading(lat1, lng1, lat2, lng2) {
-    const degToRad = (deg) => deg * (Math.PI / 180);
-    const radToDeg = (rad) => rad * (180 / Math.PI);
+// Obtener ubicación del usuario
+function getUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                userLocation.lat = position.coords.latitude;
+                userLocation.lng = position.coords.longitude;
+                console.log('✅ Ubicación obtenida:', userLocation);
 
-    const φ1 = degToRad(lat1);
-    const φ2 = degToRad(lat2);
-    const Δλ = degToRad(lng2 - lng1); // Delta Longitud
+                // Añadir o actualizar marcador de ubicación
+                updateUserLocationMarker();
 
-    // Fórmula del rumbo (bearing)
-    const y = Math.sin(Δλ) * Math.cos(φ2);
-    const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-    
-    // Obtener el rumbo en radianes
-    let θ = Math.atan2(y, x);
-    
-    // Convertir a grados y asegurar que esté en el rango [0, 360)
-    let heading = radToDeg(θ);
-    heading = (heading + 360) % 360; 
-
-    return heading;
+                if (showOnlyVisible) {
+                    filterVisibleSatellites();
+                }
+            },
+            (error) => {
+                console.warn('⚠️ No se pudo obtener la ubicación, usando Madrid por defecto');
+                updateUserLocationMarker(); // Mostrar Madrid por defecto
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    } else {
+        updateUserLocationMarker(); // Mostrar Madrid por defecto
+    }
 }
 
-// Obtener ubicación del usuario y actualizar el rumbo (basado en el movimiento)
-function getUserLocation() {
-    if (!navigator.geolocation) {
-        console.error('❌ Geolocalización no disponible');
-        userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid fallback
-        updateUserLocationMarker();
+// Solicitar y manejar orientación del dispositivo (BRÚJULA)
+function startCompassTracking() {
+    // Verificar si el navegador soporta orientación
+    if (!window.DeviceOrientationEvent) {
+        console.log('❌ Este dispositivo no soporta brújula');
         return;
     }
 
-    console.log('🔄 Solicitando ubicación...');
-
-    // Primero obtener ubicación inicial con getCurrentPosition
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            userLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
-            previousLocation = { ...userLocation };
-            
-            console.log('✅ Ubicación obtenida:', userLocation);
-            
-            // Mostrar marcador con ubicación real
-            hasCompass = true;
-            updateUserLocationMarker();
-            
-            // Ahora iniciar seguimiento continuo
-            startLocationTracking();
-            
-            // Reprocesar filtros si están activos
-            if (showOnlyVisible) {
-                filterVisibleSatellites();
+    // Función para pedir permisos en iOS 13+
+    async function requestPermission() {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            try {
+                const permission = await DeviceOrientationEvent.requestPermission();
+                if (permission === 'granted') {
+                    attachOrientationListener();
+                } else {
+                    console.log('⚠️ Permiso de orientación denegado');
+                }
+            } catch (error) {
+                console.error('❌ Error solicitando permiso:', error);
             }
-        },
-        (error) => {
-            console.error('❌ Error obteniendo ubicación:', error.message);
-            console.error('Código de error:', error.code);
-            
-            // Fallback a Madrid si falla
-            userLocation = { lat: 40.4168, lng: -3.7038 };
-            updateUserLocationMarker();
-            
-            // Mostrar mensaje al usuario
-            alert(`No se pudo obtener tu ubicación: ${error.message}\nUsando Madrid por defecto.`);
-        },
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
+        } else {
+            // Android o navegadores que no requieren permiso
+            attachOrientationListener();
         }
-    );
-}
-
-// Función separada para el seguimiento continuo
-function startLocationTracking() {
-    if (locationWatchId !== null) {
-        navigator.geolocation.clearWatch(locationWatchId);
     }
-    
-    console.log('🔄 Iniciando seguimiento GPS continuo...');
-    
-    locationWatchId = navigator.geolocation.watchPosition(
-        (position) => {
-            const newLat = position.coords.latitude;
-            const newLng = position.coords.longitude;
+
+    // Variable para detectar si realmente hay datos de brújula
+    let compassDataReceived = false;
+    let compassTimeout = null;
+
+    // Adjuntar listener de orientación
+    function attachOrientationListener() {
+        // Intentar con deviceorientationabsolute primero (más preciso)
+        window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+        
+        // Fallback a deviceorientation normal
+        window.addEventListener('deviceorientation', handleOrientation, true);
+        
+        // Timeout: si no recibe datos en 2 segundos, no hay brújula real
+        compassTimeout = setTimeout(() => {
+            if (!compassDataReceived) {
+                console.log('⚠️ No se detectaron datos de brújula - usando icono normal');
+                hasCompass = false;
+                updateUserLocationMarker();
+            }
+        }, 2000);
+        
+        console.log('🔄 Esperando datos de brújula...');
+    }
+
+    // Manejar evento de orientación - COMPENSANDO ORIENTACIÓN DE PANTALLA
+    function handleOrientation(event) {
+        let heading = null;
+
+        // iOS usa webkitCompassHeading (más preciso y ya compensado)
+        if (event.webkitCompassHeading !== undefined) {
+            heading = event.webkitCompassHeading;
+        } 
+        // Android y otros usan alpha (necesita compensación manual)
+        else if (event.alpha !== null) {
+            heading = 360 - event.alpha;
             
-            // Actualizar ubicación actual
-            userLocation.lat = newLat;
-            userLocation.lng = newLng;
+            // COMPENSAR ORIENTACIÓN DE PANTALLA EN ANDROID
+            const orientation = window.screen.orientation?.type || 
+                               (window.orientation !== undefined ? window.orientation : 0);
             
-            // Calcular rumbo si hay movimiento significativo
-            if (previousLocation) {
-                const lat1 = previousLocation.lat;
-                const lng1 = previousLocation.lng;
-                
-                // Umbral: ~10 metros (0.0001°)
-                const moved = Math.abs(newLat - lat1) > 0.0001 || Math.abs(newLng - lng1) > 0.0001;
-                
-                if (moved) {
-                    const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
-                    
-                    // Suavizado
-                    const diff = Math.abs(heading - currentHeading);
-                    let smoothedHeading = heading;
-                    
-                    if (diff > 180) {
-                        if (heading > currentHeading) {
-                            smoothedHeading = heading - 360;
-                        } else {
-                            smoothedHeading = heading + 360;
-                        }
-                    }
-                    
-                    currentHeading = currentHeading * 0.7 + smoothedHeading * 0.3;
-                    
-                    if (currentHeading < 0) currentHeading += 360;
-                    if (currentHeading >= 360) currentHeading -= 360;
-                    
-                    updateCompassRotation();
-                    
-                    console.log(`🧭 Rumbo actualizado: ${currentHeading.toFixed(1)}°`);
+            if (typeof orientation === 'string') {
+                // API moderna (screen.orientation.type)
+                if (orientation.includes('landscape-primary')) {
+                    heading = (heading + 90) % 360;
+                } else if (orientation.includes('landscape-secondary')) {
+                    heading = (heading + 270) % 360;
+                } else if (orientation.includes('portrait-secondary')) {
+                    heading = (heading + 180) % 360;
+                }
+            } else {
+                // API antigua (window.orientation en grados)
+                switch(orientation) {
+                    case 90:  // Landscape right
+                        heading = (heading + 90) % 360;
+                        break;
+                    case -90: // Landscape left
+                        heading = (heading + 270) % 360;
+                        break;
+                    case 180: // Portrait invertido
+                        heading = (heading + 180) % 360;
+                        break;
                 }
             }
-            
-            previousLocation = { lat: newLat, lng: newLng };
-            
-            // Actualizar marcador si se movió
-            if (userLocationMarker) {
-                userLocationMarker.setLatLng([newLat, newLng]);
-            }
-        },
-        (error) => {
-            console.warn('⚠️ Error en seguimiento GPS:', error.message);
-        },
-        {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 1000
         }
-    );
+
+        // Validar datos
+        if (heading === null || isNaN(heading)) return;
+
+        // Activar brújula la primera vez
+        if (!compassDataReceived) {
+            compassDataReceived = true;
+            hasCompass = true;
+            clearTimeout(compassTimeout);
+            updateUserLocationMarker();
+            console.log('✅ Brújula activada correctamente');
+        }
+
+        // SUAVIZADO LIGERO (solo 20% para mantener precisión)
+        const diff = Math.abs(heading - currentHeading);
+        
+        // Normalizar para evitar saltos en el cruce de 0°/360°
+        if (diff > 180) {
+            if (heading > currentHeading) {
+                heading -= 360;
+            } else {
+                heading += 360;
+            }
+        }
+        
+        // Suavizado muy ligero
+        currentHeading = currentHeading * 0.8 + heading * 0.2;
+        
+        // Normalizar entre 0-360
+        if (currentHeading < 0) currentHeading += 360;
+        if (currentHeading >= 360) currentHeading -= 360;
+        
+        updateCompassRotation();
+    }
+
+    // Solicitar permiso
+    requestPermission();
+}
+
+// Añadir/actualizar marcador de ubicación del usuario
+function updateUserLocationMarker() {
+    // Remover marcador anterior si existe
+    if (userLocationMarker) {
+        map.removeLayer(userLocationMarker);
+        userLocationMarker = null;
+    }
+
+    // Crear icono según si hay brújula o no
+    const iconHtml = hasCompass 
+        ? `<svg viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0 L22 22 L12 18 L2 22 Z" fill="white" stroke="none"/>
+           </svg>`
+        : '<div class="user-location-pulse"></div>';
+    
+    const iconClass = hasCompass 
+        ? 'user-location-compass' 
+        : 'user-location-marker';
+
+    const userIcon = L.divIcon({
+        className: iconClass,
+        html: iconHtml,
+        iconSize: hasCompass ? [24, 28] : [20, 20],
+        iconAnchor: hasCompass ? [12, 14] : [10, 10]
+    });
+
+    userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
+        icon: userIcon,
+        zIndexOffset: 1000
+    }).addTo(map);
+
+    if (hasCompass) {
+        setTimeout(() => updateCompassRotation(), 100);
+    }
+
+    const t = translations[currentLanguage];
+    userLocationMarker.bindPopup(`
+        <strong>${t.userLocation}</strong><br>
+        Lat: ${userLocation.lat.toFixed(4)}°<br>
+        Lng: ${userLocation.lng.toFixed(4)}°
+    `);
+}
+
+// Actualizar rotación de la brújula
+function updateCompassRotation() {
+    if (userLocationMarker && hasCompass) {
+        const iconElement = userLocationMarker.getElement();
+        if (iconElement) {
+            const svg = iconElement.querySelector('svg');
+            if (svg) {
+                svg.style.transform = `rotate(${currentHeading}deg)`;
+            }
+        }
+    }
 }
 
 function updateUserLocationMarker() {
@@ -2552,6 +2622,9 @@ function updateCompassRotation() {
 
             // Obtener ubicación del usuario al cargar (siempre mostrar marcador)
             getUserLocation();
+
+            // Iniciar seguimiento de brújula
+startCompassTracking();
 
             loadSatellites();
         });
