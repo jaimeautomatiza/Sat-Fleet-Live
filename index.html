@@ -2152,10 +2152,17 @@ function handleOrientation(event) {
     // + screenAdjustment: compensación de la rotación de la pantalla (0, 90, -90, etc.)
     // + DECLINATION_OFFSET: corrección geográfica
     
-    currentHeading = (smoothedHeading + 90 + screenAdjustment + DECLINATION_OFFSET) % 360;
+// ⭐ Cambiamos el orden de las operaciones para ver si se estabiliza la compensación
+    let finalHeading = smoothedHeading + DECLINATION_OFFSET;
+    
+    // Aplicamos primero la rotación de la pantalla
+    finalHeading += screenAdjustment;
+    
+    // Aplicamos la corrección de inclinación (90 grados)
+    finalHeading += 90; 
 
-    // Asegurarse que el ángulo esté en el rango correcto
-    currentHeading = (currentHeading + 360) % 360; 
+    // Asegurarse que el ángulo esté en el rango correcto [0, 360)
+    currentHeading = (finalHeading % 360 + 360) % 360; 
 
     // Actualizar rotación inmediatamente
     updateCompassRotation();
