@@ -2007,7 +2007,7 @@ let minElevation = 10;
 let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
 let userLocationMarker = null;
 let hasCompass = false;
-let currentHeading = null;
+let currentHeading = 0;
 
 // Obtener ubicación del usuario
 function getUserLocation() {
@@ -2091,69 +2091,80 @@ function startCompassTracking() {
         console.log('🔄 Esperando datos de brújula...');
     }
 
-// Manejar evento de orientación - COMPENSANDO ORIENTACIÓN DE PANTALLA
-function handleOrientation(event) {
-    let heading = null;
+    // Manejar evento de orientación - COMPENSANDO ORIENTACIÓN DE PANTALLA
+    function handleOrientation(event) {
+        let heading = null;
 
-    // iOS usa webkitCompassHeading (más preciso y ya compensado)
-    if (event.webkitCompassHeading !== undefined) {
-        heading = event.webkitCompassHeading;
-    } 
-    // Android y otros usan alpha (necesita compensación manual)
-    else if (event.alpha !== null) {
-        heading = 360 - event.alpha;
-        
-        // COMPENSAR ORIENTACIÓN DE PANTALLA EN ANDROID
-        const orientation = window.screen.orientation?.type || 
-                           (window.orientation !== undefined ? window.orientation : 0);
-        
-        if (typeof orientation === 'string') {
-            // API moderna (screen.orientation.type)
-            if (orientation.includes('landscape-primary')) {
-                heading = (heading + 90) % 360;
-            } else if (orientation.includes('landscape-secondary')) {
-                heading = (heading + 270) % 360;
-            } else if (orientation.includes('portrait-secondary')) {
-                heading = (heading + 180) % 360;
-            }
-        } else {
-            // API antigua (window.orientation en grados)
-            switch(orientation) {
-                case 90:  // Landscape right
+        // iOS usa webkitCompassHeading (más preciso y ya compensado)
+        if (event.webkitCompassHeading !== undefined) {
+            heading = event.webkitCompassHeading;
+        } 
+        // Android y otros usan alpha (necesita compensación manual)
+        else if (event.alpha !== null) {
+            heading = 360 - event.alpha;
+            
+            // COMPENSAR ORIENTACIÓN DE PANTALLA EN ANDROID
+            const orientation = window.screen.orientation?.type || 
+                               (window.orientation !== undefined ? window.orientation : 0);
+            
+            if (typeof orientation === 'string') {
+                // API moderna (screen.orientation.type)
+                if (orientation.includes('landscape-primary')) {
                     heading = (heading + 90) % 360;
-                    break;
-                case -90: // Landscape left
+                } else if (orientation.includes('landscape-secondary')) {
                     heading = (heading + 270) % 360;
-                    break;
-                case 180: // Portrait invertido
+                } else if (orientation.includes('portrait-secondary')) {
                     heading = (heading + 180) % 360;
-                    break;
+                }
+            } else {
+                // API antigua (window.orientation en grados)
+                switch(orientation) {
+                    case 90:  // Landscape right
+                        heading = (heading + 90) % 360;
+                        break;
+                    case -90: // Landscape left
+                        heading = (heading + 270) % 360;
+                        break;
+                    case 180: // Portrait invertido
+                        heading = (heading + 180) % 360;
+                        break;
+                }
             }
         }
+
+        // Validar datos
+        if (heading === null || isNaN(heading)) return;
+
+        // Activar brújula la primera vez
+        if (!compassDataReceived) {
+            compassDataReceived = true;
+            hasCompass = true;
+            clearTimeout(compassTimeout);
+            updateUserLocationMarker();
+            console.log('✅ Brújula activada correctamente');
+        }
+
+        // SUAVIZADO LIGERO (solo 20% para mantener precisión)
+        const diff = Math.abs(heading - currentHeading);
+        
+        // Normalizar para evitar saltos en el cruce de 0°/360°
+        if (diff > 180) {
+            if (heading > currentHeading) {
+                heading -= 360;
+            } else {
+                heading += 360;
+            }
+        }
+        
+        // Suavizado muy ligero
+        currentHeading = currentHeading * 0.8 + heading * 0.2;
+        
+        // Normalizar entre 0-360
+        if (currentHeading < 0) currentHeading += 360;
+        if (currentHeading >= 360) currentHeading -= 360;
+        
+        updateCompassRotation();
     }
-
-    // Validar datos
-    if (heading === null || isNaN(heading)) return;
-
-    // Normalizar heading
-    heading = ((heading % 360) + 360) % 360;
-
-    // Activar brújula la primera vez
-    if (!compassDataReceived) {
-        compassDataReceived = true;
-        hasCompass = true;
-        clearTimeout(compassTimeout);
-        currentHeading = heading;
-        updateUserLocationMarker();
-        console.log('✅ Brújula activada correctamente');
-        return;
-    }
-
-    // Guardar el heading SIN suavizado para evitar el problema del norte
-    currentHeading = heading;
-    
-    updateCompassRotation();
-}
 
     // Solicitar permiso
     requestPermission();
@@ -2202,35 +2213,14 @@ function updateUserLocationMarker() {
     `);
 }
 
-// Actualizar rotación de la brújula CON INTERPOLACIÓN MANUAL
-let lastRotation = 0;
-
+// Actualizar rotación de la brújula
 function updateCompassRotation() {
-    if (userLocationMarker && hasCompass && currentHeading !== null) {
+    if (userLocationMarker && hasCompass) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
             const svg = iconElement.querySelector('svg');
             if (svg) {
-                let targetRotation = currentHeading;
-                
-                // Calcular la diferencia más corta
-                let diff = targetRotation - lastRotation;
-                
-                // Normalizar para el camino más corto
-                if (diff > 180) {
-                    // Estamos cruzando 0° hacia la izquierda
-                    lastRotation += 360;
-                } else if (diff < -180) {
-                    // Estamos cruzando 0° hacia la derecha
-                    lastRotation -= 360;
-                }
-                
-                // Ahora podemos interpolar suavemente
-                lastRotation += (targetRotation - lastRotation) * 0.15;
-                
-                // Aplicar rotación directamente (SIN normalizar aquí)
-                svg.style.transform = `rotate(${lastRotation}deg)`;
-                svg.style.transition = 'none'; // Desactivar transición CSS
+                svg.style.transform = `rotate(${currentHeading}deg)`;
             }
         }
     }
