@@ -2004,13 +2004,12 @@ function searchSatellites() {
 // Variables para visibilidad
 let showOnlyVisible = false;
 let minElevation = 10;
-let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
+let userLocation = null; // ⚠️ CAMBIADO: null hasta obtener ubicación real
 let userLocationMarker = null;
-let hasCompass = false; // Se cambia a 'true' cuando se detecta movimiento GPS
+let hasCompass = false;
 let currentHeading = 0;
-
-// Variable global para almacenar la ubicación anterior
 let previousLocation = null;
+let locationWatchId = null; // Para poder detener watchPosition si es necesario
 
 // Función para calcular el rumbo (bearing) entre dos puntos Lat/Lng
 function calculateGeodesicHeading(lat1, lng1, lat2, lng2) {
@@ -2037,83 +2036,134 @@ function calculateGeodesicHeading(lat1, lng1, lat2, lng2) {
 
 // Obtener ubicación del usuario y actualizar el rumbo (basado en el movimiento)
 function getUserLocation() {
-    // Activar icono de flecha inmediatamente
-    hasCompass = true;
-    updateUserLocationMarker();
-    
-    if (navigator.geolocation) {
-        // Usamos watchPosition para recibir actualizaciones continuas
-        navigator.geolocation.watchPosition(
-            (position) => {
-                const newLat = position.coords.latitude;
-                const newLng = position.coords.longitude;
-                
-                // Si tenemos una ubicación anterior, calculamos el rumbo
-                if (previousLocation) {
-                    const lat1 = previousLocation.lat;
-                    const lng1 = previousLocation.lng;
-                    
-                    // Solo actualizamos si el móvil se movió ~10 metros (0.0001°)
-                    if (Math.abs(newLat - lat1) > 0.0001 || Math.abs(newLng - lng1) > 0.0001) {
-                        // Calcular el rumbo geodésico
-                        const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
-                        
-                        // SUAVIZADO: evitar saltos bruscos
-                        const diff = Math.abs(heading - currentHeading);
-                        
-                        let smoothedHeading = heading;
-                        
-                        // Manejar cruce de 0°/360°
-                        if (diff > 180) {
-                            if (heading > currentHeading) {
-                                smoothedHeading = heading - 360;
-                            } else {
-                                smoothedHeading = heading + 360;
-                            }
-                        }
-                        
-                        // Promedio ponderado (70% antiguo, 30% nuevo)
-                        currentHeading = currentHeading * 0.7 + smoothedHeading * 0.3;
-                        
-                        // Normalizar entre 0-360°
-                        if (currentHeading < 0) currentHeading += 360;
-                        if (currentHeading >= 360) currentHeading -= 360;
-                        
-                        updateCompassRotation();
-                    }
-                }
-
-                userLocation.lat = newLat;
-                userLocation.lng = newLng;
-                previousLocation = { lat: newLat, lng: newLng };
-
-                // Actualizar marcador de ubicación
-                if (!hasCompass) {
-                    hasCompass = true;
-                    updateUserLocationMarker();
-                }
-                
-                // Reprocesar filtros de visibilidad si están activos
-                if (showOnlyVisible) {
-                    filterVisibleSatellites();
-                }
-            },
-            (error) => {
-                console.warn('Error GPS:', error.message);
-                updateUserLocationMarker(); // Mostrar Madrid por defecto
-            },
-            { 
-                enableHighAccuracy: true, 
-                timeout: 10000,      // 10 segundos
-                maximumAge: 1000     // 1 segundo de caché
-            }
-        );
-    } else {
-        updateUserLocationMarker(); // Sin GPS
+    if (!navigator.geolocation) {
+        console.error('❌ Geolocalización no disponible');
+        userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid fallback
+        updateUserLocationMarker();
+        return;
     }
+
+    console.log('🔄 Solicitando ubicación...');
+
+    // Primero obtener ubicación inicial con getCurrentPosition
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            previousLocation = { ...userLocation };
+            
+            console.log('✅ Ubicación obtenida:', userLocation);
+            
+            // Mostrar marcador con ubicación real
+            hasCompass = true;
+            updateUserLocationMarker();
+            
+            // Ahora iniciar seguimiento continuo
+            startLocationTracking();
+            
+            // Reprocesar filtros si están activos
+            if (showOnlyVisible) {
+                filterVisibleSatellites();
+            }
+        },
+        (error) => {
+            console.error('❌ Error obteniendo ubicación:', error.message);
+            console.error('Código de error:', error.code);
+            
+            // Fallback a Madrid si falla
+            userLocation = { lat: 40.4168, lng: -3.7038 };
+            updateUserLocationMarker();
+            
+            // Mostrar mensaje al usuario
+            alert(`No se pudo obtener tu ubicación: ${error.message}\nUsando Madrid por defecto.`);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        }
+    );
+}
+
+// Función separada para el seguimiento continuo
+function startLocationTracking() {
+    if (locationWatchId !== null) {
+        navigator.geolocation.clearWatch(locationWatchId);
+    }
+    
+    console.log('🔄 Iniciando seguimiento GPS continuo...');
+    
+    locationWatchId = navigator.geolocation.watchPosition(
+        (position) => {
+            const newLat = position.coords.latitude;
+            const newLng = position.coords.longitude;
+            
+            // Actualizar ubicación actual
+            userLocation.lat = newLat;
+            userLocation.lng = newLng;
+            
+            // Calcular rumbo si hay movimiento significativo
+            if (previousLocation) {
+                const lat1 = previousLocation.lat;
+                const lng1 = previousLocation.lng;
+                
+                // Umbral: ~10 metros (0.0001°)
+                const moved = Math.abs(newLat - lat1) > 0.0001 || Math.abs(newLng - lng1) > 0.0001;
+                
+                if (moved) {
+                    const heading = calculateGeodesicHeading(lat1, lng1, newLat, newLng);
+                    
+                    // Suavizado
+                    const diff = Math.abs(heading - currentHeading);
+                    let smoothedHeading = heading;
+                    
+                    if (diff > 180) {
+                        if (heading > currentHeading) {
+                            smoothedHeading = heading - 360;
+                        } else {
+                            smoothedHeading = heading + 360;
+                        }
+                    }
+                    
+                    currentHeading = currentHeading * 0.7 + smoothedHeading * 0.3;
+                    
+                    if (currentHeading < 0) currentHeading += 360;
+                    if (currentHeading >= 360) currentHeading -= 360;
+                    
+                    updateCompassRotation();
+                    
+                    console.log(`🧭 Rumbo actualizado: ${currentHeading.toFixed(1)}°`);
+                }
+            }
+            
+            previousLocation = { lat: newLat, lng: newLng };
+            
+            // Actualizar marcador si se movió
+            if (userLocationMarker) {
+                userLocationMarker.setLatLng([newLat, newLng]);
+            }
+        },
+        (error) => {
+            console.warn('⚠️ Error en seguimiento GPS:', error.message);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 1000
+        }
+    );
 }
 
 function updateUserLocationMarker() {
+    // No crear marcador si no hay ubicación
+    if (!userLocation) {
+        console.warn('⚠️ No hay ubicación disponible aún');
+        return;
+    }
+    
+    // Remover marcador anterior
     if (userLocationMarker) {
         map.removeLayer(userLocationMarker);
         userLocationMarker = null;
@@ -2151,7 +2201,10 @@ function updateUserLocationMarker() {
         Lat: ${userLocation.lat.toFixed(4)}°<br>
         Lng: ${userLocation.lng.toFixed(4)}°
     `);
+    
+    console.log('✅ Marcador de ubicación actualizado');
 }
+
 
 function updateCompassRotation() {
     if (userLocationMarker && hasCompass) {
