@@ -2145,19 +2145,18 @@ function startCompassTracking() {
         }
 
         // SUAVIZADO LIGERO (solo 20% para mantener precisión)
-        const diff = Math.abs(heading - currentHeading);
+        // Calcular la diferencia más corta entre ángulos
+        let diff = heading - currentHeading;
         
-        // Normalizar para evitar saltos en el cruce de 0°/360°
+        // Normalizar la diferencia para tomar el camino más corto
         if (diff > 180) {
-            if (heading > currentHeading) {
-                heading -= 360;
-            } else {
-                heading += 360;
-            }
+            diff -= 360;
+        } else if (diff < -180) {
+            diff += 360;
         }
         
-        // Suavizado muy ligero
-        currentHeading = currentHeading * 0.8 + heading * 0.2;
+        // Aplicar suavizado a la diferencia (no al valor absoluto)
+        currentHeading += diff * 0.2;
         
         // Normalizar entre 0-360
         if (currentHeading < 0) currentHeading += 360;
