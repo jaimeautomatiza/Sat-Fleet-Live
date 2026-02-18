@@ -878,7 +878,12 @@
         </div>
 
         <div style="text-align:center; font-size:12px; flex:1;">
-            <div id="copyrightText">© 2025 Jaime Guzmán García-Rivera – Personal project</div>
+    <div id="copyrightText">© 2025 Jaime Guzmán García-Rivera – Personal project</div>
+    <div id="satelliteStats" style="margin-top:4px; font-size:13px; color:#9c27b0; font-weight:600;">
+        <span id="totalSatCount">0</span> <span id="totalSatLabel">satellites loaded</span>
+        &nbsp;|&nbsp;
+        <span id="overheadSatCount">0</span> <span id="overheadSatLabel">overhead</span>
+    </div>
             <div>
                 <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank"
                     style="color:#4da6ff;">CelesTrak / NORAD</a> | <a href="https://www.wikidata.org" target="_blank"
@@ -1197,7 +1202,11 @@
                 copyright: '© 2025 Jaime Guzmán García-Rivera – Proyecto personal',
                 source: 'Fuente:',
                 contact: 'Contacto',
-                privacyPolicy: 'Política de privacidad'
+                privacyPolicy: 'Política de privacidad',
+                stats: {
+                total: 'satélites cargados',
+                overhead: 'sobre ti'
+                }
             },
             en: {
                 title: 'SatFleet Live',
@@ -1255,7 +1264,11 @@
                 copyright: '© 2025 Jaime Guzmán García-Rivera – Personal project',
                 source: 'Source:',
                 contact: 'Contact',
-                privacyPolicy: 'Privacy Policy'
+                privacyPolicy: 'Privacy Policy',
+                stats: {
+                total: 'satellites loaded',
+                overhead: 'overhead'
+                }
             }
         };
 
@@ -1489,6 +1502,7 @@
 
                 filterVisibleSatellites();
                 hideLoading();
+                updateStats();
 
             } catch (error) {
                 console.error('Error cargando satélites:', error);
@@ -1690,8 +1704,59 @@
             });
         }
 
+        // Actualizar estadísticas de satélites
+function updateStats() {
+    const t = translations[currentLanguage];
+
+    // Total de satélites cargados (los que están en el mapa actualmente)
+    const totalVisible = satelliteMarkers.length;
+    document.getElementById('totalSatCount').textContent = totalVisible.toLocaleString();
+    document.getElementById('totalSatLabel').textContent = t.stats.total;
+
+    // Satélites sobre el usuario (elevación > 0°)
+    let overhead = 0;
+    satelliteMarkers.forEach(marker => {
+        const sat = marker.satellite;
+        if (!sat.lat || !sat.lng || !sat.altitude) return;
+
+        const obsLatRad = userLocation.lat * Math.PI / 180;
+        const obsLngRad = userLocation.lng * Math.PI / 180;
+        const satLatRad = sat.lat * Math.PI / 180;
+        const satLngRad = sat.lng * Math.PI / 180;
+
+        const earthRadius = 6371;
+        const satRadius = earthRadius + sat.altitude;
+
+        const obsX = earthRadius * Math.cos(obsLatRad) * Math.cos(obsLngRad);
+        const obsY = earthRadius * Math.cos(obsLatRad) * Math.sin(obsLngRad);
+        const obsZ = earthRadius * Math.sin(obsLatRad);
+
+        const satX = satRadius * Math.cos(satLatRad) * Math.cos(satLngRad);
+        const satY = satRadius * Math.cos(satLatRad) * Math.sin(satLngRad);
+        const satZ = satRadius * Math.sin(satLatRad);
+
+        const dx = satX - obsX;
+        const dy = satY - obsY;
+        const dz = satZ - obsZ;
+        const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+
+        const normalX = obsX / earthRadius;
+        const normalY = obsY / earthRadius;
+        const normalZ = obsZ / earthRadius;
+
+        const dotProduct = (dx*normalX + dy*normalY + dz*normalZ) / distance;
+        const elevation = Math.asin(Math.max(-1, Math.min(1, dotProduct))) * 180 / Math.PI;
+
+        if (elevation > 0) overhead++;
+    });
+
+    document.getElementById('overheadSatCount').textContent = overhead.toLocaleString();
+    document.getElementById('overheadSatLabel').textContent = t.stats.overhead;
+}
+
         // Llamar cada 1 segundo
         setInterval(updateSatellitePositions, 1000);
+        setInterval(updateStats, 5000);
 
         // Cerrar panel de información
         function closeSatelliteInfo() {
