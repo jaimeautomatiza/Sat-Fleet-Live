@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="shortcut icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <!-- SEO -->
+    <title>Satellite Tracking Guides | SatFleetLive</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore in-depth satellite tracking guides. Learn how to track satellites in real time, understand TLE data, and discover the best free satellite tracking tools.">
+    <meta name="keywords" content="satellite tracking guides, how to track satellites, real-time satellite tracker, free satellite tracking tools, satellite tracking website">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Satellite Tracking Guides | SatFleetLive">
+    <meta property="og:description" content="Explore in-depth satellite tracking guides. Learn how to track satellites in real time, understand TLE data, and discover the best free satellite tracking tools.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/">
+    <meta property="og:image" content="/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Satellite Tracking Guides | SatFleetLive">
+    <meta name="twitter:description" content="Explore in-depth satellite tracking guides. Learn how to track satellites in real time, understand TLE data, and discover the best free satellite tracking tools.">
+    <meta name="twitter:image" content="/logo.png">
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "name": "Satellite Tracking Guides – SatFleetLive",
+      "description": "In-depth guides on how to track satellites in real time, understand TLE data, and use free satellite tracking tools.",
+      "url": "https://satfleetlive.com/blogs/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "SatFleetLive",
+        "url": "https://satfleetlive.com"
+      }
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            overflow-x: hidden;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background-color: var(--dark-secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .logo-placeholder {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .site-title {
+            font-size: 1.5rem;
+            font-weight: 650;
+            color: var(--primary-purple);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            text-decoration: none;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: none;
+            border: 2px solid var(--primary-purple);
+            color: var(--primary-purple);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--primary-purple);
+            color: white;
+        }
+
+        .nav-btn.blue {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .nav-btn.blue:hover {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        /* ── HERO ── */
+        .blog-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1b33 50%, #1a1a2e 100%);
+            border-bottom: 2px solid var(--primary-purple);
+            padding: 3.5rem 1.5rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-hero::before {
+            content: '📚';
+            position: absolute;
+            font-size: 10rem;
+            opacity: 0.04;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .blog-hero .breadcrumb {
+            font-size: 0.85rem;
+            color: var(--text-secondary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .blog-hero .breadcrumb a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .blog-hero .breadcrumb a:hover { text-decoration: underline; }
+
+        .blog-hero h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.25;
+            max-width: 700px;
+            margin: 0 auto 1rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .blog-hero h1 span { color: var(--primary-purple); }
+
+        .blog-hero .intro {
+            max-width: 640px;
+            margin: 0 auto;
+            color: var(--text-secondary-dark);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .blog-container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        /* ── SECTION HEADING ── */
+        .section-heading {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .section-heading::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-purple), transparent);
+            border-radius: 2px;
+        }
+
+        /* ── ARTICLE CARDS ── */
+        .article-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .article-card {
+            background-color: var(--dark-secondary);
+            border-radius: 12px;
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            text-decoration: none;
+            border: 1px solid var(--dark-tertiary);
+            transition: border-color 0.3s ease, background 0.3s ease, transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--primary-purple);
+            border-radius: 4px 0 0 4px;
+            transition: width 0.3s ease;
+        }
+
+        .article-card:hover {
+            border-color: var(--primary-purple);
+            background-color: rgba(156, 39, 176, 0.07);
+            transform: translateY(-2px);
+        }
+
+        .article-card:hover::before {
+            width: 6px;
+        }
+
+        .article-card-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .article-card-body {
+            flex: 1;
+        }
+
+        .article-card-meta {
+            font-size: 0.78rem;
+            color: var(--primary-purple);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.4rem;
+        }
+
+        .article-card h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+            transition: color 0.2s;
+        }
+
+        .article-card:hover h2 {
+            color: #e1aaed;
+        }
+
+        .article-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary-dark);
+            line-height: 1.65;
+            margin-bottom: 0.9rem;
+        }
+
+        .article-card-footer {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .read-more {
+            font-size: 0.88rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: gap 0.2s;
+        }
+
+        .article-card:hover .read-more {
+            gap: 0.5rem;
+        }
+
+        .article-tag {
+            font-size: 0.78rem;
+            background-color: rgba(156,39,176,0.15);
+            color: var(--primary-purple);
+            border: 1px solid rgba(156,39,176,0.3);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        /* ── BACK TO MAP CTA ── */
+        .back-cta {
+            background: linear-gradient(135deg, rgba(156,39,176,0.15), rgba(33,150,243,0.1));
+            border: 1px solid rgba(156,39,176,0.35);
+            border-radius: 14px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .back-cta h2 {
+            font-size: 1.3rem;
+            color: #ffffff;
+            margin-bottom: 0.6rem;
+        }
+
+        .back-cta p {
+            color: var(--text-secondary-dark);
+            font-size: 0.97rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background-color: var(--primary-purple);
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-purple);
+            margin: 0.3rem;
+        }
+
+        .cta-btn:hover {
+            background-color: transparent;
+            color: var(--primary-purple);
+        }
+
+        .cta-btn.blue {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .cta-btn.blue:hover {
+            background-color: transparent;
+            color: var(--primary-blue);
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            background-color: var(--dark-secondary);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary-dark);
+            border-top: 1px solid var(--dark-tertiary);
+        }
+
+        .footer a { color: #4da6ff; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .blog-hero h1 { font-size: 1.6rem; }
+            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
+            .header-nav { justify-content: center; }
+            .blog-container { padding: 2rem 1rem 3rem; }
+            .article-card { flex-direction: column; gap: 0.75rem; padding: 1.25rem; }
+            .article-card-icon { font-size: 1.5rem; }
+            .article-card h2 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── HEADER ── -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- ── HERO ── -->
+    <div class="blog-hero">
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; Satellite Tracking Guides
+        </p>
+        <h1>Satellite <span>Tracking</span> Guides</h1>
+        <p class="intro">
+            Everything you need to know about tracking satellites in real time. Step-by-step guides, tool comparisons, and expert tips — all free, all in one place.
+        </p>
+    </div>
+
+    <!-- ── CONTENT ── -->
+    <main class="blog-container">
+
+        <div class="section-heading">📖 All Guides</div>
+
+        <div class="article-grid">
+
+            <!-- Article 1 -->
+            <a href="/blogs/how-to-track-satellites/" class="article-card">
+                <div class="article-card-icon">🛰️</div>
+                <div class="article-card-body">
+                    <div class="article-card-meta">Guide · 5 min read</div>
+                    <h2>How to Track Satellites in Real Time</h2>
+                    <p>
+                        A complete beginner's guide to real-time satellite tracking. Learn how to use a free satellite tracker online, follow the ISS, Starlink, GPS satellites, and thousands more — directly from your browser, no sign-up required.
+                    </p>
+                    <div class="article-card-footer">
+                        <span class="read-more">Read guide →</span>
+                        <span class="article-tag">Beginner</span>
+                        <span class="article-tag">Real-time tracker</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Article 2 -->
+            <a href="/blogs/best-free-satellite-tracker/" class="article-card">
+                <div class="article-card-icon">📡</div>
+                <div class="article-card-body">
+                    <div class="article-card-meta">Guide · 5 min read</div>
+                    <h2>Best Free Satellite Tracker Online in 2025</h2>
+                    <p>
+                        Discover the best free satellite tracking websites available right now. We compare the top tools, explain what makes SatFleet Live stand out, and show you how to track satellites online for free with no registration needed.
+                    </p>
+                    <div class="article-card-footer">
+                        <span class="read-more">Read guide →</span>
+                        <span class="article-tag">Comparison</span>
+                        <span class="article-tag">Free tools</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Article 3 -->
+            <a href="/blogs/what-is-a-tle/" class="article-card">
+                <div class="article-card-icon">🔢</div>
+                <div class="article-card-body">
+                    <div class="article-card-meta">Guide · 6 min read</div>
+                    <h2>What is a TLE and How to Read It</h2>
+                    <p>
+                        Understand the Two-Line Element format that powers every satellite tracker online. Learn to read each field, interpret real TLE data from the ISS, and discover how SGP4 turns two lines of text into a real-time satellite position.
+                    </p>
+                    <div class="article-card-footer">
+                        <span class="read-more">Read guide →</span>
+                        <span class="article-tag">Technical</span>
+                        <span class="article-tag">TLE data</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Article 4 -->
+            <a href="/blogs/how-satellite-orbits-work/" class="article-card">
+                <div class="article-card-icon">🌍</div>
+                <div class="article-card-body">
+                    <div class="article-card-meta">Guide · 6 min read</div>
+                    <h2>How Satellite Orbits Work: A Beginner's Guide</h2>
+                    <p>
+                        Discover the three main satellite orbit types — LEO, MEO, and GEO — and understand how altitude affects speed, coverage, latency, and tracking. Includes real examples with the ISS, Starlink, GPS, and geostationary weather satellites.
+                    </p>
+                    <div class="article-card-footer">
+                        <span class="read-more">Read guide →</span>
+                        <span class="article-tag">Beginner</span>
+                        <span class="article-tag">LEO · MEO · GEO</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Article 5 -->
+            <a href="/blogs/next-passes-predict-satellites/" class="article-card">
+                <div class="article-card-icon">🔭</div>
+                <div class="article-card-body">
+                    <div class="article-card-meta">Guide · 5 min read</div>
+                    <h2>Next Passes: How to Predict Satellite Overheads</h2>
+                    <p>
+                        Learn how to predict when satellites will pass overhead using SatFleet Live. Includes step-by-step guides for planning an ISS sighting, spotting Starlink trains, interpreting pass data, and tips for a successful naked-eye observation.
+                    </p>
+                    <div class="article-card-footer">
+                        <span class="read-more">Read guide →</span>
+                        <span class="article-tag">Observation</span>
+                        <span class="article-tag">ISS · Starlink</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Article 6 -->
+            <a href="/blogs/why-are-satellites-so-bright/" class="article-card">
+                <div class="article-card-icon">✨</div>
+                <div class="article-card-body">
+                    <div class="article-card-meta">Guide · 6 min read</div>
+                    <h2>Why Are Satellites So Bright? Flares and Visibility Explained</h2>
+                    <p>
+                        Discover why some satellites outshine the stars, what causes satellite flares, why they sometimes vanish mid-pass, and why freshly launched Starlink trains are so spectacular. Includes a visual magnitude scale and tips to predict brightness before a pass.
+                    </p>
+                    <div class="article-card-footer">
+                        <span class="read-more">Read guide →</span>
+                        <span class="article-tag">Observation</span>
+                        <span class="article-tag">Flares · Brightness</span>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Back to map CTA -->
+        <div class="back-cta">
+            <h2>Ready to track satellites live?</h2>
+            <p>Open the SatFleet Live map and follow over 14,000 satellites in real time — no account, no download, completely free.</p>
+            <a href="/" class="cta-btn">🌍 Open Live Map</a>
+            <a href="/next-passes.html" class="cta-btn blue">📍 Next Passes</a>
+        </div>
+
+    </main>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
+            <a href="https://www.wikidata.org" target="_blank">Wikidata</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+</body>
+</html>

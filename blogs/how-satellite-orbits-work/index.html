@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="shortcut icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <!-- SEO -->
+    <title>How Satellite Orbits Work: A Beginner's Guide | SatFleetLive</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn the basics of satellite orbits, including LEO, MEO, and GEO, and understand how orbit types affect satellite tracking.">
+    <meta name="keywords" content="satellite orbits, LEO satellites, MEO GEO satellites, how satellites orbit, low earth orbit, geostationary orbit">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/how-satellite-orbits-work/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="How Satellite Orbits Work: A Beginner's Guide | SatFleetLive">
+    <meta property="og:description" content="Learn the basics of satellite orbits, including LEO, MEO, and GEO, and understand how orbit types affect satellite tracking.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/how-satellite-orbits-work/">
+    <meta property="og:image" content="/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How Satellite Orbits Work: A Beginner's Guide | SatFleetLive">
+    <meta name="twitter:description" content="Learn the basics of satellite orbits, including LEO, MEO, and GEO, and understand how orbit types affect satellite tracking.">
+    <meta name="twitter:image" content="/logo.png">
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "How Satellite Orbits Work: A Beginner's Guide",
+      "description": "Learn the basics of satellite orbits, including LEO, MEO, and GEO, and understand how orbit types affect satellite tracking.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": { "@type": "Organization", "name": "SatFleetLive", "url": "https://satfleetlive.com" },
+      "datePublished": "2025-02-28",
+      "url": "https://satfleetlive.com/blogs/how-satellite-orbits-work/"
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+            --leo-color: #00d26a;
+            --meo-color: #ffd700;
+            --geo-color: #2196f3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .header { background-color: var(--dark-secondary); padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 1000; }
+        .logo-section { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+        .logo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+        .logo-placeholder { width: 40px; height: 40px; background-color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; }
+        .site-title { font-size: 1.5rem; font-weight: 650; color: var(--primary-purple); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); text-decoration: none; }
+        .header-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 2px solid var(--primary-purple); color: var(--primary-purple); padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .nav-btn:hover { background-color: var(--primary-purple); color: white; }
+        .nav-btn.blue { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .nav-btn.blue:hover { background-color: var(--primary-blue); color: white; }
+
+        /* HERO */
+        .article-hero { background: linear-gradient(135deg, #1a1a1a 0%, #0d1f2d 50%, #1a2d1a 100%); border-bottom: 2px solid var(--primary-purple); padding: 3.5rem 1.5rem 2.5rem; text-align: center; position: relative; overflow: hidden; }
+        .article-hero::before { content: '🌍'; position: absolute; font-size: 10rem; opacity: 0.04; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-secondary-dark); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--primary-blue); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .article-hero h1 { font-size: 2.2rem; font-weight: 700; color: #ffffff; line-height: 1.25; max-width: 780px; margin: 0 auto 1rem; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        .article-hero h1 span { color: var(--primary-purple); }
+        .article-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary-dark); margin-top: 1rem; }
+
+        /* LAYOUT */
+        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+        /* TOC */
+        .toc { background-color: var(--dark-secondary); border-left: 4px solid var(--primary-purple); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+        .toc-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .toc ol { margin-left: 1.2rem; }
+        .toc li { margin-bottom: 0.4rem; }
+        .toc a { color: var(--primary-blue); text-decoration: none; font-size: 0.95rem; }
+        .toc a:hover { text-decoration: underline; color: #64b5f6; }
+
+        /* ARTICLE */
+        .article-body p { color: var(--text-secondary-dark); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
+        .article-body strong { color: #ffffff; }
+        .article-body a { color: var(--primary-blue); text-decoration: none; }
+        .article-body a:hover { text-decoration: underline; }
+        .article-body h2 { font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-purple); scroll-margin-top: 80px; }
+        .article-body h3 { font-size: 1.15rem; font-weight: 600; color: var(--primary-purple); margin: 1.75rem 0 0.75rem; }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box { background: linear-gradient(135deg, rgba(156,39,176,0.12), rgba(33,150,243,0.08)); border: 1px solid rgba(156,39,176,0.35); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0; }
+        .highlight-box p { margin-bottom: 0 !important; color: #e0d0e8 !important; }
+        .highlight-label { font-size: 0.78rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block; }
+
+        /* ORBIT DIAGRAM */
+        .orbit-diagram {
+            background-color: #0d1117;
+            border: 1px solid var(--dark-tertiary);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .orbit-svg-wrap {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* ORBIT CARDS */
+        .orbit-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .orbit-card {
+            background-color: var(--dark-secondary);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-top: 4px solid var(--primary-purple);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .orbit-card.leo { border-top-color: var(--leo-color); }
+        .orbit-card.meo { border-top-color: var(--meo-color); }
+        .orbit-card.geo { border-top-color: var(--geo-color); }
+
+        .orbit-card-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            margin-bottom: 0.75rem;
+        }
+
+        .leo .orbit-card-badge { background: rgba(0,210,106,0.15); color: var(--leo-color); }
+        .meo .orbit-card-badge { background: rgba(255,215,0,0.15); color: var(--meo-color); }
+        .geo .orbit-card-badge { background: rgba(33,150,243,0.15); color: var(--geo-color); }
+
+        .orbit-card h3 {
+            font-size: 1.1rem;
+            color: #ffffff;
+            margin: 0 0 0.5rem !important;
+        }
+
+        .orbit-card .orbit-alt {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .leo .orbit-alt { color: var(--leo-color); }
+        .meo .orbit-alt { color: var(--meo-color); }
+        .geo .orbit-alt { color: var(--geo-color); }
+
+        .orbit-card p {
+            font-size: 0.88rem !important;
+            color: var(--text-secondary-dark);
+            line-height: 1.6;
+            margin-bottom: 0.75rem !important;
+        }
+
+        .orbit-stat {
+            font-size: 0.8rem;
+            color: var(--text-secondary-dark);
+            border-top: 1px solid var(--dark-tertiary);
+            padding-top: 0.6rem;
+            margin-top: 0.5rem;
+        }
+
+        .orbit-stat span { color: #ffffff; font-weight: 600; }
+
+        /* COMPARISON TABLE */
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.93rem; }
+        .comparison-table thead tr { background-color: var(--primary-purple); color: white; }
+        .comparison-table th { padding: 0.8rem 1rem; text-align: left; font-weight: 600; }
+        .comparison-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--dark-tertiary); color: var(--text-secondary-dark); vertical-align: middle; }
+        .comparison-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.03); }
+        .comparison-table tbody tr:hover { background-color: rgba(156,39,176,0.08); }
+        .comparison-table td:first-child { color: #ffffff; font-weight: 600; }
+        .leo-text { color: var(--leo-color) !important; }
+        .meo-text { color: var(--meo-color) !important; }
+        .geo-text { color: var(--geo-color) !important; }
+
+        /* SATELLITE EXAMPLES */
+        .sat-example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .sat-example-card {
+            background-color: var(--dark-secondary);
+            border-radius: 10px;
+            padding: 1.1rem 1.25rem;
+            border-left: 4px solid var(--primary-purple);
+        }
+
+        .sat-example-card.leo-card { border-left-color: var(--leo-color); }
+        .sat-example-card.meo-card { border-left-color: var(--meo-color); }
+        .sat-example-card.geo-card { border-left-color: var(--geo-color); }
+
+        .sat-example-card .sat-icon { font-size: 1.4rem; margin-bottom: 0.4rem; display: block; }
+        .sat-example-card h3 { font-size: 1rem; color: #ffffff; margin: 0 0 0.4rem !important; }
+        .sat-example-card .sat-orbit-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; display: block; }
+        .leo-card .sat-orbit-label { color: var(--leo-color); }
+        .meo-card .sat-orbit-label { color: var(--meo-color); }
+        .geo-card .sat-orbit-label { color: var(--geo-color); }
+        .sat-example-card p { font-size: 0.88rem !important; color: var(--text-secondary-dark); line-height: 1.6; margin: 0 !important; }
+
+        /* FAQ */
+        .faq-item { background-color: var(--dark-secondary); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; }
+        .faq-question { width: 100%; background: none; border: none; color: #ffffff; font-size: 1rem; font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background 0.2s; font-family: inherit; }
+        .faq-question:hover { background-color: rgba(156,39,176,0.12); }
+        .faq-arrow { color: var(--primary-purple); font-size: 1.1rem; transition: transform 0.3s ease; flex-shrink: 0; }
+        .faq-question.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary-dark); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display: block; }
+        .faq-answer a { color: var(--primary-blue); text-decoration: none; }
+        .faq-answer a:hover { text-decoration: underline; }
+
+        /* RELATED ARTICLES */
+        .related-articles { margin: 2.5rem 0 1.5rem; }
+        .related-title { font-size: 1rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .related-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.1rem; display: flex; align-items: flex-start; gap: 0.75rem; text-decoration: none; border: 1px solid var(--dark-tertiary); transition: border-color 0.3s, background 0.3s; }
+        .related-card:hover { border-color: var(--primary-purple); background-color: rgba(156,39,176,0.08); }
+        .related-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+        .related-text strong { display: block; color: #ffffff; font-size: 0.92rem; margin-bottom: 0.2rem; }
+        .related-text span { color: var(--text-secondary-dark); font-size: 0.82rem; line-height: 1.5; }
+
+        /* CTA */
+        .cta-banner { background: linear-gradient(135deg, rgba(156,39,176,0.2), rgba(33,150,243,0.15)); border: 1px solid rgba(156,39,176,0.4); border-radius: 14px; padding: 2rem; text-align: center; margin: 3rem 0 2rem; }
+        .cta-banner h2 { font-size: 1.4rem; color: #ffffff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; }
+        .cta-banner p { color: var(--text-secondary-dark); margin-bottom: 1.25rem; font-size: 1rem; }
+        .cta-btn { display: inline-block; background-color: var(--primary-purple); color: white; padding: 0.75rem 2rem; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: 2px solid var(--primary-purple); }
+        .cta-btn:hover { background-color: transparent; color: var(--primary-purple); }
+
+        /* FOOTER */
+        .footer { background-color: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 12px; color: var(--text-secondary-dark); border-top: 1px solid var(--dark-tertiary); }
+        .footer a { color: #4da6ff; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* RESPONSIVE */
+        @media (max-width: 640px) {
+            .article-hero h1 { font-size: 1.55rem; }
+            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
+            .header-nav { justify-content: center; }
+            .blog-container { padding: 1.75rem 1rem 3rem; }
+            .article-body h2 { font-size: 1.3rem; }
+            .orbit-cards { grid-template-columns: 1fr; }
+            .sat-example-grid { grid-template-columns: 1fr; }
+            .related-grid { grid-template-columns: 1fr; }
+            .comparison-table { font-size: 0.82rem; }
+            .comparison-table th, .comparison-table td { padding: 0.55rem 0.65rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero">
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; How Satellite Orbits Work
+        </p>
+        <h1>How <span>Satellite Orbits</span> Work: A Beginner's Guide</h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 February 2025</span>
+            <span>⏱️ 6 min read</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#why-orbits-matter">Why Orbits Matter for Satellite Tracking</a></li>
+                <li><a href="#leo">Low Earth Orbit (LEO)</a></li>
+                <li><a href="#meo">Medium Earth Orbit (MEO)</a></li>
+                <li><a href="#geo">Geostationary Orbit (GEO)</a></li>
+                <li><a href="#comparison">Orbit Comparison at a Glance</a></li>
+                <li><a href="#tracking">How Orbit Type Affects Satellite Tracking</a></li>
+                <li><a href="#examples">Real Examples: ISS, Starlink, GPS and More</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                Not all satellites are created equal — and neither are their orbits. A weather satellite hovering motionless over the equator, a GPS satellite circling at medium altitude, and the ISS racing overhead every 90 minutes are all following very different paths around Earth. Understanding <strong>how satellite orbits work</strong> will transform the way you read a live satellite map like <a href="/">SatFleet Live</a>.
+            </p>
+
+            <p>
+                In this guide we explain the three main orbit families — <strong>LEO, MEO, and GEO</strong> — what makes each one unique, and why orbit type is one of the most important factors in satellite tracking.
+            </p>
+
+            <!-- SECTION 1 -->
+            <h2 id="why-orbits-matter">Why Orbits Matter for Satellite Tracking</h2>
+
+            <p>
+                An orbit is the curved path a satellite follows around Earth, determined by the balance between its forward velocity and Earth's gravitational pull. Change the altitude, and everything changes: the orbital speed, the period (time per orbit), the coverage area, and how easy the satellite is to track or spot visually.
+            </p>
+
+            <p>
+                When you open SatFleet Live and see thousands of dots moving at different speeds across the map, you are watching this physics play out in real time. The fast-moving swarms near the poles are LEO satellites. The barely-moving dots near the equator are GEO satellites. Everything in between is MEO.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🔭 On SatFleet Live</span>
+                <p>Use the category filters on the live map to isolate orbit families. Select only <strong>GPS</strong> to see MEO orbits, <strong>Starlink</strong> for LEO constellations, or <strong>Weather / Climate</strong> for a mix of LEO and GEO meteorological satellites.</p>
+            </div>
+
+            <!-- SECTION 2 -->
+            <h2 id="leo">Low Earth Orbit (LEO)</h2>
+
+            <div class="orbit-cards">
+                <div class="orbit-card leo">
+                    <div class="orbit-card-badge">LEO</div>
+                    <h3>Low Earth Orbit</h3>
+                    <div class="orbit-alt">160 – 2,000 km</div>
+                    <p>The most populated region of space. Home to the ISS, Starlink, weather satellites, Earth observation missions, and most crewed spacecraft.</p>
+                    <div class="orbit-stat">Orbital period: <span>~90 – 127 min</span></div>
+                    <div class="orbit-stat">Speed: <span>~27,000 – 28,000 km/h</span></div>
+                    <div class="orbit-stat">Satellites tracked: <span>>12,000</span></div>
+                </div>
+            </div>
+
+            <p>
+                LEO is by far the most crowded region of space. At these altitudes, <strong>LEO satellites</strong> complete a full orbit in roughly 90 minutes, moving so fast they cross your sky in 5 to 10 minutes. The low altitude means excellent ground resolution for Earth imaging, low communication latency for broadband internet, and relatively easy launch costs — which is why Starlink, OneWeb, and other mega-constellations have chosen LEO.
+            </p>
+
+            <p>
+                The downside is atmospheric drag. Even at 400 km altitude, trace amounts of atmosphere cause satellites to slow down and gradually spiral inward. Without periodic reboosts, LEO satellites would eventually reenter and burn up. This is why the ISS performs regular engine burns to maintain its orbit, and why <a href="/blogs/what-is-a-tle/">TLE data</a> for LEO satellites needs updating every 24–48 hours.
+            </p>
+
+            <!-- SECTION 3 -->
+            <h2 id="meo">Medium Earth Orbit (MEO)</h2>
+
+            <div class="orbit-cards">
+                <div class="orbit-card meo">
+                    <div class="orbit-card-badge">MEO</div>
+                    <h3>Medium Earth Orbit</h3>
+                    <div class="orbit-alt">2,000 – 35,786 km</div>
+                    <p>The home of navigation constellations. GPS, Galileo, GLONASS, and BeiDou all orbit here, providing global positioning coverage.</p>
+                    <div class="orbit-stat">Orbital period: <span>~2 – 24 hours</span></div>
+                    <div class="orbit-stat">Speed: <span>~13,000 – 19,000 km/h</span></div>
+                    <div class="orbit-stat">GPS altitude: <span>~20,200 km</span></div>
+                </div>
+            </div>
+
+            <p>
+                MEO is less crowded but strategically vital. Navigation systems like GPS use <strong>MEO satellites</strong> at around 20,200 km because this altitude provides the right balance: each satellite covers a large swath of Earth's surface, and a constellation of 24–30 satellites is enough to guarantee that at least four are visible from any point on the ground at any time — which is the minimum needed for accurate positioning.
+            </p>
+
+            <p>
+                MEO satellites move noticeably slower than LEO satellites. On SatFleet Live, you can identify them by filtering for GPS — those dots drift steadily rather than racing across the map. Their TLE data is also more stable, since atmospheric drag is negligible at 20,000 km, and updates every few days are sufficient for accurate tracking.
+            </p>
+
+            <!-- SECTION 4 -->
+            <h2 id="geo">Geostationary Orbit (GEO)</h2>
+
+            <div class="orbit-cards">
+                <div class="orbit-card geo">
+                    <div class="orbit-card-badge">GEO</div>
+                    <h3>Geostationary Orbit</h3>
+                    <div class="orbit-alt">35,786 km</div>
+                    <p>A single magic altitude where orbital speed matches Earth's rotation. Satellites here appear completely stationary from the ground — perfect for TV, weather, and communications.</p>
+                    <div class="orbit-stat">Orbital period: <span>exactly 24 hours</span></div>
+                    <div class="orbit-stat">Speed: <span>~11,000 km/h</span></div>
+                    <div class="orbit-stat">Coverage per sat: <span>~42% of Earth</span></div>
+                </div>
+            </div>
+
+            <p>
+                Geostationary orbit is one of the most elegant concepts in space science. At exactly <strong>35,786 km</strong> above the equator, the orbital period equals exactly 24 hours — so a satellite there moves at the same rate Earth rotates, appearing completely stationary from the ground. Point a fixed dish antenna at a GEO satellite once and it will always be in the same spot in the sky.
+            </p>
+
+            <p>
+                This makes GEO ideal for <strong>television broadcasting, weather monitoring, and communications</strong>. A single GEO satellite can see about 42% of Earth's surface continuously. Three well-placed GEO satellites can cover almost the entire planet (except the poles).
+            </p>
+
+            <p>
+                The trade-off is latency. At 35,786 km, a radio signal takes about 240 milliseconds each way — nearly half a second round-trip. This makes GEO unsuitable for real-time applications like online gaming or voice calls, which is why Starlink chose LEO instead for its broadband service.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">📌 On the map</span>
+                <p>On SatFleet Live, GEO satellites appear as a <strong>nearly stationary arc above the equator</strong>. If you watch the map for a few minutes, LEO satellites race by while GEO satellites barely move. Filter for <strong>Weather / Climate</strong> or <strong>Communications</strong> to see this clearly.</p>
+            </div>
+
+            <!-- SECTION 5 — COMPARISON -->
+            <h2 id="comparison">Orbit Comparison at a Glance</h2>
+
+            <div style="overflow-x:auto;">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th class="leo-text">LEO</th>
+                            <th class="meo-text">MEO</th>
+                            <th class="geo-text">GEO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Altitude</td>
+                            <td>160 – 2,000 km</td>
+                            <td>2,000 – 35,786 km</td>
+                            <td>35,786 km</td>
+                        </tr>
+                        <tr>
+                            <td>Orbital period</td>
+                            <td>~90 min</td>
+                            <td>2 – 24 hrs</td>
+                            <td>24 hrs</td>
+                        </tr>
+                        <tr>
+                            <td>Appears stationary?</td>
+                            <td>No — fast moving</td>
+                            <td>No — slow moving</td>
+                            <td>Yes — fixed in sky</td>
+                        </tr>
+                        <tr>
+                            <td>Signal latency</td>
+                            <td>~20 – 40 ms</td>
+                            <td>~100 – 200 ms</td>
+                            <td>~480 ms</td>
+                        </tr>
+                        <tr>
+                            <td>Ground coverage per satellite</td>
+                            <td>Small — moves fast</td>
+                            <td>Medium</td>
+                            <td>~42% of Earth</td>
+                        </tr>
+                        <tr>
+                            <td>Atmospheric drag</td>
+                            <td>Significant</td>
+                            <td>Minimal</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td>TLE update frequency needed</td>
+                            <td>Every 24–48 hrs</td>
+                            <td>Every few days</td>
+                            <td>Weekly or less</td>
+                        </tr>
+                        <tr>
+                            <td>Typical uses</td>
+                            <td>ISS, Starlink, Earth imaging</td>
+                            <td>GPS, Galileo, GLONASS</td>
+                            <td>TV, weather, comms</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SECTION 6 -->
+            <h2 id="tracking">How Orbit Type Affects Satellite Tracking</h2>
+
+            <p>
+                Understanding orbit types changes how you interpret everything on a real-time satellite tracker. Here is what orbit altitude means in practice for tracking:
+            </p>
+
+            <h3>Speed and pass duration</h3>
+            <p>
+                LEO satellites cross your sky in 5–10 minutes. MEO satellites take hours to move noticeably. GEO satellites are essentially fixed points. If you are using the <a href="/next-passes.html">Next Passes</a> feature on SatFleet Live to plan an ISS observation, expect a brief but bright pass. If you are pointing a dish at a GEO communications satellite, set it once and forget it.
+            </p>
+
+            <h3>Visibility from the ground</h3>
+            <p>
+                LEO satellites are the easiest to spot with the naked eye precisely because they are close and moving. The ISS, at about 400 km altitude, can reach magnitude −4 — brighter than Venus. GEO satellites at 35,786 km are far too dim and too stationary to notice without a telescope.
+            </p>
+
+            <h3>TLE accuracy over time</h3>
+            <p>
+                The lower the orbit, the faster the TLE data becomes stale. A LEO satellite's position prediction degrades by kilometres per day due to atmospheric drag. A GEO satellite's TLE can remain accurate for weeks. This is why SatFleet Live prioritises frequent TLE updates and why the satellite count on the map may vary slightly between sessions.
+            </p>
+
+            <h3>Polar coverage</h3>
+            <p>
+                GEO satellites sit above the equator and cannot see the poles — coverage degrades significantly above 75° latitude. LEO satellites in <strong>polar or sun-synchronous orbits</strong> (like many Earth observation and weather satellites) cover the entire globe including the poles on each orbit, though only briefly over any given location.
+            </p>
+
+            <!-- SECTION 7 -->
+            <h2 id="examples">Real Examples: ISS, Starlink, GPS and More</h2>
+
+            <div class="sat-example-grid">
+                <div class="sat-example-card leo-card">
+                    <span class="sat-icon">🧑‍🚀</span>
+                    <span class="sat-orbit-label">LEO · ~408 km</span>
+                    <h3>ISS</h3>
+                    <p>Orbits at 408 km, completes 15.5 orbits per day, and is visible to the naked eye during twilight passes. It travels at ~27,600 km/h — fast enough to circle Earth in 92 minutes.</p>
+                </div>
+                <div class="sat-example-card leo-card">
+                    <span class="sat-icon">🌐</span>
+                    <span class="sat-orbit-label">LEO · ~550 km</span>
+                    <h3>Starlink</h3>
+                    <p>SpaceX's broadband constellation orbits at ~550 km in tight shells. Their low altitude gives internet latency of 20–40 ms — comparable to fibre — but requires over 4,000 satellites for global coverage.</p>
+                </div>
+                <div class="sat-example-card meo-card">
+                    <span class="sat-icon">📍</span>
+                    <span class="sat-orbit-label">MEO · ~20,200 km</span>
+                    <h3>GPS (NAVSTAR)</h3>
+                    <p>31 operational satellites in MEO at 20,200 km. Each completes two orbits per day. The constellation is arranged so at least 4 satellites are always visible from anywhere on Earth.</p>
+                </div>
+                <div class="sat-example-card meo-card">
+                    <span class="sat-icon">🛰️</span>
+                    <span class="sat-orbit-label">MEO · ~23,222 km</span>
+                    <h3>Galileo</h3>
+                    <p>Europe's own navigation system, orbiting slightly higher than GPS at 23,222 km. Its 30-satellite constellation offers global coverage with accuracy down to 1 metre for authorised users.</p>
+                </div>
+                <div class="sat-example-card geo-card">
+                    <span class="sat-icon">🌦️</span>
+                    <span class="sat-orbit-label">GEO · 35,786 km</span>
+                    <h3>GOES Weather</h3>
+                    <p>NOAA's geostationary weather satellites provide continuous imaging of the Americas. From a fixed point above the equator, they capture full-disk images every 10 minutes, 24 hours a day.</p>
+                </div>
+                <div class="sat-example-card geo-card">
+                    <span class="sat-icon">📺</span>
+                    <span class="sat-orbit-label">GEO · 35,786 km</span>
+                    <h3>Intelsat / Eutelsat</h3>
+                    <p>Commercial communications satellites in GEO deliver TV broadcasting, broadband backhaul, and government communications to fixed dishes worldwide. A single satellite serves entire continents simultaneously.</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🛰️ Try it yourself</span>
+                <p>Open <a href="/">SatFleet Live</a> and search for <strong>ISS</strong>, <strong>STARLINK-1234</strong>, or <strong>GPS BIIR-2</strong> to see each orbit type in action. Notice how differently they move — and check the altitude shown in the info panel when you click on them.</p>
+            </div>
+
+            <!-- FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Why don't all satellites use geostationary orbit?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    GEO has three major limitations: it only works directly above the equator (so polar regions get no coverage), the signal latency of ~480 ms makes real-time applications unusable, and it is very expensive to launch a satellite that far. LEO and MEO are better suited for navigation, broadband internet, Earth observation, and crewed missions.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can I see LEO satellites with the naked eye?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes — many LEO satellites are visible to the naked eye during twilight. The ISS is the brightest, reaching magnitude −4 on good passes, but Starlink trains, other space stations, and large military satellites are also visible. Use SatFleet Live's <a href="/next-passes.html">Next Passes</a> feature to find out when a satellite will cross your sky and at what brightness.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How many satellites are currently in LEO?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    As of early 2025, there are roughly 7,000–9,000 active satellites in LEO, with Starlink alone accounting for over 6,000 of those. The total number of tracked objects in LEO (including debris) exceeds 20,000. SatFleet Live tracks over 14,000 active and catalogued satellites across all orbit regimes using data from CelesTrak / NORAD.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What is a sun-synchronous orbit?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    A sun-synchronous orbit (SSO) is a special type of LEO where the satellite passes over every point on Earth at the same local solar time on each orbit. This ensures consistent lighting conditions for Earth imaging. Most remote sensing and weather satellites — such as Landsat, Sentinel, and MetOp — use sun-synchronous orbits at around 600–800 km altitude.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Why does the ISS need regular reboosts?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    At 400 km altitude, the ISS experiences atmospheric drag that gradually slows it and lowers its orbit. Without periodic engine burns — typically every few weeks, using its own thrusters or those of visiting spacecraft — the ISS would reenter the atmosphere within a few years. This drag also means its TLE data changes quickly and must be updated frequently for accurate tracking.
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Guides</div>
+                <div class="related-grid">
+                    <a href="/blogs/how-to-track-satellites/" class="related-card">
+                        <span class="related-icon">🛰️</span>
+                        <div class="related-text">
+                            <strong>How to Track Satellites in Real Time</strong>
+                            <span>A complete beginner's guide to real-time satellite tracking.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/best-free-satellite-tracker/" class="related-card">
+                        <span class="related-icon">📡</span>
+                        <div class="related-text">
+                            <strong>Best Free Satellite Tracker Online</strong>
+                            <span>Compare the top free satellite tracking websites.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/what-is-a-tle/" class="related-card">
+                        <span class="related-icon">🔢</span>
+                        <div class="related-text">
+                            <strong>What is a TLE and How to Read It</strong>
+                            <span>Understand the orbital data format behind every tracker.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/next-passes-predict-satellites/" class="related-card">
+                    <span class="related-icon">🔭</span>
+                    <div class="related-text">
+                        <strong>Next Passes: Predict Satellite Overheads</strong>
+                        <span>Plan an ISS sighting or spot a Starlink train from your location.</span>
+                    </div>
+                </a>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-banner">
+                <h2>See all orbit types live on the map</h2>
+                <p>Watch LEO, MEO, and GEO satellites moving in real time. Filter by category, click any satellite to see its altitude, and explore 14,000+ objects orbiting Earth right now.</p>
+                <a href="/" class="cta-btn">🌍 Open Live Satellite Map</a>
+            </div>
+
+        </article>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
+            <a href="https://www.wikidata.org" target="_blank">Wikidata</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+
+</body>
+</html>

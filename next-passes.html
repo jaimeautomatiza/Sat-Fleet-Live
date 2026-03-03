@@ -485,8 +485,7 @@
     </div>
 </div>
         <div class="header-buttons">
-            <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Theme</button>
-            <button class="theme-toggle" onclick="toggleLanguage()">🌐 ES/EN</button>
+            <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
             <button class="back-btn" onclick="goBack()">← Back to Map</button>
         </div>
     </div>
@@ -559,118 +558,9 @@
         let userLocation = null;
         let allSatellites = [];
         let calculatedPasses = [];
-        let currentLanguage = 'en';
         let isDarkMode = true;
 
-        // Traducciones
-        const translations = {
-            en: {
-                pageTitle: 'Next Visible Passes from Your Location',
-                detectingLocation: '📍 Detecting your location...',
-                locationFound: '📍 Your location:',
-                daysLabel: 'Days to calculate:',
-                filterLabel: 'Satellite types:',
-                filterOptions: {
-                relevant: 'Relevant satellites (default)',
-                all: 'ALL satellites (‼️ Slow, this may take a while...))',
-                gps: 'GPS / Navigation',
-                iss: 'Space Stations',
-                comm: 'Communications',
-                starlink: 'Starlink / Internet (‼️ Slow, this may take a while...)',
-                military: 'Military / Spy',
-                weather: 'Weather / Climate',
-                geo: 'Geodetic / Tracking',
-                tech: 'Technology / Experimental',
-                misc: 'Other / Miscellaneous (‼️ Slow, this may take a while...)'
-                },
-                sortLabel: 'Sort by:',
-                calculateBtn: 'Calculate Passes',
-                backBtn: '← Back to Map',
-                themeBtn: '🌙/☀️ Theme',
-                loadingText: 'Calculating visible passes...',
-                noPasses: 'No visible passes found for the selected period. Try selecting more days or check back later when it\'s nighttime.',
-                days: ['day', 'days'],
-                sortOptions: {
-                    time: 'Earliest first',
-                    brightness: 'Brightest first',
-                    elevation: 'Highest elevation',
-                    duration: 'Longest duration'
-                },
-                passDetails: {
-                    datetime: 'Start Time',
-                    maxElevation: 'Max Elevation',
-                    direction: 'Direction',
-                    brightness: 'Brightness',
-                    duration: 'Visible Period'
-                },
-                brightnessLevels: {
-                    veryBright: 'VERY BRIGHT',
-                    bright: 'Bright',
-                    normal: 'Normal',
-                    dim: 'Dim'
-                },
-                showOnMap: 'Show on Map',
-                copyright: '© 2026 SatFleetLive',
-                source: 'Source:',
-                contact: 'Contact',
-                privacyPolicy: 'Privacy Policy'
-            },
-            es: {
-                pageTitle: 'Próximos Pases Visibles desde tu Ubicación',
-                detectingLocation: '📍 Detectando tu ubicación...',
-                locationFound: '📍 Tu ubicación:',
-                daysLabel: 'Días a calcular:',
-                filterLabel: 'Tipos de satélites:',
-                filterOptions: {
-                relevant: 'Satélites relevantes (predeterminado)',
-                all: 'TODOS los satélites (‼️ Lento, esto podría tardar un tiempo...)',
-                gps: 'GPS / Navegación',
-                iss: 'Estaciones Espaciales',
-                comm: 'Comunicaciones',
-                starlink: 'Starlink / Internet (‼️ Lento, esto podría tardar un tiempo...)',
-                military: 'Militares / Espía',
-                weather: 'Meteorológicos / Clima',
-                geo: 'Geodésicos / Seguimiento',
-                tech: 'Tecnología / Experimental',
-                misc: 'Otros / Misceláneos (‼️ Lento, esto podría tardar un tiempo...)'
-                },
-                sortLabel: 'Ordenar por:',
-                calculateBtn: 'Calcular Pases',
-                backBtn: '← Volver al Mapa',
-                themeBtn: '🌙/☀️ Tema',
-                loadingText: 'Calculando pases visibles...',
-                noPasses: 'No se encontraron pases visibles para el período seleccionado. Intenta seleccionar más días o espera a que sea de noche.',
-                days: ['día', 'días'],
-                sortOptions: {
-                    time: 'Más temprano primero',
-                    brightness: 'Más brillante primero',
-                    elevation: 'Mayor elevación',
-                    duration: 'Mayor duración'
-                },
-                passDetails: {
-                    datetime: 'Hora de Inicio',
-                    maxElevation: 'Elevación Máx',
-                    direction: 'Dirección',
-                    brightness: 'Brillo',
-                    duration: 'Período Visible'
-                },
-                brightnessLevels: {
-                    veryBright: 'MUY BRILLANTE',
-                    bright: 'Brillante',
-                    normal: 'Normal',
-                    dim: 'Poco brillante'
-                },
-                showOnMap: 'Ver en Mapa',
-                minutes: 'min',
-                copyright: '© 2026 SatFleetLive',
-                source: 'Fuente:',
-                contact: 'Contacto',
-                privacyPolicy: 'Política de privacidad'
-            }
-        };
-
         // Obtener ubicación del usuario
-// Obtener ubicación del usuario
 function getUserLocation() {
     // Cargar ubicación anterior del localStorage
     const cached = localStorage.getItem('userLocation');
@@ -712,9 +602,8 @@ function getUserLocation() {
 }
 
         function updateLocationInfo() {
-            const t = translations[currentLanguage];
             const info = document.getElementById('locationInfo');
-            info.textContent = `${t.locationFound} ${userLocation.lat.toFixed(4)}°, ${userLocation.lng.toFixed(4)}°`;
+            info.textContent = `📍 Your location: ${userLocation.lat.toFixed(4)}°, ${userLocation.lng.toFixed(4)}°`;
         }
 
         // Cargar satélites
@@ -855,8 +744,7 @@ function applyFilter() {
                 // Actualizar progreso cada 20 satélites
                 if (processed % 20 === 0) {
                     const progress = Math.round((processed / satellitesToProcess.length) * 100);
-                    const t = translations[currentLanguage];
-                    document.getElementById('loadingText').textContent = `${t.loadingText} ${progress}% (${processed}/${satellitesToProcess.length})`;
+                    document.getElementById('loadingText').textContent = `Calculating visible passes... ${progress}% (${processed}/${satellitesToProcess.length})`;
                     await new Promise(resolve => setTimeout(resolve, 0)); // Permitir que el navegador respire
                 }
             }
@@ -1126,12 +1014,11 @@ function calculateSunPositionECI(date) {
         }
 
         function getBrightnessText(magnitude) {
-            const t = translations[currentLanguage].brightnessLevels;
-            if (magnitude < 0) return t.veryBright;
-            if (magnitude < 2) return t.bright;
-            if (magnitude < 4) return t.normal;
-            return t.dim;
-        }
+    if (magnitude < 0) return 'VERY BRIGHT';
+    if (magnitude < 2) return 'Bright';
+    if (magnitude < 4) return 'Normal';
+    return 'Dim';
+}
 
         function getDirectionText(startAz, endAz) {
             const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
@@ -1162,12 +1049,10 @@ function calculateSunPositionECI(date) {
 
         function displayPasses() {
             const container = document.getElementById('passesContainer');
-            const t = translations[currentLanguage];
-            
             if (calculatedPasses.length === 0) {
-                container.innerHTML = `<div class="no-passes">${t.noPasses}</div>`;
-                return;
-            }
+    container.innerHTML = `<div class="no-passes">No visible passes found for the selected period. Try selecting more days or check back later when it's nighttime.</div>`;
+    return;
+}
             
             container.innerHTML = calculatedPasses.map(pass => {
                 const brightnessClass = getBrightnessClass(pass.brightness);
@@ -1187,24 +1072,24 @@ function calculateSunPositionECI(date) {
                         </div>
                         <div class="pass-details">
                             <div class="detail-item">
-                                <div class="detail-label">${t.passDetails.datetime}</div>
+                                <div class="detail-label">Start Time</div>
                                 <div class="detail-value">${formatDateTime(pass.startTime)}</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">${t.passDetails.maxElevation}</div>
+                                <div class="detail-label">Max Elevation</div>
                                 <div class="detail-value">${pass.maxElevation.toFixed(1)}°</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">${t.passDetails.direction}</div>
+                                <div class="detail-label">Direction</div>
                                 <div class="detail-value">${direction}</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">${t.passDetails.duration}</div>
+                                <div class="detail-label">Visible Period</div>
                                 <div class="detail-value">${formatTimeRange(pass.startTime, pass.endTime)}</div>
                             </div>
                         </div>
                         <button class="show-map-btn" onclick="showOnMap('${pass.satellite.noradId}')">
-                            ${t.showOnMap}
+                            Show on Map
                         </button>
                     </div>
                 `;
@@ -1218,16 +1103,16 @@ function calculateSunPositionECI(date) {
                 hour: '2-digit', 
                 minute: '2-digit'
             };
-            return date.toLocaleDateString(currentLanguage === 'es' ? 'es-ES' : 'en-US', options);
+            return date.toLocaleDateString('en-US', options);
         }
 
         function formatTimeRange(startDate, endDate) {
-            const startTime = startDate.toLocaleTimeString(currentLanguage === 'es' ? 'es-ES' : 'en-US', { 
+            const startTime = startDate.toLocaleTimeString('en-US', { 
                 hour: '2-digit', 
                 minute: '2-digit',
                 hour12: false
             });
-            const endTime = endDate.toLocaleTimeString(currentLanguage === 'es' ? 'es-ES' : 'en-US', { 
+            const endTime = endDate.toLocaleTimeString('en-US', {
                 hour: '2-digit', 
                 minute: '2-digit',
                 hour12: false
@@ -1244,79 +1129,6 @@ function calculateSunPositionECI(date) {
         function toggleTheme() {
             isDarkMode = !isDarkMode;
             document.body.classList.toggle('light-mode');
-        }
-
-        function toggleLanguage() {
-            currentLanguage = currentLanguage === 'es' ? 'en' : 'es';
-            updateLanguage();
-        }
-
-        function updateLanguage() {
-            const t = translations[currentLanguage];
-            
-            document.getElementById('pageTitle').textContent = t.pageTitle;
-            document.getElementById('daysLabel').textContent = t.daysLabel;
-            document.getElementById('filterLabel').textContent = t.filterLabel;
-            document.getElementById('sortLabel').textContent = t.sortLabel;
-            document.getElementById('calculateBtn').innerHTML = t.calculateBtn;
-            document.querySelector('.back-btn').innerHTML = t.backBtn;
-            document.getElementById('loadingText').textContent = t.loadingText;
-            
-            // Update days options
-            const daysSelect = document.getElementById('daysSelect');
-            const daysValue = daysSelect.value;
-            daysSelect.innerHTML = `
-                <option value="1">1 ${t.days[0]}</option>
-                <option value="3">3 ${t.days[1]}</option>
-                <option value="7">7 ${t.days[1]}</option>
-            `;
-            daysSelect.value = daysValue;
-            
-            // Update sort options
-            const sortSelect = document.getElementById('sortSelect');
-            const sortValue = sortSelect.value;
-            sortSelect.innerHTML = `
-                <option value="time">${t.sortOptions.time}</option>
-                <option value="brightness">${t.sortOptions.brightness}</option>
-                <option value="elevation">${t.sortOptions.elevation}</option>
-                <option value="duration">${t.sortOptions.duration}</option>
-            `;
-            sortSelect.value = sortValue;
-
-            // Update filter options
-const filterSelect = document.getElementById('filterSelect');
-const filterValue = filterSelect.value;
-filterSelect.innerHTML = `
-    <option value="relevant">${t.filterOptions.relevant}</option>
-    <option value="all">${t.filterOptions.all}</option>
-    <option value="gps">${t.filterOptions.gps}</option>
-    <option value="iss">${t.filterOptions.iss}</option>
-    <option value="comm">${t.filterOptions.comm}</option>
-    <option value="starlink">${t.filterOptions.starlink}</option>
-    <option value="military">${t.filterOptions.military}</option>
-    <option value="weather">${t.filterOptions.weather}</option>
-    <option value="geo">${t.filterOptions.geo}</option>
-    <option value="tech">${t.filterOptions.tech}</option>
-    <option value="misc">${t.filterOptions.misc}</option>
-`;
-filterSelect.value = filterValue;
-            
-            // Update location info
-            if (userLocation) {
-                updateLocationInfo();
-            } else {
-                document.getElementById('locationInfo').textContent = t.detectingLocation;
-            }
-            
-            // Redisplay passes if they exist
-            if (calculatedPasses.length > 0) {
-                displayPasses();
-            }
-            // Copyright y footer
-document.getElementById('copyrightText').textContent = t.copyright;
-document.getElementById('sourceText').textContent = t.source;
-document.getElementById('contactText').textContent = t.contact;
-document.getElementById('privacyPolicyText').textContent = t.privacyPolicy;
         }
 
         function goBack() {

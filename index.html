@@ -14,7 +14,7 @@
     </script>
 
     <!-- Favicon principal y compatibilidad general -->
-    <link rel="icon" type="image/png" href="logo.png">
+         <link rel="icon" type="image/png" href="logo.png">
     <link rel="shortcut icon" href="logo.png" type="image/png">
     <!-- Icono para dispositivos Apple -->
     <link rel="apple-touch-icon" href="logo.png">
@@ -63,6 +63,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
 
+    <!-- CesiumJS -->
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -92,14 +96,17 @@
             --geo-color: #00ced1;
             --tech-color: #9400d3;
             --misc-color: #ff69b4;
+            --bar-height: 60px;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--dark-bg);
             color: var(--text-primary-dark);
-            overflow-x: hidden;
-            transition: all 0.3s ease;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         body.light-mode {
@@ -107,328 +114,436 @@
             color: var(--text-primary-light);
         }
 
-        /* Header */
-        .header {
-            background-color: var(--dark-secondary);
-            padding: 1rem;
+       /* ===== MAP WRAPPER — ocupa TODO excepto la barra superior ===== */
+        #mapWrapper {
+            position: fixed;
+            top: var(--bar-height);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            z-index: 0;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            touch-action: pan-x pan-y pinch-zoom;
+        }
+
+        #cesiumContainer {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            touch-action: none;
+        }
+
+        .cesium-widget-credits,
+        .cesium-credit-logoContainer { display: none !important; }
+
+        /* ===== TOP BAR ===== */
+        #bottomBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--bar-height);
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(156, 39, 176, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 8px;
+            z-index: 1000;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+        }
+
+        #bottomBar::-webkit-scrollbar { display: none; }
+
+        body.light-mode #bottomBar {
+            background: rgba(255, 255, 255, 0.96);
+            border-bottom: 1px solid rgba(156, 39, 176, 0.15);
+        }
+
+        /* Logo en la barra */
+        .bar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-right: 6px;
+        }
+
+        .bar-logo img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: contain;
+            box-shadow: 0 0 10px rgba(156, 39, 176, 0.4);
+        }
+
+        .bar-logo-text {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--primary-purple);
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 12px rgba(156, 39, 176, 0.35);
+        }
+
+        /* Separador vertical */
+        .bar-sep {
+            width: 1px;
+            height: 26px;
+            background: rgba(255,255,255,0.12);
+            flex-shrink: 0;
+            margin: 0 2px;
+        }
+
+        body.light-mode .bar-sep {
+            background: rgba(0,0,0,0.12);
+        }
+
+        /* Stats compactos */
+        #barStats {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.68rem;
+            line-height: 1.3;
+            color: var(--text-secondary-dark);
+            white-space: nowrap;
+        }
+
+        body.light-mode #barStats {
+            color: var(--text-secondary-light);
+        }
+
+        #barStats strong {
+            color: var(--primary-purple);
+        }
+
+        /* Buscador inline */
+        #barSearch {
+            flex: 1;
+            min-width: 140px;
+            max-width: 240px;
+            height: 38px;
+            padding: 0 14px;
+            border: 1.5px solid rgba(156, 39, 176, 0.35);
+            border-radius: 19px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text-primary-dark);
+            font-size: 0.82rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        body.light-mode #barSearch {
+            background: rgba(0,0,0,0.05);
+            color: var(--text-primary-light);
+            border-color: rgba(156,39,176,0.3);
+        }
+
+        #barSearch:focus {
+            border-color: var(--primary-purple);
+        }
+
+        #barSearch::placeholder {
+            color: rgba(200,200,200,0.45);
+            font-size: 0.78rem;
+        }
+
+        body.light-mode #barSearch::placeholder {
+            color: rgba(100,100,100,0.5);
+        }
+
+        /* Botones de la barra */
+        .bar-btn {
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 19px;
+            border: 1.5px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.82);
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            letter-spacing: 0.2px;
+        }
+
+        body.light-mode .bar-btn {
+            border-color: rgba(0,0,0,0.15);
+            background: rgba(0,0,0,0.04);
+            color: rgba(0,0,0,0.65);
+        }
+
+        .bar-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+        }
+
+        body.light-mode .bar-btn:hover {
+            background: rgba(0,0,0,0.09);
+            color: #000;
+        }
+
+        /* Botón Filters — morado */
+        #filtersBtn {
+            border-color: rgba(156, 39, 176, 0.6);
+            color: var(--primary-purple);
+            background: rgba(156, 39, 176, 0.08);
+        }
+
+        #filtersBtn:hover, #filtersBtn.open {
+            background: var(--primary-purple);
+            color: #fff;
+            border-color: var(--primary-purple);
+        }
+
+        /* Botón 3D */
+        #toggleViewBtn {
+            height: 32px;
+            padding: 0 13px;
+            border-radius: 16px;
+            border: 1.5px solid rgba(33, 150, 243, 0.5);
+            background: rgba(33, 150, 243, 0.08);
+            color: var(--primary-blue);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        #toggleViewBtn:hover {
+            background: var(--primary-blue);
+            color: #fff;
+            border-color: var(--primary-blue);
+        }
+
+        /* Botón Only Visible */
+        #visibilityToggle {
+            border-color: rgba(0, 210, 106, 0.5);
+            color: var(--starlink-color);
+            background: rgba(0, 210, 106, 0.07);
+        }
+
+        #visibilityToggle:hover, #visibilityToggle.active {
+            background: var(--starlink-color);
+            color: #111;
+            border-color: var(--starlink-color);
+        }
+
+        /* Botón Next Passes */
+        #nextPassesBtn {
+            border-color: rgba(33, 150, 243, 0.5);
+            color: var(--primary-blue);
+            background: rgba(33, 150, 243, 0.07);
+        }
+
+        #nextPassesBtn:hover {
+            background: var(--primary-blue);
+            color: #fff;
+            border-color: var(--primary-blue);
+        }
+
+        /* Botón Guides */
+        #guidesBtn {
+            border-color: rgba(255, 215, 0, 0.5);
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.07);
+        }
+
+        #guidesBtn:hover {
+            background: #ffd700;
+            color: #111;
+            border-color: #ffd700;
+        }
+
+        /* Botón Theme */
+        #themeBtn {
+            border-color: rgba(156, 39, 176, 0.4);
+            color: var(--primary-purple);
+            background: rgba(156, 39, 176, 0.07);
+        }
+
+        #themeBtn:hover {
+            background: var(--primary-purple);
+            color: #fff;
+            border-color: var(--primary-purple);
+        }
+
+        /* Botón móvil panel (+) */
+        #mobilePanelBtn {
+            display: none;
+            height: 38px;
+            width: 38px;
+            padding: 0;
+            border-radius: 50%;
+            border: 1.5px solid rgba(156, 39, 176, 0.6);
+            background: rgba(156, 39, 176, 0.1);
+            color: var(--primary-purple);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #mobilePanelBtn:hover {
+            background: var(--primary-purple);
+            color: #fff;
+        }
+
+        /* ===== FILTERS PANEL (flotante bajo la barra superior) ===== */
+        #filtersPanel {
+            position: fixed;
+            top: calc(var(--bar-height) + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background: rgba(22, 22, 22, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(156, 39, 176, 0.3);
+            border-radius: 16px;
+            padding: 16px 18px;
+            z-index: 1100;
+            min-width: 320px;
+            max-width: 90vw;
+            box-shadow: 0 -4px 32px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        body.light-mode #filtersPanel {
+            background: rgba(250, 250, 250, 0.97);
+            border-color: rgba(156,39,176,0.25);
+            box-shadow: 0 -4px 32px rgba(0,0,0,0.15);
+        }
+
+        #filtersPanel.open {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .filters-panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 1000;
+            margin-bottom: 12px;
         }
 
-        body.light-mode .header {
-            background-color: var(--light-secondary);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            background-color: transparent;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            border-radius: 50%;
-        }
-
-        .logo-placeholder {
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .title {
-            font-size: 1.5rem;
-            font-weight: 650;
+        .filters-panel-title {
+            font-size: 0.82rem;
+            font-weight: 700;
             color: var(--primary-purple);
-            letter-spacing: -0.2px;  /* Opcional: mejora visual */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
         }
 
-        .theme-toggle {
-            background: none;
-            border: 2px solid var(--primary-purple);
-            color: var(--primary-purple);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .theme-toggle:hover {
-            background-color: var(--primary-purple);
-            color: white;
-        }
-        .next-passes-btn {
-    border-color: var(--primary-blue);
-    color: var(--primary-blue);
-}
-
-.next-passes-btn:hover {
-    background-color: var(--primary-blue);
-    color: white;
-}
-
-        /* Search and Filters */
-        .controls {
-            background-color: var(--dark-secondary);
-            padding: 1rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        body.light-mode .controls {
-            background-color: var(--light-secondary);
-        }
-
-        .search-container {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--dark-tertiary);
-            border-radius: 25px;
-            background-color: var(--dark-bg);
-            color: var(--text-primary-dark);
-            font-size: 1rem;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .search-input:focus {
-            border-color: var(--primary-purple);
-        }
-
-        body.light-mode .search-input {
-            background-color: var(--light-bg);
-            color: var(--text-primary-light);
-            border-color: var(--light-tertiary);
-        }
-
-        .filters {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 0.5rem 1rem;
-            border: 2px solid var(--dark-tertiary);
-            background: none;
-            color: var(--text-secondary-dark);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            border-color: var(--primary-purple);
-            color: var(--primary-purple);
-        }
-
-        .filter-btn.active {
-            background-color: var(--primary-purple);
-            color: white;
-        }
-
-        .mobile-filter-btn.active {
-            background-color: var(--primary-purple);
-            color: white;
-        }
-
-        body.light-mode .filter-btn {
-            color: var(--text-secondary-light);
-            border-color: var(--light-tertiary);
-        }
-
-        /* Map */
-        #map {
-            height: calc(100vh - 140px);
-            width: 100%;
-        }
-
-        /* Mobile Menu Toggle */
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--primary-purple);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3);
-            z-index: 2000;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-menu-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        /* Mobile Overlay */
-        .mobile-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1500;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .mobile-overlay.active {
-            opacity: 1;
-        }
-
-        /* Mobile Panel */
-        .mobile-panel {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: var(--dark-secondary);
-            max-height: 80vh;
-            overflow-y: auto;
-            border-radius: 20px 20px 0 0;
-            z-index: 2000;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .mobile-panel.active {
-            transform: translateY(0);
-        }
-
-        body.light-mode .mobile-panel {
-            background-color: var(--light-secondary);
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .mobile-panel-header {
-            padding: 1.5rem 1rem 1rem;
-            border-bottom: 1px solid var(--dark-tertiary);
-            position: sticky;
-            top: 0;
-            background-color: var(--dark-secondary);
-            z-index: 10;
-        }
-
-        body.light-mode .mobile-panel-header {
-            background-color: var(--light-secondary);
-            border-color: var(--light-tertiary);
-        }
-
-        .mobile-panel-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--primary-purple);
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .mobile-close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
+        .filters-panel-close {
             background: none;
             border: none;
-            color: var(--text-secondary-dark);
-            font-size: 1.5rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .mobile-close-btn:hover {
-            background-color: var(--dark-tertiary);
-        }
-
-        body.light-mode .mobile-close-btn {
-            color: var(--text-secondary-light);
-        }
-
-        body.light-mode .mobile-close-btn:hover {
-            background-color: var(--light-tertiary);
-        }
-
-        .mobile-panel-content {
-            padding: 0 1rem 2rem;
-        }
-
-        .mobile-section {
-            margin-bottom: 2rem;
-        }
-
-        .mobile-section-title {
+            color: rgba(255,255,255,0.5);
             font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-purple);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary-purple);
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            padding: 0;
+            line-height: 1;
         }
 
-        /* Satellite Info Panel - Desktop */
+        .filters-panel-close:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        body.light-mode .filters-panel-close {
+            color: rgba(0,0,0,0.4);
+        }
+
+        body.light-mode .filters-panel-close:hover {
+            background: rgba(0,0,0,0.08);
+            color: #000;
+        }
+
+        .filters-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .filter-chip {
+            padding: 5px 12px;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.65);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.76rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        body.light-mode .filter-chip {
+            border-color: rgba(0,0,0,0.15);
+            background: rgba(0,0,0,0.04);
+            color: rgba(0,0,0,0.6);
+        }
+
+        .filter-chip:hover {
+            border-color: rgba(156,39,176,0.5);
+            color: var(--primary-purple);
+        }
+
+        .filter-chip.active {
+            border-color: var(--primary-purple);
+            background: rgba(156,39,176,0.18);
+            color: var(--primary-purple);
+        }
+
+        /* ===== DESKTOP SATELLITE INFO PANEL ===== */
         .satellite-info {
-            position: absolute;
-            top: 160px;
-            right: 20px;
-            background-color: var(--dark-secondary);
-            border-radius: 10px;
-            padding: 1.5rem;
-            width: 300px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            transform: translateX(320px);
+            position: fixed;
+            top: calc(var(--bar-height) + 12px);
+            right: 16px;
+            background: rgba(22, 22, 22, 0.93);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(156,39,176,0.25);
+            border-radius: 14px;
+            padding: 16px;
+            width: 260px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            transform: translateX(280px);
             transition: transform 0.3s ease;
-            z-index: 1000;
+            z-index: 900;
         }
 
         .satellite-info.active {
@@ -436,701 +551,1068 @@
         }
 
         body.light-mode .satellite-info {
-            background-color: var(--light-secondary);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            background: rgba(250,250,250,0.95);
+            border-color: rgba(156,39,176,0.2);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
         }
 
         .info-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 12px;
         }
 
         .satellite-name {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             color: var(--primary-purple);
+            line-height: 1.2;
         }
 
         .close-btn {
             background: none;
             border: none;
-            color: var(--text-secondary-dark);
-            font-size: 1.5rem;
+            color: rgba(255,255,255,0.45);
+            font-size: 1.2rem;
             cursor: pointer;
-            padding: 0;
-            width: 30px;
-            height: 30px;
+            width: 26px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
 
         body.light-mode .close-btn {
-            color: var(--text-secondary-light);
+            color: rgba(0,0,0,0.4);
+        }
+
+        body.light-mode .close-btn:hover {
+            background: rgba(0,0,0,0.08);
+            color: #000;
         }
 
         .info-item {
-            margin-bottom: 0.75rem;
+            margin-bottom: 8px;
         }
 
         .info-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary-dark);
-            margin-bottom: 0.25rem;
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
         }
 
         body.light-mode .info-label {
-            color: var(--text-secondary-light);
+            color: rgba(0,0,0,0.45);
         }
 
         .info-value {
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary-dark);
         }
 
-        /* Legend - Desktop */
+        body.light-mode .info-value {
+            color: var(--text-primary-light);
+        }
+
+        /* ===== LEGEND — desktop (arriba izquierda, compacta) ===== */
         .legend {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background-color: var(--dark-secondary);
-            padding: 1rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
+            position: fixed;
+            top: calc(var(--bar-height) + 12px);
+            left: 16px;
+            background: rgba(22,22,22,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            z-index: 800;
+            min-width: 170px;
         }
 
         body.light-mode .legend {
-            background-color: var(--light-secondary);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            background: rgba(250,250,250,0.93);
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        .legend-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
         .legend-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
+            font-size: 0.72rem;
+            font-weight: 700;
             color: var(--primary-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .legend-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .legend-close:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        body.light-mode .legend-close {
+            color: rgba(0,0,0,0.35);
+        }
+
+        body.light-mode .legend-close:hover {
+            background: rgba(0,0,0,0.08);
+            color: #000;
+        }
+
+        /* Legend colapsada */
+        .legend.collapsed .legend-item,
+        .legend.collapsed .legend-header .legend-title {
+            display: none;
+        }
+
+        .legend.collapsed {
+            padding: 8px 10px;
+            min-width: unset;
+        }
+
+        .legend.collapsed .legend-header {
+            margin-bottom: 0;
+        }
+
+        /* Botón para reabrir legend cuando está colapsada */
+        .legend-reopen {
+            display: none;
+            font-size: 0.7rem;
+            color: var(--primary-purple);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .legend.collapsed .legend-reopen {
+            display: inline;
+        }
+
+        .legend.collapsed .legend-close {
+            display: none;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            gap: 7px;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        body.light-mode .legend-item {
+            color: rgba(0,0,0,0.65);
         }
 
         .legend-color {
-            width: 12px;
-            height: 12px;
+            width: 9px;
+            height: 9px;
             border-radius: 50%;
+            flex-shrink: 0;
         }
 
-        /* Mobile Filters */
-        .mobile-filters {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
+        /* ===== MOBILE PANEL ===== */
+        .mobile-overlay {
+            display: none !important;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 1500;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
         }
 
-        .mobile-filter-btn {
-            padding: 0.75rem;
-            border: 2px solid var(--dark-tertiary);
-            background: none;
-            color: var(--text-secondary-dark);
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .mobile-overlay.active {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .mobile-panel {
+            display: none;
+            position: fixed;
+            top: var(--bar-height);
+            left: 0;
+            right: 0;
+            background: rgba(18, 18, 18, 0.98);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            max-height: calc(100vh - var(--bar-height));
+            overflow-y: auto;
+            border-radius: 0 0 18px 18px;
+            z-index: 2000;
+            transform: translateY(-100%);
+            transition: transform 0.28s ease;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+        }
+
+        .mobile-panel.active {
+            transform: translateY(0);
+        }
+
+        body.light-mode .mobile-panel {
+            background: rgba(250,250,250,0.98);
+        }
+
+        .mobile-panel-header {
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            position: sticky;
+            top: 0;
+            background: inherit;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        body.light-mode .mobile-panel-header {
+            border-color: rgba(0,0,0,0.08);
+        }
+
+        .mobile-panel-title {
             font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .mobile-filter-btn:hover,
-        .mobile-filter-btn.active {
-            border-color: var(--primary-purple);
+            font-weight: 700;
             color: var(--primary-purple);
-            background-color: rgba(156, 39, 176, 0.1);
         }
 
-        body.light-mode .mobile-filter-btn {
-            color: var(--text-secondary-light);
-            border-color: var(--light-tertiary);
+        .mobile-close-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
         }
 
-        .mobile-filter-btn:focus {
-            outline: none;
-            border-color: var(--dark-tertiary) !important;
-            color: var(--text-secondary-dark) !important;
-            background-color: transparent !important;
+        .mobile-close-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
 
-        .mobile-filter-btn.active:focus {
-            border-color: var(--primary-purple) !important;
-            color: var(--primary-purple) !important;
-            background-color: rgba(156, 39, 176, 0.1) !important;
+        body.light-mode .mobile-close-btn {
+            color: rgba(0,0,0,0.4);
         }
 
-        body.light-mode .mobile-filter-btn:focus {
-            border-color: var(--light-tertiary) !important;
-            color: var(--text-secondary-light) !important
+        .mobile-panel-content {
+            padding: 12px 16px 20px;
         }
 
+        .mobile-section {
+            margin-bottom: 18px;
+        }
 
-        /* Mobile Satellite Info */
+        .mobile-section-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--primary-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(156,39,176,0.25);
+        }
+
+        /* Mobile satellite info */
         .mobile-satellite-info {
-            background-color: var(--dark-tertiary);
+            background: rgba(255,255,255,0.05);
             border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            padding: 12px;
+            margin-bottom: 10px;
         }
 
         body.light-mode .mobile-satellite-info {
-            background-color: var(--light-tertiary);
+            background: rgba(0,0,0,0.04);
         }
 
         .mobile-satellite-name {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 700;
             color: var(--primary-purple);
-            margin-bottom: 0.75rem;
+            margin-bottom: 10px;
         }
 
         .mobile-info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
+            gap: 8px;
         }
 
         .mobile-info-item {
             text-align: center;
         }
 
-        /* Mobile Legend */
+        .mobile-info-item .info-label {
+            font-size: 0.65rem;
+        }
+
+        .mobile-info-item .info-value {
+            font-size: 0.82rem;
+        }
+
+        /* Mobile filters */
+        .mobile-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .mobile-filter-btn {
+            padding: 5px 11px;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.6);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.76rem;
+            transition: all 0.2s;
+        }
+
+        body.light-mode .mobile-filter-btn {
+            border-color: rgba(0,0,0,0.14);
+            background: rgba(0,0,0,0.03);
+            color: rgba(0,0,0,0.58);
+        }
+
+        .mobile-filter-btn.active {
+            border-color: var(--primary-purple);
+            background: rgba(156,39,176,0.16);
+            color: var(--primary-purple);
+        }
+
+        /* Mobile visibility */
+        .mobile-visibility-toggle {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid rgba(0,210,106,0.5);
+            background: rgba(0,210,106,0.06);
+            color: var(--starlink-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .mobile-visibility-toggle.active {
+            background: var(--starlink-color);
+            color: #111;
+            border-color: var(--starlink-color);
+        }
+
+        .elevation-control {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        body.light-mode .elevation-control {
+            color: rgba(0,0,0,0.55);
+        }
+
+        /* Mobile legend */
         .mobile-legend {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.5rem;
+            gap: 6px;
         }
 
         /* Loading */
         .loading {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: var(--dark-secondary);
-            padding: 2rem;
-            border-radius: 10px;
+            background: rgba(22,22,22,0.95);
+            backdrop-filter: blur(12px);
+            padding: 28px 36px;
+            border-radius: 14px;
             text-align: center;
-            z-index: 2000;
+            z-index: 3000;
+            border: 1px solid rgba(156,39,176,0.2);
         }
 
         body.light-mode .loading {
-            background-color: var(--light-secondary);
+            background: rgba(250,250,250,0.97);
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--dark-tertiary);
-            border-left: 4px solid var(--primary-purple);
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(156,39,176,0.15);
+            border-left: 3px solid var(--primary-purple);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 12px;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* User location markers */
+        .user-location-marker {
+            width: 20px;
+            height: 20px;
+            background-color: #ff4444;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
 
-        /* RESPONSIVE - MOBILE */
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 0.5rem;
-                padding: 0.75rem 1rem;
-            }
-
-            .logo-section .title {
-                font-size: 1.3rem;
-            }
-
-            .controls {
-                padding: 0.75rem 1rem;
-            }
-
-            .search-input {
-                font-size: 0.95rem;
-                padding: 0.6rem 1rem;
-            }
-
-            .filters {
-                display: none;
-                /* Ocultamos los filtros desktop en móvil */
-            }
-
-            #map {
-                height: calc(100vh - 160px);
-            }
-
-            /* Mostrar elementos móviles */
-            .mobile-menu-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .mobile-overlay {
-                display: block;
-            }
-
-            .mobile-panel {
-                display: block;
-            }
-
-            /* Ocultar elementos desktop en móvil */
-            .satellite-info {
-                display: none;
-            }
-
-            .legend {
-                display: none;
-            }
-
-            /* Ajustar header info */
-            .header>div:nth-child(2) {
-                display: block;
-                /* Ocultar info del centro en móvil */
-            }
-
-            #map {
-                touch-action: pan-x pan-y;
-                /* permite zoom y arrastre táctil */
-            }
-
-            .mobile-overlay:not(.active) {
-                pointer-events: none;
-                /* solo interactúa cuando está activo */
-            }
+        .user-location-compass {
+            width: 24px !important;
+            height: 28px !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* DESKTOP - mantener todo igual */
-        @media (min-width: 769px) {
-            .mobile-menu-toggle {
-                display: none !important;
-            }
-
-            .mobile-overlay {
-                display: none !important;
-            }
-
-            .mobile-panel {
-                display: none !important;
-            }
+        .user-location-compass svg {
+            width: 24px;
+            height: 28px;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));
+            transition: transform 0.3s ease-out;
+            transform-origin: center center;
         }
 
-        /* Visibility Toggle Button */
-        .visibility-toggle {
-            background: none;
-            border: 2px solid var(--starlink-color);
-            color: var(--starlink-color);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            margin-left: 0.5rem;
+        .user-location-pulse {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ff4444;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
 
-        .visibility-toggle:hover,
-        .visibility-toggle.active {
-            background-color: var(--starlink-color);
-            color: white;
+        @keyframes pulse {
+            0%   { transform: scale(0.8); opacity: 0.6; }
+            50%  { transform: scale(1.2); opacity: 0.3; }
+            100% { transform: scale(0.8); opacity: 0.6; }
         }
 
+        /* ===== ELEVATION CONTROLS ===== */
         .visibility-filter-controls {
-            display: flex;
+            display: none;
             align-items: center;
-            gap: 1rem;
-            margin-top: 0.5rem;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
-        .elevation-control {
+        .visibility-filter-controls.open {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
         }
 
-        .elevation-slider {
-            width: 100px;
+        #elevationLabel {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.55);
+            white-space: nowrap;
         }
 
-        /* Mobile visibility controls */
-        .mobile-visibility-section {
-            background-color: var(--dark-tertiary);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        body.light-mode #elevationLabel {
+            color: rgba(0,0,0,0.5);
         }
 
-        body.light-mode .mobile-visibility-section {
-            background-color: var(--light-tertiary);
+        #elevationSlider {
+            width: 70px;
+            accent-color: var(--starlink-color);
         }
 
-        .mobile-visibility-toggle {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--starlink-color);
-            background: none;
+        #elevationValue {
+            font-size: 0.72rem;
             color: var(--starlink-color);
-            border-radius: 15px;
+            min-width: 24px;
+        }
+
+        /* ===== RESPONSIVE MÓVIL ===== */
+        @media (max-width: 768px) {
+            :root { --bar-height: 52px; }
+
+            #bottomBar {
+                padding: 0 8px;
+                gap: 5px;
+                overflow-x: hidden;
+                overflow-y: hidden;
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+            }
+
+            /* Logo: solo icono, sin texto */
+            .bar-logo-text { display: none !important; }
+            .bar-logo {
+                gap: 0;
+                margin-right: 2px;
+                flex-shrink: 0;
+            }
+            .bar-logo img {
+                width: 32px;
+                height: 32px;
+            }
+
+            /* Ocultar separadores que ya no son necesarios */
+            .bar-sep { display: none !important; }
+
+            /* Ocultar stats */
+            #barStats { display: none !important; }
+
+            /* Ocultar botones secundarios — van al menú ⋯ */
+            #guidesBtn,
+            #nextPassesBtn,
+            #themeBtn,
+            #toggleViewBtn,
+            #visibilityToggle,
+            #visibilityControls { display: none !important; }
+
+            /* Buscador: flexible pero con límites razonables */
+            #barSearch {
+                flex: 1 1 0;
+                min-width: 0;
+                max-width: 999px;
+                height: 34px;
+                font-size: 0.76rem;
+                padding: 0 10px;
+            }
+
+            /* Botón Filters: compacto pero visible */
+            #filtersBtn {
+                flex-shrink: 0;
+                height: 34px;
+                padding: 0 12px;
+                font-size: 0.76rem;
+                white-space: nowrap;
+            }
+
+            /* Botón ⋯: siempre visible al final */
+            #overflowBtn {
+                display: flex !important;
+                flex-shrink: 0;
+                height: 34px;
+                width: 34px;
+                margin-left: 2px;
+            }
+
+            #mobileStats { display: flex !important; }
+
+            /* Ocultar panel móvil antiguo */
+            .mobile-overlay,
+            .mobile-panel,
+            #mobilePanelBtn { display: none !important; }
+
+            /* Filters panel: ancho completo */
+            #filtersPanel {
+                min-width: unset;
+                width: calc(100vw - 20px);
+                max-width: calc(100vw - 20px);
+                left: 10px;
+                transform: translateX(0) translateY(-10px);
+                padding: 14px;
+            }
+
+            #filtersPanel.open {
+                transform: translateX(0) translateY(0);
+            }
+
+            .filter-chip {
+                padding: 7px 13px;
+                font-size: 0.8rem;
+            }
+
+            /* Legend flotante en móvil */
+            .legend {
+                display: block !important;
+                top: calc(var(--bar-height) + 8px);
+                left: 8px;
+                min-width: 148px;
+                max-width: 165px;
+                padding: 10px 12px;
+            }
+
+            .legend-item {
+                font-size: 0.79rem;
+                margin-bottom: 5px;
+            }
+
+            .legend-color { width: 10px; height: 10px; }
+            .legend-title { font-size: 0.74rem; }
+
+            /* Panel de info de satélite en móvil */
+            .satellite-info {
+                display: block !important;
+                top: calc(var(--bar-height) + 8px);
+                right: 8px;
+                width: calc(100vw - 190px);
+                min-width: 150px;
+                max-width: 205px;
+                padding: 11px 12px;
+            }
+
+            .satellite-name { font-size: 0.84rem; }
+            .info-value { font-size: 0.8rem; }
+            .info-label { font-size: 0.64rem; }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-overlay,
+            .mobile-panel,
+            #mobilePanelBtn { display: none !important; }
+        }
+
+        /* ===== FOOTER INFO BAR ===== */
+        #infoFooter {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 22px;
+            background: rgba(10, 10, 10, 0.82);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.62rem;
+            color: rgba(255,255,255,0.35);
+            z-index: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0 12px;
+        }
+
+        body.light-mode #infoFooter {
+            background: rgba(245,245,245,0.88);
+            border-top: 1px solid rgba(0,0,0,0.08);
+            color: rgba(0,0,0,0.4);
+        }
+
+        #infoFooter a {
+            color: rgba(77,166,255,0.7);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        #infoFooter a:hover { color: #4da6ff; }
+
+        #infoFooter .footer-sep {
+            color: rgba(255,255,255,0.2);
+        }
+
+        body.light-mode #infoFooter .footer-sep {
+            color: rgba(0,0,0,0.2);
+        }
+
+        /* El mapWrapper deja espacio para el footer */
+        #mapWrapper {
+            bottom: 22px;
+        }
+
+        /* ===== MÓVIL: botón ⋯ menú overflow ===== */
+        #overflowBtn {
+            display: none;
+            height: 34px;
+            width: 34px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            padding: 0;
+            line-height: 1;
         }
 
-        .mobile-visibility-toggle:hover,
-        .mobile-visibility-toggle.active {
-            background-color: var(--starlink-color);
-            color: white;
+        body.light-mode #overflowBtn {
+            border-color: rgba(0,0,0,0.18);
+            background: rgba(0,0,0,0.05);
+            color: rgba(0,0,0,0.65);
         }
 
-/* Icono de ubicación sin brújula */
-.user-location-marker {
-    width: 20px;
-    height: 20px;
-    background-color: #ff4444;
-    border: 3px solid white;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    position: relative;
-}
+        #overflowBtn:hover {
+            background: rgba(255,255,255,0.14);
+            color: #fff;
+        }
 
-.user-location-marker::after {
-    content: '📍';
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 16px;
-}
+        /* Menú desplegable overflow */
+        #overflowMenu {
+            position: fixed;
+            top: calc(var(--bar-height) + 6px);
+            right: 10px;
+            background: rgba(18,18,18,0.97);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 8px;
+            z-index: 1200;
+            min-width: 180px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-6px);
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
 
-/* Icono de ubicación CON brújula - SVG ROTABLE */
-.user-location-compass {
-    width: 24px !important;
-    height: 28px !important;
-    position: relative !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-}
+        body.light-mode #overflowMenu {
+            background: rgba(252,252,252,0.98);
+            border-color: rgba(0,0,0,0.1);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        }
 
-.user-location-compass svg {
-    width: 24px;
-    height: 28px;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
-    transition: transform 0.3s ease-out;
-    transform-origin: center center;
-}
+        #overflowMenu.open {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
 
-.user-location-pulse {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ff4444;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-    opacity: 0.6;
-}
+        .overflow-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 9px 14px;
+            border: none;
+            background: none;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.84rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 9px;
+            transition: all 0.15s;
+            text-align: left;
+            gap: 8px;
+            white-space: nowrap;
+            text-decoration: none;
+        }
 
-@keyframes pulse {
-    0% {
-        transform: scale(0.8);
-        opacity: 0.6;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.3;
-    }
-    100% {
-        transform: scale(0.8);
-        opacity: 0.6;
-    }
-}
+        body.light-mode .overflow-item {
+            color: rgba(0,0,0,0.65);
+        }
+
+        .overflow-item:hover {
+            background: rgba(255,255,255,0.09);
+            color: #fff;
+        }
+
+        body.light-mode .overflow-item:hover {
+            background: rgba(0,0,0,0.06);
+            color: #000;
+        }
+
+        .overflow-item.purple { color: var(--primary-purple); }
+        .overflow-item.green  { color: var(--starlink-color); }
+        .overflow-item.blue   { color: var(--primary-blue); }
+        .overflow-item.gold   { color: #ffd700; }
+
+        .overflow-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.07);
+            margin: 4px 8px;
+        }
+
+        body.light-mode .overflow-divider {
+            background: rgba(0,0,0,0.08);
+        }
+
+        @media (min-width: 769px) {
+            .mobile-overlay,
+            .mobile-panel,
+            #mobilePanelBtn { display: none !important; }
+        }
+
+        /* Pantallas muy pequeñas: ocultar algunos botones secundarios */
+        @media (max-width: 480px) {
+            #guidesBtn,
+            #nextPassesBtn { display: none !important; }
+
+            #barSearch {
+                min-width: 90px;
+                max-width: 120px;
+            }
+        }
     </style>
 </head>
 
 <body>
-
-    <!-- Header -->
-    <div class="header">
-        <div class="logo-section">
-            <div class="logo">
-                <img src="logo.png" alt="SatFleet Live Logo"
-                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
-            </div>
-            <h1 class="title">SatFleet Live</h1>
-        </div>
-
-        <div style="text-align:center; font-size:12px; flex:1;">
-    <div id="copyrightText">© 2026 SatFleetLive</div>
-    <div id="satelliteStats" style="margin-top:4px; font-size:13px; color:#9c27b0; font-weight:600;">
-        <span id="totalSatCount">0</span> <span id="totalSatLabel">satellites loaded</span>
-        &nbsp;|&nbsp;
-        <span id="overheadSatCount">0</span> <span id="overheadSatLabel">overhead</span>
-    </div>
-            <div>
-                <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank"
-                    style="color:#4da6ff;">CelesTrak / NORAD</a> | <a href="https://www.wikidata.org" target="_blank"
-                    style="color:#4da6ff;">Wikidata</a>
-                | <a href="mailto:jaime.automatiza@gmail.com" style="color:#4da6ff;" id="contactText">Contact</a>
-                | <a href="https://satfleetlive.com/privacy-policy" target="_blank" style="color:#4da6ff;"
-                    id="privacyPolicyText">Privacy Policy</a>
-            </div>
-        </div>
-
-<div style="display: flex; align-items: center; gap: 0.5rem;">
-    <button class="theme-toggle" onclick="toggleTheme()">🌙/☀️ Tema</button>
-    <button class="theme-toggle" onclick="toggleLanguage()">🌐 ES/EN</button>
-    <button class="visibility-toggle" id="visibilityToggle" onclick="toggleVisibility()">Solo
-        Visibles</button>
-    <button class="theme-toggle next-passes-btn" onclick="window.location.href='next-passes.html'">Next Passes</button>
-</div>
-    </div>
-
-    <!-- Search and Filters (Desktop) -->
-    <div class="controls">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Buscar satélite..." id="searchInput"
-                onkeyup="searchSatellites()">
-        </div>
-        <div class="filters">
-            <button class="filter-btn" onclick="filterSatellites('all')">Todos</button>
-            <button class="filter-btn active" onclick="filterSatellites('gps')">GPS</button>
-            <button class="filter-btn active" onclick="filterSatellites('iss')">Estación Espacial</button>
-            <button class="filter-btn active" onclick="filterSatellites('comm')">Comunicaciones</button>
-            <button class="filter-btn" onclick="filterSatellites('starlink')">Starlink/Internet</button>
-            <button class="filter-btn active" onclick="filterSatellites('military')">Militar / Espía</button>
-            <button class="filter-btn active" onclick="filterSatellites('weather')">Meteorológicos / Clima</button>
-            <button class="filter-btn active" onclick="filterSatellites('geo')">Geodésicos / Seguimiento</button>
-            <button class="filter-btn active" onclick="filterSatellites('tech')">Tecnología / Experimental</button>
-            <button class="filter-btn" onclick="filterSatellites('misc')">Otros / Misceláneos</button>
-        </div>
-        <div class="visibility-filter-controls" id="visibilityControls" style="display: none;">
-            <div class="elevation-control">
-                <label>Elevación mín:</label>
-                <input type="range" class="elevation-slider" id="elevationSlider" min="0" max="90" value="10"
-                    oninput="updateElevationFilter()">
-                <span id="elevationValue">10°</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Map -->
+<!-- Map Wrapper (contiene 2D y 3D) -->
+<div id="mapWrapper">
     <div id="map"></div>
+    <div id="cesiumContainer"></div>
+</div>
 
-    <!-- Mobile Menu Toggle Button -->
-    <button class="mobile-menu-toggle" onclick="toggleMobilePanel()">
-        📊
-    </button>
+<!-- Desktop Satellite Info Panel -->
+<div class="satellite-info" id="satelliteInfo">
+    <div class="info-header">
+        <div class="satellite-name" id="satelliteName">Satellite Name</div>
+        <button class="close-btn" onclick="closeSatelliteInfo()">×</button>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Altitude</div>
+        <div class="info-value" id="satelliteAltitude">--- km</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Velocity</div>
+        <div class="info-value" id="satelliteVelocity">--- km/h</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Latitude</div>
+        <div class="info-value" id="satelliteLatitude">---°</div>
+    </div>
+    <div class="info-item">
+        <div class="info-label">Longitude</div>
+        <div class="info-value" id="satelliteLongitude">---°</div>
+    </div>
+</div>
 
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobilePanel()"></div>
-
-    <!-- Mobile Panel -->
-    <div class="mobile-panel" id="mobilePanel">
-        <div class="mobile-panel-header">
-            <button class="mobile-close-btn" onclick="closeMobilePanel()">×</button>
-            <div class="mobile-panel-title">Panel de Control</div>
+<!-- Desktop Legend -->
+<div class="legend collapsed" id="legendPanel">
+    <div class="legend-header">
+            <div class="legend-title">Satellite Types</div>
+            <span class="legend-reopen" onclick="openLegend()">▶ Legend</span>
+            <button class="legend-close" onclick="closeLegend()" title="Collapse">−</button>
         </div>
+    <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>GPS / Navigation</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Station</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#00d26a"></div><span>Starlink / Internet</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff6b35"></div><span>Communications</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff0000"></div><span>Military / Spy</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffd700"></div><span>Weather / Climate</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Geodetic / Tracking</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Technology / Exp.</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other / Misc</span></div>
+</div>
 
-        <div class="mobile-panel-content">
-            <!-- Satellite Info Section -->
-            <div class="mobile-section" id="mobileSatelliteSection" style="display: none;">
-                <div class="mobile-section-title">Información del Satélite</div>
-                <div class="mobile-satellite-info">
-                    <div class="mobile-satellite-name" id="mobileSatelliteName">Selecciona un satélite</div>
-                    <div class="mobile-info-grid">
-                        <div class="mobile-info-item">
-                            <div class="info-label">Altura</div>
-                            <div class="info-value" id="mobileSatelliteAltitude">--- km</div>
-                        </div>
-                        <div class="mobile-info-item">
-                            <div class="info-label">Velocidad</div>
-                            <div class="info-value" id="mobileSatelliteVelocity">--- km/h</div>
-                        </div>
-                        <div class="mobile-info-item">
-                            <div class="info-label">Latitud</div>
-                            <div class="info-value" id="mobileSatelliteLatitude">---°</div>
-                        </div>
-                        <div class="mobile-info-item">
-                            <div class="info-label">Longitud</div>
-                            <div class="info-value" id="mobileSatelliteLongitude">---°</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Filters Panel (flotante sobre el mapa) -->
+<div id="filtersPanel">
+    <div class="filters-panel-header">
+        <span class="filters-panel-title">Filters</span>
+        <button class="filters-panel-close" onclick="closeFiltersPanel()">×</button>
+    </div>
+    <div class="filters-grid" id="filtersGrid">
+        <button class="filter-chip" data-type="all" onclick="filterSatellites('all')">All</button>
+        <button class="filter-chip active" data-type="gps" onclick="filterSatellites('gps')">GPS</button>
+        <button class="filter-chip active" data-type="iss" onclick="filterSatellites('iss')">Space Station</button>
+        <button class="filter-chip active" data-type="comm" onclick="filterSatellites('comm')">Communications</button>
+        <button class="filter-chip" data-type="starlink" onclick="filterSatellites('starlink')">Starlink / Internet</button>
+        <button class="filter-chip active" data-type="military" onclick="filterSatellites('military')">Military / Spy</button>
+        <button class="filter-chip active" data-type="weather" onclick="filterSatellites('weather')">Weather</button>
+        <button class="filter-chip active" data-type="geo" onclick="filterSatellites('geo')">Geodetic</button>
+        <button class="filter-chip active" data-type="tech" onclick="filterSatellites('tech')">Technology</button>
+        <button class="filter-chip" data-type="misc" onclick="filterSatellites('misc')">Other</button>
+    </div>
+</div>
 
-            <!-- Filters Section -->
-            <div class="mobile-section">
-                <div class="mobile-section-title">Filtros</div>
-                <div class="mobile-filters">
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('all')">Todos</button>
-                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('gps')">GPS</button>
-                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('iss')">Estación
-                        Espacial</button>
-                    <button class="mobile-filter-btn active"
-                        onclick="mobileFilterSatellites('comm')">Comunicaciones</button>
-                    <button class="mobile-filter-btn"
-                        onclick="mobileFilterSatellites('starlink')">Starlink/Internet</button>
-                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('military')">Militar /
-                        Espía</button>
-                    <button class="mobile-filter-btn active"
-                        onclick="mobileFilterSatellites('weather')">Meteorológicos</button>
-                    <button class="mobile-filter-btn active" onclick="mobileFilterSatellites('geo')">Geodésicos</button>
-                    <button class="mobile-filter-btn active"
-                        onclick="mobileFilterSatellites('tech')">Tecnología</button>
-                    <button class="mobile-filter-btn" onclick="mobileFilterSatellites('misc')">Otros</button>
-                </div>
-            </div>
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobilePanel()"></div>
 
-            <!-- Visibility Section -->
-            <div class="mobile-section">
-                <div class="mobile-section-title">Visibilidad</div>
-                <div class="mobile-visibility-section">
-                    <button class="mobile-visibility-toggle" id="mobileVisibilityToggle"
-                        onclick="toggleMobileVisibility()">Mostrar Solo Visibles</button>
-                    <div id="mobileVisibilityControls" style="display: none;">
-                        <div class="elevation-control">
-                            <label>Elevación mínima: <span id="mobileElevationValue">10°</span></label>
-                            <input type="range" style="width: 100%; margin-top: 0.5rem;" id="mobileElevationSlider"
-                                min="0" max="90" value="10" oninput="updateMobileElevationFilter()">
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Mobile Panel -->
+<div class="mobile-panel" id="mobilePanel">
+    <div class="mobile-panel-header">
+        <div class="mobile-panel-title">Control Panel</div>
+        <button class="mobile-close-btn" onclick="closeMobilePanel()">×</button>
+    </div>
+    <div class="mobile-panel-content">
 
-            <!-- Legend Section -->
-            <div class="mobile-section">
-                <div class="mobile-section-title">Leyenda</div>
-                <div class="mobile-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--gps-color);"></div>
-                        <span>GPS / Navegación</span>
+        <!-- Satellite Info -->
+        <div class="mobile-section" id="mobileSatelliteSection" style="display:none;">
+            <div class="mobile-section-title">Satellite Information</div>
+            <div class="mobile-satellite-info">
+                <div class="mobile-satellite-name" id="mobileSatelliteName">Select a satellite</div>
+                <div class="mobile-info-grid">
+                    <div class="mobile-info-item">
+                        <div class="info-label">Altitude</div>
+                        <div class="info-value" id="mobileSatelliteAltitude">--- km</div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--iss-color);"></div>
-                        <span>Estación Espacial</span>
+                    <div class="mobile-info-item">
+                        <div class="info-label">Velocity</div>
+                        <div class="info-value" id="mobileSatelliteVelocity">--- km/h</div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--starlink-color);"></div>
-                        <span>Starlink / Internet</span>
+                    <div class="mobile-info-item">
+                        <div class="info-label">Latitude</div>
+                        <div class="info-value" id="mobileSatelliteLatitude">---°</div>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--comm-color);"></div>
-                        <span>Comunicaciones</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--military-color);"></div>
-                        <span>Militares / Espía</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--weather-color);"></div>
-                        <span>Meteorológicos</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--geo-color);"></div>
-                        <span>Geodésicos</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--tech-color);"></div>
-                        <span>Tecnología</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: var(--misc-color);"></div>
-                        <span>Otros</span>
+                    <div class="mobile-info-item">
+                        <div class="info-label">Longitude</div>
+                        <div class="info-value" id="mobileSatelliteLongitude">---°</div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Filters -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Filters</div>
+            <div class="mobile-filters">
+                <button class="mobile-filter-btn" data-type="all" onclick="mobileFilterSatellites('all')">All</button>
+                <button class="mobile-filter-btn active" data-type="gps" onclick="mobileFilterSatellites('gps')">GPS</button>
+                <button class="mobile-filter-btn active" data-type="iss" onclick="mobileFilterSatellites('iss')">Space Station</button>
+                <button class="mobile-filter-btn active" data-type="comm" onclick="mobileFilterSatellites('comm')">Communications</button>
+                <button class="mobile-filter-btn" data-type="starlink" onclick="mobileFilterSatellites('starlink')">Starlink</button>
+                <button class="mobile-filter-btn active" data-type="military" onclick="mobileFilterSatellites('military')">Military</button>
+                <button class="mobile-filter-btn active" data-type="weather" onclick="mobileFilterSatellites('weather')">Weather</button>
+                <button class="mobile-filter-btn active" data-type="geo" onclick="mobileFilterSatellites('geo')">Geodetic</button>
+                <button class="mobile-filter-btn active" data-type="tech" onclick="mobileFilterSatellites('tech')">Technology</button>
+                <button class="mobile-filter-btn" data-type="misc" onclick="mobileFilterSatellites('misc')">Other</button>
+            </div>
+        </div>
+
+        <!-- Visibility -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Visibility</div>
+            <button class="mobile-visibility-toggle" id="mobileVisibilityToggle" onclick="toggleMobileVisibility()">Show Only Visible</button>
+            <div id="mobileVisibilityControls" style="display:none;">
+                <div class="elevation-control">
+                    <label>Min Elevation: <span id="mobileElevationValue">10°</span></label>
+                    <input type="range" style="width:100%;margin-top:6px;accent-color:var(--starlink-color);" id="mobileElevationSlider" min="0" max="90" value="10" oninput="updateMobileElevationFilter()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Legend</div>
+            <div class="mobile-legend">
+                <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>GPS</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Station</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#00d26a"></div><span>Starlink</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#ff6b35"></div><span>Communications</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#ff0000"></div><span>Military</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#ffd700"></div><span>Weather</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Geodetic</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Technology</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other</span></div>
+            </div>
+        </div>
+
+        <!-- Theme & extras -->
+        <div class="mobile-section">
+            <div class="mobile-section-title">Options</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                <button class="mobile-filter-btn" onclick="toggleTheme()">🌓 Theme</button>
+                <button class="mobile-filter-btn" onclick="window.location.href='next-passes.html'">📡 Next Passes</button>
+                <button class="mobile-filter-btn" onclick="window.location.href='/blogs/'">📖 Guides</button>
+                <button class="mobile-filter-btn" id="mobileViewBtn" onclick="toggleView()">🌐 3D (Beta)</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Footer info -->
+<div id="infoFooter">
+    <span>Source:</span>
+    <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a>
+    <span class="footer-sep">|</span>
+    <a href="https://www.wikidata.org" target="_blank">Wikidata</a>
+    <span class="footer-sep">|</span>
+    <a href="mailto:jaime.automatiza@gmail.com">Contact</a>
+    <span class="footer-sep">|</span>
+    <a href="https://satfleetlive.com/privacy-policy" target="_blank">Privacy Policy</a>
+</div>
+
+<!-- Overflow menu (móvil) -->
+<div id="overflowMenu">
+    <button class="overflow-item purple" onclick="toggleFiltersPanel(); closeOverflowMenu()">▼ Filters</button>
+    <button class="overflow-item green" id="overflowVisibility" onclick="toggleVisibility(); closeOverflowMenu()">Only Visible</button>
+    <div class="overflow-divider"></div>
+    <button class="overflow-item blue" id="overflowViewBtn" onclick="toggleView(); closeOverflowMenu()">3D (Beta)</button>
+    <button class="overflow-item gold" onclick="window.location.href='/blogs/'">Guides</button>
+    <button class="overflow-item blue" onclick="window.location.href='next-passes.html'">Next Passes</button>
+    <div class="overflow-divider"></div>
+    <button class="overflow-item" onclick="toggleTheme(); closeOverflowMenu()">Theme</button>
+</div>
+
+<!-- Loading -->
+<div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="font-size:0.85rem;color:rgba(255,255,255,0.65);">Loading satellites...</p>
+</div>
+
+<!-- Bottom Bar -->
+<div id="bottomBar">
+    <!-- Logo -->
+    <div class="bar-logo">
+        <img src="logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+        <span class="bar-logo-text">SatFleet Live</span>
     </div>
 
-    <!-- Desktop Satellite Info Panel -->
-    <div class="satellite-info" id="satelliteInfo">
-        <div class="info-header">
-            <div class="satellite-name" id="satelliteName">Nombre del Satélite</div>
-            <button class="close-btn" onclick="closeSatelliteInfo()">×</button>
-        </div>
-        <div class="info-item">
-            <div class="info-label">Altura</div>
-            <div class="info-value" id="satelliteAltitude">--- km</div>
-        </div>
-        <div class="info-item">
-            <div class="info-label">Velocidad</div>
-            <div class="info-value" id="satelliteVelocity">--- km/h</div>
-        </div>
-        <div class="info-item">
-            <div class="info-label">Latitud</div>
-            <div class="info-value" id="satelliteLatitude">---°</div>
-        </div>
-        <div class="info-item">
-            <div class="info-label">Longitud</div>
-            <div class="info-value" id="satelliteLongitude">---°</div>
-        </div>
+    <div class="bar-sep"></div>
+
+    <!-- Stats -->
+    <div id="barStats">
+        <span><strong id="totalSatCount">0</strong> loaded</span>
+        <span><strong id="overheadSatCount">0</strong> overhead</span>
     </div>
 
-    <!-- Desktop Legend -->
-    <div class="legend">
-        <div class="legend-title">Tipos de Satélites</div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--gps-color);"></div>
-            <span>GPS / Navegación</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--iss-color);"></div>
-            <span>Estación Espacial</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--starlink-color);"></div>
-            <span>Starlink / Internet</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--comm-color);"></div>
-            <span>Comunicaciones</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--military-color);"></div>
-            <span>Militares / Espía</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--weather-color);"></div>
-            <span>Meteorológicos / Clima</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--geo-color);"></div>
-            <span>Geodésicos / Seguimiento</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--tech-color);"></div>
-            <span>Tecnología / Experimental</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: var(--misc-color);"></div>
-            <span>Otros / Misceláneos</span>
-        </div>
+    <div class="bar-sep"></div>
+
+    <!-- Search -->
+    <input type="text" id="barSearch" placeholder="Search satellite..." onkeyup="searchSatellites()">
+
+    <div class="bar-sep"></div>
+
+    <!-- Buttons -->
+    <button class="bar-btn" id="filtersBtn" onclick="toggleFiltersPanel()">▼ Filters</button>
+    <button class="bar-btn" id="visibilityToggle" onclick="toggleVisibility()">Only Visible</button>
+    <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">Guides</button>
+    <button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">Next Passes</button>
+    <button class="bar-btn" id="toggleViewBtn" onclick="toggleView()">3D (Beta)</button>
+    <button class="bar-btn" id="themeBtn" onclick="toggleTheme()">Theme</button>
+
+    <!-- Elevation controls (visible solo cuando Only Visible activo) -->
+    <div class="visibility-filter-controls" id="visibilityControls">
+        <div class="bar-sep"></div>
+        <span id="elevationLabel">Min elev:</span>
+        <input type="range" id="elevationSlider" min="0" max="90" value="10" oninput="updateElevationFilter()">
+        <span id="elevationValue">10°</span>
     </div>
 
-    <!-- Loading -->
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <p>Cargando satélites...</p>
+   <!-- Stats móvil + Botón ⋯ -->
+    <div id="mobileStats" style="display:none; flex-direction:column; justify-content:center; flex-shrink:0; font-size:0.58rem; line-height:1.25; color:rgba(255,255,255,0.55); text-align:right; white-space:nowrap;">
+        <span><strong id="mobileStatTotal" style="color:#9c27b0;">0</strong> sats</span>
+        <span><strong id="mobileStatOverhead" style="color:#9c27b0;">0</strong> over you</span>
     </div>
-
+    <button id="overflowBtn" onclick="toggleOverflowMenu()">⋯</button>
+    <button id="mobilePanelBtn" onclick="toggleMobilePanel()">+</button>
+</div>
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -1139,138 +1621,16 @@
         let map;
         let satelliteMarkers = [];
         let allSatellites = [];
-        let activeFilters = new Set(['gps', 'iss', 'comm', 'military', 'weather', 'geo', 'tech']); // Todos menos starlink y misc
+        const DEFAULT_FILTERS = ['gps', 'iss', 'comm', 'military', 'weather', 'geo', 'tech'];
+        let activeFilters = new Set(DEFAULT_FILTERS);
         let isDarkMode = true;
         let currentOrbitPath = null;
 
-        // Variables de idioma
-        let currentLanguage = 'en';
-        const translations = {
-            es: {
-                title: 'SatFleet Live',
-                loading: 'Cargando satélites...',
-                searchPlaceholder: 'Buscar satélite por nombre o NORAD ID',
-                themeToggle: '🌙/☀️ Tema',
-                visibilityToggle: 'Solo Visibles',
-                nextPassesBtn: 'Próximos Pases',
-                visibilityToggleActive: 'Mostrando Visibles',
-                filters: {
-                    all: 'Todos',
-                    gps: 'GPS',
-                    iss: 'Estación Espacial',
-                    comm: 'Comunicaciones',
-                    starlink: 'Starlink/Internet',
-                    military: 'Militar / Espía',
-                    weather: 'Meteorológicos / Clima',
-                    geo: 'Geodésicos / Seguimiento',
-                    tech: 'Tecnología / Experimental',
-                    misc: 'Otros / Misceláneos'
-                },
-                info: {
-                    altitude: 'Altura',
-                    velocity: 'Velocidad',
-                    latitude: 'Latitud',
-                    longitude: 'Longitud'
-                },
-                legend: {
-                    title: 'Tipos de Satélites',
-                    gps: 'GPS / Navegación',
-                    iss: 'Estación Espacial',
-                    starlink: 'Starlink / Internet',
-                    comm: 'Comunicaciones',
-                    military: 'Militares / Espía',
-                    weather: 'Meteorológicos / Clima',
-                    geo: 'Geodésicos / Seguimiento',
-                    tech: 'Tecnología / Experimental',
-                    misc: 'Otros / Misceláneos'
-                },
-                mobile: {
-                    controlPanel: 'Panel de Control',
-                    satelliteInfo: 'Información del Satélite',
-                    selectSatellite: 'Selecciona un satélite',
-                    filters: 'Filtros',
-                    visibility: 'Visibilidad',
-                    legend: 'Leyenda',
-                    showOnlyVisible: '🔭 Mostrar Solo Visibles',
-                    showingVisible: '🔭 Mostrando Visibles'
-                },
-                elevation: {
-                    label: 'Elevación mín',
-                    min: 'Elevación mínima'
-                },
-                userLocation: 'Tu ubicación',
-                copyright: '© 2026 SatFleetLive',
-                source: 'Fuente:',
-                contact: 'Contacto',
-                privacyPolicy: 'Política de privacidad',
-                stats: {
-                total: 'satélites cargados',
-                overhead: 'sobre ti'
-                }
-            },
-            en: {
-                title: 'SatFleet Live',
-                loading: 'Loading satellites...',
-                searchPlaceholder: 'Search satellite by name or NORAD ID',
-                themeToggle: '🌙/☀️ Theme',
-                visibilityToggle: 'Only Visible',
-                nextPassesBtn: 'Next Passes',
-                visibilityToggleActive: 'Showing Visible',
-                filters: {
-                    all: 'All',
-                    gps: 'GPS',
-                    iss: 'Space Station',
-                    comm: 'Communications',
-                    starlink: 'Starlink/Internet',
-                    military: 'Military / Spy',
-                    weather: 'Weather / Climate',
-                    geo: 'Geodetic / Tracking',
-                    tech: 'Technology / Experimental',
-                    misc: 'Other / Miscellaneous'
-                },
-                info: {
-                    altitude: 'Altitude',
-                    velocity: 'Velocity',
-                    latitude: 'Latitude',
-                    longitude: 'Longitude'
-                },
-                legend: {
-                    title: 'Satellite Types',
-                    gps: 'GPS / Navigation',
-                    iss: 'Space Station',
-                    starlink: 'Starlink / Internet',
-                    comm: 'Communications',
-                    military: 'Military / Spy',
-                    weather: 'Weather / Climate',
-                    geo: 'Geodetic / Tracking',
-                    tech: 'Technology / Experimental',
-                    misc: 'Other / Miscellaneous'
-                },
-                mobile: {
-                    controlPanel: 'Control Panel',
-                    satelliteInfo: 'Satellite Information',
-                    selectSatellite: 'Select a satellite',
-                    filters: 'Filters',
-                    visibility: 'Visibility',
-                    legend: 'Legend',
-                    showOnlyVisible: '🔭 Show Only Visible',
-                    showingVisible: '🔭 Showing Visible'
-                },
-                elevation: {
-                    label: 'Min elevation',
-                    min: 'Minimum elevation'
-                },
-                userLocation: 'Your location',
-                copyright: '© 2026 SatFleetLive',
-                source: 'Source:',
-                contact: 'Contact',
-                privacyPolicy: 'Privacy Policy',
-                stats: {
-                total: 'satellites loaded',
-                overhead: 'overhead'
-                }
-            }
-        };
+        // ==================== CESIUM 3D ====================
+let cesiumViewer = null;
+let cesiumEntities = [];
+let is3DMode = true;
+let cesiumUpdateInterval = null;
 
         // Inicializar mapa
         function initMap() {
@@ -1500,7 +1860,12 @@
                 const todoTLE = await fetchTLE();
                 allSatellites = parseTLEWithType(todoTLE);
 
-                filterVisibleSatellites();
+                if (is3DMode) {
+                    loadSatellitesIn3D();
+                    cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
+                } else {
+                    filterVisibleSatellites();
+                }
                 hideLoading();
                 updateStats();
 
@@ -1599,70 +1964,78 @@
         }
 
         // Mostrar información del satélite
-        function showSatelliteInfo(satellite) {
-            console.log('Showing satellite info:', satellite);
-            // Desktop
-            const satelliteNameElement = document.getElementById('satelliteName');
-            satelliteNameElement.textContent = satellite.name;
-            satelliteNameElement.style.cursor = 'pointer';
-            satelliteNameElement.style.textDecoration = 'underline';
-            satelliteNameElement.onclick = function () {
-                openSatelliteDetail(satellite.noradId);
-            };
-
-            document.getElementById('satelliteAltitude').textContent = satellite.altitude ? satellite.altitude.toLocaleString() + ' km' : 'Calculating...';
-            document.getElementById('satelliteVelocity').textContent = satellite.velocity ? satellite.velocity.toLocaleString() + ' km/h' : 'Calculating...';
-            document.getElementById('satelliteLatitude').textContent = satellite.lat ? satellite.lat.toFixed(4) + '°' : 'Calculating...';
-            document.getElementById('satelliteLongitude').textContent = satellite.lng ? satellite.lng.toFixed(4) + '°' : 'Calculating...';
-
-            // Mobile
-            const t = translations[currentLanguage];
-            const mobileSatelliteNameElement = document.getElementById('mobileSatelliteName');
-            mobileSatelliteNameElement.textContent = satellite.name;
-            mobileSatelliteNameElement.style.cursor = 'pointer';
-            mobileSatelliteNameElement.style.textDecoration = 'underline';
-            mobileSatelliteNameElement.onclick = function () {
-                openSatelliteDetail(satellite.noradId);
-            };
-
-            document.getElementById('mobileSatelliteAltitude').textContent = satellite.altitude ? satellite.altitude.toLocaleString() + ' km' : 'Calculating...';
-            document.getElementById('mobileSatelliteVelocity').textContent = satellite.velocity ? satellite.velocity.toLocaleString() + ' km/h' : 'Calculating...';
-            document.getElementById('mobileSatelliteLatitude').textContent = satellite.lat ? satellite.lat.toFixed(4) + '°' : 'Calculating...';
-            document.getElementById('mobileSatelliteLongitude').textContent = satellite.lng ? satellite.lng.toFixed(4) + '°' : 'Calculating...';
-
-            // Mostrar sección móvil
-            document.getElementById('mobileSatelliteSection').style.display = 'block';
-
-            // Nuevo Despliegue del Panel   
-            if (window.innerWidth <= 768) {
-        const panel = document.getElementById('mobilePanel');
-        const overlay = document.getElementById('mobileOverlay');
-        panel.classList.add('active');
-        overlay.classList.add('active');
+        function showSatelliteInfo(sat) {
+    // Asegurarse de tener lat/lng/alt/vel calculados
+    if (!sat.lat || !sat.lng || !sat.altitude) {
+        try {
+            const now = new Date();
+            const pv  = window.satellite.propagate(sat.satrec, now);
+            if (pv && pv.position) {
+                const gmst = window.satellite.gstime(now);
+                const geo  = window.satellite.eciToGeodetic(pv.position, gmst);
+                sat.lat      = window.satellite.degreesLat(geo.latitude);
+                sat.lng      = window.satellite.degreesLong(geo.longitude);
+                sat.altitude = geo.height;
+                sat.velocity = Math.sqrt(
+                    pv.velocity.x**2 + pv.velocity.y**2 + pv.velocity.z**2
+                ) * 3.6;
+            }
+        } catch(e) {}
     }
 
-            // Limpiar órbita anterior
-            if (currentOrbitPath) {
-                map.removeLayer(currentOrbitPath);
-            }
+    const altText = sat.altitude ? Math.round(sat.altitude).toLocaleString() + ' km'  : 'Calculating...';
+    const velText = sat.velocity ? Math.round(sat.velocity).toLocaleString()  + ' km/h': 'Calculating...';
+    const latText = sat.lat      ? sat.lat.toFixed(4) + '°' : 'Calculating...';
+    const lngText = sat.lng      ? sat.lng.toFixed(4) + '°' : 'Calculating...';
 
-            // Dibujar nueva órbita
-            const orbitPoints = generateOrbitPath(satellite);
-            const orbitColor = getSatelliteColor(satellite.name);
+    // --- Desktop panel ---
+    const nameEl = document.getElementById('satelliteName');
+    nameEl.textContent = sat.name;
+    nameEl.style.cursor = 'pointer';
+    nameEl.style.textDecoration = 'underline';
+    nameEl.onclick = () => openSatelliteDetail(sat.noradId);
 
-            currentOrbitPath = L.polyline(orbitPoints, {
-                color: orbitColor,
-                weight: 2,
-                opacity: 0.7,
-                dashArray: '5, 10'
-            }).addTo(map);
+    document.getElementById('satelliteAltitude').textContent  = altText;
+    document.getElementById('satelliteVelocity').textContent  = velText;
+    document.getElementById('satelliteLatitude').textContent  = latText;
+    document.getElementById('satelliteLongitude').textContent = lngText;
 
-            // Centrar mapa en el satélite
-            map.setView([satellite.lat, satellite.lng], 4);
+    // --- Mobile panel ---
+    const mobileNameEl = document.getElementById('mobileSatelliteName');
+    mobileNameEl.textContent = sat.name;
+    mobileNameEl.style.cursor = 'pointer';
+    mobileNameEl.style.textDecoration = 'underline';
+    mobileNameEl.onclick = () => openSatelliteDetail(sat.noradId);
 
-            // Mostrar panel desktop
-            document.getElementById('satelliteInfo').classList.add('active');
+    document.getElementById('mobileSatelliteAltitude').textContent  = altText;
+    document.getElementById('mobileSatelliteVelocity').textContent  = velText;
+    document.getElementById('mobileSatelliteLatitude').textContent  = latText;
+    document.getElementById('mobileSatelliteLongitude').textContent = lngText;
+
+    document.getElementById('mobileSatelliteSection').style.display = 'block';
+
+    // Abrir panel desktop siempre
+    document.getElementById('satelliteInfo').classList.add('active');
+
+    // El panel de info flotante es visible en todos los dispositivos — no se necesita panel adicional
+    // --- Órbita ---
+    if (is3DMode) {
+        drawOrbit3D(sat);
+    } else {
+        if (currentOrbitPath) {
+            map.removeLayer(currentOrbitPath);
+            currentOrbitPath = null;
         }
+        const orbitPoints = generateOrbitPath(sat);
+        currentOrbitPath = L.polyline(orbitPoints, {
+            color:     getSatelliteColor(sat.name),
+            weight:    2,
+            opacity:   0.7,
+            dashArray: '5, 10'
+        }).addTo(map);
+        if (sat.lat && sat.lng) map.setView([sat.lat, sat.lng], 4);
+    }
+}
 
         // Función para actualizar posiciones de todos los satélites
         function updateSatellitePositions() {
@@ -1706,17 +2079,20 @@
 
         // Actualizar estadísticas de satélites
 function updateStats() {
-    const t = translations[currentLanguage];
 
-    // Total de satélites cargados (los que están en el mapa actualmente)
-    const totalVisible = satelliteMarkers.length;
-    document.getElementById('totalSatCount').textContent = totalVisible.toLocaleString();
-    document.getElementById('totalSatLabel').textContent = t.stats.total;
+    // Total de satélites cargados — según modo activo
+    const totalVisible = is3DMode ? cesiumEntities.length : satelliteMarkers.length;
+    const totalEl = document.getElementById('totalSatCount');
+    if (totalEl) totalEl.textContent = totalVisible.toLocaleString();
+    const totalLabelEl = document.getElementById('totalSatLabel');
+    if (totalLabelEl) totalLabelEl.textContent = 'satellites loaded';
 
     // Satélites sobre el usuario (elevación > 0°)
     let overhead = 0;
-    satelliteMarkers.forEach(marker => {
-        const sat = marker.satellite;
+    const satList = is3DMode
+        ? cesiumEntities.map(e => e._satData).filter(Boolean)
+        : satelliteMarkers.map(m => m.satellite);
+    satList.forEach(sat => {
         if (!sat.lat || !sat.lng || !sat.altitude) return;
 
         const obsLatRad = userLocation.lat * Math.PI / 180;
@@ -1750,24 +2126,35 @@ function updateStats() {
         if (elevation > 0) overhead++;
     });
 
-    document.getElementById('overheadSatCount').textContent = overhead.toLocaleString();
-    document.getElementById('overheadSatLabel').textContent = t.stats.overhead;
+    const overheadEl = document.getElementById('overheadSatCount');
+    if (overheadEl) overheadEl.textContent = overhead.toLocaleString();
+    const overheadLabelEl = document.getElementById('overheadSatLabel');
+    if (overheadLabelEl) overheadLabelEl.textContent = 'overhead';
+
+    // Actualizar stats móvil
+    const mobileTotal = document.getElementById('mobileStatTotal');
+    const mobileOver  = document.getElementById('mobileStatOverhead');
+    if (mobileTotal) mobileTotal.textContent = totalVisible.toLocaleString();
+    if (mobileOver)  mobileOver.textContent  = overhead.toLocaleString();
 }
 
         // Llamar cada 1 segundo
-        setInterval(updateSatellitePositions, 1000);
+        setInterval(() => { if (!is3DMode) updateSatellitePositions(); }, 1000);
         setInterval(updateStats, 5000);
 
         // Cerrar panel de información
-        function closeSatelliteInfo() {
-            document.getElementById('satelliteInfo').classList.remove('active');
+function closeSatelliteInfo() {
+    document.getElementById('satelliteInfo').classList.remove('active');
+    if (currentOrbitPath) {
+        if (map) map.removeLayer(currentOrbitPath);
+        currentOrbitPath = null;
+    }
+    if (currentOrbit3D && cesiumViewer) {
+        cesiumViewer.entities.remove(currentOrbit3D);
+        currentOrbit3D = null;
+    }
+}
 
-            // Limpiar órbita cuando se cierra el panel
-            if (currentOrbitPath) {
-                map.removeLayer(currentOrbitPath);
-                currentOrbitPath = null;
-            }
-        }
 
         // Ocultar loading
         function hideLoading() {
@@ -1776,7 +2163,7 @@ function updateStats() {
 
         // Buscar satélites
 function searchSatellites() {
-    const query = document.getElementById("searchInput").value.toLowerCase().trim();
+    const query = (document.getElementById("barSearch") || document.getElementById("searchInput") || {value:''}).value.toLowerCase().trim();
 
     if (!query) return;
 
@@ -1818,10 +2205,10 @@ function searchSatellites() {
 
             showSatelliteInfo(sat);
 
-            if (sat.marker && sat.marker.getLatLng) {
-                const pos = sat.marker.getLatLng();
-                map.flyTo(pos, 4, { animate: true, duration: 1.5 });
-            }
+            if (!is3DMode && sat.marker && sat.marker.getLatLng) {
+            const pos = sat.marker.getLatLng();
+            map.flyTo(pos, 4, { animate: true, duration: 1.5 });
+}
 
             found = true;
             break;
@@ -1836,34 +2223,18 @@ function searchSatellites() {
         // Filtrar satélites (Desktop)
         function filterSatellites(type) {
             if (type === 'all') {
-                // Si selecciona "Todos", limpiar otros filtros
                 activeFilters.clear();
                 activeFilters.add('all');
-                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
             } else {
-                // Quitar "Todos" si estaba activo
-                if (activeFilters.has('all')) {
-                    activeFilters.delete('all');
-                    document.querySelector('.filter-btn[onclick="filterSatellites(\'all\')"]').classList.remove('active');
-                }
-
-                // Toggle del filtro específico
+                if (activeFilters.has('all')) activeFilters.delete('all');
                 if (activeFilters.has(type)) {
                     activeFilters.delete(type);
-                    event.target.classList.remove('active');
                 } else {
                     activeFilters.add(type);
-                    event.target.classList.add('active');
                 }
-
-                // Si no hay filtros activos, activar "Todos"
-                if (activeFilters.size === 0) {
-                    activeFilters.add('all');
-                    document.querySelector('.filter-btn[onclick="filterSatellites(\'all\')"]').classList.add('active');
-                }
+                if (activeFilters.size === 0) activeFilters.add('all');
             }
-
+            syncFilterButtons();
             filterVisibleSatellites();
         }
 
@@ -1874,34 +2245,15 @@ function searchSatellites() {
                 activeFilters.clear();
                 activeFilters.add('all');
             } else {
-                if (activeFilters.has('all')) {
-                    activeFilters.delete('all');
-                }
-
+                if (activeFilters.has('all')) activeFilters.delete('all');
                 if (activeFilters.has(type)) {
                     activeFilters.delete(type);
                 } else {
                     activeFilters.add(type);
                 }
-
-                if (activeFilters.size === 0) {
-                    activeFilters.add('all');
-                }
+                if (activeFilters.size === 0) activeFilters.add('all');
             }
-
-            // Actualizar TODOS los botones basándose en activeFilters
-            document.querySelectorAll('.mobile-filter-btn').forEach(btn => {
-                const btnOnClick = btn.getAttribute('onclick');
-                if (btnOnClick) {
-                    const btnType = btnOnClick.match(/'([^']+)'/)[1];
-                    if (activeFilters.has(btnType)) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                }
-            });
-
+            syncFilterButtons();
             filterVisibleSatellites();
         }
 
@@ -1928,143 +2280,21 @@ function searchSatellites() {
 
         // Cambiar tema
         function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            document.body.classList.toggle('light-mode');
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('light-mode');
+    document.getElementById('themeBtn').textContent = isDarkMode ? 'Light Theme' : 'Dark Theme';
 
-            const themeBtn = document.querySelector('.theme-toggle');
-            themeBtn.textContent = isDarkMode ? '🌙 Tema Claro' : '☀️ Tema Oscuro';
-
-            // Cambiar tiles del mapa
-            if (isDarkMode) {
-                map.removeLayer(window.lightTiles);
-                window.darkTiles.addTo(map);
-            } else {
-                map.removeLayer(window.darkTiles);
-                window.lightTiles.addTo(map);
-            }
+    if (!is3DMode) {
+        if (isDarkMode) {
+            map.removeLayer(window.lightTiles);
+            window.darkTiles.addTo(map);
+        } else {
+            map.removeLayer(window.darkTiles);
+            window.lightTiles.addTo(map);
         }
-
-        // Cambiar idioma
-        function toggleLanguage() {
-            currentLanguage = currentLanguage === 'es' ? 'en' : 'es';
-            updateLanguage();
-        }
-
-        function updateLanguage() {
-            const t = translations[currentLanguage];
-
-            // Header
-            document.querySelector('.title').textContent = t.title;
-
-            // Loading
-            const loadingText = document.querySelector('#loading p');
-            if (loadingText) loadingText.textContent = t.loading;
-
-            // Actualizar botón Next Passes si existe
-            const nextPassesBtn = document.querySelector('button[onclick*="next-passes"]');
-            if (nextPassesBtn) nextPassesBtn.textContent = t.nextPassesBtn;
-
-            // Search
-            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
-
-            // Theme button
-            document.querySelector('.theme-toggle').textContent = t.themeToggle;
-
-            // Visibility toggle
-            const visToggle = document.getElementById('visibilityToggle');
-            if (visToggle) {
-                visToggle.textContent = showOnlyVisible ? t.visibilityToggleActive : t.visibilityToggle;
-            }
-
-            // Desktop filters
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const filterTypes = ['all', 'gps', 'iss', 'comm', 'starlink', 'military', 'weather', 'geo', 'tech', 'misc'];
-            filterBtns.forEach((btn, index) => {
-                if (filterTypes[index]) {
-                    btn.textContent = t.filters[filterTypes[index]];
-                }
-            });
-
-            // Mobile filters
-            const mobileFilterBtns = document.querySelectorAll('.mobile-filter-btn');
-            mobileFilterBtns.forEach((btn, index) => {
-                if (filterTypes[index]) {
-                    btn.textContent = t.filters[filterTypes[index]];
-                }
-            });
-
-            // Desktop info labels
-            const infoLabels = document.querySelectorAll('.satellite-info .info-label');
-            const infoTypes = ['altitude', 'velocity', 'latitude', 'longitude'];
-            infoLabels.forEach((label, index) => {
-                if (infoTypes[index]) {
-                    label.textContent = t.info[infoTypes[index]];
-                }
-            });
-
-            // Mobile info labels
-            const mobileInfoLabels = document.querySelectorAll('.mobile-info-item .info-label');
-            mobileInfoLabels.forEach((label, index) => {
-                if (infoTypes[index]) {
-                    label.textContent = t.info[infoTypes[index]];
-                }
-            });
-
-            // Legend
-            document.querySelector('.legend-title').textContent = t.legend.title;
-            const desktopLegendItems = document.querySelectorAll('.legend .legend-item span');
-            const legendTypes = ['gps', 'iss', 'starlink', 'comm', 'military', 'weather', 'geo', 'tech', 'misc'];
-            desktopLegendItems.forEach((item, index) => {
-                if (legendTypes[index]) {
-                    item.textContent = t.legend[legendTypes[index]];
-                }
-            });
-
-            // Mobile sections
-            document.querySelector('.mobile-panel-title').textContent = t.mobile.controlPanel;
-            const mobileSections = document.querySelectorAll('.mobile-section-title');
-            const sectionTitles = [t.mobile.satelliteInfo, t.mobile.filters, t.mobile.visibility, t.mobile.legend];
-            mobileSections.forEach((section, index) => {
-                if (sectionTitles[index]) {
-                    section.textContent = sectionTitles[index];
-                }
-            });
-
-            // Mobile visibility toggle
-            const mobileVisToggle = document.getElementById('mobileVisibilityToggle');
-            if (mobileVisToggle) {
-                mobileVisToggle.textContent = showOnlyVisible ? t.mobile.showingVisible : t.mobile.showOnlyVisible;
-            }
-
-            // Elevation labels
-            // Desktop elevation labels
-            const desktopElevationLabel = document.querySelector('.visibility-filter-controls .elevation-control label');
-            if (desktopElevationLabel) {
-                const currentValue = document.getElementById('elevationValue').textContent;
-                desktopElevationLabel.innerHTML = `${t.elevation.label}: <span id="elevationValue">${currentValue}</span>`;
-            }
-
-            // Mobile elevation labels  
-            const mobileElevationLabel = document.querySelector('.mobile-visibility-section .elevation-control label');
-            if (mobileElevationLabel) {
-                const currentValue = document.getElementById('mobileElevationValue').textContent;
-                mobileElevationLabel.innerHTML = `${t.elevation.min}: <span id="mobileElevationValue">${currentValue}</span>`;
-            }
-
-            // Copyright y footer
-            document.getElementById('copyrightText').textContent = t.copyright;
-            document.getElementById('sourceText').textContent = t.source;
-            document.getElementById('contactText').textContent = t.contact;
-            document.getElementById('privacyPolicyText').textContent = t.privacyPolicy;
-
-            // Mobile legend
-            const mobileLegendItems = document.querySelectorAll('.mobile-legend .legend-item span');
-            mobileLegendItems.forEach((item, index) => {
-                if (legendTypes[index]) {
-                    item.textContent = t.legend[legendTypes[index]];
-                }
-            });
-        }
+    }
+    // Cesium ya usa el tema al inicializar, no cambia en caliente
+}
 
 // Variables para visibilidad
 let showOnlyVisible = false;
@@ -2237,61 +2467,6 @@ function startCompassTracking() {
 
 // Añadir/actualizar marcador de ubicación del usuario
 function updateUserLocationMarker() {
-    // Remover marcador anterior si existe
-    if (userLocationMarker) {
-        map.removeLayer(userLocationMarker);
-        userLocationMarker = null;
-    }
-
-    // Crear icono según si hay brújula o no
-    const iconHtml = hasCompass 
-        ? `<svg viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 0 L22 22 L12 18 L2 22 Z" fill="white" stroke="none"/>
-           </svg>`
-        : '<div class="user-location-pulse"></div>';
-    
-    const iconClass = hasCompass 
-        ? 'user-location-compass' 
-        : 'user-location-marker';
-
-    const userIcon = L.divIcon({
-        className: iconClass,
-        html: iconHtml,
-        iconSize: hasCompass ? [24, 28] : [20, 20],
-        iconAnchor: hasCompass ? [12, 14] : [10, 10]
-    });
-
-    userLocationMarker = L.marker([userLocation.lat, userLocation.lng], {
-        icon: userIcon,
-        zIndexOffset: 1000
-    }).addTo(map);
-
-    if (hasCompass) {
-        setTimeout(() => updateCompassRotation(), 100);
-    }
-
-    const t = translations[currentLanguage];
-    userLocationMarker.bindPopup(`
-        <strong>${t.userLocation}</strong><br>
-        Lat: ${userLocation.lat.toFixed(4)}°<br>
-        Lng: ${userLocation.lng.toFixed(4)}°
-    `);
-}
-
-// Actualizar rotación de la brújula
-function updateCompassRotation() {
-    if (userLocationMarker && hasCompass) {
-        const iconElement = userLocationMarker.getElement();
-        if (iconElement) {
-            const svg = iconElement.querySelector('svg');
-            if (svg) {
-                svg.style.transform = `rotate(${currentHeading}deg)`;
-            }
-        }
-    }
-}
-
-function updateUserLocationMarker() {
     // No crear marcador si no hay ubicación
     if (!userLocation) {
         console.warn('⚠️ No hay ubicación disponible aún');
@@ -2299,10 +2474,10 @@ function updateUserLocationMarker() {
     }
     
     // Remover marcador anterior
-    if (userLocationMarker) {
-        map.removeLayer(userLocationMarker);
-        userLocationMarker = null;
-    }
+    if (userLocationMarker && map) {
+    try { map.removeLayer(userLocationMarker); } catch(e) {}
+    userLocationMarker = null;
+}
 
     const iconHtml = hasCompass 
         ? `<svg viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg">
@@ -2329,13 +2504,11 @@ function updateUserLocationMarker() {
     if (hasCompass) {
         setTimeout(() => updateCompassRotation(), 100);
     }
-
-    const t = translations[currentLanguage];
     userLocationMarker.bindPopup(`
-        <strong>${t.userLocation}</strong><br>
-        Lat: ${userLocation.lat.toFixed(4)}°<br>
-        Lng: ${userLocation.lng.toFixed(4)}°
-    `);
+    <strong>Your location</strong><br>
+    Lat: ${userLocation.lat.toFixed(4)}°<br>
+    Lng: ${userLocation.lng.toFixed(4)}°
+`);
     
     console.log('✅ Marcador de ubicación actualizado');
 }
@@ -2522,14 +2695,19 @@ function updateCompassRotation() {
             }
 
             // Aplicar búsqueda si existe
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchTerm = (document.getElementById('barSearch') || document.getElementById('searchInput') || {value:''}).value.toLowerCase();
             if (searchTerm) {
                 filteredSatellites = filteredSatellites.filter(satellite =>
                     satellite.name.toLowerCase().includes(searchTerm)
                 );
             }
 
-            displaySatellites(filteredSatellites);
+            // Si estamos en 3D, recargar satélites con los nuevos filtros
+            if (is3DMode && cesiumViewer) {
+    loadSatellitesIn3D();
+} else {
+    displaySatellites(filteredSatellites);
+}
         }
 
         // Toggle visibilidad (Desktop)
@@ -2537,16 +2715,18 @@ function updateCompassRotation() {
             showOnlyVisible = !showOnlyVisible;
             const toggleBtn = document.getElementById('visibilityToggle');
             const controls = document.getElementById('visibilityControls');
-            const t = translations[currentLanguage];
+            const overflowBtn = document.getElementById('overflowVisibility');
             if (showOnlyVisible) {
                 toggleBtn.classList.add('active');
-                toggleBtn.textContent = t.visibilityToggleActive;
+                toggleBtn.textContent = 'Showing Visible';
                 controls.style.display = 'flex';
+                if (overflowBtn) { overflowBtn.textContent = 'Showing Visible'; overflowBtn.classList.add('green'); }
                 getUserLocation();
             } else {
                 toggleBtn.classList.remove('active');
-                toggleBtn.textContent = t.visibilityToggle;
+                toggleBtn.textContent = 'Only Visible';
                 controls.style.display = 'none';
+                if (overflowBtn) { overflowBtn.textContent = 'Only Visible'; overflowBtn.classList.remove('green'); }
             }
 
             filterVisibleSatellites();
@@ -2557,15 +2737,14 @@ function updateCompassRotation() {
             showOnlyVisible = !showOnlyVisible;
             const toggleBtn = document.getElementById('mobileVisibilityToggle');
             const controls = document.getElementById('mobileVisibilityControls');
-            const t = translations[currentLanguage];
             if (showOnlyVisible) {
                 toggleBtn.classList.add('active');
-                toggleBtn.textContent = t.mobile.showingVisible;
+                toggleBtn.textContent = 'Showing Visible';
                 controls.style.display = 'block';
                 getUserLocation();
             } else {
                 toggleBtn.classList.remove('active');
-                toggleBtn.textContent = t.mobile.showOnlyVisible;
+                toggleBtn.textContent = 'Show Only Visible';
                 controls.style.display = 'none';
             }
 
@@ -2648,9 +2827,524 @@ function updateCompassRotation() {
             }
         }
 
+        // ==================== CESIUM 3D LOGIC ====================
+
+function initCesium() {
+    if (cesiumViewer) return;
+
+    // Bloquear completamente las peticiones a Ion antes de crear el viewer
+    Cesium.Ion.defaultAccessToken = undefined;
+    // Sobrescribir el proveedor de terreno de Ion para que no haga peticiones
+    const silentTerrain = new Cesium.EllipsoidTerrainProvider({});
+
+    cesiumViewer = new Cesium.Viewer('cesiumContainer', {
+        terrainProvider: silentTerrain,
+        // Pasar un proveedor de imágenes vacío para evitar que Cesium cargue el de Ion
+        imageryProvider: new Cesium.SingleTileImageryProvider({
+            url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+        }),
+        animation: false,
+        baseLayerPicker: false,
+        fullscreenButton: false,
+        geocoder: false,
+        homeButton: false,
+        infoBox: false,
+        sceneModePicker: false,
+        selectionIndicator: false,
+        timeline: false,
+        navigationHelpButton: false,
+        navigationInstructionsInitiallyVisible: false,
+        skyBox: false,
+        skyAtmosphere: false,
+        scene3DOnly: true,
+        requestRenderMode: false,
+        maximumRenderTimeChange: Infinity
+    });
+
+    // Eliminar TODAS las capas (incluida la que acabamos de pasar como placeholder)
+    cesiumViewer.imageryLayers.removeAll();
+
+    // Añadir nuestro mapa base real
+    const tileUrl = isDarkMode
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const subs = isDarkMode ? ['a','b','c','d'] : ['a','b','c'];
+
+    cesiumViewer.imageryLayers.addImageryProvider(
+        new Cesium.UrlTemplateImageryProvider({
+            url: tileUrl,
+            subdomains: subs,
+            maximumLevel: 19,
+            credit: new Cesium.Credit(
+                isDarkMode ? '©OpenStreetMap ©CartoDB' : '©OpenStreetMap', false
+            )
+        })
+    );
+
+    cesiumViewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0d0d0d');
+    cesiumViewer.scene.globe.tileCacheSize = 100;
+    // Resolución adaptativa según capacidad del dispositivo
+    const isMobile  = /Mobi|Android/i.test(navigator.userAgent);
+    const isHighEnd = window.devicePixelRatio >= 2 && !isMobile;
+
+    if (isMobile) {
+        cesiumViewer.resolutionScale = 1.0;
+    } else if (isHighEnd) {
+        cesiumViewer.resolutionScale = 1.5;
+    } else {
+        cesiumViewer.resolutionScale = 1.25;
+    }
+
+    cesiumViewer.scene.globe.maximumScreenSpaceError = 2;
+    cesiumViewer.scene.fog.enabled = false;
+    cesiumViewer.scene.globe.enableLighting = false;
+    cesiumViewer.scene.shadowMap.enabled = false;
+    cesiumViewer.scene.globe.showGroundAtmosphere = false;
+    cesiumViewer.scene.highDynamicRange = false;
+
+    // Clic en satélite → panel de info
+    cesiumViewer.screenSpaceEventHandler.setInputAction(function(event) {
+        const picked = cesiumViewer.scene.pick(event.position);
+        if (Cesium.defined(picked) && picked.id && picked.id._satData) {
+            showSatelliteInfo(picked.id._satData);
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    console.log('✅ CesiumJS inicializado sin Ion');
+}
+
+
+// Convertir color CSS a Cesium.Color
+// Mapa de colores CSS → Cesium.Color (idéntico a las variables CSS del proyecto)
+const CESIUM_COLOR_MAP = {
+    'var(--gps-color)':      '#4285f4',
+    'var(--iss-color)':      '#ffffff',
+    'var(--starlink-color)': '#00d26a',
+    'var(--comm-color)':     '#ff6b35',
+    'var(--military-color)': '#ff0000',
+    'var(--weather-color)':  '#ffd700',
+    'var(--geo-color)':      '#00ced1',
+    'var(--tech-color)':     '#9400d3',
+    'var(--misc-color)':     '#ff69b4',
+};
+
+function cssColorToCesium(cssColor) {
+    const hex = CESIUM_COLOR_MAP[cssColor] || '#ff69b4';
+    return Cesium.Color.fromCssColorString(hex);
+}
+
+function cssColorToHex(cssColor) {
+    return CESIUM_COLOR_MAP[cssColor] || '#ff69b4';
+}
+
+// Dibujar trayectoria orbital en 3D (equivalente al polyline de Leaflet)
+let currentOrbit3D = null;
+
+function drawOrbit3D(sat) {
+    // Eliminar órbita anterior
+    if (currentOrbit3D) {
+        cesiumViewer.entities.remove(currentOrbit3D);
+        currentOrbit3D = null;
+    }
+
+    const points = [];
+    const now = new Date();
+    const steps = 120; // un punto por minuto → 2 horas de órbita
+
+    for (let i = 0; i < steps; i++) {
+        const future = new Date(now.getTime() + i * 60 * 1000);
+        try {
+            const pv = window.satellite.propagate(sat.satrec, future);
+            if (!pv || !pv.position) continue;
+            const gmst = window.satellite.gstime(future);
+            const geo  = window.satellite.eciToGeodetic(pv.position, gmst);
+            const lat  = window.satellite.degreesLat(geo.latitude);
+            const lng  = window.satellite.degreesLong(geo.longitude);
+            const alt  = geo.height * 1000; // km → m
+            if (isNaN(lat) || isNaN(lng)) continue;
+            points.push(Cesium.Cartesian3.fromDegrees(lng, lat, alt));
+        } catch(e) { /* skip */ }
+    }
+
+    if (points.length < 2) return;
+
+    const orbitColor = cssColorToCesium(getSatelliteColor(sat.name));
+
+    currentOrbit3D = cesiumViewer.entities.add({
+        id: 'orbitPath3D',
+        polyline: {
+            positions: points,
+            width: 1.5,
+            material: new Cesium.PolylineDashMaterialProperty({
+                color: orbitColor,
+                dashLength: 16
+            }),
+            arcType: Cesium.ArcType.NONE  // línea recta entre puntos en 3D real
+        }
+    });
+
+    // Volar suavemente hacia el satélite
+    if (sat.lat && sat.lng && sat.altitude) {
+        cesiumViewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(
+                sat.lng, sat.lat,
+                sat.altitude * 1000 + 3000000  // altitud del satélite + 3000 km de cámara
+            ),
+            duration: 1.5
+        });
+    }
+}
+
+// ===== PRIMITIVAS — referencias globales =====
+let satPointCollection   = null;   // PointPrimitiveCollection
+let satLabelCollection   = null;   // LabelCollection
+let primitiveDataArray   = [];     // [{sat, point, label}, ...]
+
+// Cargar satélites en Cesium con PointPrimitiveCollection (mucho más rápido)
+function loadSatellitesIn3D() {
+    if (!cesiumViewer) return;
+
+    // Eliminar primitivas anteriores
+    if (satPointCollection) {
+        cesiumViewer.scene.primitives.remove(satPointCollection);
+        satPointCollection = null;
+    }
+    if (satLabelCollection) {
+        cesiumViewer.scene.primitives.remove(satLabelCollection);
+        satLabelCollection = null;
+    }
+
+    // Limpiar entidades (órbita y marcador usuario)
+    cesiumViewer.entities.removeAll();
+    cesiumEntities = [];
+    primitiveDataArray = [];
+    currentOrbit3D = null;
+
+    // Pre-calcular posiciones
+    const now = new Date();
+    allSatellites.forEach(sat => {
+        if (!sat.lat || !sat.lng || !sat.altitude) {
+            try {
+                const pv = window.satellite.propagate(sat.satrec, now);
+                if (!pv || !pv.position) return;
+                const gmst = window.satellite.gstime(now);
+                const geo  = window.satellite.eciToGeodetic(pv.position, gmst);
+                sat.lat      = window.satellite.degreesLat(geo.latitude);
+                sat.lng      = window.satellite.degreesLong(geo.longitude);
+                sat.altitude = geo.height;
+            } catch(e) {}
+        }
+    });
+
+    // Aplicar filtros
+    let filtered = allSatellites;
+    if (!activeFilters.has('all')) {
+        filtered = allSatellites.filter(s => activeFilters.has(getSatelliteType(s.name)));
+    }
+    if (showOnlyVisible) {
+        filtered = filtered.filter(s => isSatelliteVisible(s, userLocation.lat, userLocation.lng));
+    }
+
+    // Crear colecciones de primitivas
+    satPointCollection = new Cesium.PointPrimitiveCollection();
+    satLabelCollection = new Cesium.LabelCollection();
+
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const labelDistLimit = isMobile ? 400000 : 400000;
+
+    filtered.forEach(sat => {
+        try {
+            const pv = window.satellite.propagate(sat.satrec, now);
+            if (!pv || !pv.position) return;
+
+            const gmst      = window.satellite.gstime(now);
+            const geo       = window.satellite.eciToGeodetic(pv.position, gmst);
+            const lat       = window.satellite.degreesLat(geo.latitude);
+            const lng       = window.satellite.degreesLong(geo.longitude);
+            const altMeters = geo.height * 1000;
+
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            sat.lat      = lat;
+            sat.lng      = lng;
+            sat.altitude = geo.height;
+            sat.velocity = Math.sqrt(
+                pv.velocity.x ** 2 + pv.velocity.y ** 2 + pv.velocity.z ** 2
+            ) * 3.6;
+
+            const cesiumColor = cssColorToCesium(getSatelliteColor(sat.name));
+            const pos = Cesium.Cartesian3.fromDegrees(lng, lat, altMeters);
+
+            // Añadir punto a la colección
+            const point = satPointCollection.add({
+                position:  pos,
+                color:     cesiumColor,
+                pixelSize: 4,
+                scaleByDistance: new Cesium.NearFarScalar(5e5, 1.6, 3e7, 0.4),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1.5e10),
+                id: sat  // referencia al sat para el click
+            });
+
+            // Añadir label a la colección
+            const label = satLabelCollection.add({
+                position:        pos,
+                text:            sat.name,
+                font:            '10px sans-serif',
+                fillColor:       cesiumColor,
+                outlineColor:    Cesium.Color.BLACK,
+                outlineWidth:    2,
+                style:           Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin:  Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset:     new Cesium.Cartesian2(0, -8),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, labelDistLimit),
+                id: sat
+            });
+
+            primitiveDataArray.push({ sat, point, label });
+
+        } catch(e) { /* silencioso */ }
+    });
+
+    // Añadir colecciones a la escena (un solo draw call cada una)
+    cesiumViewer.scene.primitives.add(satPointCollection);
+    cesiumViewer.scene.primitives.add(satLabelCollection);
+
+    // cesiumEntities se usa para stats — guardar refs de sat
+    cesiumEntities = primitiveDataArray.map(d => ({ _satData: d.sat }));
+
+    // Marcador de ubicación del usuario (sigue siendo entidad, es solo 1)
+    addUserLocationToCesium();
+
+    // Handler de click — primitivas se detectan diferente a entidades
+    cesiumViewer.screenSpaceEventHandler.removeInputAction(
+        Cesium.ScreenSpaceEventType.LEFT_CLICK
+    );
+    cesiumViewer.screenSpaceEventHandler.setInputAction(function(event) {
+        // Intentar pick sobre primitivas
+        const pickedObject = cesiumViewer.scene.pick(event.position);
+        if (Cesium.defined(pickedObject)) {
+            // Primitiva punto o label
+            if (pickedObject.primitive && pickedObject.id && pickedObject.id.satrec) {
+                showSatelliteInfo(pickedObject.id);
+                return;
+            }
+            // Entidad (marcador usuario, órbita)
+            if (pickedObject.id && pickedObject.id._satData) {
+                showSatelliteInfo(pickedObject.id._satData);
+            }
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    console.log(`🛰️ ${primitiveDataArray.length} satélites cargados como primitivas`);
+}
+
+// Actualizar posiciones en 3D — primitivas
+function updateCesiumPositions() {
+    if (!cesiumViewer || !is3DMode) return;
+    if (!satPointCollection || !satLabelCollection) return;
+
+    const now = new Date();
+
+    primitiveDataArray.forEach(({ sat, point, label }) => {
+        if (!sat || !sat.satrec) return;
+        try {
+            const pv = window.satellite.propagate(sat.satrec, now);
+            if (!pv || !pv.position) return;
+
+            const gmst      = window.satellite.gstime(now);
+            const geo       = window.satellite.eciToGeodetic(pv.position, gmst);
+            const lat       = window.satellite.degreesLat(geo.latitude);
+            const lng       = window.satellite.degreesLong(geo.longitude);
+            const altMeters = geo.height * 1000;
+
+            if (isNaN(lat) || isNaN(lng)) return;
+
+            sat.lat      = lat;
+            sat.lng      = lng;
+            sat.altitude = geo.height;
+            sat.velocity = Math.sqrt(
+                pv.velocity.x ** 2 + pv.velocity.y ** 2 + pv.velocity.z ** 2
+            ) * 3.6;
+
+            const newPos = Cesium.Cartesian3.fromDegrees(lng, lat, altMeters);
+            point.position = newPos;
+            label.position = newPos;
+
+        } catch(e) { /* silencioso */ }
+    });
+}
+
+// Marcador de ubicación del usuario en el globo 3D
+function addUserLocationToCesium() {
+    if (!cesiumViewer) return;
+
+    // Eliminar marcador anterior si existe
+    const existing = cesiumViewer.entities.getById('userLocation3D');
+    if (existing) cesiumViewer.entities.remove(existing);
+
+    cesiumViewer.entities.add({
+        id: 'userLocation3D',
+        name: 'Your location',
+        position: Cesium.Cartesian3.fromDegrees(userLocation.lng, userLocation.lat, 0),
+        point: {
+            pixelSize: 12,
+            color: Cesium.Color.fromCssColorString('#ff4444'),
+            outlineColor: Cesium.Color.WHITE,
+            outlineWidth: 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+        },
+        label: {
+            text: '📍 Your location',
+            font: '12px sans-serif',
+            fillColor: Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -14),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 8000000)
+        }
+    });
+}
+
+// Toggle 2D / 3D
+function toggleView() {
+    is3DMode = !is3DMode;
+    const btn2d3d  = document.getElementById('toggleViewBtn');
+    const mapEl    = document.getElementById('map');
+    const cesiumEl = document.getElementById('cesiumContainer');
+
+    // Resetear filtros a los valores por defecto
+    activeFilters = new Set(DEFAULT_FILTERS);
+    syncFilterButtons();
+
+    if (is3DMode) {
+        mapEl.style.display    = 'none';
+        cesiumEl.style.display = 'block';
+        if (btn2d3d) btn2d3d.textContent = '2D';
+
+        initCesium();
+        if (allSatellites.length > 0) loadSatellitesIn3D();
+        cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
+
+    } else {
+        mapEl.style.display    = 'block';
+        cesiumEl.style.display = 'none';
+        if (btn2d3d) btn2d3d.textContent = '3D (Beta)';
+
+        if (cesiumUpdateInterval) {
+            clearInterval(cesiumUpdateInterval);
+            cesiumUpdateInterval = null;
+        }
+
+        if (satPointCollection && cesiumViewer) {
+            cesiumViewer.scene.primitives.remove(satPointCollection);
+            satPointCollection = null;
+        }
+        if (satLabelCollection && cesiumViewer) {
+            cesiumViewer.scene.primitives.remove(satLabelCollection);
+            satLabelCollection = null;
+        }
+        primitiveDataArray = [];
+        cesiumEntities = [];
+
+        if (currentOrbit3D && cesiumViewer) {
+            cesiumViewer.entities.remove(currentOrbit3D);
+            currentOrbit3D = null;
+        }
+
+        setTimeout(() => map.invalidateSize(), 100);
+        filterVisibleSatellites();
+    }
+
+    updateMobileViewBtn();
+}
+
+// ==================== FIN CESIUM 3D ====================
+        
+        // ===== NUEVA función: sincronizar TODOS los botones de filtro =====
+        function syncFilterButtons() {
+            // Desktop chips
+            document.querySelectorAll('.filter-chip[data-type]').forEach(btn => {
+                btn.classList.toggle('active', activeFilters.has(btn.dataset.type));
+            });
+            // Mobile buttons
+            document.querySelectorAll('.mobile-filter-btn[data-type]').forEach(btn => {
+                btn.classList.toggle('active', activeFilters.has(btn.dataset.type));
+            });
+        }
+
+        // ===== OVERFLOW MENU (móvil) =====
+        function toggleOverflowMenu() {
+            const menu = document.getElementById('overflowMenu');
+            const isOpen = menu.classList.toggle('open');
+            // Cerrar al tocar fuera
+            if (isOpen) {
+                setTimeout(() => {
+                    document.addEventListener('touchstart', closeOverflowOnOutside, { once: true });
+                    document.addEventListener('mousedown', closeOverflowOnOutside, { once: true });
+                }, 10);
+            }
+        }
+
+        function closeOverflowMenu() {
+            document.getElementById('overflowMenu').classList.remove('open');
+        }
+
+        function closeOverflowOnOutside(e) {
+            const menu = document.getElementById('overflowMenu');
+            const btn  = document.getElementById('overflowBtn');
+            if (!menu.contains(e.target) && e.target !== btn) {
+                closeOverflowMenu();
+            }
+        }
+
+        // ===== FILTERS PANEL toggle =====
+        function toggleFiltersPanel() {
+            const panel = document.getElementById('filtersPanel');
+            const btn   = document.getElementById('filtersBtn');
+            const isOpen = panel.classList.toggle('open');
+            btn.classList.toggle('open', isOpen);
+            btn.textContent = isOpen ? '▲ Filters' : '▼ Filters';
+        }
+
+        function closeFiltersPanel() {
+            const panel = document.getElementById('filtersPanel');
+            const btn   = document.getElementById('filtersBtn');
+            panel.classList.remove('open');
+            btn.classList.remove('open');
+            btn.textContent = '▼ Filters';
+        }
+
+        // ===== LEGEND: colapsar/expandir =====
+        function closeLegend() {
+            document.getElementById('legendPanel').classList.add('collapsed');
+        }
+
+        function openLegend() {
+            document.getElementById('legendPanel').classList.remove('collapsed');
+        }
+
+        // ===== Actualizar botón 3D en móvil cuando cambia el modo =====
+        function updateMobileViewBtn() {
+            const btn = document.getElementById('mobileViewBtn');
+            if (btn) btn.textContent = is3DMode ? '2D' : '3D (Beta)';
+            const ob = document.getElementById('overflowViewBtn');
+            if (ob) ob.textContent = is3DMode ? '2D' : '3D (Beta)';
+        }
+
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', function () {
             initMap();
+
+            // Arrancar en modo 3D
+            document.getElementById('map').style.display = 'none';
+            document.getElementById('cesiumContainer').style.display = 'block';
+            const btn2d3d = document.getElementById('toggleViewBtn');
+            if (btn2d3d) btn2d3d.textContent = '2D';
+            updateMobileViewBtn();
+            initCesium();
             // Comprobar si viene de next-passes.html con un satélite seleccionado
     const selectedNoradId = sessionStorage.getItem('selectedSatelliteNoradId');
     if (selectedNoradId) {
@@ -2667,7 +3361,6 @@ function updateCompassRotation() {
             map.touchZoom.enable();
             map.dragging.enable();
             map.tap = true;
-            updateLanguage();
 
             // Asegurarse de que el overlay no bloquee interacciones
             const mobileOverlay = document.getElementById('mobileOverlay');
@@ -2678,12 +3371,10 @@ function updateCompassRotation() {
             });
 
             // Evitar que el input de búsqueda se bloquee en móviles
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('touchstart', (e) => {
-                e.stopPropagation();
-            });
-
-            updateLanguage();
+            const searchInput = document.getElementById('barSearch');
+            if (searchInput) {
+                searchInput.addEventListener('touchstart', (e) => { e.stopPropagation(); });
+            }
 
             // Obtener ubicación del usuario al cargar (siempre mostrar marcador)
             getUserLocation();

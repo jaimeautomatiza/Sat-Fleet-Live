@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="shortcut icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <!-- SEO -->
+    <title>Next Passes: How to Predict Satellite Overheads | SatFleetLive</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn how to predict when satellites, including the ISS, will pass overhead using live tracking data on SatFleetLive.">
+    <meta name="keywords" content="satellite pass prediction, ISS next pass, predict satellite pass, track satellites online, when will ISS pass overhead">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/next-passes-predict-satellites/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Next Passes: How to Predict Satellite Overheads | SatFleetLive">
+    <meta property="og:description" content="Learn how to predict when satellites, including the ISS, will pass overhead using live tracking data on SatFleetLive.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/next-passes-predict-satellites/">
+    <meta property="og:image" content="/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Next Passes: How to Predict Satellite Overheads | SatFleetLive">
+    <meta name="twitter:description" content="Learn how to predict when satellites, including the ISS, will pass overhead using live tracking data on SatFleetLive.">
+    <meta name="twitter:image" content="/logo.png">
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "Next Passes: How to Predict Satellite Overheads",
+      "description": "Learn how to predict when satellites, including the ISS, will pass overhead using live tracking data on SatFleetLive.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": { "@type": "Organization", "name": "SatFleetLive", "url": "https://satfleetlive.com" },
+      "datePublished": "2025-02-28",
+      "url": "https://satfleetlive.com/blogs/next-passes-predict-satellites/"
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--dark-bg); color: var(--text-primary-dark); overflow-x: hidden; }
+
+        /* HEADER */
+        .header { background-color: var(--dark-secondary); padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 1000; }
+        .logo-section { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+        .logo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+        .logo-placeholder { width: 40px; height: 40px; background-color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; }
+        .site-title { font-size: 1.5rem; font-weight: 650; color: var(--primary-purple); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); text-decoration: none; }
+        .header-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 2px solid var(--primary-purple); color: var(--primary-purple); padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .nav-btn:hover { background-color: var(--primary-purple); color: white; }
+        .nav-btn.blue { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .nav-btn.blue:hover { background-color: var(--primary-blue); color: white; }
+
+        /* HERO */
+        .article-hero { background: linear-gradient(135deg, #1a1a1a 0%, #1f1a2e 50%, #0d1a2e 100%); border-bottom: 2px solid var(--primary-purple); padding: 3.5rem 1.5rem 2.5rem; text-align: center; position: relative; overflow: hidden; }
+        .article-hero::before { content: '🔭'; position: absolute; font-size: 10rem; opacity: 0.04; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-secondary-dark); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--primary-blue); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .article-hero h1 { font-size: 2.2rem; font-weight: 700; color: #ffffff; line-height: 1.25; max-width: 780px; margin: 0 auto 1rem; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        .article-hero h1 span { color: var(--primary-purple); }
+        .article-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary-dark); margin-top: 1rem; }
+
+        /* LAYOUT */
+        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+        /* TOC */
+        .toc { background-color: var(--dark-secondary); border-left: 4px solid var(--primary-purple); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+        .toc-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .toc ol { margin-left: 1.2rem; }
+        .toc li { margin-bottom: 0.4rem; }
+        .toc a { color: var(--primary-blue); text-decoration: none; font-size: 0.95rem; }
+        .toc a:hover { text-decoration: underline; }
+
+        /* ARTICLE BODY */
+        .article-body p { color: var(--text-secondary-dark); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
+        .article-body strong { color: #ffffff; }
+        .article-body a { color: var(--primary-blue); text-decoration: none; }
+        .article-body a:hover { text-decoration: underline; }
+        .article-body h2 { font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-purple); scroll-margin-top: 80px; }
+        .article-body h3 { font-size: 1.15rem; font-weight: 600; color: var(--primary-purple); margin: 1.75rem 0 0.75rem; }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box { background: linear-gradient(135deg, rgba(156,39,176,0.12), rgba(33,150,243,0.08)); border: 1px solid rgba(156,39,176,0.35); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0; }
+        .highlight-box p { margin-bottom: 0 !important; color: #e0d0e8 !important; }
+        .highlight-label { font-size: 0.78rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block; }
+
+        /* SIMULATED PASS UI */
+        .pass-ui-demo { background-color: #0d1117; border: 1px solid var(--dark-tertiary); border-radius: 12px; padding: 1.5rem; margin: 2rem 0; }
+        .demo-label { font-size: 0.75rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; font-family: 'Segoe UI', sans-serif; }
+        .pass-demo-card { background-color: var(--dark-secondary); border-radius: 12px; padding: 1.25rem; border: 2px solid rgba(156,39,176,0.4); margin-bottom: 0.85rem; }
+        .pass-demo-card:last-child { margin-bottom: 0; }
+        .pass-demo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
+        .pass-demo-name { font-size: 1.1rem; font-weight: 700; color: var(--primary-purple); }
+        .pass-demo-norad { font-size: 0.8rem; color: var(--text-secondary-dark); margin-top: 2px; }
+        .brightness-badge { padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+        .badge-gold { background-color: #ffd700; color: #1a1a1a; }
+        .badge-orange { background-color: #ff9800; color: white; }
+        .pass-demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; }
+        .pass-demo-field { display: flex; flex-direction: column; gap: 0.2rem; }
+        .field-label { font-size: 0.78rem; color: var(--text-secondary-dark); }
+        .field-value { font-size: 1rem; font-weight: 600; color: #ffffff; }
+
+        /* STEP LIST */
+        .step-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 1.25rem 0 1.75rem; }
+        .step-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.25rem; }
+        .step-list li::before { content: counter(step-counter); background-color: var(--primary-purple); color: white; font-weight: 700; font-size: 0.9rem; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .step-list li span { color: var(--text-secondary-dark); line-height: 1.7; font-size: 0.98rem; }
+        .step-list li strong { color: #ffffff; display: block; margin-bottom: 0.2rem; }
+
+        /* BRIGHTNESS TABLE */
+        .brightness-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0 1.75rem; font-size: 0.93rem; }
+        .brightness-table thead tr { background-color: var(--primary-purple); color: white; }
+        .brightness-table th { padding: 0.8rem 1rem; text-align: left; font-weight: 600; }
+        .brightness-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--dark-tertiary); color: var(--text-secondary-dark); vertical-align: middle; }
+        .brightness-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.03); }
+        .brightness-table tbody tr:hover { background-color: rgba(156,39,176,0.08); }
+        .brightness-table td:first-child { font-weight: 600; }
+
+        /* TIP CARDS */
+        .tip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem; }
+        .tip-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1.1rem 1.25rem; border-top: 3px solid var(--primary-purple); }
+        .tip-card .tip-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+        .tip-card h3 { font-size: 0.95rem; color: #ffffff; margin: 0 0 0.4rem !important; }
+        .tip-card p { font-size: 0.86rem !important; color: var(--text-secondary-dark); line-height: 1.6; margin: 0 !important; }
+
+        /* FAQ */
+        .faq-item { background-color: var(--dark-secondary); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; }
+        .faq-question { width: 100%; background: none; border: none; color: #ffffff; font-size: 1rem; font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background 0.2s; font-family: inherit; }
+        .faq-question:hover { background-color: rgba(156,39,176,0.12); }
+        .faq-arrow { color: var(--primary-purple); font-size: 1.1rem; transition: transform 0.3s ease; flex-shrink: 0; }
+        .faq-question.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary-dark); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display: block; }
+        .faq-answer a { color: var(--primary-blue); }
+
+        /* RELATED */
+        .related-articles { margin: 2.5rem 0 1.5rem; }
+        .related-title { font-size: 1rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .related-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.1rem; display: flex; align-items: flex-start; gap: 0.75rem; text-decoration: none; border: 1px solid var(--dark-tertiary); transition: border-color 0.3s, background 0.3s; }
+        .related-card:hover { border-color: var(--primary-purple); background-color: rgba(156,39,176,0.08); }
+        .related-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+        .related-text strong { display: block; color: #ffffff; font-size: 0.92rem; margin-bottom: 0.2rem; }
+        .related-text span { color: var(--text-secondary-dark); font-size: 0.82rem; line-height: 1.5; }
+
+        /* CTA */
+        .cta-banner { background: linear-gradient(135deg, rgba(156,39,176,0.2), rgba(33,150,243,0.15)); border: 1px solid rgba(156,39,176,0.4); border-radius: 14px; padding: 2rem; text-align: center; margin: 3rem 0 2rem; }
+        .cta-banner h2 { font-size: 1.4rem; color: #ffffff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; }
+        .cta-banner p { color: var(--text-secondary-dark); margin-bottom: 1.25rem; font-size: 1rem; }
+        .cta-btn { display: inline-block; background-color: var(--primary-purple); color: white; padding: 0.75rem 2rem; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: 2px solid var(--primary-purple); margin: 0.3rem; }
+        .cta-btn:hover { background-color: transparent; color: var(--primary-purple); }
+        .cta-btn.blue { background-color: var(--primary-blue); border-color: var(--primary-blue); }
+        .cta-btn.blue:hover { background-color: transparent; color: var(--primary-blue); }
+
+        /* FOOTER */
+        .footer { background-color: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 12px; color: var(--text-secondary-dark); border-top: 1px solid var(--dark-tertiary); }
+        .footer a { color: #4da6ff; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* RESPONSIVE */
+        @media (max-width: 640px) {
+            .article-hero h1 { font-size: 1.55rem; }
+            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
+            .header-nav { justify-content: center; }
+            .blog-container { padding: 1.75rem 1rem 3rem; }
+            .article-body h2 { font-size: 1.3rem; }
+            .pass-demo-grid { grid-template-columns: 1fr 1fr; }
+            .tip-grid { grid-template-columns: 1fr; }
+            .related-grid { grid-template-columns: 1fr; }
+            .brightness-table { font-size: 0.82rem; }
+            .brightness-table th, .brightness-table td { padding: 0.55rem 0.65rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero">
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; Next Passes
+        </p>
+        <h1><span>Next Passes:</span> How to Predict Satellite Overheads</h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 February 2025</span>
+            <span>⏱️ 5 min read</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#what-is-a-pass">What is a Satellite Pass?</a></li>
+                <li><a href="#how-prediction-works">How Pass Prediction Works</a></li>
+                <li><a href="#reading-the-data">How to Read the Pass Data</a></li>
+                <li><a href="#iss-example">Practical Example: Predicting an ISS Pass</a></li>
+                <li><a href="#starlink-example">Practical Example: Spotting Starlink Trains</a></li>
+                <li><a href="#tips">Tips for a Successful Observation</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                Knowing a satellite is up there is one thing. Knowing <em>exactly when it will cross your sky</em> is another. The <strong>Next Passes</strong> feature on SatFleet Live takes your GPS location, combines it with real-time TLE orbital data for over 14,000 satellites, and calculates precise predictions for every visible overhead pass — up to 7 days ahead.
+            </p>
+            <p>
+                This guide explains how <strong>satellite pass prediction</strong> works, how to read each data field in the results, and how to use SatFleet Live to plan your next ISS sighting, Starlink train observation, or military satellite spotting session.
+            </p>
+
+            <!-- SECTION 1 -->
+            <h2 id="what-is-a-pass">What is a Satellite Pass?</h2>
+
+            <p>
+                A satellite pass is the window of time during which a satellite rises above your local horizon, travels across the sky, and sets again on the other side. For a LEO satellite like the ISS at 408 km altitude, a typical pass lasts between 4 and 10 minutes. Higher MEO satellites move more slowly and their passes last much longer, though they appear far dimmer.
+            </p>
+            <p>
+                Not every pass is visible to the naked eye. Three conditions must be met simultaneously for a satellite to be <strong>visually observable</strong>:
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>The satellite must be above your horizon</strong>
+                        SatFleet Live uses a minimum elevation of 10° to filter out passes too low to see clearly above buildings, trees, or haze.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>It must be dark at your location</strong>
+                        The observer needs to be in twilight or full darkness — the Sun should be at least 6° below your horizon. Passes during daylight are invisible to the naked eye.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>The satellite must be in sunlight</strong>
+                        Even when it is dark where you are, the satellite needs to still be catching sunlight at its higher altitude — reflecting it down toward you. This is why the best passes happen just after sunset or before sunrise.
+                    </span>
+                </li>
+            </ol>
+
+            <p>
+                SatFleet Live's Next Passes calculator checks all three conditions simultaneously for every satellite in its database, returning only the passes that are genuinely worth watching.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">💡 Best observation windows</span>
+                <p>The sweet spot for satellite visibility is the <strong>first 1–2 hours after sunset</strong> and the <strong>last 1–2 hours before sunrise</strong>. You are in darkness but the satellite is still in sunlight — the ideal geometric condition for a bright, naked-eye pass.</p>
+            </div>
+
+            <!-- SECTION 2 -->
+            <h2 id="how-prediction-works">How Pass Prediction Works</h2>
+
+            <p>
+                Every <strong>satellite pass prediction</strong> on SatFleet Live is computed in real time in your browser using the SGP4 orbital propagation model — the same mathematical framework used by space agencies worldwide. Here is how it flows:
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>Your location is detected</strong>
+                        SatFleet Live requests your GPS coordinates. If you decline, it falls back to your last known position stored locally, or defaults to Madrid. Your coordinates never leave your device — all computation is local.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>TLE data is loaded</strong>
+                        The latest Two-Line Element sets are fetched from the local TLE file (updated from CelesTrak every 48 hours). Each TLE encodes a satellite's orbital parameters at a reference time. Want to understand TLEs? Read our <a href="/blogs/what-is-a-tle/">TLE guide</a>.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>SGP4 projects each satellite forward in time</strong>
+                        For each satellite, the algorithm steps through the next 1–7 days in 2-minute increments, computing position at each step and checking all three visibility conditions.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Visible windows are extracted</strong>
+                        When a satellite enters a visible window, the pass is recorded with its start time, peak elevation, direction, duration, and estimated brightness magnitude.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Results are sorted and displayed</strong>
+                        Passes are ranked by your chosen sort order — earliest first, brightest first, highest elevation, or longest duration — and shown as interactive cards.
+                    </span>
+                </li>
+            </ol>
+
+            <!-- SECTION 3 -->
+            <h2 id="reading-the-data">How to Read the Pass Data</h2>
+
+            <p>
+                Each pass card shows four key fields. Here is a sample of what you will see — and exactly what each value means:
+            </p>
+
+            <div class="pass-ui-demo">
+                <div class="demo-label">📋 Example pass cards from SatFleet Live Next Passes</div>
+
+                <div class="pass-demo-card">
+                    <div class="pass-demo-header">
+                        <div>
+                            <div class="pass-demo-name">ISS (ZARYA)</div>
+                            <div class="pass-demo-norad">NORAD ID: 25544</div>
+                        </div>
+                        <div class="brightness-badge badge-gold">VERY BRIGHT (−2.4)</div>
+                    </div>
+                    <div class="pass-demo-grid">
+                        <div class="pass-demo-field"><span class="field-label">Start Time</span><span class="field-value">Mar 3, 21:14</span></div>
+                        <div class="pass-demo-field"><span class="field-label">Max Elevation</span><span class="field-value">67.3°</span></div>
+                        <div class="pass-demo-field"><span class="field-label">Direction</span><span class="field-value">SW → NE</span></div>
+                        <div class="pass-demo-field"><span class="field-label">Visible Period</span><span class="field-value">21:14 – 21:22</span></div>
+                    </div>
+                </div>
+
+                <div class="pass-demo-card" style="border-color: rgba(33,150,243,0.4);">
+                    <div class="pass-demo-header">
+                        <div>
+                            <div class="pass-demo-name">STARLINK-1089</div>
+                            <div class="pass-demo-norad">NORAD ID: 44932</div>
+                        </div>
+                        <div class="brightness-badge badge-orange">Normal (+2.1)</div>
+                    </div>
+                    <div class="pass-demo-grid">
+                        <div class="pass-demo-field"><span class="field-label">Start Time</span><span class="field-value">Mar 3, 22:07</span></div>
+                        <div class="pass-demo-field"><span class="field-label">Max Elevation</span><span class="field-value">34.1°</span></div>
+                        <div class="pass-demo-field"><span class="field-label">Direction</span><span class="field-value">W → N</span></div>
+                        <div class="pass-demo-field"><span class="field-label">Visible Period</span><span class="field-value">22:07 – 22:13</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Start Time</h3>
+            <p>
+                The moment the satellite rises above 10° elevation and becomes potentially visible. Go outside <strong>a minute or two early</strong> to let your eyes adjust to the darkness and orient yourself in the right direction.
+            </p>
+
+            <h3>Max Elevation</h3>
+            <p>
+                The highest point the satellite reaches in your sky, measured in degrees from the horizon (0° = horizon, 90° = directly overhead). A pass above <strong>40°</strong> is generally excellent — the satellite is high, bright, and clear of ground haze. Passes below 20° are harder to spot and often blocked by buildings or trees.
+            </p>
+
+            <h3>Direction</h3>
+            <p>
+                The compass path the satellite travels across your sky, shown as start → end (e.g. <strong>SW → NE</strong>). Face the starting direction a couple of minutes before the pass begins and scan slowly along the predicted arc.
+            </p>
+
+            <h3>Brightness (Magnitude)</h3>
+            <p>
+                Estimated apparent magnitude — the lower (more negative) the number, the brighter the satellite. This is the same scale used for stars:
+            </p>
+
+            <div style="overflow-x:auto;">
+                <table class="brightness-table">
+                    <thead>
+                        <tr><th>Badge</th><th>Magnitude</th><th>Visibility</th><th>Typical example</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="color:#ffd700;">⭐ VERY BRIGHT</td><td>Below 0</td><td>Impossible to miss, visible even with light pollution</td><td>ISS at peak elevation</td></tr>
+                        <tr><td style="color:#ffeb3b;">✨ Bright</td><td>0 to +2</td><td>Clearly visible to the naked eye</td><td>Hubble, Tiangong CSS</td></tr>
+                        <tr><td style="color:#ff9800;">🔆 Normal</td><td>+2 to +4</td><td>Visible in dark skies with dark-adapted eyes</td><td>Starlink at a good angle</td></tr>
+                        <tr><td style="color:#90a4ae;">🔅 Dim</td><td>Above +4</td><td>Difficult without binoculars or very dark sky</td><td>Small CubeSats</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SECTION 4 -->
+            <h2 id="iss-example">Practical Example: Predicting an ISS Pass</h2>
+
+            <p>
+                The <strong>International Space Station</strong> is the most spectacular satellite you can observe. At magnitude −2 to −4 on a good pass, it outshines everything in the night sky except the Moon and Venus — a brilliant, steady point of white light moving silently but quickly overhead.
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>Open Next Passes and allow location access</strong>
+                        Go to <a href="/next-passes.html">SatFleet Live Next Passes</a>. Allow the location prompt so predictions are accurate for your exact position — ISS passes can differ by several minutes just 50 km apart.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Set the filter to "Space Stations"</strong>
+                        This narrows results to the ISS, Tiangong CSS, and visiting crewed vehicles — the most rewarding passes to observe.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Calculate for 7 days</strong>
+                        ISS visible passes cluster in active windows of several days, then go quiet as the geometry shifts. 7 days gives you the best selection of passes to pick from.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Sort by "Brightest first" or "Highest elevation"</strong>
+                        These filters surface the most spectacular passes at the top. An ISS pass above 60° with magnitude below −2 is an unforgettable experience.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Hit "Show on Map" just before the pass</strong>
+                        The button opens the live map with the ISS highlighted. Watch its real-time position approach your horizon — then step outside and look up.
+                    </span>
+                </li>
+            </ol>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🚀 ISS fast fact</span>
+                <p>The ISS travels at <strong>27,600 km/h</strong> — that is 7.66 km every second. During a 6-minute pass it covers roughly 2,800 km. It completes a full orbit of Earth in just 92 minutes, meaning it laps the globe about 15 times per day.</p>
+            </div>
+
+            <!-- SECTION 5 -->
+            <h2 id="starlink-example">Practical Example: Spotting Starlink Trains</h2>
+
+            <p>
+                Shortly after a Starlink launch, the newly deployed satellites travel in a tight formation called a <strong>train</strong> — a chain of bright dots crossing the sky in single file, one every few seconds, for up to 15 minutes of continuous spectacle. It is one of the most striking things you can observe with the naked eye and consistently goes viral on social media when people see it for the first time.
+            </p>
+            <p>
+                Fresh Starlink satellites are significantly brighter than operational ones. The window to see a train is typically the <strong>first 1–2 weeks after launch</strong>, before the satellites raise their orbits and orient their solar panels edge-on to Earth.
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>Select "Starlink / Internet" from the filter</strong>
+                        This category contains thousands of satellites so the calculation takes a couple of minutes. The ‼️ warning in the dropdown is there for exactly this reason — be patient.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Sort by "Earliest first" and look for clusters</strong>
+                        A Starlink train appears as many consecutive pass cards from <em>STARLINK-XXXX</em> satellites all starting within a few minutes of each other and travelling in the same direction. That cluster is your train.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Go outside early and scan the predicted direction</strong>
+                        Once you spot the first dot, the rest of the train will follow along exactly the same track, roughly evenly spaced. A fresh train can have 20–60 visible satellites in a single pass.
+                    </span>
+                </li>
+            </ol>
+
+            <!-- SECTION 6 -->
+            <h2 id="tips">Tips for a Successful Observation</h2>
+
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <span class="tip-icon">🌑</span>
+                    <h3>Dark-adapt your eyes</h3>
+                    <p>Avoid looking at your phone screen for at least 5 minutes before the pass. Use night mode or a red torch if you need light — red preserves night vision.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">🧭</span>
+                    <h3>Face the right direction early</h3>
+                    <p>The Direction field tells you where to look. Turn that way 2 minutes before the start time and scan slowly along the arc the satellite will travel.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">📅</span>
+                    <h3>Pick a clear-sky night</h3>
+                    <p>Cloud cover is the number one enemy of satellite spotting. Use a weather forecast and choose a clear night rather than just the next available pass.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">🔆</span>
+                    <h3>Prioritise high-elevation passes</h3>
+                    <p>A pass above 50° is dramatically brighter than one at 15°. The satellite is closer and there is less atmosphere to dim it.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">📍</span>
+                    <h3>Find an open horizon</h3>
+                    <p>Buildings and trees can block low-elevation passes. A park, rooftop, or open field gives you the widest sky and the most complete view.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">📸</span>
+                    <h3>Photograph the pass</h3>
+                    <p>Use a camera on a tripod with a 15–30 second exposure pointed in the direction of travel. The satellite leaves a bright streak — a great keepsake.</p>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Why are there no passes showing for my location?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    A few common reasons: it may currently be daytime or civil twilight at your location, the ISS may be in a geometrically unfavourable period for your latitude, or the selected category may have few visible passes in the time window. Try expanding the calculation to 7 days and switching the filter to <em>Relevant satellites</em> for the broadest possible results.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How accurate are the pass time predictions?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    For LEO satellites with fresh TLE data (updated every 48 hours on SatFleet Live), predictions are typically accurate to within 10–30 seconds for passes in the next 24–48 hours. Accuracy degrades further out, particularly for satellites that perform manoeuvres — the ISS fires thrusters regularly to maintain its orbit, which shifts all future predictions. For ISS passes beyond 3–4 days, treat times as approximate.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Why does the ISS sometimes disappear mid-pass?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    This happens when the ISS enters Earth's shadow during the pass — it goes from sunlit to eclipsed, and the sudden disappearance can be dramatic. SatFleet Live accounts for this in the visible period calculation, which is why some ISS passes show a shorter duration than the full overhead transit. The satellite has not gone anywhere — it simply stopped reflecting sunlight toward you.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What is the "Relevant satellites" filter?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    This pre-selected filter includes the most interesting and commonly observed satellites — ISS, GPS constellations, Galileo, major weather satellites, Iridium, and others — while excluding Starlink and OneWeb mega-constellations (which add thousands of similar-looking results) and tracked debris. It is the fastest calculation option and the best starting point for most users.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can I get an alert when the ISS is about to pass?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    SatFleet Live does not currently send push notifications, but you can bookmark the <a href="/next-passes.html">Next Passes</a> page and check it anytime — no account needed. For automatic ISS alerts specifically, NASA's Spot the Station service and the ISS Detector app offer email and push notifications once you register your location.
+                </div>
+            </div>
+
+            <!-- RELATED -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Guides</div>
+                <div class="related-grid">
+                    <a href="/blogs/how-to-track-satellites/" class="related-card">
+                        <span class="related-icon">🛰️</span>
+                        <div class="related-text">
+                            <strong>How to Track Satellites in Real Time</strong>
+                            <span>A complete beginner's guide to real-time satellite tracking.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/best-free-satellite-tracker/" class="related-card">
+                        <span class="related-icon">📡</span>
+                        <div class="related-text">
+                            <strong>Best Free Satellite Tracker Online</strong>
+                            <span>Compare the top free satellite tracking websites.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/what-is-a-tle/" class="related-card">
+                        <span class="related-icon">🔢</span>
+                        <div class="related-text">
+                            <strong>What is a TLE and How to Read It</strong>
+                            <span>Understand the orbital data format behind every tracker.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
+                        <span class="related-icon">🌍</span>
+                        <div class="related-text">
+                            <strong>How Satellite Orbits Work</strong>
+                            <span>Learn the difference between LEO, MEO, and GEO orbits.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/why-are-satellites-so-bright/" class="related-card">
+                    <span class="related-icon">✨</span>
+                    <div class="related-text">
+                        <strong>Why Are Satellites So Bright?</strong>
+                        <span>Understand satellite flares, Starlink trains, and visibility explained.</span>
+                    </div>
+                </a>
+                </div>
+            </div>
+
+        </article>
+                    <!-- CTA -->
+            <div class="cta-banner">
+                <h2>Ready to predict your first pass?</h2>
+                <p>Open Next Passes, allow location access, and find out exactly when the ISS or your chosen satellite will cross your sky — tonight, tomorrow, or this week.</p>
+                <a href="/" class="cta-btn">🌍 Open Live Map</a>
+                <a href="/next-passes.html" class="cta-btn blue">📍 Next Passes</a>
+            </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
+            <a href="https://www.wikidata.org" target="_blank">Wikidata</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+
+</body>
+</html>
