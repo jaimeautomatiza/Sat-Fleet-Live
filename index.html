@@ -1908,7 +1908,7 @@ let cesiumUpdateInterval = null;
                         pv.velocity.x ** 2 +
                         pv.velocity.y ** 2 +
                         pv.velocity.z ** 2
-                    ) * 3.6;
+                    ) * 3600;
 
                     sat.lat = lat;
                     sat.lng = lng;
@@ -1978,7 +1978,7 @@ let cesiumUpdateInterval = null;
                 sat.altitude = geo.height;
                 sat.velocity = Math.sqrt(
                     pv.velocity.x**2 + pv.velocity.y**2 + pv.velocity.z**2
-                ) * 3.6;
+                ) * 3600;
             }
         } catch(e) {}
     }
@@ -2064,7 +2064,7 @@ let cesiumUpdateInterval = null;
                     pv.velocity.x ** 2 +
                     pv.velocity.y ** 2 +
                     pv.velocity.z ** 2
-                ) * 3.6;
+                ) * 3600;
 
                 // Actualizar datos del satélite
                 sat.lat = lat;
@@ -2191,7 +2191,7 @@ function searchSatellites() {
                         const lat = satellite.degreesLat(positionGd.latitude);
                         const lng = satellite.degreesLong(positionGd.longitude);
                         const alt = positionGd.height;
-                        const vel = Math.sqrt(velocityEci.x * velocityEci.x + velocityEci.y * velocityEci.y + velocityEci.z * velocityEci.z) * 3.6;
+                        const vel = Math.sqrt(velocityEci.x * velocityEci.x + velocityEci.y * velocityEci.y + velocityEci.z * velocityEci.z) * 3600;
 
                         sat.lat = lat;
                         sat.lng = lng;
@@ -2840,9 +2840,7 @@ function initCesium() {
     cesiumViewer = new Cesium.Viewer('cesiumContainer', {
         terrainProvider: silentTerrain,
         // Pasar un proveedor de imágenes vacío para evitar que Cesium cargue el de Ion
-        imageryProvider: new Cesium.SingleTileImageryProvider({
-            url: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
-        }),
+        imageryProvider: false,
         animation: false,
         baseLayerPicker: false,
         fullscreenButton: false,
@@ -2864,22 +2862,28 @@ function initCesium() {
     // Eliminar TODAS las capas (incluida la que acabamos de pasar como placeholder)
     cesiumViewer.imageryLayers.removeAll();
 
-    // Añadir nuestro mapa base real
-    const tileUrl = isDarkMode
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
-        : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    const subs = isDarkMode ? ['a','b','c','d'] : ['a','b','c'];
+    // Añadir textura natural del globo (día/noche según tema)
+    cesiumViewer.imageryLayers.removeAll();
 
+    // Capa base: foto satélite real de ESRI (mar azul, tierra verde/marrón)
     cesiumViewer.imageryLayers.addImageryProvider(
         new Cesium.UrlTemplateImageryProvider({
-            url: tileUrl,
-            subdomains: subs,
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
             maximumLevel: 19,
-            credit: new Cesium.Credit(
-                isDarkMode ? '©OpenStreetMap ©CartoDB' : '©OpenStreetMap', false
-            )
+            credit: new Cesium.Credit('©Esri, Maxar, Earthstar Geographics', false)
         })
     );
+
+    // Capa de nombres/fronteras encima, muy suave
+    cesiumViewer.imageryLayers.addImageryProvider(
+        new Cesium.UrlTemplateImageryProvider({
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+            maximumLevel: 19,
+            credit: new Cesium.Credit('©Esri', false)
+        })
+    );
+    cesiumViewer.imageryLayers.get(0).brightness = 0.5;
+    cesiumViewer.imageryLayers.get(1).alpha = 0.5;
 
     cesiumViewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0d0d0d');
     cesiumViewer.scene.globe.tileCacheSize = 100;
@@ -3070,7 +3074,7 @@ function loadSatellitesIn3D() {
             sat.altitude = geo.height;
             sat.velocity = Math.sqrt(
                 pv.velocity.x ** 2 + pv.velocity.y ** 2 + pv.velocity.z ** 2
-            ) * 3.6;
+            ) * 3600;
 
             const cesiumColor = cssColorToCesium(getSatelliteColor(sat.name));
             const pos = Cesium.Cartesian3.fromDegrees(lng, lat, altMeters);
@@ -3079,7 +3083,7 @@ function loadSatellitesIn3D() {
             const point = satPointCollection.add({
                 position:  pos,
                 color:     cesiumColor,
-                pixelSize: 4,
+                pixelSize: 7,
                 scaleByDistance: new Cesium.NearFarScalar(5e5, 1.6, 3e7, 0.4),
                 distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1.5e10),
                 id: sat  // referencia al sat para el click
@@ -3164,7 +3168,7 @@ function updateCesiumPositions() {
             sat.altitude = geo.height;
             sat.velocity = Math.sqrt(
                 pv.velocity.x ** 2 + pv.velocity.y ** 2 + pv.velocity.z ** 2
-            ) * 3.6;
+            ) * 3600;
 
             const newPos = Cesium.Cartesian3.fromDegrees(lng, lat, altMeters);
             point.position = newPos;
