@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="shortcut icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <!-- SEO -->
+    <title>Starlink Satellites: How Many, How Fast & How to See Them | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How many Starlink satellites are in orbit? How fast do they travel and how high? Everything you need to know about SpaceX's Starlink constellation — and how to spot them tonight.">
+    <meta name="keywords" content="starlink satellites, how many starlink satellites, starlink orbit altitude, starlink speed, how to see starlink, starlink satellite train, starlink constellation">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/starlink-satellites/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Starlink Satellites: How Many, How Fast & How to See Them | SatFleet Live">
+    <meta property="og:description" content="How many Starlink satellites are in orbit? How fast do they travel and how high? Everything about SpaceX's Starlink constellation — and how to spot them tonight.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/starlink-satellites/">
+    <meta property="og:image" content="/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Starlink Satellites: How Many, How Fast & How to See Them">
+    <meta name="twitter:description" content="How many Starlink satellites are in orbit? How fast, how high, and how to see them tonight.">
+    <meta name="twitter:image" content="/logo.png">
+
+    <!-- Schema.org BlogPosting + FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "Starlink Satellites: How Many Are in Orbit, How Fast They Move & How to See Them",
+      "description": "How many Starlink satellites are in orbit? How fast do they travel and how high? Everything you need to know about SpaceX's Starlink constellation — and how to spot them tonight.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": { "@type": "Organization", "name": "SatFleet Live", "url": "https://satfleetlive.com" },
+      "datePublished": "2026-03-04",
+      "url": "https://satfleetlive.com/blogs/starlink-satellites/"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How many Starlink satellites are in orbit?",
+          "acceptedAnswer": { "@type": "Answer", "text": "As of early 2026, SpaceX has launched over 7,000 Starlink satellites, with approximately 6,000+ actively operational in low Earth orbit. SpaceX is licensed to operate up to 42,000 satellites under its full constellation plan." }
+        },
+        {
+          "@type": "Question",
+          "name": "How high do Starlink satellites orbit?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Most operational Starlink satellites orbit at approximately 550 km altitude in low Earth orbit (LEO). Early batches were initially placed at lower parking orbits around 280 km before raising themselves using onboard ion thrusters." }
+        },
+        {
+          "@type": "Question",
+          "name": "How fast do Starlink satellites travel?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Starlink satellites travel at approximately 27,600 km/h (17,150 mph) in their 550 km orbits. At this speed they complete one full orbit of Earth in roughly 95 minutes, passing over your location multiple times per day." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can you see Starlink satellites from Earth?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Starlink satellites are visible to the naked eye, especially in the days after a fresh launch when they form a bright chain — called a Starlink train — before spreading to their operational orbits. They appear as magnitude 3–4 stars in normal operation." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is a Starlink train?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A Starlink train is a string of newly launched Starlink satellites visible as a line of equally-spaced bright dots crossing the night sky together. It occurs in the days after a SpaceX launch while the satellites are still at low altitude before raising to their operational orbits. The train typically has 20–60 satellites and looks like a slow-moving string of pearls." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I know when Starlink will pass over me?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Use SatFleet Live's Next Passes feature. Select the 'Space Internet' filter and allow location access. You'll see exact pass times, maximum elevation, and compass direction for Starlink satellites visible from your location in the next 10 days." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --starlink-green: #00d26a;
+            --starlink-green-dark: #00a854;
+            --starlink-green-dim: rgba(0, 210, 106, 0.15);
+            --primary-blue: #2196f3;
+            --dark-bg: #0f1a14;
+            --dark-secondary: #172012;
+            --dark-card: #1e2b1a;
+            --dark-tertiary: #2a3a25;
+            --text-primary: #f0fff4;
+            --text-secondary: #a8c8b0;
+            --text-muted: #6a8a72;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        a { color: var(--starlink-green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── HEADER ── */
+        .header {
+            background: rgba(15, 26, 20, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 210, 106, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-section { display: flex; align-items: center; gap: 0.9rem; text-decoration: none; }
+        .logo { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 12px rgba(0,210,106,0.3); }
+        .logo img { width: 38px; height: 38px; object-fit: contain; }
+        .logo-placeholder { width: 38px; height: 38px; background: var(--starlink-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #000; font-size: 1.1rem; font-weight: 800; }
+        .site-title { font-size: 1.3rem; font-weight: 700; color: #9c27b0; letter-spacing: -0.01em; }
+        .header-nav { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 1.5px solid rgba(156,39,176,0.5); color: #9c27b0; padding: 0.45rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; text-decoration: none; display: inline-block; white-space: nowrap; }
+        .nav-btn:hover { background: #9c27b0; color: #fff; text-decoration: none; }
+        .nav-btn.green { border-color: rgba(0,210,106,0.5); color: var(--starlink-green); }
+        .nav-btn.green:hover { background: var(--starlink-green); color: #000; }
+
+        /* ── HERO ── */
+        .article-hero {
+            background: linear-gradient(160deg, #0a1a0e 0%, #0f2a18 40%, #0a1420 100%);
+            border-bottom: 2px solid var(--starlink-green);
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-stars {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.6; }
+        }
+        /* Starlink train animation */
+        .hero-train {
+            position: absolute;
+            top: 30%;
+            left: -20%;
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            animation: trainPass 12s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes trainPass {
+            0%   { transform: translateX(0); opacity: 0; }
+            8%   { opacity: 1; }
+            92%  { opacity: 1; }
+            100% { transform: translateX(130vw); opacity: 0; }
+        }
+        .train-dot {
+            width: 5px;
+            height: 5px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px 2px rgba(0,210,106,0.6), 0 0 12px 4px rgba(0,210,106,0.2);
+            flex-shrink: 0;
+        }
+        .train-dot:nth-child(odd) { width: 4px; height: 4px; opacity: 0.7; }
+        .breadcrumb { font-size: 0.83rem; color: var(--text-muted); margin-bottom: 1.2rem; position: relative; z-index: 1; }
+        .breadcrumb a { color: var(--primary-blue); }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .article-hero h1 {
+            font-size: clamp(1.7rem, 4vw, 2.6rem);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            max-width: 820px;
+            margin: 0 auto 1rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+        .article-hero h1 span { color: var(--starlink-green); }
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            background: var(--dark-secondary);
+            border-bottom: 1px solid var(--dark-tertiary);
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--starlink-green);
+            line-height: 1;
+            display: block;
+            letter-spacing: -0.02em;
+        }
+        .stat-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: block;
+            margin-top: 0.2rem;
+        }
+        .stat-sep {
+            width: 1px;
+            background: var(--dark-tertiary);
+            align-self: stretch;
+        }
+
+        /* ── LAYOUT ── */
+        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+        /* ── TOC ── */
+        .toc {
+            background: var(--dark-card);
+            border-left: 4px solid var(--starlink-green);
+            border-radius: 0 10px 10px 0;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .toc-title { font-size: 0.88rem; font-weight: 700; color: var(--starlink-green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+        .toc ol { margin-left: 1.2rem; }
+        .toc li { margin-bottom: 0.4rem; }
+        .toc a { color: var(--primary-blue); font-size: 0.93rem; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; color: #64b5f6; }
+
+        /* ── ARTICLE BODY ── */
+        .article-body p { color: var(--text-secondary); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
+        .article-body strong { color: var(--text-primary); }
+        .article-body a { color: var(--starlink-green); }
+        .article-body a:hover { text-decoration: underline; }
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 2.75rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--starlink-green);
+            scroll-margin-top: 80px;
+            letter-spacing: -0.01em;
+        }
+        .article-body h3 { font-size: 1.1rem; font-weight: 600; color: var(--starlink-green); margin: 1.75rem 0 0.65rem; }
+
+        /* ── HIGHLIGHT BOX ── */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(0,210,106,0.08), rgba(33,150,243,0.06));
+            border: 1px solid rgba(0,210,106,0.3);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.75rem 0;
+        }
+        .highlight-box p { margin-bottom: 0 !important; color: #c8f0d8 !important; }
+        .highlight-label { font-size: 0.75rem; font-weight: 700; color: var(--starlink-green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; display: block; }
+
+        /* ── DATA CARDS (orbit specs) ── */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0 2rem;
+        }
+        .data-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-tertiary);
+            border-radius: 12px;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            border-top: 3px solid var(--starlink-green);
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .data-card:hover { border-top-color: #00ff88; transform: translateY(-2px); }
+        .data-card-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+        .data-card-value { font-size: 1.35rem; font-weight: 800; color: var(--starlink-green); display: block; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+        .data-card-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; }
+        .data-card-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem; display: block; line-height: 1.4; }
+
+        /* ── TIP GRID ── */
+        .tip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem; }
+        .tip-card { background: var(--dark-card); border-radius: 10px; padding: 1.1rem 1.25rem; border-top: 3px solid var(--starlink-green); }
+        .tip-icon { font-size: 1.4rem; margin-bottom: 0.5rem; display: block; }
+        .tip-card h3 { font-size: 0.95rem; color: #fff; margin: 0 0 0.45rem !important; font-weight: 600; }
+        .tip-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin: 0 !important; }
+
+        /* ── STEP LIST ── */
+        .step-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 1.25rem 0 1.75rem; }
+        .step-list li {
+            counter-increment: step-counter;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            background: var(--dark-card);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            border-left: 3px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .step-list li:hover { border-left-color: var(--starlink-green); }
+        .step-list li::before {
+            content: counter(step-counter);
+            background: var(--starlink-green);
+            color: #000;
+            font-weight: 800;
+            font-size: 0.85rem;
+            min-width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .step-list li span { color: var(--text-secondary); line-height: 1.7; font-size: 0.98rem; }
+        .step-list li strong { color: #fff; display: block; margin-bottom: 0.2rem; }
+
+        /* ── ORBIT VISUALIZER ── */
+        .orbit-viz {
+            background: #060e0a;
+            border: 1px solid var(--dark-tertiary);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            overflow: hidden;
+            text-align: center;
+        }
+        .orbit-viz-label { font-size: 0.72rem; font-weight: 700; color: var(--starlink-green); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; text-align: left; }
+        .orbit-svg { width: 100%; max-width: 460px; height: 220px; margin: 0 auto; display: block; }
+        .orbit-caption { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.85rem; line-height: 1.5; }
+        .orbit-caption span { color: var(--starlink-green); font-weight: 600; }
+
+        /* ── LIVE CTA ── */
+        .starlink-live-cta {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            background: linear-gradient(135deg, rgba(0,210,106,0.1), rgba(0,168,84,0.06));
+            border: 1.5px solid rgba(0,210,106,0.4);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.75rem 0;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .starlink-live-cta:hover {
+            border-color: var(--starlink-green);
+            background: linear-gradient(135deg, rgba(0,210,106,0.16), rgba(0,168,84,0.1));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,210,106,0.18);
+            text-decoration: none;
+        }
+        .cta-icon { font-size: 2rem; flex-shrink: 0; }
+        .cta-body { flex: 1; }
+        .cta-title { font-size: 1rem; font-weight: 700; color: var(--starlink-green); margin-bottom: 0.3rem; display: block; }
+        .cta-sub { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; }
+        .cta-arrow { font-size: 1.3rem; color: var(--starlink-green); flex-shrink: 0; transition: transform 0.2s; }
+        .starlink-live-cta:hover .cta-arrow { transform: translateX(4px); }
+
+        /* ── FAQ ── */
+        .faq-item { background: var(--dark-card); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; border: 1px solid var(--dark-tertiary); }
+        .faq-question {
+            width: 100%; background: none; border: none; color: #fff; font-size: 1rem;
+            font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+            transition: background 0.2s; font-family: inherit;
+        }
+        .faq-question:hover { background: rgba(0,210,106,0.07); }
+        .faq-arrow { color: var(--starlink-green); font-size: 1rem; transition: transform 0.3s; flex-shrink: 0; }
+        .faq-question.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display: block; }
+        .faq-answer a { color: var(--starlink-green); }
+        .faq-answer a:hover { text-decoration: underline; }
+
+        /* ── RELATED ARTICLES ── */
+        .related-articles { margin: 2.5rem 0 1.5rem; }
+        .related-title { font-size: 0.88rem; font-weight: 700; color: var(--starlink-green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+        .related-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+        .related-card {
+            background: var(--dark-card); border-radius: 10px; padding: 1rem 1.25rem;
+            display: flex; align-items: center; gap: 1rem; text-decoration: none;
+            border: 1px solid var(--dark-tertiary); transition: border-color 0.25s, background 0.25s;
+        }
+        .related-card:hover { border-color: var(--starlink-green); background: rgba(0,210,106,0.05); text-decoration: none; }
+        .related-icon { font-size: 1.7rem; flex-shrink: 0; }
+        .related-text strong { display: block; color: #fff; font-size: 0.95rem; margin-bottom: 0.2rem; }
+        .related-text span { color: var(--text-secondary); font-size: 0.85rem; }
+
+        /* ── CTA BANNER ── */
+        .cta-banner {
+            background: linear-gradient(135deg, rgba(0,210,106,0.15), rgba(33,150,243,0.1));
+            border: 1px solid rgba(0,210,106,0.35);
+            border-radius: 14px; padding: 2.25rem 2rem; text-align: center; margin: 3rem 0 2rem;
+        }
+        .cta-banner h2 { font-size: 1.4rem; color: #fff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; letter-spacing: -0.01em; }
+        .cta-banner p { color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 1rem; }
+        .cta-buttons { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn {
+            display: inline-block; background: var(--starlink-green); color: #000;
+            padding: 0.75rem 1.75rem; border-radius: 30px; text-decoration: none;
+            font-weight: 700; font-size: 0.95rem; transition: all 0.25s;
+            border: 2px solid var(--starlink-green);
+        }
+        .cta-btn:hover { background: transparent; color: var(--starlink-green); text-decoration: none; }
+        .cta-btn.outline { background: transparent; color: var(--text-secondary); border-color: var(--dark-tertiary); }
+        .cta-btn.outline:hover { border-color: var(--starlink-green); color: var(--starlink-green); }
+
+        /* ── FOOTER ── */
+        .footer { background: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--dark-tertiary); }
+        .footer a { color: var(--primary-blue); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .article-hero { padding: 2.5rem 1rem 2rem; }
+            .article-hero h1 { font-size: 1.6rem; }
+            .stats-bar { gap: 1.25rem; padding: 0.75rem 1rem; }
+            .stat-value { font-size: 1.1rem; }
+            .stat-sep { display: none; }
+            .header { padding: 0.75rem 1rem; }
+            .header-nav { gap: 0.4rem; }
+            .nav-btn { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+            .blog-container { padding: 1.75rem 1rem 3rem; }
+            .data-grid { grid-template-columns: repeat(2, 1fr); }
+            .tip-grid { grid-template-columns: 1fr; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav" aria-label="Main navigation">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn green">📡 Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero" role="banner">
+        <div class="hero-stars" id="heroStars" aria-hidden="true"></div>
+        <!-- Starlink train animation -->
+        <div class="hero-train" aria-hidden="true">
+            <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+            <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+            <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+            <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+            <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+            <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+        </div>
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; Starlink Satellites
+        </p>
+        <h1>
+            <span>Starlink Satellites:</span> How Many Are in Orbit,<br>How Fast They Move & How to See Them
+        </h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 March 2026</span>
+            <span>⏱️ 7 min read</span>
+        </div>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar" aria-label="Starlink key figures">
+        <div class="stat-item">
+            <span class="stat-value">10,000+</span>
+            <span class="stat-label">Satellites launched</span>
+        </div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat-item">
+            <span class="stat-value">550 km</span>
+            <span class="stat-label">Operational altitude</span>
+        </div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat-item">
+            <span class="stat-value">27,600 km/h</span>
+            <span class="stat-label">Orbital speed</span>
+        </div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat-item">
+            <span class="stat-value">95 min</span>
+            <span class="stat-label">Per orbit</span>
+        </div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat-item">
+            <span class="stat-value">42,000</span>
+            <span class="stat-label">Full constellation plan</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <!-- TOC -->
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#how-many">How Many Starlink Satellites Are in Orbit?</a></li>
+                <li><a href="#orbit-specs">Altitude, Speed & Orbital Specs</a></li>
+                <li><a href="#how-they-work">How Starlink Satellites Work</a></li>
+                <li><a href="#how-to-see">How to See Starlink Satellites Tonight</a></li>
+                <li><a href="#starlink-train">What Is a Starlink Train?</a></li>
+                <li><a href="#track-live">Track Starlink Live Right Now</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                On any given night, dozens of bright dots glide silently across the sky in a perfectly spaced line. They are not UFOs or planes — they are <strong>Starlink satellites</strong>, the rapidly expanding low-orbit internet constellation launched by SpaceX. With over 10,000 spacecraft already launched and tens of thousands more planned, Starlink has become the largest satellite constellation in history — and one of the most visible objects in the night sky.
+            </p>
+            <p>
+                This guide answers the most common questions people search for: <strong>how many Starlink satellites are in orbit</strong>, how high and how fast they fly, and exactly how to spot them from your backyard tonight.
+            </p>
+
+            <!-- SECTION 1 -->
+            <h2 id="how-many">How Many Starlink Satellites Are in Orbit?</h2>
+
+            <p>
+                As of early 2026, SpaceX has launched more than <strong>10,000 Starlink satellites</strong> across hundreds of missions. Of these, roughly 7,000+ are actively operational and providing internet service. The rest are either in transit to their final orbits, undergoing commissioning, or have been deorbited after reaching the end of their service life.
+            </p>
+            <p>
+                SpaceX launched the first 60 Starlink satellites in May 2019. Since then, the pace of launches has been relentless — typically one Falcon 9 mission every few weeks, each carrying 20 to 60 satellites at a time.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">📊 The full plan</span>
+                <p>SpaceX has FCC and ITU regulatory approval for up to <strong>42,000 Starlink satellites</strong> across multiple orbital shells. This "Gen2" constellation includes shells at altitudes ranging from 328 km to 614 km, with inclinations designed to cover virtually every inhabited point on Earth — including polar regions. With over 10,000 satellites already launched, Starlink accounts for more than half of all active satellites in Earth orbit.</p>
+            </div>
+
+            <p>
+                This scale is unprecedented. For context, the total number of satellites launched by all countries combined in all of history before Starlink was roughly 9,000. Starlink alone could eventually triple that number.
+            </p>
+
+            <!-- SECTION 2 -->
+            <h2 id="orbit-specs">Altitude, Speed & Orbital Specs</h2>
+
+            <p>
+                Starlink satellites operate in <strong>low Earth orbit (LEO)</strong> — far closer to the surface than GPS or geostationary satellites. This proximity is what makes their internet service so fast (low latency), and also what makes them so visible from the ground.
+            </p>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <span class="data-card-icon">🛸</span>
+                    <span class="data-card-value">550 km</span>
+                    <span class="data-card-label">Operational altitude</span>
+                    <span class="data-card-sub">Gen1 shell. Gen2 spans 328–614 km across multiple shells.</span>
+                </div>
+                <div class="data-card">
+                    <span class="data-card-icon">⚡</span>
+                    <span class="data-card-value">27,600 km/h</span>
+                    <span class="data-card-label">Orbital speed</span>
+                    <span class="data-card-sub">~7.67 km/s. That's New York to London in about 22 minutes.</span>
+                </div>
+                <div class="data-card">
+                    <span class="data-card-icon">🔄</span>
+                    <span class="data-card-value">95 min</span>
+                    <span class="data-card-label">Per full orbit</span>
+                    <span class="data-card-sub">Approximately 15 full orbits of Earth per day.</span>
+                </div>
+                <div class="data-card">
+                    <span class="data-card-icon">⚖️</span>
+                    <span class="data-card-value">~300 kg</span>
+                    <span class="data-card-label">Mass (Gen1 v1.5)</span>
+                    <span class="data-card-sub">Gen2 "Starlink v2 Mini" is heavier at ~800 kg.</span>
+                </div>
+                <div class="data-card">
+                    <span class="data-card-icon">📐</span>
+                    <span class="data-card-value">53°</span>
+                    <span class="data-card-label">Primary inclination</span>
+                    <span class="data-card-sub">Additional shells at 70°, 97.6° (polar), and 43°.</span>
+                </div>
+                <div class="data-card">
+                    <span class="data-card-icon">🕒</span>
+                    <span class="data-card-value">~5 years</span>
+                    <span class="data-card-label">Design lifespan</span>
+                    <span class="data-card-sub">After which satellites deorbit using onboard thrusters, burning up within ~5 years.</span>
+                </div>
+            </div>
+
+            <p>
+                At 550 km, Starlink satellites are about <strong>35 times lower</strong> than GPS satellites (20,200 km) and <strong>65 times lower</strong> than geostationary communication satellites (35,786 km). This dramatically reduces the distance a signal must travel, cutting internet latency from the 600+ ms of geostationary links to as low as 20–40 ms.
+            </p>
+
+            <!-- ORBIT VISUALIZER -->
+            <div class="orbit-viz" role="img" aria-label="Diagram comparing Starlink, GPS, and geostationary orbits">
+                <div class="orbit-viz-label">🪐 Orbit comparison — Starlink vs GPS vs GEO</div>
+                <svg class="orbit-svg" id="orbitSvg" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <!-- GEO orbit (outermost) -->
+                    <ellipse cx="230" cy="110" rx="215" ry="100" fill="none" stroke="rgba(255,107,53,0.2)" stroke-width="1" stroke-dasharray="5 4"/>
+                    <text x="438" y="83" fill="rgba(255,107,53,0.6)" font-size="9" font-family="sans-serif" text-anchor="end">GEO 35,786 km</text>
+                    <!-- GPS orbit -->
+                    <ellipse cx="230" cy="110" rx="158" ry="73" fill="none" stroke="rgba(66,133,244,0.3)" stroke-width="1" stroke-dasharray="5 4"/>
+                    <text x="382" y="95" fill="rgba(66,133,244,0.6)" font-size="9" font-family="sans-serif" text-anchor="end">GPS 20,200 km</text>
+                    <!-- Starlink orbit -->
+                    <ellipse cx="230" cy="110" rx="68" ry="47" fill="none" stroke="rgba(0,210,106,0.45)" stroke-width="1.5" stroke-dasharray="5 4"/>
+                    <!-- Earth -->
+                    <circle cx="230" cy="110" r="32" fill="#1a3a5c" stroke="#2196f3" stroke-width="1.5"/>
+                    <text x="230" y="114" text-anchor="middle" fill="#4da6ff" font-size="10" font-family="sans-serif">Earth</text>
+                    <!-- Starlink dot (JS animated) -->
+                    <circle id="starlinkDot" cx="298" cy="110" r="4" fill="#00d26a" filter="url(#glow)"/>
+                    <!-- Starlink label -->
+                    <text x="230" y="52" text-anchor="middle" fill="rgba(0,210,106,0.7)" font-size="9" font-family="sans-serif">Starlink 550 km</text>
+                </svg>
+                <p class="orbit-caption">
+                    Starlink operates at just <span>550 km</span> — a fraction of GPS altitude (20,200 km) and almost 65× closer than geostationary orbit (35,786 km). Lower altitude = lower latency, more visibility, and more satellites needed for global coverage.
+                </p>
+            </div>
+
+            <!-- SECTION 3 -->
+            <h2 id="how-they-work">How Starlink Satellites Work</h2>
+
+            <p>
+                Each Starlink satellite is a flat-panel spacecraft about the size of a large dining table. They carry phased-array antennas to communicate with ground terminals (the Starlink dish customers install at home), and laser inter-satellite links (ISL) on newer versions to relay data between satellites without touching the ground.
+            </p>
+
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <span class="tip-icon">📡</span>
+                    <h3>Phased-Array Antennas</h3>
+                    <p>Electronically steerable arrays allow each satellite to track thousands of ground users simultaneously without physically moving.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">🔦</span>
+                    <h3>Laser Links (ISL)</h3>
+                    <p>Gen2 satellites relay data between each other via infrared lasers at the speed of light, reducing dependence on ground stations in remote areas.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">🚀</span>
+                    <h3>Ion Thrusters</h3>
+                    <p>Krypton-fuelled Hall-effect thrusters let each satellite raise its orbit from the deployment altitude (~280 km) to its operational shell (~550 km) over several weeks.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">🌙</span>
+                    <h3>Starshield Visor</h3>
+                    <p>Later Gen1 satellites include a deployable sunshade that significantly reduces their brightness to limit interference with astronomical observations.</p>
+                </div>
+            </div>
+
+            <p>
+                When a Starlink satellite reaches the end of its ~5 year design life, it uses its remaining thruster fuel to lower its orbit. At lower altitudes, atmospheric drag quickly decelerates it further until it re-enters and burns up completely — leaving no debris. This built-in deorbit capability is a key part of SpaceX's approach to orbital sustainability.
+            </p>
+
+            <!-- SECTION 4 -->
+            <h2 id="how-to-see">How to See Starlink Satellites Tonight</h2>
+
+            <p>
+                Starlink satellites are among the <strong>easiest satellites to observe</strong> with the naked eye — especially in the days following a fresh launch, when they travel together in a bright chain before dispersing to their operational orbits.
+            </p>
+            <p>
+                In normal operation, individual Starlink satellites shine at around <strong>magnitude 3 to 5</strong> — comparable to a moderately bright star, and easily visible from suburban skies. They move steadily and silently across the sky in about 3–5 minutes, unlike aircraft which blink and change direction.
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>Go to SatFleet Live's Next Passes</strong>
+                        Open <a href="/next-passes.html">satfleetlive.com/next-passes.html</a> and allow location access when prompted. This calculates passes using your exact GPS coordinates.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Select "Space Internet" filter</strong>
+                        In the satellite category dropdown, select <em>Starlink / Internet</em> to show only Starlink passes. You'll see a list of upcoming passes sorted by time and brightness.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Pick a pass with elevation above 30°</strong>
+                        Higher elevation passes are brighter and easier to see. Passes below 20° skim the horizon and are often blocked by buildings or trees.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Step outside 5 minutes before the predicted time</strong>
+                        Let your eyes adjust to the dark. Face the indicated compass direction (e.g. SW) and look for a steady white dot moving at a constant speed — no blinking, no colour changes.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Set a browser alert and track it live</strong>
+                        Press <em>"Notify me"</em> on any pass card to receive a browser notification 10 minutes and 2 minutes before the satellite appears — no account needed. Then open the <a href="/">live map</a> just before the pass to watch it approach your location in real time.
+                    </span>
+                </li>
+            </ol>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🌅 Best time to look</span>
+                <p>Starlink satellites are only visible when they are in sunlight and you are in darkness — typically within <strong>1–2 hours of sunset or sunrise</strong>. At midnight the Sun is too far below the horizon to illuminate them. The highest, brightest passes happen when the satellite's elevation is 50° or above.</p>
+            </div>
+
+            <!-- SECTION 5 -->
+            <h2 id="starlink-train">What Is a Starlink Train?</h2>
+
+            <p>
+                A <strong>Starlink train</strong> is the spectacular sight of a freshly launched batch of Starlink satellites crossing the sky in a tight, equally-spaced line — like a slow-moving string of pearls. It occurs in the days immediately after a SpaceX launch, when all the satellites are still at their initial low deployment altitude (~280 km) before using their thrusters to raise to operational orbit.
+            </p>
+            <p>
+                At 280 km, the satellites are lower — and therefore brighter and faster-moving — than at their normal 550 km operating altitude. A typical train has 20 to 60 satellites and passes over in 5–8 minutes. After 1–2 weeks, the satellites have spread out and climbed higher, and the train effect disappears.
+            </p>
+
+            <a href="/blogs/how-to-spot-a-starlink-train/" class="starlink-live-cta" aria-label="Full guide to spotting Starlink trains">
+                <div class="cta-icon">🚂</div>
+                <div class="cta-body">
+                    <span class="cta-title">Full Guide: How to Spot a Starlink Train</span>
+                    <span class="cta-sub">What time to look, which direction, how bright, and how to tell it's definitely Starlink — not something else.</span>
+                </div>
+                <div class="cta-arrow">→</div>
+            </a>
+
+            <!-- SECTION 6 -->
+            <h2 id="track-live">Track Starlink Live Right Now</h2>
+
+            <p>
+                SatFleet Live tracks every active Starlink satellite in real time, updated every second from the latest orbital data. Each green dot on the map represents a real Starlink spacecraft, right now, at its actual position above Earth.
+            </p>
+            <p>
+                You can watch the full constellation — over 7,000 active satellites — move across the globe, zoom in to individual satellites, click any dot to see its exact altitude, speed, and coordinates, or use the 3D mode to view Starlink's orbital shells from space.
+            </p>
+
+            <a href="/" class="starlink-live-cta" aria-label="Track Starlink satellites live on the map">
+                <div class="cta-icon">🟢</div>
+                <div class="cta-body">
+                    <span class="cta-title">Track All Starlink Satellites Live</span>
+                    <span class="cta-sub">7,000+ active satellites on the live map, updated every second — filter by Starlink and watch the full constellation.</span>
+                </div>
+                <div class="cta-arrow">→</div>
+            </a>
+
+            <!-- SECTION 7 - FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How many Starlink satellites are in orbit right now?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    As of early 2026, SpaceX has launched over 10,000 Starlink satellites, with approximately 7,000+ actively operational in low Earth orbit. The constellation is growing continuously, with new launches typically every 2–3 weeks. SpaceX is licensed to operate up to 42,000 satellites under its full Gen2 constellation plan.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How high do Starlink satellites orbit?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    The main Gen1 Starlink operational shell is at approximately <strong>550 km altitude</strong> in low Earth orbit. Satellites are initially deployed at ~280 km before raising themselves using onboard ion thrusters. Gen2 satellites operate across multiple shells ranging from 328 km to 614 km, with additional polar-orbit shells at ~570 km for coverage of higher latitudes.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How fast do Starlink satellites travel?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Starlink satellites orbit at approximately <strong>27,600 km/h (17,150 mph)</strong> — around 7.67 km per second. At this speed they complete one full orbit of Earth in roughly 95 minutes and pass over any given location multiple times per day. From the ground they appear to move visibly across the sky in 3–6 minutes.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can you see Starlink satellites with the naked eye?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes — individual Starlink satellites are visible as magnitude 3–5 stars during twilight hours. They appear as steady (non-blinking) white dots moving smoothly across the sky. Freshly launched satellites forming a Starlink train are especially bright, sometimes reaching magnitude 1–2. Use SatFleet Live's <a href="/next-passes.html">Next Passes</a> to find the next Starlink pass over your location.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What is a Starlink train and when can I see one?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    A Starlink train is a line of newly launched satellites crossing the sky together before they separate to their individual orbital slots. It looks like a string of 20–60 bright dots moving in perfect formation. Trains are visible for about 1–2 weeks after each SpaceX launch. Check our <a href="/blogs/how-to-spot-a-starlink-train/">Starlink train guide</a> for how to find the next one.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Do Starlink satellites interfere with astronomy?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    This is an active concern in the astronomical community. Early Starlink satellites were very bright and created streaks in telescope images. SpaceX has since introduced sunshade visors on newer satellites and changed their orientation to reduce reflectivity. However, astronomers note that the sheer number of satellites still impacts wide-field surveys. Observatories like the Vera Rubin Observatory are developing software to automatically remove satellite trails from images.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How long do Starlink satellites last before deorbiting?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Starlink satellites have a design lifespan of approximately 5 years. At the end of their service life — or if they develop a fault — they use their remaining ion thruster fuel to lower their orbit. At lower altitudes, atmospheric drag rapidly decelerates them further and they re-enter the atmosphere, burning up completely within approximately 1–5 years of deorbit initiation.
+                </div>
+            </div>
+
+            <!-- Related Articles -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Articles</div>
+                <div class="related-grid">
+                    <a href="/blogs/how-to-spot-a-starlink-train/" class="related-card">
+                        <span class="related-icon">🚂</span>
+                        <div class="related-text">
+                            <strong>How to Spot a Starlink Train</strong>
+                            <span>What to look for, when to look, and how to tell a Starlink train from other satellites.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/iss-pass-tonight/" class="related-card">
+                        <span class="related-icon">⭐</span>
+                        <div class="related-text">
+                            <strong>ISS Pass Tonight — When & Where to See It</strong>
+                            <span>The Space Station is even brighter than Starlink. Find tonight's pass for your location.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/how-many-satellites-in-orbit/" class="related-card">
+    <span class="related-icon">🛰️</span>
+    <div class="related-text">
+        <strong>How Many Satellites Are in Orbit? The Full 2026 Count</strong>
+        <span>14,500+ active satellites, full breakdown by category, country and altitude.</span>
+    </div>
+</a>
+                    <a href="/blogs/next-passes-predict-satellites/" class="related-card">
+                        <span class="related-icon">🔭</span>
+                        <div class="related-text">
+                            <strong>Next Passes: Predict Satellite Overheads</strong>
+                            <span>How to use Next Passes to plan any satellite sighting from your location.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/why-are-satellites-so-bright/" class="related-card">
+                        <span class="related-icon">✨</span>
+                        <div class="related-text">
+                            <strong>Why Are Satellites So Bright?</strong>
+                            <span>The physics behind satellite brightness, flares, and what determines magnitude.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
+                        <span class="related-icon">🌍</span>
+                        <div class="related-text">
+                            <strong>How Satellite Orbits Work</strong>
+                            <span>LEO, MEO, GEO — and why Starlink chose low Earth orbit.</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            </div>
+
+        </article>
+        <!-- CTA BANNER -->
+            <div class="cta-banner">
+                <h2>Watch Starlink Satellites Move Right Now</h2>
+                <p>Over 7,000 active Starlink satellites tracked live in your browser — no sign-up needed.</p>
+                <div class="cta-buttons">
+                    <a href="/" class="cta-btn">🟢 View Starlink on Live Map</a>
+                    <a href="/next-passes.html" class="cta-btn outline">📡 Find Next Pass Over Me</a>
+                </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a> ·
+            <a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a> ·
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> ·
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        // Starfield
+        const starsContainer = document.getElementById('heroStars');
+        for (let i = 0; i < 80; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2.2 + 0.5;
+            star.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;`;
+            starsContainer.appendChild(star);
+        }
+
+        // Orbit animation — Starlink dot on ellipse
+        (function() {
+            const dot = document.getElementById('starlinkDot');
+            if (!dot) return;
+            const cx = 230, cy = 110, rx = 68, ry = 47;
+            const duration = 4000;
+            let startTime = null;
+            function animate(ts) {
+                if (!startTime) startTime = ts;
+                const t = ((ts - startTime) % duration) / duration;
+                const angle = t * 2 * Math.PI;
+                dot.setAttribute('cx', (cx + rx * Math.cos(angle)).toFixed(2));
+                dot.setAttribute('cy', (cy + ry * Math.sin(angle)).toFixed(2));
+                requestAnimationFrame(animate);
+            }
+            requestAnimationFrame(animate);
+        })();
+
+        // FAQ accordion
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+</body>
+</html>

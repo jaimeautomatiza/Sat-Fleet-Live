@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="shortcut icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <!-- PRIMARY SEO -->
+    <title>How to Spot a Starlink Train Tonight | SatFleetLive</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn exactly how to spot a Starlink satellite train tonight — what to look for, the best time window, how to predict the next pass from your location, and why fresh trains are so bright.">
+    <meta name="keywords" content="how to spot starlink train, starlink train tonight, see starlink satellites, starlink pass prediction, starlink satellites visible, when to see starlink, starlink train naked eye, starlink chain of lights sky">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/how-to-spot-a-starlink-train/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="How to Spot a Starlink Train Tonight | SatFleetLive">
+    <meta property="og:description" content="Learn exactly how to spot a Starlink satellite train tonight — what to look for, the best time window, how to predict the next pass from your location, and why fresh trains are so bright.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/how-to-spot-a-starlink-train/">
+    <meta property="og:image" content="/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Spot a Starlink Train Tonight | SatFleetLive">
+    <meta name="twitter:description" content="Step-by-step guide to spotting a Starlink satellite train with the naked eye — including how to predict the next pass from your exact location.">
+    <meta name="twitter:image" content="/logo.png">
+
+    <!-- Schema.org BlogPosting -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "How to Spot a Starlink Train Tonight",
+      "description": "Learn exactly how to spot a Starlink satellite train tonight — what to look for, the best time window, how to predict the next pass from your location, and why fresh trains are so bright.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": { "@type": "Organization", "name": "SatFleetLive", "url": "https://satfleetlive.com" },
+      "datePublished": "2026-03-04",
+      "dateModified": "2026-03-04",
+      "url": "https://satfleetlive.com/blogs/how-to-spot-a-starlink-train/",
+      "mainEntityOfPage": "https://satfleetlive.com/blogs/how-to-spot-a-starlink-train/",
+      "keywords": "Starlink train, spot Starlink satellites, Starlink pass tonight, Starlink chain of lights"
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What does a Starlink train look like?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A Starlink train looks like a string of evenly spaced bright dots moving in a straight line across the night sky. Fresh trains launched within the past 1-2 weeks can contain 20-60 visible satellites following each other at intervals of a few seconds, resembling a moving pearl necklace of lights." }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does a Starlink train last?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A fresh Starlink train is visible for 1-2 weeks after launch, while the satellites are still in their low deployment orbit at around 300 km altitude and their solar panels are face-on to Earth. After 2-4 weeks they raise orbit to ~550 km and rotate their panels edge-on, becoming much dimmer." }
+        },
+        {
+          "@type": "Question",
+          "name": "When is the best time to see a Starlink train?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The best time is within 1-2 hours after sunset or before sunrise — when you are in darkness but the Starlink satellites are still in sunlight at their altitude. Passes during deep night are often less impressive because the satellites enter Earth's shadow." }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I find out if a Starlink train is visible tonight?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Use SatFleetLive's Next Passes feature. Select the 'Starlink / Internet' filter, set your location, and calculate passes for the next 1-3 days. A Starlink train appears as a cluster of many STARLINK-XXXX passes starting within minutes of each other and travelling in the same direction." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
+            --starlink-green: #00d26a;
+            --starlink-green-dim: rgba(0, 210, 106, 0.12);
+            --dark-bg: #0f1117;
+            --dark-secondary: #181c25;
+            --dark-tertiary: #252b38;
+            --dark-card: #1c2130;
+            --text-primary: #f0f4ff;
+            --text-secondary: #8b95b0;
+            --text-muted: #4a5268;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--dark-bg); color: var(--text-primary); overflow-x: hidden; }
+
+        /* HEADER */
+        .header { background-color: #111520; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 0 rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 1000; }
+        .logo-section { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+        .logo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+        .logo-placeholder { width: 40px; height: 40px; background-color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; }
+        .site-title { font-size: 1.5rem; font-weight: 650; color: var(--primary-purple); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); text-decoration: none; }
+        .header-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 2px solid var(--primary-purple); color: var(--primary-purple); padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .nav-btn:hover { background-color: var(--primary-purple); color: white; }
+        .nav-btn.blue { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .nav-btn.blue:hover { background-color: var(--primary-blue); color: white; }
+
+        /* HERO */
+        .article-hero {
+            background: radial-gradient(ellipse 120% 80% at 50% -10%, rgba(0,210,106,0.11) 0%, transparent 55%),
+                        linear-gradient(180deg, #0a0e14 0%, #0f1117 100%);
+            border-bottom: 1px solid rgba(0,210,106,0.18);
+            padding: 3.5rem 1.5rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated train dots drifting across hero */
+        .hero-train { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        .train-hero-dot {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: heroTrainMove linear infinite;
+        }
+        /* Row 1 — bright green lead + white followers */
+        .train-hero-dot:nth-child(1)  { width:5px;height:5px;background:var(--starlink-green);top:28%;box-shadow:0 0 8px 2px rgba(0,210,106,0.7);animation-duration:16s;animation-delay:0s; }
+        .train-hero-dot:nth-child(2)  { width:3px;height:3px;background:#fff;top:28%;animation-duration:16s;animation-delay:0.9s; }
+        .train-hero-dot:nth-child(3)  { width:3px;height:3px;background:#fff;top:28%;animation-duration:16s;animation-delay:1.8s; }
+        .train-hero-dot:nth-child(4)  { width:3px;height:3px;background:#fff;top:28%;animation-duration:16s;animation-delay:2.7s; }
+        .train-hero-dot:nth-child(5)  { width:3px;height:3px;background:#fff;top:28%;animation-duration:16s;animation-delay:3.6s; }
+        .train-hero-dot:nth-child(6)  { width:3px;height:3px;background:#fff;top:28%;animation-duration:16s;animation-delay:4.5s; }
+        .train-hero-dot:nth-child(7)  { width:3px;height:3px;background:#fff;top:28%;animation-duration:16s;animation-delay:5.4s; }
+        /* Row 2 */
+        .train-hero-dot:nth-child(8)  { width:4px;height:4px;background:rgba(255,255,255,0.7);top:55%;animation-duration:21s;animation-delay:3s; }
+        .train-hero-dot:nth-child(9)  { width:3px;height:3px;background:rgba(255,255,255,0.6);top:55%;animation-duration:21s;animation-delay:4.2s; }
+        .train-hero-dot:nth-child(10) { width:3px;height:3px;background:rgba(255,255,255,0.6);top:55%;animation-duration:21s;animation-delay:5.4s; }
+        .train-hero-dot:nth-child(11) { width:3px;height:3px;background:rgba(255,255,255,0.5);top:55%;animation-duration:21s;animation-delay:6.6s; }
+        /* Row 3 */
+        .train-hero-dot:nth-child(12) { width:3px;height:3px;background:rgba(255,255,255,0.4);top:72%;animation-duration:13s;animation-delay:1s; }
+        .train-hero-dot:nth-child(13) { width:3px;height:3px;background:rgba(255,255,255,0.4);top:72%;animation-duration:13s;animation-delay:2.5s; }
+        .train-hero-dot:nth-child(14) { width:3px;height:3px;background:rgba(255,255,255,0.35);top:72%;animation-duration:13s;animation-delay:4s; }
+
+        @keyframes heroTrainMove {
+            0%   { left:-1%;  opacity:0; }
+            5%   { opacity:1; }
+            92%  { opacity:1; }
+            100% { left:102%; opacity:0; }
+        }
+
+        .hero-eyebrow { display:inline-flex;align-items:center;gap:.5rem;background:var(--starlink-green-dim);border:1px solid rgba(0,210,106,0.35);color:var(--starlink-green);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:.3rem .9rem;border-radius:20px;margin-bottom:1.2rem; }
+        .breadcrumb { font-size:.85rem;color:var(--text-secondary);margin-bottom:1rem; }
+        .breadcrumb a { color:var(--primary-blue);text-decoration:none; }
+        .breadcrumb a:hover { text-decoration:underline; }
+        .article-hero h1 { font-size:2.35rem;font-weight:800;color:#ffffff;line-height:1.18;max-width:760px;margin:0 auto 1rem;text-shadow:0 2px 20px rgba(0,0,0,.7);position:relative;z-index:1;letter-spacing:-.5px; }
+        .article-hero h1 em { font-style:normal;color:var(--starlink-green); }
+        .article-meta { display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;font-size:.85rem;color:var(--text-secondary);margin-top:1rem;position:relative;z-index:1; }
+
+        /* LAYOUT */
+        .blog-container { max-width:860px;margin:0 auto;padding:2.5rem 1.5rem 4rem; }
+
+        /* TOC */
+        .toc { background:var(--dark-card);border-left:4px solid var(--starlink-green);border-radius:0 10px 10px 0;padding:1.25rem 1.5rem;margin-bottom:2.5rem; }
+        .toc-title { font-size:.9rem;font-weight:700;color:var(--starlink-green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.75rem; }
+        .toc ol { margin-left:1.2rem; }
+        .toc li { margin-bottom:.4rem; }
+        .toc a { color:var(--primary-blue);text-decoration:none;font-size:.95rem; }
+        .toc a:hover { text-decoration:underline; }
+
+        /* ARTICLE BODY */
+        .article-body p { color:var(--text-secondary);line-height:1.85;margin-bottom:1.25rem;font-size:1.02rem; }
+        .article-body strong { color:var(--text-primary); }
+        .article-body a { color:var(--primary-blue);text-decoration:none; }
+        .article-body a:hover { text-decoration:underline; }
+        .article-body h2 { font-size:1.5rem;font-weight:700;color:var(--text-primary);margin:2.5rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--starlink-green);scroll-margin-top:80px; }
+        .article-body h3 { font-size:1.12rem;font-weight:600;color:var(--starlink-green);margin:1.75rem 0 .75rem; }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box { background:linear-gradient(135deg,rgba(0,210,106,.07),rgba(33,150,243,.05));border:1px solid rgba(0,210,106,.28);border-radius:10px;padding:1.25rem 1.5rem;margin:1.75rem 0; }
+        .highlight-box p { margin-bottom:0!important;color:#b8ffe0!important; }
+        .highlight-label { font-size:.78rem;font-weight:700;color:var(--starlink-green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;display:block; }
+
+        /* TRAIN DEMO */
+        .train-demo { background:#070b10;border:1px solid var(--dark-tertiary);border-radius:14px;padding:2rem 1.5rem;margin:2rem 0;overflow:hidden; }
+        .train-demo-label { font-size:.75rem;font-weight:700;color:var(--starlink-green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.5rem; }
+        .train-track { position:relative;height:40px;margin-bottom:.75rem; }
+        .train-dot { position:absolute;width:8px;height:8px;background:#fff;border-radius:50%;top:50%;transform:translateY(-50%);box-shadow:0 0 7px 1px rgba(255,255,255,.45);animation:trainMove 9s linear infinite; }
+        .train-dot.lead { background:var(--starlink-green);box-shadow:0 0 12px 3px rgba(0,210,106,.65);width:10px;height:10px; }
+        .train-dot:nth-child(1)  { animation-delay:0s; }
+        .train-dot:nth-child(2)  { animation-delay:.7s; }
+        .train-dot:nth-child(3)  { animation-delay:1.4s; }
+        .train-dot:nth-child(4)  { animation-delay:2.1s; }
+        .train-dot:nth-child(5)  { animation-delay:2.8s; }
+        .train-dot:nth-child(6)  { animation-delay:3.5s; }
+        .train-dot:nth-child(7)  { animation-delay:4.2s; }
+        .train-dot:nth-child(8)  { animation-delay:4.9s; }
+        .train-dot:nth-child(9)  { animation-delay:5.6s; }
+        .train-dot:nth-child(10) { animation-delay:6.3s; }
+        @keyframes trainMove { 0%{left:-2%;opacity:0}5%{opacity:1}94%{opacity:1}100%{left:103%;opacity:0} }
+        .train-caption { font-size:.82rem;color:var(--text-secondary);text-align:center;margin-top:.5rem; }
+        .train-caption span { color:var(--starlink-green);font-weight:600; }
+
+        /* STEP LIST */
+        .step-list { counter-reset:step-counter;list-style:none;padding:0;margin:1.25rem 0 1.75rem; }
+        .step-list li { counter-increment:step-counter;display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem;background:var(--dark-card);border-radius:10px;padding:1rem 1.25rem;border:1px solid var(--dark-tertiary); }
+        .step-list li::before { content:counter(step-counter);background:var(--starlink-green);color:#060e09;font-weight:800;font-size:.85rem;min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px; }
+        .step-list li span { color:var(--text-secondary);line-height:1.7;font-size:.98rem; }
+        .step-list li strong { color:var(--text-primary);display:block;margin-bottom:.2rem; }
+
+        /* TIMELINE */
+        .timeline { margin:1.75rem 0 2rem;position:relative;padding-left:2rem; }
+        .timeline::before { content:'';position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--starlink-green),var(--dark-tertiary));border-radius:2px; }
+        .timeline-item { position:relative;margin-bottom:1.25rem; }
+        .timeline-item::before { content:'';position:absolute;left:-26px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--starlink-green);border:2px solid var(--dark-bg); }
+        .timeline-item.fading::before { background:#ffd700; }
+        .timeline-item.faded::before { background:var(--text-muted); }
+        .timeline-label { font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.25rem;color:var(--starlink-green); }
+        .timeline-item.fading .timeline-label { color:#ffd700; }
+        .timeline-item.faded .timeline-label { color:var(--text-muted); }
+        .timeline-text { font-size:.92rem;color:var(--text-secondary);line-height:1.6; }
+
+        /* BRIGHTNESS TABLE */
+        .brightness-table { width:100%;border-collapse:collapse;margin:1.25rem 0 1.75rem;font-size:.93rem; }
+        .brightness-table thead tr { background:rgba(0,210,106,.16); }
+        .brightness-table th { padding:.8rem 1rem;text-align:left;font-weight:600;color:var(--text-primary); }
+        .brightness-table td { padding:.7rem 1rem;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);vertical-align:middle; }
+        .brightness-table tbody tr:nth-child(even) { background-color:rgba(255,255,255,.02); }
+        .brightness-table tbody tr:hover { background-color:rgba(0,210,106,.05); }
+        .brightness-table td:first-child { color:var(--text-primary);font-weight:600; }
+
+        /* TIP CARDS */
+        .tip-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0 2rem; }
+        .tip-card { background:var(--dark-card);border-radius:10px;padding:1.1rem 1.25rem;border:1px solid var(--dark-tertiary);border-top:3px solid var(--starlink-green); }
+        .tip-card .tip-icon { font-size:1.6rem;margin-bottom:.5rem;display:block; }
+        .tip-card h3 { font-size:.95rem;color:var(--text-primary);margin:0 0 .4rem!important; }
+        .tip-card p { font-size:.86rem!important;color:var(--text-secondary);line-height:1.6;margin:0!important; }
+
+        /* PASSES DEMO */
+        .passes-demo { background:#070b10;border:1px solid var(--dark-tertiary);border-radius:14px;padding:1.5rem;margin:2rem 0; }
+        .passes-demo-label { font-size:.75rem;font-weight:700;color:var(--starlink-green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem; }
+        .demo-pass-row { background:var(--dark-card);border-radius:10px;padding:1rem 1.25rem;margin-bottom:.75rem;border:1px solid var(--dark-tertiary);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem; }
+        .demo-pass-row:last-child { margin-bottom:0; }
+        .demo-pass-row.highlighted { border-color:rgba(0,210,106,.45);background:linear-gradient(135deg,#0d1e15,var(--dark-card)); }
+        .demo-pass-name { font-weight:700;color:var(--starlink-green);font-size:.95rem; }
+        .demo-pass-meta { font-size:.78rem;color:var(--text-secondary);margin-top:2px; }
+        .demo-pass-fields { display:flex;gap:1.5rem;flex-wrap:wrap; }
+        .demo-field { display:flex;flex-direction:column; }
+        .demo-field-label { font-size:.7rem;color:var(--text-muted); }
+        .demo-field-value { font-size:.9rem;font-weight:600;color:var(--text-primary); }
+        .cluster-badge { background:rgba(0,210,106,.15);border:1px solid rgba(0,210,106,.4);color:var(--starlink-green);font-size:.7rem;font-weight:700;padding:.2rem .6rem;border-radius:10px;white-space:nowrap; }
+
+        /* FAQ */
+        .faq-item { background:var(--dark-card);border-radius:10px;margin-bottom:.85rem;overflow:hidden;border:1px solid var(--dark-tertiary); }
+        .faq-question { width:100%;background:none;border:none;color:var(--text-primary);font-size:1rem;font-weight:600;text-align:left;padding:1.1rem 1.25rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:background .2s;font-family:inherit; }
+        .faq-question:hover { background:rgba(0,210,106,.06); }
+        .faq-arrow { color:var(--starlink-green);font-size:1.1rem;transition:transform .3s ease;flex-shrink:0; }
+        .faq-question.open .faq-arrow { transform:rotate(180deg); }
+        .faq-answer { display:none;padding:0 1.25rem 1.1rem;color:var(--text-secondary);line-height:1.75;font-size:.97rem;border-top:1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display:block; }
+        .faq-answer a { color:var(--primary-blue); }
+
+        /* RELATED */
+        .related-articles { margin:2.5rem 0 1.5rem; }
+        .related-title { font-size:1rem;font-weight:700;color:var(--starlink-green);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem; }
+        .related-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem; }
+        .related-card { background:var(--dark-card);border-radius:10px;padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:.75rem;text-decoration:none;border:1px solid var(--dark-tertiary);transition:border-color .3s,background .3s; }
+        .related-card:hover { border-color:var(--starlink-green);background:rgba(0,210,106,.05); }
+        .related-icon { font-size:1.5rem;flex-shrink:0;margin-top:2px; }
+        .related-text strong { display:block;color:var(--text-primary);font-size:.92rem;margin-bottom:.2rem; }
+        .related-text span { color:var(--text-secondary);font-size:.82rem;line-height:1.5; }
+
+        /* CTA */
+        .cta-banner { background:linear-gradient(135deg,rgba(0,210,106,.1),rgba(33,150,243,.08));border:1px solid rgba(0,210,106,.3);border-radius:14px;padding:2rem;text-align:center;margin:3rem 0 2rem; }
+        .cta-banner h2 { font-size:1.4rem;color:var(--text-primary);margin-bottom:.75rem;border:none!important;padding:0!important; }
+        .cta-banner p { color:var(--text-secondary);margin-bottom:1.25rem;font-size:1rem; }
+        .cta-btn { display:inline-block;background:var(--starlink-green);color:#060e09;padding:.75rem 2rem;border-radius:30px;text-decoration:none;font-weight:700;font-size:1rem;transition:all .3s ease;border:2px solid var(--starlink-green);margin:.3rem; }
+        .cta-btn:hover { background:transparent;color:var(--starlink-green); }
+        .cta-btn.purple-cta { background:var(--primary-purple);border-color:var(--primary-purple);color:white; }
+        .cta-btn.purple-cta:hover { background:transparent;color:var(--primary-purple); }
+
+        /* FOOTER */
+        .footer { background:var(--dark-secondary);padding:1.5rem 1rem;text-align:center;font-size:12px;color:var(--text-secondary);border-top:1px solid var(--dark-tertiary); }
+        .footer a { color:#4da6ff;text-decoration:none; }
+        .footer a:hover { text-decoration:underline; }
+        .footer-row { margin-bottom:.4rem; }
+
+        /* RESPONSIVE */
+        @media (max-width:640px) {
+            .article-hero h1 { font-size:1.6rem; }
+            .header { flex-wrap:wrap;gap:.5rem;padding:.75rem 1rem; }
+            .header-nav { justify-content:center; }
+            .blog-container { padding:1.75rem 1rem 3rem; }
+            .article-body h2 { font-size:1.25rem; }
+            .tip-grid { grid-template-columns:1fr; }
+            .related-grid { grid-template-columns:1fr; }
+            .brightness-table { font-size:.82rem; }
+            .brightness-table th,.brightness-table td { padding:.55rem .65rem; }
+            .demo-pass-fields { gap:.75rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero">
+        <div class="hero-train" aria-hidden="true">
+            <div class="train-hero-dot"></div><div class="train-hero-dot"></div>
+            <div class="train-hero-dot"></div><div class="train-hero-dot"></div>
+            <div class="train-hero-dot"></div><div class="train-hero-dot"></div>
+            <div class="train-hero-dot"></div><div class="train-hero-dot"></div>
+            <div class="train-hero-dot"></div><div class="train-hero-dot"></div>
+            <div class="train-hero-dot"></div><div class="train-hero-dot"></div>
+            <div class="train-hero-dot"></div><div class="train-hero-dot"></div>
+        </div>
+        <div class="hero-eyebrow">🟢 SpaceX Starlink</div>
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; How to Spot a Starlink Train
+        </p>
+        <h1>How to Spot a<br><em>Starlink Train</em> Tonight</h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 March 2026</span>
+            <span>⏱️ 6 min read</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#what-is-a-train">What Is a Starlink Train?</a></li>
+                <li><a href="#why-so-bright">Why Are Fresh Trains So Bright?</a></li>
+                <li><a href="#visibility-window">The Visibility Window: How Long Do Trains Last?</a></li>
+                <li><a href="#how-to-predict">How to Predict the Next Starlink Pass</a></li>
+                <li><a href="#what-to-look-for">What Exactly to Look For in the Sky</a></li>
+                <li><a href="#best-conditions">Best Conditions for Spotting a Train</a></li>
+                <li><a href="#tips">Tips for a Successful Observation</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                Every few weeks, SpaceX launches another batch of Starlink satellites — and for a brief window of 1 to 2 weeks after each launch, the night sky over your location may host one of the most striking spectacles you can see with the naked eye: a <strong>Starlink train</strong>. A chain of bright, evenly spaced dots moving in perfect formation across the sky, one after the other, for up to 10–15 minutes without stopping.
+            </p>
+            <p>
+                People who see it for the first time often think they are watching a UFO. Videos of Starlink trains go viral on social media every single launch cycle. This guide explains exactly what a Starlink train is, <strong>how to predict when one will pass over you tonight</strong>, and how to make sure you do not miss it.
+            </p>
+
+            <!-- SECTION 1 -->
+            <h2 id="what-is-a-train">What Is a Starlink Train?</h2>
+
+            <p>
+                A Starlink train is a formation of newly launched Starlink satellites travelling together in their initial deployment orbit before raising altitude to their operational shell. SpaceX typically launches 20–23 satellites per Falcon 9 mission. Once in orbit, they deploy in sequence and drift apart slightly, forming the characteristic chain shape.
+            </p>
+
+            <div class="train-demo" role="img" aria-label="Animation of Starlink satellites moving in a line across the sky">
+                <div class="train-demo-label">🎬 Simulated Starlink train — as seen from the ground</div>
+                <div class="train-track">
+                    <div class="train-dot lead"></div>
+                    <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+                    <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+                    <div class="train-dot"></div><div class="train-dot"></div><div class="train-dot"></div>
+                </div>
+                <p class="train-caption">Each dot is one Starlink satellite. The <span>bright green lead dot</span> is the first deployed satellite — subsequent ones follow roughly every 4–8 seconds of visual time at peak brightness.</p>
+            </div>
+
+            <p>
+                At their initial deployment altitude of roughly <strong>300–350 km</strong>, the satellites are close to Earth, moving fast, and their large flat solar panels are still face-on toward the ground — reflecting maximum sunlight. This is why they appear so extraordinarily bright in the first days after launch.
+            </p>
+
+            <!-- SECTION 2 -->
+            <h2 id="why-so-bright">Why Are Fresh Trains So Bright?</h2>
+
+            <p>
+                The brightness of a Starlink satellite depends on two things: its altitude and the orientation of its solar panels relative to you. Immediately after deployment, the satellites have not yet been commanded to rotate their panels edge-on to Earth — they remain in their initial flat configuration, reflecting maximum sunlight downward. Combined with their low deployment altitude, this creates satellites that can reach <strong>magnitude +1 to +3</strong>, as bright as the most prominent stars in the sky.
+            </p>
+            <p>
+                Once the satellites raise their operational orbit to ~550 km and rotate their panels, brightness drops dramatically — often to magnitude +5 or fainter, invisible under any light pollution. The window to see a train with the naked eye is therefore narrow and not to be missed.
+            </p>
+
+            <div style="overflow-x:auto;">
+                <table class="brightness-table">
+                    <thead>
+                        <tr><th>Phase</th><th>Altitude</th><th>Typical Magnitude</th><th>Naked Eye?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>🟢 Fresh train (days 1–7)</td><td>~300–350 km</td><td>+1 to +3</td><td>✅ Easily visible</td></tr>
+                        <tr><td>🟡 Active train (days 7–14)</td><td>~350–450 km</td><td>+3 to +4</td><td>✅ Visible in dark sky</td></tr>
+                        <tr><td>🟠 Raising orbit (days 14–28)</td><td>~450–550 km</td><td>+4 to +5</td><td>⚠️ Borderline, dark sky needed</td></tr>
+                        <tr><td>⚫ Operational (after 4 weeks)</td><td>~550 km</td><td>+5 to +7</td><td>❌ Usually invisible</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SECTION 3 -->
+            <h2 id="visibility-window">The Visibility Window: How Long Do Trains Last?</h2>
+
+            <p>
+                The best window to spot a Starlink train as a chain of lights — rather than scattered individual satellites — is the <strong>first 7–14 days after launch</strong>. During this period the satellites are still in a tight formation and have not yet fully dispersed into their individual orbital planes.
+            </p>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-label">🚀 Launch day — Day 3</div>
+                    <div class="timeline-text">The tightest, brightest train. Satellites are close together and low. A pass can include 40–60 visible satellites following each other in quick succession. The spectacle can last 10–15 uninterrupted minutes.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-label">📅 Days 4–10</div>
+                    <div class="timeline-text">Still an excellent train. The spacing between satellites has widened slightly, giving 5–15 seconds between each one. Brightness remains good — magnitude +2 to +3 in most cases.</div>
+                </div>
+                <div class="timeline-item fading">
+                    <div class="timeline-label">📅 Days 10–21</div>
+                    <div class="timeline-text">The train is dispersing. You will still see multiple satellites in the same pass, but the tight chain appearance is gone. Satellites are dimming as they raise orbit and rotate solar panels.</div>
+                </div>
+                <div class="timeline-item faded">
+                    <div class="timeline-label">📅 After 4 weeks</div>
+                    <div class="timeline-text">Individual operational satellites indistinguishable from each other in the ~550 km shell. No longer a "train" — typically below the naked-eye threshold under any light pollution.</div>
+                </div>
+            </div>
+
+            <!-- SECTION 4 -->
+            <h2 id="how-to-predict">How to Predict the Next Starlink Pass</h2>
+
+            <p>
+                The single most important step is finding out <em>when</em> a train will cross your particular location. Starlink passes are highly location-dependent — a pass visible from London may be completely below the horizon in Madrid at the same time. Use <a href="/next-passes.html">SatFleetLive's Next Passes</a> to get predictions tailored to your exact coordinates.
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>Open Next Passes and allow location access</strong>
+                        Go to <a href="/next-passes.html">satfleetlive.com/next-passes.html</a> and allow the location prompt. Accurate GPS coordinates are essential — Starlink pass times can vary by several minutes just 100 km apart. You can also manually set any location using the "Change location" button.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Select "Starlink / Internet" from the satellite type filter</strong>
+                        This category loads thousands of Starlink satellites — the page warns this may take a moment. The calculation covers the entire constellation to surface every potential pass including trains from recent launches.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Set the days to 3 and hit Calculate Passes</strong>
+                        Three days gives a broad selection without excessive calculation time. Trains from a recent launch will dominate the brightest results.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Sort by "Earliest first" and look for clusters</strong>
+                        A train shows up as multiple cards labelled STARLINK-XXXX, all starting within 2–8 minutes of each other and travelling in the same compass direction. The more entries in a cluster, the more satellites you will see in the chain.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Note the start time, direction, and max elevation</strong>
+                        Write down these three values. The Direction field tells you which compass point to face. A pass above 40° will be noticeably brighter and more impressive than a low-horizon pass.
+                    </span>
+                </li>
+            </ol>
+
+            <!-- Demo of what a cluster looks like -->
+            <div class="passes-demo">
+                <div class="passes-demo-label">📋 What a Starlink train cluster looks like in Next Passes</div>
+                <div class="demo-pass-row highlighted">
+                    <div>
+                        <div class="demo-pass-name">STARLINK-7123</div>
+                        <div class="demo-pass-meta">NORAD: 62841 · Bright (+2.1)</div>
+                    </div>
+                    <div class="demo-pass-fields">
+                        <div class="demo-field"><span class="demo-field-label">Start</span><span class="demo-field-value">22:07</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Max Elev</span><span class="demo-field-value">58.4°</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Direction</span><span class="demo-field-value">SW → NE</span></div>
+                    </div>
+                    <div class="cluster-badge">🟢 TRAIN</div>
+                </div>
+                <div class="demo-pass-row highlighted">
+                    <div>
+                        <div class="demo-pass-name">STARLINK-7124</div>
+                        <div class="demo-pass-meta">NORAD: 62842 · Bright (+2.2)</div>
+                    </div>
+                    <div class="demo-pass-fields">
+                        <div class="demo-field"><span class="demo-field-label">Start</span><span class="demo-field-value">22:09</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Max Elev</span><span class="demo-field-value">57.1°</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Direction</span><span class="demo-field-value">SW → NE</span></div>
+                    </div>
+                    <div class="cluster-badge">🟢 TRAIN</div>
+                </div>
+                <div class="demo-pass-row highlighted">
+                    <div>
+                        <div class="demo-pass-name">STARLINK-7125</div>
+                        <div class="demo-pass-meta">NORAD: 62843 · Bright (+2.4)</div>
+                    </div>
+                    <div class="demo-pass-fields">
+                        <div class="demo-field"><span class="demo-field-label">Start</span><span class="demo-field-value">22:11</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Max Elev</span><span class="demo-field-value">55.8°</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Direction</span><span class="demo-field-value">SW → NE</span></div>
+                    </div>
+                    <div class="cluster-badge">🟢 TRAIN</div>
+                </div>
+                <div class="demo-pass-row" style="opacity:.45;">
+                    <div>
+                        <div class="demo-pass-name">GPS BIIR-5</div>
+                        <div class="demo-pass-meta">NORAD: 28474 · Normal (+3.8)</div>
+                    </div>
+                    <div class="demo-pass-fields">
+                        <div class="demo-field"><span class="demo-field-label">Start</span><span class="demo-field-value">22:38</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Max Elev</span><span class="demo-field-value">31.2°</span></div>
+                        <div class="demo-field"><span class="demo-field-label">Direction</span><span class="demo-field-value">E → N</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <span class="highlight-label">💡 Identifying a train in the results</span>
+                <p>Look for <strong>3 or more STARLINK-XXXX entries with consecutive NORAD IDs</strong>, starting within a few minutes of each other, all travelling the same compass direction. That cluster is your train. The higher the max elevation and the more entries in the cluster, the more spectacular the show will be.</p>
+            </div>
+
+            <!-- SECTION 5 -->
+            <h2 id="what-to-look-for">What Exactly to Look For in the Sky</h2>
+
+            <p>
+                Once you are outside and facing the right direction, here is what the experience actually looks like:
+            </p>
+
+            <h3>The first dot appears</h3>
+            <p>
+                A single bright dot — similar to a medium-bright star — rises above the horizon from the predicted direction and moves steadily across the sky. It does not flash or blink like an aircraft. It moves in a smooth, consistent arc, crossing your visible sky in about 4–8 minutes.
+            </p>
+
+            <h3>More dots follow in the same track</h3>
+            <p>
+                A few seconds to a minute after the first, another dot appears from exactly the same point on the horizon and follows the identical path. Then another. Then another. Each satellite is a near-perfect copy of the last — same brightness, same arc, same speed, evenly spaced. This is the train.
+            </p>
+
+            <h3>The chain may last 10–15 minutes</h3>
+            <p>
+                In a fresh, dense train you may watch 20–40 satellites cross your sky in succession before the chain ends. The effect is deeply uncanny — a conveyor belt of lights rolling silently across the stars. Nothing else in the night sky looks quite like it.
+            </p>
+
+            <h3>Some satellites may disappear mid-pass</h3>
+            <p>
+                Individual satellites will sometimes vanish abruptly before reaching the other horizon. This happens when they enter Earth's shadow — the same reason the ISS sometimes disappears mid-pass. It is not a malfunction; the satellite simply stopped catching direct sunlight. The next one in the chain will continue exactly as before.
+            </p>
+
+            <!-- SECTION 6 -->
+            <h2 id="best-conditions">Best Conditions for Spotting a Train</h2>
+
+            <p>
+                Starlink satellites are only visible when three conditions are satisfied simultaneously — the same three that govern all naked-eye satellite visibility.
+            </p>
+
+            <h3>1. You must be in darkness</h3>
+            <p>
+                The Sun must be at least 6° below your horizon (civil twilight or darker). Passes during daylight are invisible. The optimal window is the <strong>first 90 minutes after sunset</strong> and the <strong>last 90 minutes before sunrise</strong> — you are in darkness, but the satellites at 300–550 km altitude are still catching sunlight.
+            </p>
+
+            <h3>2. The satellites must be in sunlight</h3>
+            <p>
+                Even during your night, satellites can enter Earth's shadow mid-pass. Passes during deep night — when shadow geometry is unfavourable — will show far fewer visible satellites than predicted. Twilight windows are consistently better because the geometry almost always keeps satellites illuminated for the full crossing of your sky.
+            </p>
+
+            <h3>3. The pass must be high enough</h3>
+            <p>
+                A maximum elevation above <strong>30°</strong> is the minimum for a rewarding view. Below 20° the satellites are close to the horizon, dimmed by atmospheric haze, and easily blocked by buildings or trees. A pass above 50° is spectacular — the satellites are bright and you can track them across a wide arc without moving your feet.
+            </p>
+
+            <!-- SECTION 7 -->
+            <h2 id="tips">Tips for a Successful Observation</h2>
+
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <span class="tip-icon">🌑</span>
+                    <h3>Protect your night vision</h3>
+                    <p>Put your phone screen face-down for at least 3 minutes before the pass. Even dim screen glow collapses your dark adaptation. Use a red-light torch if you need to see anything.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">🧭</span>
+                    <h3>Face the start direction early</h3>
+                    <p>The Direction field in Next Passes tells you where to look. Face that way 2 minutes before the start time and scan slowly. The first dot is easy to miss if you are not already watching the right part of the sky.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">📅</span>
+                    <h3>Pick a twilight pass, not just any pass</h3>
+                    <p>Always choose a post-sunset or pre-sunrise pass over a deep-night one. Even a slightly lower-elevation twilight pass typically shows more satellites than a high-elevation deep-night pass.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">☁️</span>
+                    <h3>Check the weather first</h3>
+                    <p>Cloud cover is the only thing that can ruin a perfect prediction. Check sky conditions before heading out — even thin high cloud can obscure the dimmer satellites in the chain.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">📍</span>
+                    <h3>Find an open horizon</h3>
+                    <p>Trees and buildings block low-elevation satellites. A park, open field, rooftop, or beach gives you the widest arc and the best chance of catching the train from first to last.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">📸</span>
+                    <h3>Photograph the train</h3>
+                    <p>Place your camera on a solid surface and shoot a 15–30 second exposure along the train's direction of travel. Multiple satellites leave parallel streaks — an instantly striking photo that requires no special equipment.</p>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What does a Starlink train look like?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    A Starlink train looks like a string of evenly spaced bright dots moving in a straight line across the night sky. Each dot is a single satellite. Fresh trains can have 20–60 visible satellites following each other at intervals of a few seconds, resembling a moving chain of pearls — or a slow-motion meteor shower where every light follows exactly the same path.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How long does a Starlink train last?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    There are two meanings of "last". A single pass across your sky lasts 4–15 minutes depending on elevation and how many satellites are in the chain. The <em>window</em> during which you can see the train at all — before satellites raise orbit and become too dim — is typically 1–2 weeks after launch. Beyond that, individual satellites may still be detectable in dark skies, but the tight chain appearance is gone.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    When is the best time to see a Starlink train?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    The best time is the first 90 minutes after sunset or the last 90 minutes before sunrise — when you are in civil twilight or astronomical twilight but the satellites at 300–550 km altitude are still in full sunlight. Deep-night passes are often disappointing because the satellites enter Earth's shadow mid-pass. Use the <a href="/next-passes.html">SatFleetLive Next Passes</a> Starlink filter to find twilight passes specifically.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How do I know if there was a recent Starlink launch?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    The most reliable indicator is your Next Passes results. Run the Starlink filter for your location and sort by brightest first. If you see a large cluster of STARLINK-XXXX entries with consecutive NORAD IDs, similar pass times, and the same direction of travel, that almost certainly indicates a recent launch still in its deployment train phase. SpaceX also posts launch announcements on their website and on social media before every mission.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Are Starlink satellites bad for astronomy?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    This is an ongoing and genuine concern in the astronomical community. Fresh Starlink trains cause significant streaking in long-exposure telescope images. SpaceX has taken partial steps — including dark-coated satellites and sun-shade visors — which have reduced operational satellite brightness, but fresh deployment trains remain problematic for astrophotographers. The International Astronomical Union has published formal position papers calling for mitigation standards across the satellite industry.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Why did the satellites disappear before reaching the other horizon?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    They entered Earth's shadow — the dark cone behind the planet where no direct sunlight reaches. When a satellite crosses into shadow it instantly vanishes because it stops reflecting sunlight toward you. It is still in orbit; it simply became invisible. Twilight passes are better precisely because the shadow geometry often keeps all satellites sunlit for their entire crossing of your sky.
+                </div>
+            </div>
+
+            <!-- RELATED -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Guides</div>
+                <div class="related-grid">
+                    <a href="/blogs/next-passes-predict-satellites/" class="related-card">
+                        <span class="related-icon">🔭</span>
+                        <div class="related-text">
+                            <strong>Next Passes: Predict Satellite Overheads</strong>
+                            <span>Full guide to using Next Passes for any satellite.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/why-are-satellites-so-bright/" class="related-card">
+                        <span class="related-icon">✨</span>
+                        <div class="related-text">
+                            <strong>Why Are Satellites So Bright?</strong>
+                            <span>Understand flares, Starlink trains, and naked-eye visibility.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
+                        <span class="related-icon">🌍</span>
+                        <div class="related-text">
+                            <strong>How Satellite Orbits Work</strong>
+                            <span>Learn the difference between LEO, MEO, and GEO orbits.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/3d-satellite-tracking/" class="related-card">
+                        <span class="related-icon">🌐</span>
+                        <div class="related-text">
+                            <strong>3D Satellite Tracking</strong>
+                            <span>See every Starlink orbit on an interactive 3D globe.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/best-time-to-see-satellites-tonight/" class="related-card">
+    <span class="related-icon">🌅</span>
+    <div class="related-text">
+        <strong>Best Time to See Satellites Tonight</strong>
+        <span>The 90-minute twilight window explained — when to look, where, and what you'll see with the naked eye.</span>
+    </div>
+</a>
+                
+                    <a href="/blogs/iss-pass-tonight/" class="related-card">
+    <span class="related-icon">⭐</span>
+    <div class="related-text">
+        <strong>ISS Pass Tonight — When & Where to See It</strong>
+        <span>Exact pass time, direction, and elevation for the Space Station from your location.</span>
+    </div>
+</a>
+                </div>
+            </div>
+
+        </article>
+
+        <!-- CTA -->
+        <div class="cta-banner">
+            <h2>Find out if a Starlink train is passing over you tonight</h2>
+            <p>Open Next Passes, select "Starlink / Internet", and calculate passes for your exact location. Look for a cluster of consecutive STARLINK entries — that is your train.</p>
+            <a href="/next-passes.html" class="cta-btn">📍 Predict My Next Pass</a>
+            <a href="/" class="cta-btn purple-cta">🌍 Open Live Map</a>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
+            <a href="https://www.wikidata.org" target="_blank">Wikidata</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+
+</body>
+</html>

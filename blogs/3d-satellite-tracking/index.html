@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="shortcut icon" href="/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/logo.png">
+
+    <!-- SEO -->
+    <title>3D Satellite Tracking: See Every Orbit in Real Time | SatFleetLive</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore satellites in 3D for free — no download required. Learn how SatFleetLive's 3D globe lets you track the ISS, Starlink, GPS, and 14,000+ satellites with real orbital depth.">
+    <meta name="keywords" content="3D satellite tracking, track satellites in 3D, real time satellite tracker 3D, ISS 3D orbit, satellite 3D globe, live satellite map 3D, CesiumJS satellites, Starlink 3D tracker">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/3d-satellite-tracking/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="3D Satellite Tracking: See Every Orbit in Real Time | SatFleetLive">
+    <meta property="og:description" content="Explore satellites in 3D for free — no download required. Learn how SatFleetLive's 3D globe lets you track the ISS, Starlink, GPS, and 14,000+ satellites with real orbital depth.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/3d-satellite-tracking/">
+    <meta property="og:image" content="/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="3D Satellite Tracking: See Every Orbit in Real Time | SatFleetLive">
+    <meta name="twitter:description" content="Explore satellites in 3D for free — no download required. Track 14,000+ satellites on an interactive 3D globe.">
+    <meta name="twitter:image" content="/logo.png">
+
+    <!-- Schema.org BlogPosting -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "3D Satellite Tracking: See Every Orbit in Real Time",
+      "description": "Explore satellites in 3D for free — no download required. Learn how SatFleetLive's 3D globe lets you track the ISS, Starlink, GPS, and 14,000+ satellites with real orbital depth.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": { "@type": "Organization", "name": "SatFleetLive", "url": "https://satfleetlive.com" },
+      "datePublished": "2026-03-04",
+      "dateModified": "2026-03-04",
+      "url": "https://satfleetlive.com/blogs/3d-satellite-tracking/",
+      "mainEntityOfPage": "https://satfleetlive.com/blogs/3d-satellite-tracking/",
+      "keywords": "3D satellite tracking, real time satellite tracker, ISS orbit 3D, Starlink 3D, satellite globe"
+    }
+    </script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I track satellites in 3D for free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. SatFleetLive's 3D satellite tracker is completely free to use in your browser with no registration or download required. It runs on the CesiumJS engine and displays 14,000+ real satellites in accurate orbits." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the difference between 2D and 3D satellite tracking?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A 2D satellite tracker shows satellite positions on a flat map (Mercator projection), which distorts orbits near the poles. A 3D satellite tracker displays satellites on a realistic globe, showing true orbital altitude and inclination — making it much easier to understand why satellites appear where they do." }
+        },
+        {
+          "@type": "Question",
+          "name": "How accurate is 3D satellite tracking?",
+          "acceptedAnswer": { "@type": "Answer", "text": "SatFleetLive uses the SGP4 propagation model and TLE data updated every 48 hours from CelesTrak/NORAD. For LEO satellites, positions are accurate to within a few kilometres for passes in the next 24–48 hours." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
+            --accent-cyan: #00e5ff;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--dark-bg); color: var(--text-primary-dark); overflow-x: hidden; }
+
+        /* HEADER */
+        .header { background-color: var(--dark-secondary); padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 1000; }
+        .logo-section { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+        .logo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+        .logo-placeholder { width: 40px; height: 40px; background-color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; }
+        .site-title { font-size: 1.5rem; font-weight: 650; color: var(--primary-purple); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); text-decoration: none; }
+        .header-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 2px solid var(--primary-purple); color: var(--primary-purple); padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .nav-btn:hover { background-color: var(--primary-purple); color: white; }
+        .nav-btn.blue { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .nav-btn.blue:hover { background-color: var(--primary-blue); color: white; }
+
+        /* HERO */
+        .article-hero {
+            background: linear-gradient(135deg, #0a0a0f 0%, #0d1520 40%, #0a1a10 100%);
+            border-bottom: 2px solid var(--accent-cyan);
+            padding: 3.5rem 1.5rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .article-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,229,255,0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 30% 40% at 20% 80%, rgba(156,39,176,0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        /* Animated orbit rings in hero */
+        .hero-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            width: 500px;
+            height: 500px;
+            opacity: 0.07;
+        }
+        .hero-ring {
+            position: absolute;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 50%;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .hero-ring:nth-child(1) { width: 160px; height: 160px; animation: rotate3d 12s linear infinite; }
+        .hero-ring:nth-child(2) { width: 280px; height: 120px; border-color: var(--primary-purple); animation: rotate3d 18s linear infinite reverse; transform: translate(-50%, -50%) rotateX(70deg); }
+        .hero-ring:nth-child(3) { width: 380px; height: 160px; animation: rotate3d 25s linear infinite; transform: translate(-50%, -50%) rotateX(75deg) rotateZ(30deg); }
+        @keyframes rotate3d { from { transform: translate(-50%, -50%) rotateX(70deg) rotateZ(0deg); } to { transform: translate(-50%, -50%) rotateX(70deg) rotateZ(360deg); } }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(0,229,255,0.12);
+            border: 1px solid rgba(0,229,255,0.4);
+            color: var(--accent-cyan);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            padding: 0.3rem 0.9rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+        }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-secondary-dark); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--primary-blue); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .article-hero h1 { font-size: 2.3rem; font-weight: 700; color: #ffffff; line-height: 1.2; max-width: 800px; margin: 0 auto 1rem; text-shadow: 0 2px 12px rgba(0,0,0,0.6); position: relative; z-index: 1; }
+        .article-hero h1 span.cyan { color: var(--accent-cyan); }
+        .article-hero h1 span.purple { color: var(--primary-purple); }
+        .article-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary-dark); margin-top: 1rem; position: relative; z-index: 1; }
+
+        /* LAYOUT */
+        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+        /* TOC */
+        .toc { background-color: var(--dark-secondary); border-left: 4px solid var(--accent-cyan); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+        .toc-title { font-size: 0.95rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .toc ol { margin-left: 1.2rem; }
+        .toc li { margin-bottom: 0.4rem; }
+        .toc a { color: var(--primary-blue); text-decoration: none; font-size: 0.95rem; }
+        .toc a:hover { text-decoration: underline; }
+
+        /* ARTICLE BODY */
+        .article-body p { color: var(--text-secondary-dark); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
+        .article-body strong { color: #ffffff; }
+        .article-body a { color: var(--primary-blue); text-decoration: none; }
+        .article-body a:hover { text-decoration: underline; }
+        .article-body h2 { font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent-cyan); scroll-margin-top: 80px; }
+        .article-body h3 { font-size: 1.15rem; font-weight: 600; color: var(--accent-cyan); margin: 1.75rem 0 0.75rem; }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box { background: linear-gradient(135deg, rgba(0,229,255,0.08), rgba(156,39,176,0.06)); border: 1px solid rgba(0,229,255,0.3); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0; }
+        .highlight-box p { margin-bottom: 0 !important; color: #cceeff !important; }
+        .highlight-label { font-size: 0.78rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block; }
+
+        /* NEW: 3D vs 2D COMPARISON VISUAL */
+        .comparison-visual {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .comparison-panel {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 1.5rem 1.25rem;
+            border: 1px solid var(--dark-tertiary);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .comparison-panel.panel-3d {
+            border-color: rgba(0,229,255,0.4);
+            background: linear-gradient(135deg, #0d1117, #091820);
+        }
+        .comparison-panel.panel-2d {
+            border-color: rgba(156,39,176,0.3);
+        }
+        .comparison-panel-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+        .panel-3d .comparison-panel-label { color: var(--accent-cyan); }
+        .panel-2d .comparison-panel-label { color: var(--primary-purple); }
+        .globe-svg { margin: 0 auto 1rem; display: block; }
+        .comparison-panel ul {
+            list-style: none;
+            text-align: left;
+            padding: 0;
+        }
+        .comparison-panel ul li {
+            font-size: 0.83rem;
+            color: var(--text-secondary-dark);
+            padding: 0.3rem 0;
+            padding-left: 1.4rem;
+            position: relative;
+        }
+        .comparison-panel ul li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+        .panel-2d ul li::before { content: '–'; color: rgba(255,255,255,0.3); }
+
+        /* STEP LIST */
+        .step-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 1.25rem 0 1.75rem; }
+        .step-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.25rem; }
+        .step-list li::before { content: counter(step-counter); background-color: var(--accent-cyan); color: #0a0a0a; font-weight: 700; font-size: 0.9rem; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .step-list li span { color: var(--text-secondary-dark); line-height: 1.7; font-size: 0.98rem; }
+        .step-list li strong { color: #ffffff; display: block; margin-bottom: 0.2rem; }
+
+        /* ORBIT TYPE CARDS */
+        .orbit-3d-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0 2rem;
+        }
+        .orbit-3d-card {
+            background: var(--dark-secondary);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-top: 3px solid var(--accent-cyan);
+            position: relative;
+            overflow: hidden;
+        }
+        .orbit-3d-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,229,255,0.08);
+            transform: translate(20px, 20px);
+        }
+        .orbit-3d-card.purple-card { border-top-color: var(--primary-purple); }
+        .orbit-3d-card.blue-card { border-top-color: var(--primary-blue); }
+        .orbit-3d-card .card-icon { font-size: 1.8rem; margin-bottom: 0.6rem; display: block; }
+        .orbit-3d-card h3 { font-size: 1rem; color: #ffffff; margin: 0 0 0.5rem !important; }
+        .orbit-3d-card p { font-size: 0.86rem !important; color: var(--text-secondary-dark); line-height: 1.6; margin: 0 !important; }
+
+        /* WHY 3D TABLE */
+        .why-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0 1.75rem; font-size: 0.93rem; }
+        .why-table thead tr { background: linear-gradient(90deg, rgba(0,229,255,0.25), rgba(156,39,176,0.15)); }
+        .why-table th { padding: 0.8rem 1rem; text-align: left; font-weight: 600; color: #fff; }
+        .why-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--dark-tertiary); color: var(--text-secondary-dark); vertical-align: middle; }
+        .why-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.025); }
+        .why-table tbody tr:hover { background-color: rgba(0,229,255,0.04); }
+        .why-table td:first-child { color: #ffffff; font-weight: 600; }
+        .td-yes { color: #00d26a !important; font-weight: 600; }
+        .td-no { color: rgba(255,255,255,0.3) !important; }
+
+        /* TIP CARDS */
+        .tip-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem; }
+        .tip-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1.1rem 1.25rem; border-top: 3px solid var(--accent-cyan); }
+        .tip-card.purple-tip { border-top-color: var(--primary-purple); }
+        .tip-card .tip-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+        .tip-card h3 { font-size: 0.95rem; color: #ffffff; margin: 0 0 0.4rem !important; }
+        .tip-card p { font-size: 0.86rem !important; color: var(--text-secondary-dark); line-height: 1.6; margin: 0 !important; }
+
+        /* FAQ */
+        .faq-item { background-color: var(--dark-secondary); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; }
+        .faq-question { width: 100%; background: none; border: none; color: #ffffff; font-size: 1rem; font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background 0.2s; font-family: inherit; }
+        .faq-question:hover { background-color: rgba(0,229,255,0.07); }
+        .faq-arrow { color: var(--accent-cyan); font-size: 1.1rem; transition: transform 0.3s ease; flex-shrink: 0; }
+        .faq-question.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary-dark); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display: block; }
+        .faq-answer a { color: var(--primary-blue); }
+
+        /* RELATED */
+        .related-articles { margin: 2.5rem 0 1.5rem; }
+        .related-title { font-size: 1rem; font-weight: 700; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .related-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.1rem; display: flex; align-items: flex-start; gap: 0.75rem; text-decoration: none; border: 1px solid var(--dark-tertiary); transition: border-color 0.3s, background 0.3s; }
+        .related-card:hover { border-color: var(--accent-cyan); background-color: rgba(0,229,255,0.05); }
+        .related-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+        .related-text strong { display: block; color: #ffffff; font-size: 0.92rem; margin-bottom: 0.2rem; }
+        .related-text span { color: var(--text-secondary-dark); font-size: 0.82rem; line-height: 1.5; }
+
+        /* CTA */
+        .cta-banner {
+            background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(156,39,176,0.12));
+            border: 1px solid rgba(0,229,255,0.35);
+            border-radius: 14px;
+            padding: 2rem;
+            text-align: center;
+            margin: 3rem 0 2rem;
+        }
+        .cta-banner h2 { font-size: 1.4rem; color: #ffffff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; }
+        .cta-banner p { color: var(--text-secondary-dark); margin-bottom: 1.25rem; font-size: 1rem; }
+        .cta-btn { display: inline-block; background-color: var(--accent-cyan); color: #0a0a0a; padding: 0.75rem 2rem; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: all 0.3s ease; border: 2px solid var(--accent-cyan); margin: 0.3rem; }
+        .cta-btn:hover { background-color: transparent; color: var(--accent-cyan); }
+        .cta-btn.purple-cta { background-color: var(--primary-purple); border-color: var(--primary-purple); color: white; }
+        .cta-btn.purple-cta:hover { background-color: transparent; color: var(--primary-purple); }
+
+        /* FOOTER */
+        .footer { background-color: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 12px; color: var(--text-secondary-dark); border-top: 1px solid var(--dark-tertiary); }
+        .footer a { color: #4da6ff; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* RESPONSIVE */
+        @media (max-width: 640px) {
+            .article-hero h1 { font-size: 1.55rem; }
+            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
+            .header-nav { justify-content: center; }
+            .blog-container { padding: 1.75rem 1rem 3rem; }
+            .article-body h2 { font-size: 1.3rem; }
+            .comparison-visual { grid-template-columns: 1fr; }
+            .orbit-3d-cards { grid-template-columns: 1fr; }
+            .tip-grid { grid-template-columns: 1fr; }
+            .related-grid { grid-template-columns: 1fr; }
+            .why-table { font-size: 0.82rem; }
+            .why-table th, .why-table td { padding: 0.55rem 0.65rem; }
+            .hero-rings { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero">
+        <div class="hero-rings" aria-hidden="true">
+            <div class="hero-ring"></div>
+            <div class="hero-ring"></div>
+            <div class="hero-ring"></div>
+        </div>
+        <div class="hero-badge">🆕 New Feature</div>
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; 3D Satellite Tracking
+        </p>
+        <h1>
+            <span class="cyan">3D Satellite Tracking:</span><br>
+            See Every <span class="purple">Orbit</span> in Real Time
+        </h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 March 2026</span>
+            <span>⏱️ 6 min read</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#what-is-3d-tracking">What Is 3D Satellite Tracking?</a></li>
+                <li><a href="#2d-vs-3d">2D vs 3D: Why the Globe Changes Everything</a></li>
+                <li><a href="#how-to-use">How to Use SatFleetLive's 3D Mode</a></li>
+                <li><a href="#what-you-can-see">What You Can See in 3D</a></li>
+                <li><a href="#orbits-in-3d">Understanding Orbits in 3D: LEO, MEO and GEO</a></li>
+                <li><a href="#tips">Tips for Getting the Most from 3D Mode</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                Most people have looked at a flat satellite map before — a Mercator projection covered in fast-moving dots. It shows you <em>where</em> satellites are, but it does not show you <em>how</em> they orbit. A flat map cannot capture altitude, inclination, or the true three-dimensional geometry of a constellation. <strong>3D satellite tracking</strong> solves all of that.
+            </p>
+            <p>
+                SatFleetLive now includes a full <strong>interactive 3D globe</strong>, powered by CesiumJS and real NORAD orbital data, that lets you explore over 14,000 satellites in accurate real-time orbits — directly in your browser, with no download or account needed. This guide explains how it works, what to look for, and how to get the most out of it.
+            </p>
+
+            <!-- SECTION 1 -->
+            <h2 id="what-is-3d-tracking">What Is 3D Satellite Tracking?</h2>
+
+            <p>
+                Traditional satellite trackers display satellites on a 2D world map. While useful, this representation has a critical flaw: it projects a sphere onto a flat surface, which distorts distances, sizes, and especially <strong>orbital paths</strong>. A polar orbit shown on a 2D map looks like a diagonal zigzag — when in reality it is a smooth circle around Earth.
+            </p>
+            <p>
+                A <strong>3D satellite tracker</strong> renders Earth as a realistic globe and positions each satellite at its true altitude above the surface. You can orbit the view, zoom in on specific regions, and directly observe how different orbital families — <a href="/blogs/how-satellite-orbits-work/">LEO, MEO, and GEO</a> — relate to each other in three-dimensional space.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🌐 How SatFleetLive's 3D engine works</span>
+                <p>The 3D mode uses <strong>CesiumJS</strong> — an open-source WebGL globe engine — combined with the <strong>SGP4 propagation model</strong> and live <a href="/blogs/what-is-a-tle/">TLE data</a> from CelesTrak/NORAD. Every satellite position is computed in real time inside your browser. No server-side rendering, no lag. The globe updates satellite positions every 2 seconds.</p>
+            </div>
+
+            <!-- SECTION 2 -->
+            <h2 id="2d-vs-3d">2D vs 3D: Why the Globe Changes Everything</h2>
+
+            <p>
+                The difference between a flat tracker and a 3D globe is not just cosmetic. It fundamentally changes what you can understand about satellite behaviour.
+            </p>
+
+            <div class="comparison-visual">
+                <div class="comparison-panel panel-3d">
+                    <div class="comparison-panel-label">🌐 3D Globe Mode</div>
+                    <!-- Simple SVG globe illustration -->
+                    <svg class="globe-svg" width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="45" cy="45" r="32" stroke="rgba(0,229,255,0.5)" stroke-width="1.5" fill="rgba(0,229,255,0.05)"/>
+                        <ellipse cx="45" cy="45" rx="18" ry="32" stroke="rgba(0,229,255,0.25)" stroke-width="1" fill="none"/>
+                        <ellipse cx="45" cy="45" rx="32" ry="12" stroke="rgba(0,229,255,0.25)" stroke-width="1" fill="none"/>
+                        <!-- satellite dot on orbit -->
+                        <circle cx="66" cy="30" r="3.5" fill="#00e5ff"/>
+                        <path d="M45 13 A32 32 0 0 1 66 30" stroke="#00e5ff" stroke-width="1" stroke-dasharray="3 3" fill="none"/>
+                    </svg>
+                    <ul>
+                        <li>True altitude shown above surface</li>
+                        <li>Real orbital inclination visible</li>
+                        <li>Polar orbits appear as circles, not zigzags</li>
+                        <li>Orbital shell depth perception</li>
+                        <li>GEO arc clearly visible above equator</li>
+                        <li>Click orbit path renders in 3D</li>
+                    </ul>
+                </div>
+                <div class="comparison-panel panel-2d">
+                    <div class="comparison-panel-label">🗺️ 2D Flat Map Mode</div>
+                    <svg class="globe-svg" width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="8" y="18" width="74" height="54" rx="3" stroke="rgba(156,39,176,0.4)" stroke-width="1.5" fill="rgba(156,39,176,0.04)"/>
+                        <!-- grid lines -->
+                        <line x1="8" y1="45" x2="82" y2="45" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                        <line x1="45" y1="18" x2="45" y2="72" stroke="rgba(255,255,255,0.1)" stroke-width="0.8"/>
+                        <!-- zigzag orbit on flat map -->
+                        <path d="M10 60 L28 28 L46 60 L64 28 L82 60" stroke="rgba(156,39,176,0.6)" stroke-width="1.2" stroke-dasharray="3 3" fill="none"/>
+                        <circle cx="64" cy="28" r="3.5" fill="#9c27b0"/>
+                    </svg>
+                    <ul>
+                        <li>No altitude information</li>
+                        <li>Orbits appear as diagonal zigzags</li>
+                        <li>Polar tracks look distorted at poles</li>
+                        <li>No depth between orbital shells</li>
+                        <li>GEO satellites invisible (stationary)</li>
+                        <li>Orbit path shown as flat polyline</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table class="why-table">
+                    <thead>
+                        <tr><th>Feature</th><th>2D Flat Map</th><th>3D Globe</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>True orbital altitude</td><td class="td-no">✗ Not shown</td><td class="td-yes">✓ Accurate to km</td></tr>
+                        <tr><td>Correct inclination angle</td><td class="td-no">✗ Distorted</td><td class="td-yes">✓ True angle visible</td></tr>
+                        <tr><td>Polar orbit appearance</td><td class="td-no">✗ Zigzag line</td><td class="td-yes">✓ Smooth circle</td></tr>
+                        <tr><td>GEO satellite visibility</td><td class="td-no">✗ Barely moves</td><td class="td-yes">✓ Clearly stationary arc</td></tr>
+                        <tr><td>Orbital shell separation</td><td class="td-no">✗ All on same plane</td><td class="td-yes">✓ LEO vs MEO vs GEO</td></tr>
+                        <tr><td>Click to show orbit path</td><td class="td-yes">✓ Flat polyline</td><td class="td-yes">✓ True 3D arc</td></tr>
+                        <tr><td>Starlink shell structure</td><td class="td-no">✗ Random scatter</td><td class="td-yes">✓ Shell layers visible</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SECTION 3 -->
+            <h2 id="how-to-use">How to Use SatFleetLive's 3D Mode</h2>
+
+            <p>
+                Switching to 3D takes one click. No registration, no download, no plugin — the entire globe runs in your browser using WebGL.
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>Open SatFleetLive</strong>
+                        Go to <a href="/">satfleetlive.com</a>. The tracker loads by default in 3D mode. If you are in 2D, you will see a <strong>"3D (Beta)"</strong> button in the top bar — click it to switch.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Navigate the globe</strong>
+                        Left-click and drag to rotate the Earth. Scroll to zoom in and out. Right-click and drag to tilt the camera angle. On mobile, use two fingers to pinch-zoom and one finger to rotate.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Apply filters</strong>
+                        Click <strong>▼ Filters</strong> in the top bar to select which satellite categories to display. Selecting just "Space Station" will isolate the ISS for a clean view of its orbital path. Selecting "GPS" shows you the entire MEO navigation shell.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Click any satellite</strong>
+                        Clicking a point on the globe opens the satellite info panel showing its name, altitude, velocity, latitude, and longitude — all updated live. A dashed <strong>orbital path arc</strong> appears showing its trajectory for the next two hours.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Search by name or NORAD ID</strong>
+                        Type any satellite name (e.g. "ISS", "Hubble", "GOES-16") or its 5-digit NORAD ID in the search bar. The camera flies to that satellite and opens its info panel automatically.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Enable "Only Visible"</strong>
+                        Toggle the <strong>Only Visible</strong> button to filter to satellites currently above your horizon and in sunlight — the ones you could actually spot with the naked eye tonight. Your location is used locally and never sent to any server.
+                    </span>
+                </li>
+            </ol>
+
+            <div class="highlight-box">
+                <span class="highlight-label">💻 Browser compatibility</span>
+                <p>3D mode requires a browser with <strong>WebGL support</strong> — all modern versions of Chrome, Firefox, Edge, and Safari on desktop and mobile support this. On older or lower-powered devices, performance may be reduced when displaying all 14,000+ satellites simultaneously. Use the filters to reduce the rendered count for smoother performance.</p>
+            </div>
+
+            <!-- SECTION 4 -->
+            <h2 id="what-you-can-see">What You Can See in 3D</h2>
+
+            <div class="orbit-3d-cards">
+                <div class="orbit-3d-card">
+                    <span class="card-icon">🧑‍🚀</span>
+                    <h3>International Space Station</h3>
+                    <p>Watch the ISS race across the globe at 27,600 km/h. In 3D, its 400 km altitude is visible above the surface and its 51.6° inclination is immediately apparent — it never passes over the poles.</p>
+                </div>
+                <div class="orbit-3d-card purple-card">
+                    <span class="card-icon">🌐</span>
+                    <h3>Starlink Constellation Shell</h3>
+                    <p>Enable "Starlink / Internet" to see the full Starlink mega-constellation arranged in precise orbital shells at ~550 km altitude. The geometric symmetry of the constellation is only apparent in 3D.</p>
+                </div>
+                <div class="orbit-3d-card blue-card">
+                    <span class="card-icon">📍</span>
+                    <h3>GPS Navigation Shell</h3>
+                    <p>The 31 GPS satellites orbit at 20,200 km — far above the dense LEO swarm. In 3D you can clearly see why their higher altitude allows just 24–31 satellites to provide global coverage.</p>
+                </div>
+                <div class="orbit-3d-card">
+                    <span class="card-icon">🌦️</span>
+                    <h3>Geostationary Weather Satellites</h3>
+                    <p>GEO satellites like GOES-16 and EUMETSAT's Meteosat appear nearly motionless in an arc above the equator at 35,786 km — visually distinct from all the racing LEO traffic below.</p>
+                </div>
+                <div class="orbit-3d-card purple-card">
+                    <span class="card-icon">🔴</span>
+                    <h3>Polar Orbiting Satellites</h3>
+                    <p>Sun-synchronous weather and Earth observation satellites — like MetOp and Sentinel — orbit in near-vertical paths. In 3D, their coverage of the entire globe including the poles is immediately obvious.</p>
+                </div>
+                <div class="orbit-3d-card blue-card">
+                    <span class="card-icon">🎯</span>
+                    <h3>Your Location on the Globe</h3>
+                    <p>Your position appears as a red marker on the 3D globe. Enabling "Only Visible" highlights every satellite currently above your horizon — showing you exactly which part of the sky to look at.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 5 -->
+            <h2 id="orbits-in-3d">Understanding Orbits in 3D: LEO, MEO and GEO</h2>
+
+            <p>
+                One of the most educational things you can do with a 3D satellite tracker is observe the three main orbital families simultaneously. In 2D they overlap into visual noise. In 3D the distinction is immediate and intuitive.
+            </p>
+
+            <h3>Low Earth Orbit (LEO) — the fast inner swarm</h3>
+            <p>
+                LEO satellites — Starlink, the ISS, weather satellites — orbit between 160 and 2,000 km above Earth's surface. In 3D, they appear as a dense cloud just above the globe, moving rapidly. A single Starlink satellite crosses your field of view in seconds when zoomed in. The geometric structure of constellations like Starlink — precise orbital planes evenly distributed around the globe — is only fully visible in 3D.
+            </p>
+
+            <h3>Medium Earth Orbit (MEO) — the navigation shell</h3>
+            <p>
+                Enable the GPS filter and zoom out. You will see 31 dots forming a sparse but regular pattern at roughly 20,200 km — three times the diameter of Earth away from the surface. They move slowly compared to LEO satellites. This is why GPS satellites are easy to track with a fixed dish antenna: they are far enough away to move slowly across the sky.
+            </p>
+
+            <h3>Geostationary Orbit (GEO) — the stationary arc</h3>
+            <p>
+                At 35,786 km above the equator, GEO satellites barely move. Enable the Communications or Weather filter and zoom out to see the full picture: a ring of dots hovering in a perfect arc above the equatorial plane. From their vantage point, each one covers about 42% of Earth's surface continuously — the 3D view makes this immediately obvious in a way no flat map can replicate.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🔭 Try this now</span>
+                <p>Open <a href="/">SatFleetLive in 3D</a>, enable all filters, and slowly zoom out until you can see all three orbital shells at once. The inner LEO cloud, the sparse MEO ring, and the stationary GEO arc paint a complete picture of humanity's presence in space — 14,000+ objects, all orbiting in real time.</p>
+            </div>
+
+            <!-- SECTION 6 -->
+            <h2 id="tips">Tips for Getting the Most from 3D Mode</h2>
+
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <span class="tip-icon">🔭</span>
+                    <h3>Isolate one category</h3>
+                    <p>With all filters enabled, 14,000+ satellites create visual noise. Deselect everything except "Space Station" or "GPS" to explore one orbital family cleanly.</p>
+                </div>
+                <div class="tip-card purple-tip">
+                    <span class="tip-icon">🌐</span>
+                    <h3>Zoom to orbit altitude</h3>
+                    <p>After clicking a satellite and seeing its orbit path, zoom the camera out to match its altitude. You will see the orbit as a complete circle — often tilted at a striking angle.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">📡</span>
+                    <h3>Compare LEO and GEO together</h3>
+                    <p>Enable both Starlink and Communications at the same time. Zoom out until both orbital shells are visible. The contrast in altitude, speed, and density is dramatic and educational.</p>
+                </div>
+                <div class="tip-card purple-tip">
+                    <span class="tip-icon">🔍</span>
+                    <h3>Search for famous satellites</h3>
+                    <p>Try searching "Hubble", "JWST", "GOES-16", "LANDSAT", or "NOAA-20". Each occupies a distinct orbit you can explore in 3D after the camera flies to it.</p>
+                </div>
+                <div class="tip-card">
+                    <span class="tip-icon">🌙</span>
+                    <h3>Combine with Next Passes</h3>
+                    <p>Find a satellite in 3D, note its NORAD ID, then switch to <a href="/next-passes.html">Next Passes</a> to find exactly when it will cross your sky — then step outside and watch it live.</p>
+                </div>
+                <div class="tip-card purple-tip">
+                    <span class="tip-icon">⚡</span>
+                    <h3>Use filters for performance</h3>
+                    <p>On mobile or older hardware, rendering all 14,000 satellites can be demanding. Deselect Starlink and Other to reduce the count to a few hundred for a much smoother experience.</p>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can I track satellites in 3D for free?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes. SatFleetLive's 3D satellite tracker is completely free to use. No account, no subscription, and no download is required — it runs entirely in your web browser. The data comes from CelesTrak/NORAD, which is public domain. Visit <a href="/">satfleetlive.com</a> and click "3D (Beta)" to switch to the globe view.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What is the difference between 2D and 3D satellite tracking?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    A 2D satellite tracker shows positions on a flat Mercator map, which distorts orbits — especially polar ones, which appear as diagonal zigzags instead of circles. A 3D tracker renders satellites on a realistic globe at their true altitude above Earth's surface, showing correct orbital inclinations, true distances between orbital shells, and the full geometry of constellations.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How accurate is 3D satellite tracking?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    SatFleetLive uses the SGP4 orbital propagation model — the same standard used by space agencies worldwide — combined with TLE data updated from CelesTrak/NORAD every 48 hours. For LEO satellites like the ISS, position accuracy is typically within a few kilometres for passes in the next 24–48 hours. Predictions degrade for satellites that manoeuvre frequently. Learn more in our <a href="/blogs/what-is-a-tle/">TLE guide</a>.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Does 3D mode work on mobile phones?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes. The 3D globe works on modern iOS and Android devices using mobile Chrome or Safari. Performance depends on your device's GPU. For the smoothest experience on mobile, apply filters to reduce the number of displayed satellites — deselect Starlink (4,000+ satellites) and Other to bring the count down to a few hundred. One-finger drag rotates the globe, and pinch-zoom adjusts altitude.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What does the orbital path line show when I click a satellite?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    When you click a satellite in 3D mode, a dashed line appears showing its predicted orbital path for the next 2 hours — calculated in 1-minute steps using the SGP4 model. The line curves in 3D around the globe, accurately reflecting the satellite's true orbital geometry. This makes it easy to see whether an orbit is polar, equatorial, or inclined — and how it will evolve from its current position.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can I see the ISS in 3D right now?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes. Open <a href="/">SatFleetLive</a> in 3D mode, type "ISS" in the search bar, and the camera will fly to the International Space Station. You will see it at its real altitude of ~408 km above the surface, moving at 27,600 km/h. Click it to open the live info panel and draw its orbital arc. To find out when it will pass over your location, use the <a href="/next-passes.html">Next Passes</a> feature.
+                </div>
+            </div>
+
+            <!-- RELATED -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Guides</div>
+                <div class="related-grid">
+                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
+                        <span class="related-icon">🌍</span>
+                        <div class="related-text">
+                            <strong>How Satellite Orbits Work</strong>
+                            <span>Learn the difference between LEO, MEO, and GEO orbits.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/next-passes-predict-satellites/" class="related-card">
+                        <span class="related-icon">🔭</span>
+                        <div class="related-text">
+                            <strong>Next Passes: Predict Satellite Overheads</strong>
+                            <span>Plan an ISS sighting or spot a Starlink train from your location.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/what-is-a-tle/" class="related-card">
+                        <span class="related-icon">🔢</span>
+                        <div class="related-text">
+                            <strong>What is a TLE and How to Read It</strong>
+                            <span>Understand the orbital data format behind every tracker.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/how-to-track-satellites/" class="related-card">
+                        <span class="related-icon">🛰️</span>
+                        <div class="related-text">
+                            <strong>How to Track Satellites in Real Time</strong>
+                            <span>A complete beginner's guide to satellite tracking.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/why-are-satellites-so-bright/" class="related-card">
+                        <span class="related-icon">✨</span>
+                        <div class="related-text">
+                            <strong>Why Are Satellites So Bright?</strong>
+                            <span>Understand flares, Starlink trains, and naked-eye visibility.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/how-to-spot-a-starlink-train/" class="related-card">
+    <span class="related-icon">🟢</span>
+    <div class="related-text">
+        <strong>How to Spot a Starlink Train Tonight</strong>
+        <span>When to look, what to expect, and how to predict the next pass.</span>
+    </div>
+</a>
+                </div>
+            </div>
+
+        </article>
+
+        <!-- CTA -->
+        <div class="cta-banner">
+            <h2>Ready to explore space in 3D?</h2>
+            <p>Open SatFleetLive, switch to 3D mode, and watch 14,000+ real satellites orbiting Earth right now — completely free, directly in your browser.</p>
+            <a href="/" class="cta-btn">🌐 Open 3D Globe</a>
+            <a href="/next-passes.html" class="cta-btn purple-cta">📍 Next Passes</a>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
+            <a href="https://www.wikidata.org" target="_blank">Wikidata</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+
+</body>
+</html>

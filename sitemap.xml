@@ -20,10 +20,10 @@
   </url>
   <url>
     <loc>https://satfleetlive.com/blogs/</loc>
-    <lastmod>2026-03-03</lastmod>
+    <lastmod>2026-03-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
+</url>
   <url>
     <loc>https://satfleetlive.com/blogs/how-to-track-satellites/</loc>
     <lastmod>2026-03-01</lastmod>
@@ -60,4 +60,52 @@
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://satfleetlive.com/blogs/3d-satellite-tracking/</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/how-to-spot-a-starlink-train/</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/iss-pass-tonight/</loc>
+    <lastmod>2026-03-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/tiangong-space-station/</loc>
+    <lastmod>2026-03-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/starlink-satellites/</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/how-many-satellites-in-orbit/</loc>
+    <lastmod>2026-03-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/space-debris/</loc>
+    <lastmod>2026-03-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/best-time-to-see-satellites-tonight/</loc>
+    <lastmod>2026-03-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
 </urlset>

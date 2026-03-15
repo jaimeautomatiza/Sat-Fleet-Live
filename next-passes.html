@@ -10,6 +10,9 @@
     
     <!-- Satellite.js -->
     <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+    <!-- Leaflet (para el location picker) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
         * {
@@ -460,9 +463,182 @@
     }
 }
 
+/* ── STARLINK TRAIN ── */
+.train-separator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: linear-gradient(135deg, rgba(0,210,106,0.12), rgba(0,210,106,0.05));
+    border: 1px solid rgba(0,210,106,0.35);
+    border-radius: 10px;
+    margin-bottom: -0.5rem; /* se solapa visualmente con la primera card */
+}
+
+.train-separator-icon {
+    font-size: 1.1rem;
+}
+
+.train-separator-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #00d26a;
+    letter-spacing: 0.04em;
+}
+
+.train-separator-sub {
+    font-size: 0.75rem;
+    color: rgba(0,210,106,0.65);
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.pass-card.is-train {
+    border-color: rgba(0,210,106,0.4) !important;
+    background: linear-gradient(135deg, rgba(0,210,106,0.06), var(--dark-secondary)) !important;
+}
+
+body.light-mode .pass-card.is-train {
+    background: linear-gradient(135deg, rgba(0,210,106,0.08), var(--light-secondary)) !important;
+}
+
+.pass-card.is-train:hover {
+    border-color: #00d26a !important;
+    box-shadow: 0 8px 25px rgba(0,210,106,0.25) !important;
+}
+
+.pass-card.is-train .satellite-name {
+    color: #00d26a !important;
+}
+
+.train-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(0,210,106,0.15);
+    border: 1px solid rgba(0,210,106,0.45);
+    color: #00d26a;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    letter-spacing: 0.05em;
+}
+
+.train-blog-link {
+    display: block;
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(0,210,106,0.7);
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: color 0.2s;
+}
+
+.train-blog-link:hover {
+    color: #00d26a;
+    text-decoration: underline;
+}
+
+/* ── NOTIFICACIONES ── */
+:root {
+    --notif-on-bg: rgba(156, 39, 176, 0.15);
+    --notif-on-border: rgba(156, 39, 176, 0.6);
+    --notif-on-text: #ce93d8;
+    --notif-off-bg: rgba(255,255,255,0.04);
+    --notif-off-border: rgba(255,255,255,0.12);
+    --notif-off-text: rgba(255,255,255,0.4);
+}
+body.light-mode {
+    --notif-off-bg: rgba(0,0,0,0.04);
+    --notif-off-border: rgba(0,0,0,0.15);
+    --notif-off-text: rgba(0,0,0,0.4);
+    --notif-on-text: #7b1fa2;
+}
+
+.notif-header-btn {
+    display: flex; align-items: center; gap: 0.4rem;
+    background: none; border: 2px solid rgba(156,39,176,0.4);
+    color: rgba(156,39,176,0.7); padding: 0.5rem 1rem;
+    border-radius: 25px; cursor: pointer;
+    transition: all 0.3s ease; font-size: 0.85rem; white-space: nowrap;
+}
+.notif-header-btn:hover { border-color: var(--primary-purple); color: var(--primary-purple); }
+.notif-header-btn.granted { border-color: #4caf50; color: #4caf50; }
+.notif-header-btn.denied  { border-color: #f44336; color: #f44336; cursor: not-allowed; opacity: 0.6; }
+.notif-header-btn .notif-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+.card-actions { display: flex; gap: 0.6rem; align-items: stretch; }
+
+.notif-toggle-btn {
+    display: flex; align-items: center; gap: 0.45rem;
+    padding: 0.75rem 1rem; border-radius: 10px; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600;
+    border: 2px solid var(--notif-off-border);
+    background: var(--notif-off-bg); color: var(--notif-off-text);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    white-space: nowrap; position: relative; overflow: hidden;
+}
+.notif-toggle-btn.active {
+    border-color: var(--notif-on-border); background: var(--notif-on-bg);
+    color: var(--notif-on-text); box-shadow: 0 0 12px rgba(156,39,176,0.2);
+}
+.notif-toggle-btn:hover { transform: scale(1.03); }
+.notif-bell { display: inline-block; transition: transform 0.3s ease; }
+.notif-toggle-btn.active .notif-bell { animation: bell-ring 0.6s ease-in-out; }
+@keyframes bell-ring {
+    0%  { transform: rotate(0); }   20% { transform: rotate(-20deg); }
+    40% { transform: rotate(20deg); } 60% { transform: rotate(-10deg); }
+    80% { transform: rotate(10deg); } 100%{ transform: rotate(0); }
+}
+
+.alert-pills { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; animation: slide-down 0.25s ease; }
+@keyframes slide-down {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.alert-pill {
+    display: flex; align-items: center; gap: 0.3rem;
+    font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 20px;
+    border: 1px solid rgba(156,39,176,0.35); background: rgba(156,39,176,0.08);
+    color: var(--notif-on-text); font-weight: 600;
+}
+.alert-pill .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: #ce93d8; animation: pulse-dot 1.8s ease-in-out infinite; }
+.alert-pill.fired { opacity: 0.45; text-decoration: line-through; }
+
+.notif-browser-warning {
+    font-size: 0.75rem; color: rgba(255,255,255,0.35);
+    margin-top: 0.5rem; text-align: center; font-style: italic;
+}
+body.light-mode .notif-browser-warning { color: rgba(0,0,0,0.35); }
+
+#satfleet-toast {
+    position: fixed; bottom: 1.5rem; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #2d2d2d; color: white;
+    padding: 0.85rem 1.4rem; border-radius: 30px;
+    font-size: 0.9rem; font-weight: 500;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    border: 1px solid rgba(156,39,176,0.4);
+    z-index: 9999; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+    opacity: 0; white-space: nowrap; pointer-events: none;
+}
+#satfleet-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+body.light-mode #satfleet-toast { background: #333; }
+
     </style>
 </head>
 <body>
+    <div id="satfleet-toast"></div>
     <!-- Header -->
     <div class="header">
         <div class="logo-section">
@@ -485,6 +661,10 @@
     </div>
 </div>
         <div class="header-buttons">
+            <button class="notif-header-btn" id="notifPermBtn" onclick="requestNotifPermission()">
+    <span class="notif-dot"></span>
+    <span id="notifPermLabel">🔔 Enable Alerts</span>
+</button>
             <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
             <button class="back-btn" onclick="goBack()">← Back to Map</button>
         </div>
@@ -495,7 +675,7 @@
         <h2 class="page-title" id="pageTitle">Next Visible Passes from Your Location</h2>
         
         <div class="location-info" id="locationInfo">
-            📍 Detecting your location...
+            Detecting your location...
         </div>
 
         <!-- Controls -->
@@ -554,6 +734,193 @@
     </div>
 
     <script>
+        
+        // ════════ SISTEMA DE NOTIFICACIONES ════════
+const notifState = {};
+const NOTIF_STORAGE_KEY = 'satfleet_scheduled_alerts';
+let toastTimer = null;
+
+function showToast(msg, duration = 4000) {
+    const el = document.getElementById('satfleet-toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function updateNotifPermBtn() {
+    const btn   = document.getElementById('notifPermBtn');
+    const label = document.getElementById('notifPermLabel');
+    if (!btn) return;
+    const perm = Notification.permission;
+    btn.className = 'notif-header-btn';
+    if (perm === 'granted') {
+        btn.classList.add('granted');
+        label.textContent = '🔔 Alerts ON';
+        btn.onclick = null;
+    } else if (perm === 'denied') {
+        btn.classList.add('denied');
+        label.textContent = '🔕 Blocked';
+        btn.onclick = null;
+    } else {
+        label.textContent = '🔔 Enable Alerts';
+        btn.onclick = requestNotifPermission;
+    }
+}
+
+async function requestNotifPermission() {
+    if (!('Notification' in window)) {
+        showToast('⚠️ Your browser does not support notifications');
+        return;
+    }
+    const result = await Notification.requestPermission();
+    updateNotifPermBtn();
+    if (result === 'granted') {
+        showToast('🔔 Alerts enabled! Press "Notify me" on any pass.');
+    } else {
+        showToast('🔕 Blocked. Enable notifications in your browser settings.');
+    }
+}
+
+function buildPassId(pass) {
+    const t = Math.floor(pass.startTime.getTime() / 60000) * 60000;
+    return `${pass.satellite.noradId}_${t}`;
+}
+
+function buildDirText(pass) {
+    const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+    const az2d = az => dirs[Math.round(az / 45) % 8];
+    if (pass.peakAzimuth != null)
+        return `${az2d(pass.startAzimuth)} → ${az2d(pass.peakAzimuth)} → ${az2d(pass.endAzimuth)}`;
+    return `${az2d(pass.startAzimuth)} → ${az2d(pass.endAzimuth)}`;
+}
+
+function scheduleLocalAlerts(passId, pass, direction) {
+    const now   = Date.now();
+    const start = pass.startTime.getTime();
+    const leads = [
+        { ms: 10 * 60 * 1000, label: '10 minutes' },
+        {  ms:  2 * 60 * 1000, label: '2 minutes'  },
+    ];
+    const timers = [];
+    leads.forEach(({ ms, label }) => {
+        const fireAt = start - ms;
+        const delay  = fireAt - now;
+        if (delay < 0) return;
+        const tid = setTimeout(() => {
+            if (Notification.permission !== 'granted') return;
+            try {
+                new Notification(`🛰️ ${pass.satellite.name} passes in ${label}`, {
+                    body: `Max ${pass.maxElevation.toFixed(1)}° · ${direction} · Mag ${pass.brightness >= 0 ? '+' : ''}${pass.brightness.toFixed(1)}`,
+                    icon: '/logo.png',
+                    tag: `${passId}-${ms}`,
+                });
+            } catch(e) { console.warn('Notification error:', e); }
+            const pill = document.querySelector(`.alert-pill[data-pass="${passId}"][data-lead="${ms}"]`);
+            if (pill) pill.classList.add('fired');
+        }, delay);
+        timers.push({ tid, ms, label, fireAt });
+    });
+    return timers;
+}
+
+function toggleNotification(passId) {
+    const pass = calculatedPasses.find(p => buildPassId(p) === passId);
+    if (!pass) return;
+
+    if (Notification.permission !== 'granted') {
+        requestNotifPermission();
+        return;
+    }
+    if (pass.startTime.getTime() <= Date.now()) {
+        showToast('⏱️ This pass has already started.');
+        return;
+    }
+
+    const state = notifState[passId];
+    if (state && state.active) {
+        state.timers.forEach(({ tid }) => clearTimeout(tid));
+        notifState[passId] = { active: false, timers: [] };
+        updateToggleBtn(passId, false);
+        removePills(passId);
+        saveScheduledAlerts();
+        showToast('🔕 Alert cancelled for ' + pass.satellite.name);
+    } else {
+        const direction = buildDirText(pass);
+        const timers = scheduleLocalAlerts(passId, pass, direction);
+        if (timers.length === 0) {
+            showToast('⏱️ Not enough time to schedule alerts for this pass.');
+            return;
+        }
+        notifState[passId] = { active: true, timers };
+        updateToggleBtn(passId, true);
+        renderPills(passId, timers);
+        saveScheduledAlerts();
+        showToast(`🔔 Alert set! You'll be notified 10 min & 2 min before.`);
+    }
+}
+
+function updateToggleBtn(passId, active) {
+    const btn = document.querySelector(`.notif-toggle-btn[data-pass="${passId}"]`);
+    if (!btn) return;
+    btn.className = 'notif-toggle-btn' + (active ? ' active' : '');
+    btn.innerHTML = active
+        ? `<span class="notif-bell">🔔</span> Alert set`
+        : `<span class="notif-bell">🔕</span> Notify me`;
+}
+
+function renderPills(passId, timers) {
+    const existing = document.querySelector(`.alert-pills[data-pass="${passId}"]`);
+    if (existing) existing.remove();
+    const btn = document.querySelector(`.notif-toggle-btn[data-pass="${passId}"]`);
+    if (!btn) return;
+    const pills = document.createElement('div');
+    pills.className = 'alert-pills';
+    pills.dataset.pass = passId;
+    timers.forEach(({ ms, label, fireAt }) => {
+        const pill = document.createElement('div');
+        pill.className = 'alert-pill' + (fireAt <= Date.now() ? ' fired' : '');
+        pill.dataset.pass = passId;
+        pill.dataset.lead = ms;
+        pill.innerHTML = `<span class="pill-dot"></span> ${label} before`;
+        pills.appendChild(pill);
+    });
+    btn.closest('.card-actions').insertAdjacentElement('afterend', pills);
+}
+
+function removePills(passId) {
+    const pills = document.querySelector(`.alert-pills[data-pass="${passId}"]`);
+    if (pills) pills.remove();
+}
+
+function saveScheduledAlerts() {
+    const toSave = {};
+    for (const [id, state] of Object.entries(notifState)) {
+        if (!state.active) continue;
+        toSave[id] = state.timers.map(({ ms, label, fireAt }) => ({ ms, label, fireAt }));
+    }
+    try { localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(toSave)); } catch(e) {}
+}
+
+function restoreScheduledAlerts() {
+    try {
+        const raw = localStorage.getItem(NOTIF_STORAGE_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        for (const [passId, alertData] of Object.entries(saved)) {
+            const pass = calculatedPasses.find(p => buildPassId(p) === passId);
+            if (!pass || pass.startTime.getTime() <= Date.now()) continue;
+            const direction = buildDirText(pass);
+            const timers = scheduleLocalAlerts(passId, pass, direction);
+            if (timers.length === 0) continue;
+            notifState[passId] = { active: true, timers };
+            updateToggleBtn(passId, true);
+            renderPills(passId, timers);
+        }
+    } catch(e) {}
+}
+// ════════ FIN NOTIFICACIONES ════════
+
         // Variables globales
         let userLocation = null;
         let allSatellites = [];
@@ -561,14 +928,18 @@
         let isDarkMode = true;
 
         // Obtener ubicación del usuario
-function getUserLocation() {
-    // Cargar ubicación anterior del localStorage
+
+        function getUserLocation() {
+    // 1. Intentar caché primero para respuesta inmediata
     const cached = localStorage.getItem('userLocation');
     if (cached) {
-        userLocation = JSON.parse(cached);
-        updateLocationInfo();
+        try {
+            userLocation = JSON.parse(cached);
+            updateLocationInfo();
+        } catch(e) {}
     }
 
+    // 2. Pedir GPS real
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -576,22 +947,18 @@ function getUserLocation() {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
                 };
-                // Guardar para próximas veces
                 localStorage.setItem('userLocation', JSON.stringify(userLocation));
                 updateLocationInfo();
+                console.log('✅ GPS obtenido en Next Passes:', userLocation);
             },
             (error) => {
-                // Si hay caché, mantenerla; si no, usar Madrid
                 if (!userLocation) {
                     userLocation = { lat: 40.4168, lng: -3.7038 };
                     updateLocationInfo();
                 }
+                console.warn('⚠️ GPS no disponible:', error.message);
             },
-            {
-                timeout: 5000, // Timeout de 5 segundos
-                maximumAge: 300000, // Acepta ubicación de hasta 5 minutos
-                enableHighAccuracy: false // Más rápido pero menos preciso
-            }
+            { timeout: 8000, maximumAge: 60000, enableHighAccuracy: false }
         );
     } else {
         if (!userLocation) {
@@ -601,20 +968,164 @@ function getUserLocation() {
     }
 }
 
-        function updateLocationInfo() {
-            const info = document.getElementById('locationInfo');
-            info.textContent = `📍 Your location: ${userLocation.lat.toFixed(4)}°, ${userLocation.lng.toFixed(4)}°`;
+function updateLocationInfo() {
+    const info = document.getElementById('locationInfo');
+    info.innerHTML = `
+        Calculating from: <strong>${userLocation.lat.toFixed(4)}°, ${userLocation.lng.toFixed(4)}°</strong>
+        &nbsp;
+        <button onclick="openLocationPicker()" style="
+            background: none;
+            border: 1px solid #9c27b0;
+            color: #9c27b0;
+            padding: 2px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            margin-left: 6px;
+        ">Change location</button>
+    `;
+}
+
+// ===== LOCATION PICKER (mini mapa Leaflet) =====
+let pickerMap = null;
+let pickerMarker = null;
+
+function openLocationPicker() {
+    // Crear modal si no existe
+    let modal = document.getElementById('locationPickerModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'locationPickerModal';
+        modal.style.cssText = `
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.75);
+            display: flex; align-items: center; justify-content: center;
+        `;
+        modal.innerHTML = `
+            <div style="
+                background: #1e1e1e; border-radius: 16px; padding: 20px;
+                width: min(560px, 95vw); box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+                border: 1px solid rgba(156,39,176,0.3);
+            ">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="font-weight:700; color:#9c27b0; font-size:1rem;">Choose observation location</span>
+                    <button onclick="closeLocationPicker()" style="
+                        background:none; border:none; color:rgba(255,255,255,0.5);
+                        font-size:1.3rem; cursor:pointer; line-height:1;
+                    ">×</button>
+                </div>
+                <p style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-bottom:10px;">
+                    Click on the map to set your observation point, or use your GPS location.
+                </p>
+                <div id="pickerMapContainer" style="height:320px; border-radius:10px; overflow:hidden; margin-bottom:14px;"></div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button onclick="useMyGPS()" style="
+                        flex:1; padding:9px; background:rgba(156,39,176,0.15);
+                        border:1.5px solid #9c27b0; color:#9c27b0;
+                        border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:600;
+                    ">Use my GPS</button>
+                    <button onclick="confirmLocation()" style="
+                        flex:1; padding:9px; background:#9c27b0;
+                        border:none; color:#fff;
+                        border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:600;
+                    ">Confirm location</button>
+                </div>
+                <div id="pickerCoords" style="
+                    text-align:center; margin-top:10px;
+                    font-size:0.78rem; color:rgba(255,255,255,0.45);
+                "></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    modal.style.display = 'flex';
+
+    // Inicializar el mapa Leaflet dentro del picker (solo una vez)
+    setTimeout(() => {
+        if (!pickerMap) {
+            pickerMap = L.map('pickerMapContainer').setView([userLocation.lat, userLocation.lng], 3);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '©OpenStreetMap, ©CartoDB',
+                subdomains: 'abcd', maxZoom: 18
+            }).addTo(pickerMap);
+
+            pickerMarker = L.marker([userLocation.lat, userLocation.lng], { draggable: true }).addTo(pickerMap);
+            pickerMarker.on('dragend', updatePickerCoords);
+
+            pickerMap.on('click', function(e) {
+                pickerMarker.setLatLng(e.latlng);
+                updatePickerCoords();
+            });
+        } else {
+            pickerMap.setView([userLocation.lat, userLocation.lng], 3);
+            pickerMarker.setLatLng([userLocation.lat, userLocation.lng]);
         }
+        // Doble invalidateSize: primero inmediato, luego con más margen
+        // para cubrir tanto la primera apertura como reaperturas del modal
+        pickerMap.invalidateSize();
+        setTimeout(() => pickerMap.invalidateSize(), 300);
+        updatePickerCoords();
+    }, 100);
+}
+
+function updatePickerCoords() {
+    const latlng = pickerMarker.getLatLng();
+    document.getElementById('pickerCoords').textContent =
+        `Selected: ${latlng.lat.toFixed(4)}°, ${latlng.lng.toFixed(4)}°`;
+}
+
+function confirmLocation() {
+    const latlng = pickerMarker.getLatLng();
+    userLocation = { lat: latlng.lat, lng: latlng.lng };
+    updateLocationInfo();
+    closeLocationPicker();
+    // Reset de pases ya calculados
+    calculatedPasses = [];
+    document.getElementById('passesContainer').innerHTML = '';
+    console.log('📍 Ubicación manual seleccionada:', userLocation);
+}
+
+function useMyGPS() {
+    if (!navigator.geolocation) {
+        alert('Geolocation not available on this device.');
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            pickerMarker.setLatLng([lat, lng]);
+            pickerMap.setView([lat, lng], 6);
+            updatePickerCoords();
+        },
+        () => alert('Could not get GPS location.'),
+        { timeout: 8000, enableHighAccuracy: true }
+    );
+}
+
+function closeLocationPicker() {
+    const modal = document.getElementById('locationPickerModal');
+    if (modal) modal.style.display = 'none';
+}
+
 
         // Cargar satélites
         async function loadSatellites() {
             try {
                 const response = await fetch('tle/TODOS_PRUEBA.txt?v=' + Date.now());
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const text = await response.text();
                 allSatellites = parseTLE(text);
                 console.log(`Loaded ${allSatellites.length} satellites`);
             } catch (error) {
                 console.error('Error loading satellites:', error);
+                document.getElementById('passesContainer').innerHTML = `
+                    <div class="no-passes" style="color:#ff4444;">
+                        Could not load satellite data. Please check your connection and try again.
+                    </div>
+                `;
+                document.getElementById('calculateBtn').disabled = true;
             }
         }
 
@@ -751,68 +1262,126 @@ function applyFilter() {
             
             console.log(`Found ${calculatedPasses.length} visible passes`);
             sortAndDisplayPasses();
+            restoreScheduledAlerts();
             loading.classList.remove('active');
             btn.disabled = false;
         }
 
         function findPasses(satellite, startTime, endTime) {
-            const passes = [];
-            const stepMinutes = 2;
-            let currentTime = new Date(startTime);
-            let inPass = false;
-            let passData = null;
-            
-            while (currentTime < endTime) {
-                const position = getSatellitePosition(satellite, currentTime);
-                
-                if (!position) {
-                    currentTime = new Date(currentTime.getTime() + stepMinutes * 60 * 1000);
-                    continue;
-                }
-                
-                // Verificar que sea de noche para el observador Y que el satélite esté iluminado
-                const observerSunPos = calculateSunPosition(currentTime, userLocation.lat, userLocation.lng);
-                const isNight = observerSunPos.elevation < -6; // Crepúsculo civil o más oscuro
-                
-                // El satélite debe estar iluminado por el Sol
-                const satIlluminated = position.satSunlit;
-                
-                // Visible = está sobre el horizonte + es de noche + satélite iluminado
-                const isVisible = position.elevation > 10 && isNight && satIlluminated;
-                
-                if (isVisible && !inPass) {
-                    inPass = true;
-                    passData = {
-                        satellite: satellite,
-                        startTime: new Date(currentTime),
-                        maxElevation: position.elevation,
-                        maxElevationTime: new Date(currentTime),
-                        startAzimuth: position.azimuth,
-                        brightness: estimateBrightness(satellite.name, position.elevation)
-                    };
-                } else if (isVisible && inPass) {
-                    if (position.elevation > passData.maxElevation) {
-                        passData.maxElevation = position.elevation;
-                        passData.maxElevationTime = new Date(currentTime);
-                    }
-                } else if (!isVisible && inPass) {
-                    inPass = false;
-                    passData.endTime = new Date(currentTime);
-                    passData.endAzimuth = position.azimuth;
-                    passData.duration = (passData.endTime - passData.startTime) / 60000;
-                    
-                    // Solo guardar pases de al menos 1 minuto
-                    if (passData.duration >= 1) {
-                        passes.push(passData);
-                    }
-                    passData = null;
-                }
-                
-                currentTime = new Date(currentTime.getTime() + stepMinutes * 60 * 1000);
-            }
-            
-            return passes;
+    const passes = [];
+    const stepMs = 2 * 60 * 1000;
+    let currentTime = new Date(startTime);
+    let inPass = false;
+    let passData = null;
+
+    // Helper: ¿es visible este satélite en este momento?
+    function isVisibleAt(time) {
+        const position = getSatellitePosition(satellite, time);
+        if (!position) return false;
+        const sunPos = calculateSunPosition(time, userLocation.lat, userLocation.lng);
+        return position.elevation > 10 && sunPos.elevation < -6 && position.satSunlit;
+    }
+
+    // Refinar el cruce del horizonte con pasos de 10s entre t0 (invisible) y t1 (visible)
+    function refineEdge(tInvisible, tVisible) {
+        let lo = new Date(tInvisible);
+        let hi = new Date(tVisible);
+        for (let step = 0; step < 12; step++) { // 12 pasos × 10s = ventana de 2min cubierta
+            const mid = new Date((lo.getTime() + hi.getTime()) / 2);
+            if (isVisibleAt(mid)) hi = mid;
+            else lo = mid;
         }
+        return hi; // primer momento visible
+    }
+
+    while (currentTime < endTime) {
+        const position = getSatellitePosition(satellite, currentTime);
+        if (!position) {
+            currentTime = new Date(currentTime.getTime() + stepMs);
+            continue;
+        }
+
+        const sunPos = calculateSunPosition(currentTime, userLocation.lat, userLocation.lng);
+        const isNight = sunPos.elevation < -6;
+        const isVisible = position.elevation > 10 && isNight && position.satSunlit;
+
+        if (isVisible && !inPass) {
+            inPass = true;
+
+            // ── Refinar inicio: retroceder un step y bisectar ──
+            const prevTime = new Date(currentTime.getTime() - stepMs);
+            const refinedStart = refineEdge(prevTime, currentTime);
+            const startPos = getSatellitePosition(satellite, refinedStart);
+
+            passData = {
+                satellite,
+                startTime: refinedStart,
+                maxElevation: position.elevation,
+                maxElevationTime: new Date(currentTime),
+                startAzimuth: startPos ? startPos.azimuth : position.azimuth,
+                brightness: 0
+            };
+
+        } else if (isVisible && inPass) {
+            if (position.elevation > passData.maxElevation) {
+                passData.maxElevation = position.elevation;
+                passData.maxElevationTime = new Date(currentTime);
+            }
+
+        } else if (!isVisible && inPass) {
+            inPass = false;
+
+            // ── Refinar fin: bisectar entre el último visible y el actual ──
+            const prevTime = new Date(currentTime.getTime() - stepMs);
+            const refinedEnd = refineEdge(currentTime, prevTime); // invertido: tVisible=prevTime
+            const endPos = getSatellitePosition(satellite, refinedEnd);
+
+            passData.endTime = refinedEnd;
+            passData.endAzimuth = endPos ? endPos.azimuth : position.azimuth;
+            passData.duration = (passData.endTime - passData.startTime) / 60000;
+
+            if (passData.duration >= 1) {
+                // ── Refinar pico de elevación con pasos de 10s ──
+                const refineStart = new Date(passData.maxElevationTime.getTime() - 2 * 60 * 1000);
+                const refineEnd   = new Date(passData.maxElevationTime.getTime() + 2 * 60 * 1000);
+                let refineTime = new Date(refineStart);
+                let bestElev = passData.maxElevation;
+                let bestTime = passData.maxElevationTime;
+
+                while (refineTime <= refineEnd) {
+                    const pos = getSatellitePosition(satellite, refineTime);
+                    if (pos && pos.elevation > bestElev) {
+                        bestElev = pos.elevation;
+                        bestTime = new Date(refineTime);
+                    }
+                    refineTime = new Date(refineTime.getTime() + 10 * 1000);
+                }
+
+                passData.maxElevation = bestElev;
+                passData.maxElevationTime = bestTime;
+
+                // Obtener posición ECI en el pico para brillo real
+                let peakEci = null;
+                try {
+                    const peakPv = window.satellite.propagate(satellite.satrec, bestTime);
+                    if (peakPv && peakPv.position) peakEci = peakPv.position;
+                } catch(e) {}
+                passData.brightness = estimateBrightness(satellite.name, bestElev, bestTime, peakEci);
+
+                // Azimuth en el pico para dirección en 3 puntos
+                const peakPos = getSatellitePosition(satellite, bestTime);
+                passData.peakAzimuth = (peakPos && peakPos.elevation > 0) ? peakPos.azimuth : null;
+
+                passes.push(passData);
+            }
+            passData = null;
+        }
+
+        currentTime = new Date(currentTime.getTime() + stepMs);
+    }
+
+    return passes;
+}
 
 function getSatellitePosition(satellite, time) {
     try {
@@ -841,47 +1410,41 @@ function getSatellitePosition(satellite, time) {
 
         // Calcular si el satélite está en la sombra de la Tierra o iluminado por el Sol
 function isSatelliteInSunlight(satPositionEci, time) {
-    // Calcular posición del Sol en coordenadas ECI
     const sunPositionEci = calculateSunPositionECI(time);
-    
-    // Vector del satélite al Sol
-    const sunDirX = sunPositionEci.x - satPositionEci.x;
-    const sunDirY = sunPositionEci.y - satPositionEci.y;
-    const sunDirZ = sunPositionEci.z - satPositionEci.z;
-    
-    // Normalizar vector Sol
-    const sunDist = Math.sqrt(sunDirX * sunDirX + sunDirY * sunDirY + sunDirZ * sunDirZ);
-    const sunDirNormX = sunDirX / sunDist;
-    const sunDirNormY = sunDirY / sunDist;
-    const sunDirNormZ = sunDirZ / sunDist;
-    
-    // Producto escalar entre posición del satélite y dirección al Sol
-    const dotProduct = satPositionEci.x * sunDirNormX + 
-                      satPositionEci.y * sunDirNormY + 
-                      satPositionEci.z * sunDirNormZ;
-    
+
     // Distancia del satélite al centro de la Tierra
     const satDistance = Math.sqrt(
-        satPositionEci.x * satPositionEci.x + 
-        satPositionEci.y * satPositionEci.y + 
+        satPositionEci.x * satPositionEci.x +
+        satPositionEci.y * satPositionEci.y +
         satPositionEci.z * satPositionEci.z
     );
-    
-    // Si el producto escalar es positivo, el satélite está del lado del Sol
-    // Si es negativo, verificar si está en la sombra usando geometría del cono
-    if (dotProduct < 0) {
-        // Radio de la Tierra en km
+
+    // Vector unitario Tierra → Sol
+    const sunMag = Math.sqrt(
+        sunPositionEci.x * sunPositionEci.x +
+        sunPositionEci.y * sunPositionEci.y +
+        sunPositionEci.z * sunPositionEci.z
+    );
+    const sunUnitX = sunPositionEci.x / sunMag;
+    const sunUnitY = sunPositionEci.y / sunMag;
+    const sunUnitZ = sunPositionEci.z / sunMag;
+
+    // Proyección del satélite sobre el eje Tierra→Sol
+    const proj = satPositionEci.x * sunUnitX +
+                 satPositionEci.y * sunUnitY +
+                 satPositionEci.z * sunUnitZ;
+
+    // Solo si está en el lado opuesto al Sol, comprobar cono de sombra
+    if (proj < 0) {
         const earthRadius = 6371;
-        
-        // Distancia perpendicular del satélite a la línea Tierra-Sol
-        const perpDist = Math.sqrt(satDistance * satDistance - dotProduct * dotProduct);
-        
-        // Si está dentro del cono de sombra de la Tierra
+        const perpDist = Math.sqrt(
+            Math.max(0, satDistance * satDistance - proj * proj)
+        );
         if (perpDist < earthRadius) {
             return false; // En sombra
         }
     }
-    
+
     return true; // Iluminado
 }
 
@@ -891,15 +1454,15 @@ function calculateSunPositionECI(date) {
     const n = julianDay - 2451545.0;
     
     // Longitud media del Sol
-    const L = (280.460 + 0.9856474 * n) % 360;
+    const L = ((280.460 + 0.9856474 * n) % 360 + 360) % 360;
     const LRad = L * Math.PI / 180;
     
     // Anomalía media del Sol
-    const M = (357.528 + 0.9856003 * n) % 360;
+    const M = ((357.528 + 0.9856003 * n) % 360 + 360) % 360;
     const MRad = M * Math.PI / 180;
     
     // Longitud eclíptica del Sol
-    const lambda = (L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360;
+    const lambda = ((L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360 + 360) % 360;
     const lambdaRad = lambda * Math.PI / 180;
     
     // Inclinación de la eclíptica
@@ -926,10 +1489,10 @@ function calculateSunPositionECI(date) {
         function calculateSunPosition(date, lat, lng) {
             const julianDay = (date.getTime() / 86400000) + 2440587.5;
             const n = julianDay - 2451545.0;
-            const L = (280.460 + 0.9856474 * n) % 360;
-            const M = (357.528 + 0.9856003 * n) % 360;
+            const L = ((280.460 + 0.9856474 * n) % 360 + 360) % 360;
+            const M = ((357.528 + 0.9856003 * n) % 360 + 360) % 360;
             const MRad = M * Math.PI / 180;
-            const lambda = (L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360;
+            const lambda = ((L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360 + 360) % 360;
             const lambdaRad = lambda * Math.PI / 180;
             const epsilon = 23.439 - 0.0000004 * n;
             const epsilonRad = epsilon * Math.PI / 180;
@@ -992,19 +1555,64 @@ function calculateSunPositionECI(date) {
             return { elevation, azimuth };
         }
 
-        function estimateBrightness(satName, elevation) {
-            const name = satName.toLowerCase();
-            let baseMag = 3;
-            
-            if (name.includes('iss')) baseMag = -2;
-            else if (name.includes('iridium')) baseMag = -1;
-            else if (name.includes('starlink')) baseMag = 2;
-            else if (name.includes('hubble')) baseMag = 1;
-            else if (name.includes('tiangong')) baseMag = -1;
-            
-            const elevationFactor = (90 - elevation) / 90;
-            return baseMag + elevationFactor * 2;
-        }
+        function estimateBrightness(satName, elevation, time, satPositionEci) {
+    const name = satName.toLowerCase();
+
+    // Magnitud estándar intrínseca por tipo de satélite
+    // (magnitud a 1000km de distancia, iluminación óptima)
+    // stdMag = magnitud intrínseca estándar (referencia a 1000 km, fase óptima)
+    // Valores calibrados para que con distanceCorrection den resultados realistas
+    let stdMag;
+    if (name.includes('iss'))            stdMag = -3.5; // A ~400km pasa a ~-3.5 → correcto
+    else if (name.includes('tiangong'))  stdMag = -2.5;
+    else if (name.includes('hubble'))    stdMag =  0.5;
+    else if (name.includes('iridium'))   stdMag = -1.5; // flares históricos ~mag -8, sin flare ~+5
+    else if (name.includes('starlink'))  stdMag =  2.5;
+    else if (name.includes('oneweb'))    stdMag =  3.0;
+    else if (name.includes('cosmos'))    stdMag =  2.0;
+    else if (name.includes('noaa') || name.includes('metop')) stdMag = 2.5;
+    else                                 stdMag =  3.0;
+
+    // Calcular distancia real observador→satélite en km
+    // Usamos la posición ECI si está disponible, si no aproximamos por elevación
+    let rangKm;
+    if (satPositionEci) {
+        // Posición del observador en ECI (aproximación esférica)
+        const earthRadius = 6371;
+        const latRad = userLocation.lat * Math.PI / 180;
+        const lngRad = userLocation.lng * Math.PI / 180;
+        const gmst = window.satellite.gstime(time);
+        const lngEci = lngRad + gmst;
+        const obsX = earthRadius * Math.cos(latRad) * Math.cos(lngEci);
+        const obsY = earthRadius * Math.cos(latRad) * Math.sin(lngEci);
+        const obsZ = earthRadius * Math.sin(latRad);
+        const dx = satPositionEci.x - obsX;
+        const dy = satPositionEci.y - obsY;
+        const dz = satPositionEci.z - obsZ;
+        rangKm = Math.sqrt(dx*dx + dy*dy + dz*dz);
+    } else {
+        // Fallback geométrico por elevación (fórmula estándar)
+        const earthRadius = 6371;
+        const satAltKm = 400; // altura típica LEO
+        const elevRad = elevation * Math.PI / 180;
+        rangKm = Math.sqrt(
+            Math.pow(earthRadius + satAltKm, 2) -
+            Math.pow(earthRadius * Math.cos(elevRad), 2)
+        ) - earthRadius * Math.sin(elevRad);
+    }
+
+    // Corrección por distancia: cada vez que doblas la distancia, +1.5 mag
+    // Referencia a 1000 km
+    const distanceCorrection = 5 * Math.log10(rangKm / 1000);
+
+    // Corrección atmosférica por elevación (extinción)
+    // A 90° no hay corrección, a 10° se pierde ~0.8 magnitudes
+    const elevRad = elevation * Math.PI / 180;
+    const airmass = Math.min(1 / Math.sin(elevRad), 10); // tope a airmass=10 (~5.7°)
+    const atmosphericCorrection = 0.25 * (airmass - 1);
+
+    return stdMag + distanceCorrection + atmosphericCorrection;
+}
 
         function getBrightnessClass(magnitude) {
             if (magnitude < 0) return 'very-bright';
@@ -1019,12 +1627,6 @@ function calculateSunPositionECI(date) {
     if (magnitude < 4) return 'Normal';
     return 'Dim';
 }
-
-        function getDirectionText(startAz, endAz) {
-            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
-            const getDir = (az) => dirs[Math.round(az / 45) % 8];
-            return `${getDir(startAz)} → ${getDir(endAz)}`;
-        }
 
         function sortAndDisplayPasses() {
             const sortBy = document.getElementById('sortSelect').value;
@@ -1047,54 +1649,144 @@ function calculateSunPositionECI(date) {
             displayPasses();
         }
 
-        function displayPasses() {
-            const container = document.getElementById('passesContainer');
-            if (calculatedPasses.length === 0) {
-    container.innerHTML = `<div class="no-passes">No visible passes found for the selected period. Try selecting more days or check back later when it's nighttime.</div>`;
-    return;
-}
-            
-            container.innerHTML = calculatedPasses.map(pass => {
-                const brightnessClass = getBrightnessClass(pass.brightness);
-                const brightnessText = getBrightnessText(pass.brightness);
-                const direction = getDirectionText(pass.startAzimuth, pass.endAzimuth);
-                
-                return `
-                    <div class="pass-card">
-                        <div class="pass-header">
-                            <div class="satellite-info">
-                                <div class="satellite-name">${pass.satellite.name}</div>
-                                <div class="norad-id">NORAD ID: ${pass.satellite.noradId}</div>
-                            </div>
-                            <div class="brightness-badge brightness-${brightnessClass}">
-                                ${brightnessText} (${pass.brightness >= 0 ? '+' : ''}${pass.brightness.toFixed(1)})
-                            </div>
-                        </div>
-                        <div class="pass-details">
-                            <div class="detail-item">
-                                <div class="detail-label">Start Time</div>
-                                <div class="detail-value">${formatDateTime(pass.startTime)}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Max Elevation</div>
-                                <div class="detail-value">${pass.maxElevation.toFixed(1)}°</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Direction</div>
-                                <div class="detail-value">${direction}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Visible Period</div>
-                                <div class="detail-value">${formatTimeRange(pass.startTime, pass.endTime)}</div>
-                            </div>
-                        </div>
-                        <button class="show-map-btn" onclick="showOnMap('${pass.satellite.noradId}')">
-                            Show on Map
-                        </button>
-                    </div>
-                `;
-            }).join('');
+        function detectTrains(passes) {
+    const trainIds = new Set();
+    const trainGroups = {};
+    const assigned = new Set();
+
+    // ⚠️ Trabajar siempre sobre índices del array ordenado por tiempo
+    const byTime = passes
+        .map((p, originalIndex) => ({ p, originalIndex }))
+        .sort((a, b) => a.p.startTime - b.p.startTime);
+
+    for (let i = 0; i < byTime.length; i++) {
+        const { p, originalIndex: oi } = byTime[i];
+        if (assigned.has(oi)) continue;
+        if (!p.satellite.name.toLowerCase().includes('starlink')) continue;
+
+        const group = [oi];
+
+        for (let j = i + 1; j < byTime.length; j++) {
+            const { p: q, originalIndex: oj } = byTime[j];
+            if (assigned.has(oj)) continue;
+            if (!q.satellite.name.toLowerCase().includes('starlink')) continue;
+
+            const timeDiff = (q.startTime - p.startTime) / 60000;
+            if (timeDiff > 10) break; // seguro porque byTime está ordenado
+
+            const azDiff = Math.abs(p.startAzimuth - q.startAzimuth);
+            if (Math.min(azDiff, 360 - azDiff) <= 45) group.push(oj);
         }
+
+        if (group.length >= 3) {
+            group.forEach(idx => { trainIds.add(idx); assigned.add(idx); });
+            // El "primero en pantalla" es el de menor índice en el array YA ORDENADO
+            // que recibe displayPasses(), que es calculatedPasses en su orden actual
+            const firstInDisplay = Math.min(...group);
+            // Guardar también la hora de inicio más temprana del grupo para el subtítulo
+            const earliestTime = group.reduce((earliest, idx) => {
+                return passes[idx].startTime < earliest ? passes[idx].startTime : earliest;
+            }, passes[group[0]].startTime);
+            if (!trainGroups[firstInDisplay]) trainGroups[firstInDisplay] = { count: group.length, startTime: earliestTime };
+        }
+    }
+
+    return { trainIds, trainGroups };
+}
+
+function displayPasses() {
+    const container = document.getElementById('passesContainer');
+    if (calculatedPasses.length === 0) {
+        container.innerHTML = `<div class="no-passes">No visible passes found for the selected period. Try selecting more days or check back later when it's nighttime.</div>`;
+        return;
+    }
+
+    const { trainIds, trainGroups } = detectTrains(calculatedPasses);
+    const html = [];
+
+    calculatedPasses.forEach((pass, index) => {
+        const brightnessClass = getBrightnessClass(pass.brightness);
+        const brightnessText = getBrightnessText(pass.brightness);
+        const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+        const azToDir = az => dirs[Math.round(az / 45) % 8];
+        const dirText = pass.peakAzimuth != null
+            ? `${azToDir(pass.startAzimuth)} → ${azToDir(pass.peakAzimuth)} → ${azToDir(pass.endAzimuth)}`
+            : `${azToDir(pass.startAzimuth)} → ${azToDir(pass.endAzimuth)}`;
+        const isTrain = trainIds.has(index);
+
+        // Insertar cabecera de train antes de la primera card del grupo
+        if (trainGroups[index] !== undefined) {
+            const { count, startTime: trainStart } = trainGroups[index];
+            html.push(`
+                <div class="train-separator">
+                    <span class="train-separator-icon">🟢</span>
+                    <span class="train-separator-text">Starlink Train — ${count} satellites</span>
+                    <span class="train-separator-sub">${formatDateTime(trainStart)}</span>
+                </div>
+            `);
+        }
+
+        const trainBadge = isTrain
+            ? `<span class="train-badge">🟢 TRAIN</span>`
+            : '';
+
+        const trainBlogLink = isTrain && trainGroups[index] !== undefined
+            ? `<a href="/blogs/how-to-spot-a-starlink-train/" class="train-blog-link" target="_blank">
+                   ✦ How to spot a Starlink train →
+               </a>`
+            : '';
+
+        const passId = buildPassId(pass);
+        const isPast = pass.startTime.getTime() <= Date.now();
+
+        html.push(`
+            <div class="pass-card${isTrain ? ' is-train' : ''}">
+                <div class="pass-header">
+                    <div class="satellite-info">
+                        <div class="satellite-name">
+                            ${pass.satellite.name}${trainBadge}
+                        </div>
+                        <div class="norad-id">NORAD ID: ${pass.satellite.noradId}</div>
+                    </div>
+                    <div class="brightness-badge brightness-${brightnessClass}">
+                        ${brightnessText} (${pass.brightness >= 0 ? '+' : ''}${pass.brightness.toFixed(1)})
+                    </div>
+                </div>
+                <div class="pass-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Start Time</div>
+                        <div class="detail-value">${formatDateTime(pass.startTime)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Max Elevation</div>
+                        <div class="detail-value">${pass.maxElevation.toFixed(1)}°</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Direction</div>
+                        <div class="detail-value">${dirText}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Visible Period</div>
+                        <div class="detail-value">${formatTimeRange(pass.startTime, pass.endTime)}</div>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="show-map-btn" onclick="showOnMap('${pass.satellite.noradId}')">
+                        Show on Map
+                    </button>
+                    ${!isPast ? `
+                    <button class="notif-toggle-btn" data-pass="${passId}" onclick="toggleNotification('${passId}')">
+                        <span class="notif-bell">🔕</span> Notify me
+                    </button>` : ''}
+                </div>
+                ${!isPast ? `<p class="notif-browser-warning">⚠️ Keep the browser open in the background to receive alerts</p>` : ''}
+                ${trainBlogLink}
+            </div>
+        `);
+    });
+
+    container.innerHTML = html.join('');
+}
 
         function formatDateTime(date) {
             const options = { 
@@ -1107,11 +1799,13 @@ function calculateSunPositionECI(date) {
         }
 
         function formatTimeRange(startDate, endDate) {
+            if (!startDate) return '—';
             const startTime = startDate.toLocaleTimeString('en-US', { 
                 hour: '2-digit', 
                 minute: '2-digit',
                 hour12: false
             });
+            if (!endDate) return startTime;
             const endTime = endDate.toLocaleTimeString('en-US', {
                 hour: '2-digit', 
                 minute: '2-digit',
@@ -1141,6 +1835,7 @@ function calculateSunPositionECI(date) {
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             getUserLocation();
+            updateNotifPermBtn();
             await loadSatellites();
         });
     </script>

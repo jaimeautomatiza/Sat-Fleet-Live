@@ -1368,6 +1368,39 @@
                 max-width: 120px;
             }
         }
+
+        /* ===== BRÚJULA 3D — widget flotante ===== */
+#compass3D {
+    position: fixed;
+    bottom: 40px;
+    right: 16px;
+    width: 72px;
+    height: 72px;
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    z-index: 800;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.5);
+    pointer-events: none;
+    display: none;
+}
+
+#compass3D svg {
+    width: 72px;
+    height: 72px;
+    transition: transform 0.3s ease-out;
+    transform-origin: center center;
+    opacity: 0.72;
+}
+
+/* Oculto en 2D, visible en 3D — controlado por JS */
+#compass3D.hidden { display: none !important; }
+#compass3D.visible { display: flex !important; }
+
     </style>
 </head>
 
@@ -1537,6 +1570,28 @@
 </div>
 
 <!-- Footer info -->
+
+<!-- Brújula 3D — widget flotante esquina inferior izquierda -->
+<div id="compass3D" class="hidden">
+    <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" id="compass3DSvg">
+        <!-- Círculo exterior sutil -->
+        <circle cx="36" cy="36" r="34" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <!-- Marcas cardinales -->
+        <line x1="36" y1="4"  x2="36" y2="10" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="36" y1="62" x2="36" y2="68" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="4"  y1="36" x2="10" y2="36" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="62" y1="36" x2="68" y2="36" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Letras cardinales -->
+        <text x="36" y="20" text-anchor="middle" font-size="9" font-family="sans-serif" font-weight="700" fill="#9400d3" letter-spacing="0">N</text>
+        <text x="36" y="58" text-anchor="middle" font-size="8" font-family="sans-serif" fill="rgba(255,255,255,0.5)">S</text>
+        <text x="57" y="39" text-anchor="middle" font-size="8" font-family="sans-serif" fill="rgba(255,255,255,0.5)">E</text>
+        <text x="15" y="39" text-anchor="middle" font-size="8" font-family="sans-serif" fill="rgba(255,255,255,0.5)">O</text>
+        <!-- Flecha Norte (roja) -->
+        <path d="M36 14 L41 34 L36 31 L31 34 Z" fill="#9400d3" opacity="0.5"/>
+        <!-- Flecha Sur (blanca suave) -->
+        <path d="M36 58 L41 38 L36 41 L31 38 Z" fill="rgba(255,255,255,0.35)"/>
+    </svg>
+</div>
 <div id="infoFooter">
     <span>Source:</span>
     <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a>
@@ -1927,6 +1982,7 @@ let cesiumUpdateInterval = null;
                     });
 
                     marker.satellite = sat;
+                    sat.marker = marker;  // ← referencia inversa para flyTo en búsqueda
                     marker.on('click', function () { showSatelliteInfo(sat); });
                     marker.addTo(map);
                     satelliteMarkers.push(marker);
@@ -2084,8 +2140,6 @@ function updateStats() {
     const totalVisible = is3DMode ? cesiumEntities.length : satelliteMarkers.length;
     const totalEl = document.getElementById('totalSatCount');
     if (totalEl) totalEl.textContent = totalVisible.toLocaleString();
-    const totalLabelEl = document.getElementById('totalSatLabel');
-    if (totalLabelEl) totalLabelEl.textContent = 'satellites loaded';
 
     // Satélites sobre el usuario (elevación > 0°)
     let overhead = 0;
@@ -2128,8 +2182,6 @@ function updateStats() {
 
     const overheadEl = document.getElementById('overheadSatCount');
     if (overheadEl) overheadEl.textContent = overhead.toLocaleString();
-    const overheadLabelEl = document.getElementById('overheadSatLabel');
-    if (overheadLabelEl) overheadLabelEl.textContent = 'overhead';
 
     // Actualizar stats móvil
     const mobileTotal = document.getElementById('mobileStatTotal');
@@ -2205,11 +2257,18 @@ function searchSatellites() {
 
             showSatelliteInfo(sat);
 
-            if (!is3DMode && sat.marker && sat.marker.getLatLng) {
-            const pos = sat.marker.getLatLng();
-            map.flyTo(pos, 4, { animate: true, duration: 1.5 });
+            if (is3DMode && cesiumViewer && sat.lat && sat.lng && sat.altitude) {
+    cesiumViewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+            sat.lng, sat.lat,
+            sat.altitude * 1000 + 3000000
+        ),
+        duration: 1.5
+    });
+} else if (!is3DMode && sat.marker && sat.marker.getLatLng) {
+    const pos = sat.marker.getLatLng();
+    map.flyTo(pos, 4, { animate: true, duration: 1.5 });
 }
-
             found = true;
             break;
         }
@@ -2306,32 +2365,48 @@ let currentHeading = 0;
 
 // Obtener ubicación del usuario
 function getUserLocation() {
+    // Intentar cargar ubicación cacheada primero
+    const cached = localStorage.getItem('userLocation');
+    if (cached) {
+        try {
+            const parsed = JSON.parse(cached);
+            userLocation.lat = parsed.lat;
+            userLocation.lng = parsed.lng;
+            console.log('📦 Ubicación cargada de caché:', userLocation);
+            updateUserLocationMarker();
+            if (showOnlyVisible) filterVisibleSatellites();
+        } catch(e) {}
+    }
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 userLocation.lat = position.coords.latitude;
                 userLocation.lng = position.coords.longitude;
-                console.log('✅ Ubicación obtenida:', userLocation);
-
-                // Añadir o actualizar marcador de ubicación
+                localStorage.setItem('userLocation', JSON.stringify(userLocation));
+                console.log('✅ Ubicación GPS obtenida:', userLocation);
                 updateUserLocationMarker();
-
-                if (showOnlyVisible) {
-                    filterVisibleSatellites();
-                }
+                if (showOnlyVisible) filterVisibleSatellites();
+                // Actualizar marcador en Cesium si estamos en 3D
+                if (is3DMode && cesiumViewer) addUserLocationToCesium();
             },
             (error) => {
-                console.warn('⚠️ No se pudo obtener la ubicación, usando Madrid por defecto');
-                updateUserLocationMarker(); // Mostrar Madrid por defecto
+                console.warn('⚠️ No se pudo obtener GPS:', error.message);
+                // Solo usar Madrid si no hay caché
+                if (!cached) {
+                    console.log('📍 Usando Madrid por defecto');
+                }
+                updateUserLocationMarker();
             },
             {
                 enableHighAccuracy: true,
                 timeout: 10000,
-                maximumAge: 0
+                maximumAge: 60000 // Acepta ubicación de hasta 1 minuto de antigüedad
             }
         );
     } else {
-        updateUserLocationMarker(); // Mostrar Madrid por defecto
+        if (!cached) console.log('📍 Geolocalización no disponible, usando Madrid');
+        updateUserLocationMarker();
     }
 }
 
@@ -2436,9 +2511,18 @@ function startCompassTracking() {
             hasCompass = true;
             clearTimeout(compassTimeout);
             updateUserLocationMarker();
+            // Mostrar widget flotante si estamos en 3D
+            if (is3DMode) {
+                const c = document.getElementById('compass3D');
+                if (c) {
+                    c.classList.remove('hidden');
+                    c.classList.add('visible');
+                    c.style.display = 'flex';
+                }
+            }
+            updateCompass3DVisibility();
             console.log('✅ Brújula activada correctamente');
         }
-
         // SUAVIZADO LIGERO (solo 20% para mantener precisión)
         const diff = Math.abs(heading - currentHeading);
         
@@ -2472,12 +2556,18 @@ function updateUserLocationMarker() {
         console.warn('⚠️ No hay ubicación disponible aún');
         return;
     }
+
+    // En modo 3D el mapa Leaflet no está activo — usar Cesium en su lugar
+    if (is3DMode) {
+        if (cesiumViewer) addUserLocationToCesium();
+        return;
+    }
     
     // Remover marcador anterior
     if (userLocationMarker && map) {
-    try { map.removeLayer(userLocationMarker); } catch(e) {}
-    userLocationMarker = null;
-}
+        try { map.removeLayer(userLocationMarker); } catch(e) {}
+        userLocationMarker = null;
+    }
 
     const iconHtml = hasCompass 
         ? `<svg viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg">
@@ -2515,15 +2605,26 @@ function updateUserLocationMarker() {
 
 
 function updateCompassRotation() {
-    if (userLocationMarker && hasCompass) {
+    // 2D: rotar marcador Leaflet
+    if (!is3DMode && userLocationMarker && hasCompass) {
         const iconElement = userLocationMarker.getElement();
         if (iconElement) {
             const svg = iconElement.querySelector('svg');
-            if (svg) {
-                svg.style.transform = `rotate(${currentHeading}deg)`;
-            }
+            if (svg) svg.style.transform = `rotate(${currentHeading}deg)`;
         }
     }
+    // 3D: rotar widget flotante
+    if (is3DMode) {
+        const svg = document.getElementById('compass3DSvg');
+        if (svg) svg.style.transform = `rotate(${currentHeading}deg)`;
+    }
+}
+
+function updateCompass3DVisibility() {
+    const el = document.getElementById('compass3D');
+    if (!el) return;
+    // Mostrar solo si: estamos en 3D Y hay brújula activa
+    el.style.display = (is3DMode && hasCompass) ? 'flex' : 'none';
 }
 
         // Calcular posición del Sol (mejorado)
@@ -2937,10 +3038,6 @@ function cssColorToCesium(cssColor) {
     return Cesium.Color.fromCssColorString(hex);
 }
 
-function cssColorToHex(cssColor) {
-    return CESIUM_COLOR_MAP[cssColor] || '#ff69b4';
-}
-
 // Dibujar trayectoria orbital en 3D (equivalente al polyline de Leaflet)
 let currentOrbit3D = null;
 
@@ -3198,7 +3295,7 @@ function addUserLocationToCesium() {
             heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
         },
         label: {
-            text: '📍 Your location',
+            text: 'Your location',
             font: '12px sans-serif',
             fillColor: Cesium.Color.WHITE,
             outlineColor: Cesium.Color.BLACK,
@@ -3231,6 +3328,13 @@ function toggleView() {
         initCesium();
         if (allSatellites.length > 0) loadSatellitesIn3D();
         cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
+        updateCompass3DVisibility();
+
+        // Mostrar brújula 3D si hay datos de brújula
+        if (hasCompass) {
+            const c = document.getElementById('compass3D');
+            if (c) { c.classList.remove('hidden'); c.classList.add('visible'); }
+        }
 
     } else {
         mapEl.style.display    = 'block';
@@ -3258,8 +3362,16 @@ function toggleView() {
             currentOrbit3D = null;
         }
 
-        setTimeout(() => map.invalidateSize(), 100);
+        // Ocultar brújula 3D
+        const c = document.getElementById('compass3D');
+        if (c) { c.classList.remove('visible'); c.classList.add('hidden'); }
+
+        setTimeout(() => {
+            map.invalidateSize();
+            updateUserLocationMarker(); // ← recrear marcador en Leaflet al volver a 2D
+        }, 100);
         filterVisibleSatellites();
+        updateCompass3DVisibility();
     }
 
     updateMobileViewBtn();
@@ -3349,18 +3461,43 @@ function toggleView() {
             if (btn2d3d) btn2d3d.textContent = '2D';
             updateMobileViewBtn();
             initCesium();
+            
             // Comprobar si viene de next-passes.html con un satélite seleccionado
     const selectedNoradId = sessionStorage.getItem('selectedSatelliteNoradId');
-    if (selectedNoradId) {
-        sessionStorage.removeItem('selectedSatelliteNoradId');
-        // Esperar a que se carguen los satélites
-        setTimeout(() => {
-            const satellite = allSatellites.find(sat => sat.noradId === selectedNoradId);
-            if (satellite) {
-                showSatelliteInfo(satellite);
-            }
-        }, 2000);
-    }
+if (selectedNoradId) {
+    sessionStorage.removeItem('selectedSatelliteNoradId');
+    // Reintentar hasta que los satélites estén cargados
+    const trySelectSat = setInterval(() => {
+        if (allSatellites.length === 0) return;
+        clearInterval(trySelectSat);
+        const sat = allSatellites.find(s => s.noradId === selectedNoradId);
+        if (!sat) return;
+        // Calcular posición si no la tiene
+        if (!sat.lat || !sat.lng || !sat.altitude) {
+            try {
+                const now = new Date();
+                const pv = window.satellite.propagate(sat.satrec, now);
+                if (pv && pv.position) {
+                    const gmst = window.satellite.gstime(now);
+                    const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+                    sat.lat = window.satellite.degreesLat(geo.latitude);
+                    sat.lng = window.satellite.degreesLong(geo.longitude);
+                    sat.altitude = geo.height;
+                    sat.velocity = Math.sqrt(pv.velocity.x**2 + pv.velocity.y**2 + pv.velocity.z**2) * 3600;
+                }
+            } catch(e) {}
+        }
+        showSatelliteInfo(sat);
+        if (is3DMode && cesiumViewer && sat.lat && sat.lng && sat.altitude) {
+            cesiumViewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000 + 3000000),
+                duration: 1.5
+            });
+        } else if (!is3DMode && sat.lat && sat.lng) {
+            map.setView([sat.lat, sat.lng], 4);
+        }
+    }, 300);
+}
             // Activar interacción táctil en móviles
             map.touchZoom.enable();
             map.dragging.enable();
@@ -3384,12 +3521,12 @@ function toggleView() {
             getUserLocation();
 
             // Iniciar seguimiento de brújula
-startCompassTracking();
+            startCompassTracking();
 
-            loadSatellites();
+            // Dar 1.5s de margen para que llegue la GPS antes de cargar satélites
+            setTimeout(() => loadSatellites(), 1500);
         });
 
     </script>
 </body>
-
 </html>
