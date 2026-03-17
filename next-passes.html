@@ -752,16 +752,30 @@ function updateNotifPermBtn() {
     const btn   = document.getElementById('notifPermBtn');
     const label = document.getElementById('notifPermLabel');
     if (!btn) return;
+    if (!('Notification' in window)) {
+        btn.style.display = 'none';
+        return;
+    }
     const perm = Notification.permission;
     btn.className = 'notif-header-btn';
     if (perm === 'granted') {
         btn.classList.add('granted');
         label.textContent = '🔔 Alerts ON';
-        btn.onclick = null;
-    } else if (perm === 'denied') {
-        btn.classList.add('denied');
-        label.textContent = '🔕 Blocked';
-        btn.onclick = null;
+        btn.title = 'Notifications enabled. Cancel individual alerts on each pass card.';
+        btn.onclick = () => showToast('🔔 Alerts are ON. Use "Alert set" buttons on each pass to cancel.');
+    }
+    else if (perm === 'denied') {
+        // Solo mostrar bloqueado si el usuario lo bloqueó explícitamente
+        // (guardamos un flag cuando el usuario interactúa)
+        const userExplicitlyDenied = localStorage.getItem('notif_explicitly_denied');
+        if (userExplicitlyDenied) {
+            btn.classList.add('denied');
+            label.textContent = '🔕 Blocked';
+            btn.onclick = null;
+        } else {
+            label.textContent = '🔔 Enable Alerts';
+            btn.onclick = requestNotifPermission;
+        }
     } else {
         label.textContent = '🔔 Enable Alerts';
         btn.onclick = requestNotifPermission;
@@ -770,14 +784,21 @@ function updateNotifPermBtn() {
 
 async function requestNotifPermission() {
     if (!('Notification' in window)) {
-        showToast('⚠️ Your browser does not support notifications');
+        showToast('⚠️ Notifications not available in this app');
+        const btn = document.getElementById('notifPermBtn');
+        if (btn) btn.style.display = 'none';
         return;
     }
     const result = await Notification.requestPermission();
+    if (result === 'denied') {
+        localStorage.setItem('notif_explicitly_denied', 'true');
+    } else {
+        localStorage.removeItem('notif_explicitly_denied');
+    }
     updateNotifPermBtn();
     if (result === 'granted') {
         showToast('🔔 Alerts enabled! Press "Notify me" on any pass.');
-    } else {
+    } else if (result === 'denied') {
         showToast('🔕 Blocked. Enable notifications in your browser settings.');
     }
 }
@@ -808,7 +829,7 @@ function scheduleLocalAlerts(passId, pass, direction) {
         const delay  = fireAt - now;
         if (delay < 0) return;
         const tid = setTimeout(() => {
-            if (Notification.permission !== 'granted') return;
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
             try {
                 new Notification(`🛰️ ${pass.satellite.name} passes in ${label}`, {
                     body: `Max ${pass.maxElevation.toFixed(1)}° · ${direction} · Mag ${pass.brightness >= 0 ? '+' : ''}${pass.brightness.toFixed(1)}`,
@@ -828,7 +849,7 @@ function toggleNotification(passId) {
     const pass = calculatedPasses.find(p => buildPassId(p) === passId);
     if (!pass) return;
 
-    if (Notification.permission !== 'granted') {
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
         requestNotifPermission();
         return;
     }
@@ -1836,7 +1857,12 @@ function displayPasses() {
         document.addEventListener('DOMContentLoaded', async () => {
             getUserLocation();
             updateNotifPermBtn();
+            const btn = document.getElementById('calculateBtn');
+            btn.disabled = true;
+            btn.textContent = 'Loading satellites...';
             await loadSatellites();
+            btn.disabled = false;
+            btn.textContent = 'Calculate Passes';
         });
     </script>
 </body>
