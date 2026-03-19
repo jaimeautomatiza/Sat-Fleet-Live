@@ -14,10 +14,10 @@
     </script>
 
     <!-- Favicon principal y compatibilidad general -->
-         <link rel="icon" type="image/png" href="logo.png">
-    <link rel="shortcut icon" href="logo.png" type="image/png">
+         <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="shortcut icon" href="images/logo.png" type="image/png">
     <!-- Icono para dispositivos Apple -->
-    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
 
     <!-- Título SEO-friendly -->
     <title>SatFleet Live</title>
@@ -49,14 +49,14 @@
         content="Visualiza la posición de satélites como GPS, ISS y Starlink en tiempo real. Información actualizada y precisa de órbitas satelitales.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://satfleetlive.com/">
-    <meta property="og:image" content="logo.png">
+    <meta property="og:image" content="images/logo.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="SatFleet Live – Seguimiento de satélites en tiempo real">
     <meta name="twitter:description"
         content="Visualiza la posición de satélites como GPS, ISS y Starlink en tiempo real. Información actualizada y precisa de órbitas satelitales.">
-    <meta name="twitter:image" content="logo.png">
+    <meta name="twitter:image" content="images/logo.png">
 
 
     <!-- Leaflet CSS -->
@@ -1559,10 +1559,10 @@
         <div class="mobile-section">
             <div class="mobile-section-title">Options</div>
             <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button class="mobile-filter-btn" onclick="toggleTheme()">🌓 Theme</button>
-                <button class="mobile-filter-btn" onclick="window.location.href='next-passes.html'">📡 Next Passes</button>
-                <button class="mobile-filter-btn" onclick="window.location.href='/blogs/'">📖 Guides</button>
-                <button class="mobile-filter-btn" id="mobileViewBtn" onclick="toggleView()">🌐 3D (Beta)</button>
+                <button class="mobile-filter-btn" onclick="toggleTheme()">Theme</button>
+                <button class="mobile-filter-btn" onclick="window.location.href='next-passes.html'">Next Passes</button>
+                <button class="mobile-filter-btn" onclick="window.location.href='/blogs/'">Guides</button>
+                <button class="mobile-filter-btn" id="mobileViewBtn" onclick="toggleView()">3D</button>
             </div>
         </div>
 
@@ -1608,9 +1608,10 @@
     <button class="overflow-item purple" onclick="toggleFiltersPanel(); closeOverflowMenu()">▼ Filters</button>
     <button class="overflow-item green" id="overflowVisibility" onclick="toggleVisibility(); closeOverflowMenu()">Only Visible</button>
     <div class="overflow-divider"></div>
-    <button class="overflow-item blue" id="overflowViewBtn" onclick="toggleView(); closeOverflowMenu()">3D (Beta)</button>
+    <button class="overflow-item blue" id="overflowViewBtn" onclick="toggleView(); closeOverflowMenu()">3D</button>
     <button class="overflow-item gold" onclick="window.location.href='/blogs/'">Guides</button>
     <button class="overflow-item blue" onclick="window.location.href='next-passes.html'">Next Passes</button>
+    <button class="overflow-item" id="overflowArBtn" onclick="window.location.href='ar.html'; closeOverflowMenu()" style="color:#ff6b35;">AR Sky (Beta)</button>
     <div class="overflow-divider"></div>
     <button class="overflow-item" onclick="toggleTheme(); closeOverflowMenu()">Theme</button>
 </div>
@@ -1625,7 +1626,7 @@
 <div id="bottomBar">
     <!-- Logo -->
     <div class="bar-logo">
-        <img src="logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+        <img src="images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
         <span class="bar-logo-text">SatFleet Live</span>
     </div>
 
@@ -1649,7 +1650,8 @@
     <button class="bar-btn" id="visibilityToggle" onclick="toggleVisibility()">Only Visible</button>
     <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">Guides</button>
     <button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">Next Passes</button>
-    <button class="bar-btn" id="toggleViewBtn" onclick="toggleView()">3D (Beta)</button>
+    <button class="bar-btn" id="toggleViewBtn" onclick="toggleView()">3D</button>
+    <button class="bar-btn" id="arBtn" onclick="window.location.href='ar.html'" style="display:none;">AR (Beta)</button>
     <button class="bar-btn" id="themeBtn" onclick="toggleTheme()">Theme</button>
 
     <!-- Elevation controls (visible solo cuando Only Visible activo) -->
@@ -1973,7 +1975,7 @@ let cesiumUpdateInterval = null;
                     const color = getSatelliteColor(sat.name);
 
                     const marker = L.circleMarker([lat, lng], {
-                        radius: 6,
+                        radius: window.innerWidth <= 768 ? 10 : 6,
                         fillColor: color,
                         color: color,
                         weight: 2,
@@ -3445,9 +3447,9 @@ function toggleView() {
         // ===== Actualizar botón 3D en móvil cuando cambia el modo =====
         function updateMobileViewBtn() {
             const btn = document.getElementById('mobileViewBtn');
-            if (btn) btn.textContent = is3DMode ? '2D' : '3D (Beta)';
+            if (btn) btn.textContent = is3DMode ? '2D' : '3D';
             const ob = document.getElementById('overflowViewBtn');
-            if (ob) ob.textContent = is3DMode ? '2D' : '3D (Beta)';
+            if (ob) ob.textContent = is3DMode ? '2D' : '3D';
         }
 
         // Inicializar aplicación

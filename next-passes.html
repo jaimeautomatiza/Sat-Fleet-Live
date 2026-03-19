@@ -6,7 +6,7 @@
     <title>Next Passes - SatFleet Live</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="icon" type="image/png" href="images/logo.png">
     
     <!-- Satellite.js -->
     <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
@@ -643,7 +643,7 @@ body.light-mode #satfleet-toast { background: #333; }
     <div class="header">
         <div class="logo-section">
             <div class="logo">
-                <img src="logo.png" alt="SatFleet Live Logo" 
+                <img src="images/logo.png" alt="SatFleet Live Logo" 
                      onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
             </div>
             <h1 class="title">SatFleet Live</h1>
@@ -833,7 +833,7 @@ function scheduleLocalAlerts(passId, pass, direction) {
             try {
                 new Notification(`🛰️ ${pass.satellite.name} passes in ${label}`, {
                     body: `Max ${pass.maxElevation.toFixed(1)}° · ${direction} · Mag ${pass.brightness >= 0 ? '+' : ''}${pass.brightness.toFixed(1)}`,
-                    icon: '/logo.png',
+                    icon: '/images/logo.png',
                     tag: `${passId}-${ms}`,
                 });
             } catch(e) { console.warn('Notification error:', e); }
