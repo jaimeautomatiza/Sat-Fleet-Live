@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Launches – SatFleet Live</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #ff6b35;
+            --purple: #9c27b0;
+            --green: #00d26a;
+            --blue: #2196f3;
+            --gold: #ffd700;
+            --dark: #0f0f0f;
+            --card: rgba(20,20,20,0.95);
+            --bar: 56px;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--dark);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* ===== TOP BAR ===== */
+        #topBar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--bar);
+            background: rgba(10,10,10,0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,107,53,0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        #backBtn {
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 17px;
+            border: 1.5px solid rgba(255,107,53,0.5);
+            background: rgba(255,107,53,0.08);
+            color: var(--orange);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        #backBtn:hover { background: var(--orange); color: #fff; }
+
+        #topTitle {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--orange);
+            letter-spacing: 0.5px;
+        }
+
+        #refreshBtn {
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 17px;
+            border: 1.5px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        #refreshBtn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+        #refreshBtn.spinning { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== MAIN CONTENT ===== */
+        #content {
+            padding: calc(var(--bar) + 20px) 16px 40px;
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: rgba(255,107,53,0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            margin-top: 24px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,107,53,0.15);
+        }
+
+        .section-title:first-child { margin-top: 0; }
+
+        /* ===== LAUNCH CARD ===== */
+        .launch-card {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            transition: border-color 0.2s, transform 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .launch-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--orange);
+            border-radius: 3px 0 0 3px;
+            opacity: 0.5;
+        }
+
+        .launch-card.today::before { opacity: 1; }
+        .launch-card.today {
+            border-color: rgba(255,107,53,0.3);
+            background: rgba(255,107,53,0.04);
+        }
+
+        .launch-card:hover {
+            border-color: rgba(255,107,53,0.35);
+            transform: translateY(-2px);
+        }
+
+        /* Card top row */
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .card-left { flex: 1; min-width: 0; }
+
+        .card-vehicle {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--orange);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+        }
+
+        .card-mission {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.25;
+            margin-bottom: 4px;
+        }
+
+        .card-pad {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Status badge */
+        .status-badge {
+            flex-shrink: 0;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 10px;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .status-badge.go {
+            background: rgba(0,210,106,0.12);
+            color: var(--green);
+            border: 1px solid rgba(0,210,106,0.3);
+        }
+        .status-badge.tbc {
+            background: rgba(255,215,0,0.1);
+            color: var(--gold);
+            border: 1px solid rgba(255,215,0,0.25);
+        }
+        .status-badge.tbd {
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.45);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .status-badge.live {
+            background: rgba(255,50,50,0.18);
+            color: #ff4444;
+            border: 1px solid rgba(255,50,50,0.4);
+            animation: livePulse 1.5s infinite;
+        }
+        .status-badge.success {
+            background: rgba(0,210,106,0.08);
+            color: rgba(0,210,106,0.6);
+            border: 1px solid rgba(0,210,106,0.15);
+        }
+        .status-badge.failure {
+            background: rgba(255,50,50,0.08);
+            color: rgba(255,100,100,0.7);
+            border: 1px solid rgba(255,50,50,0.15);
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Card bottom row */
+        .card-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-countdown {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--orange);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+        }
+
+        .card-countdown.past {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .card-datetime {
+            font-size: 0.72rem;
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* Card actions */
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .card-btn {
+            height: 30px;
+            padding: 0 14px;
+            border-radius: 15px;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .card-btn.watch {
+            background: var(--orange);
+            color: #fff;
+        }
+        .card-btn.watch:hover { background: #e55a25; }
+
+        .card-btn.map {
+            background: rgba(33,150,243,0.15);
+            color: var(--blue);
+            border: 1px solid rgba(33,150,243,0.3);
+        }
+        .card-btn.map:hover { background: var(--blue); color: #fff; }
+
+        /* Mission image */
+        .card-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: block;
+            opacity: 0.85;
+        }
+
+        @media (max-width: 600px) {
+            .card-image { height: 130px; }
+        }
+
+        /* Mission description */
+        .card-description {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.45);
+            line-height: 1.5;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ===== LOADING / ERROR STATES ===== */
+        #loadingState {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .spinner {
+            width: 32px; height: 32px;
+            border: 3px solid rgba(255,107,53,0.15);
+            border-left: 3px solid var(--orange);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        #errorState {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .error-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+
+        .error-text {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 20px;
+        }
+
+        .retry-btn {
+            padding: 10px 24px;
+            border-radius: 20px;
+            border: none;
+            background: var(--orange);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .retry-btn:hover { background: #e55a25; }
+
+        /* ===== FOOTER ===== */
+        #pageFooter {
+            text-align: center;
+            padding: 12px 16px;
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.2);
+        }
+
+        #pageFooter a { color: rgba(77,166,255,0.5); text-decoration: none; }
+        #pageFooter a:hover { color: #4da6ff; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .card-mission { font-size: 0.9rem; }
+            .card-countdown { font-size: 0.9rem; }
+            .card-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .card-actions { width: 100%; }
+            .card-btn.watch { flex: 1; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topBar">
+    <button id="backBtn" onclick="window.location.href='index.html'">← Map</button>
+    <div id="topTitle">Upcoming Launches</div>
+    <button id="refreshBtn" onclick="showCacheAge()" title="Data auto-updates every 15 min">Last update</button>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="content">
+    <div id="loadingState">
+        <div class="spinner"></div>
+        <div>Loading upcoming launches...</div>
+    </div>
+    <div id="errorState">
+        <div class="error-title">Could not load launches</div>
+        <div class="error-text">Check your connection and try again.</div>
+        <button class="retry-btn" onclick="refreshLaunches()">Try again</button>
+    </div>
+    <div id="launchesList"></div>
+</div>
+
+<!-- FOOTER -->
+<div id="pageFooter">
+    Data from <a href="https://thespacedevs.com" target="_blank">The Space Devs / Launch Library 2</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">Back to map</a>
+</div>
+
+<script>
+let countdownTimers = [];
+
+const CACHE_KEY = 'satfleet_launches_v1';
+const CACHE_TTL = 15 * 60 * 1000; // 15 minutos
+
+const PAD_COORDS_FALLBACK = {
+    'Kennedy': { lat: 28.5618, lng: -80.5772 },
+    'Canaveral': { lat: 28.5618, lng: -80.5772 },
+    'Vandenberg': { lat: 34.6321, lng: -120.6108 },
+    'Baikonur': { lat: 45.9200, lng: 63.3420 },
+    'Kourou': { lat: 5.2390, lng: -52.7690 },
+    'Wenchang': { lat: 19.6145, lng: 110.9510 },
+    'Jiuquan': { lat: 40.9600, lng: 100.2910 },
+    'Mahia': { lat: -39.2600, lng: 177.8640 },
+    'Plesetsk': { lat: 62.9270, lng: 40.5770 },
+};
+
+function getPadCoords(launch) {
+    // Primero intentar coords reales de la API
+    const lat = launch.pad?.latitude  || null;
+    const lng = launch.pad?.longitude || null;
+    if (lat && lng) return { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+    // Fallback por nombre
+    const padName = (launch.pad?.name || '') + ' ' + (launch.pad?.location?.name || '');
+    for (const [key, coords] of Object.entries(PAD_COORDS_FALLBACK)) {
+        if (padName.includes(key)) return coords;
+    }
+    return null;
+}
+
+// ===== CACHÉ =====
+function getCache() {
+    try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+}
+
+function setCache(results) {
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), results }));
+    } catch(e) {}
+}
+
+function isCacheFresh() {
+    const cache = getCache();
+    return cache && (Date.now() - cache.ts) < CACHE_TTL;
+}
+
+// ===== FETCH — solo llama a la API si el caché está caducado =====
+async function fetchIfNeeded() {
+    if (isCacheFresh()) {
+        console.log('✅ Usando caché de lanzamientos');
+        return getCache().results;
+    }
+
+    console.log('🌐 Actualizando lanzamientos desde API...');
+    try {
+        const res = await fetch(
+            'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=50&mode=detailed',
+            { headers: { 'Accept': 'application/json' } }
+        );
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        setCache(data.results || []);
+        console.log('✅ Caché actualizado');
+        return data.results || [];
+    } catch(e) {
+        console.warn('⚠️ API no disponible, usando caché antiguo:', e.message);
+        const cache = getCache();
+        return cache ? cache.results : null;
+    }
+}
+
+// ===== INIT =====
+async function init() {
+    // Mostrar caché inmediatamente si existe (sin spinner)
+    const cache = getCache();
+    if (cache && cache.results.length > 0) {
+        document.getElementById('loadingState').style.display = 'none';
+        renderLaunches(cache.results);
+    }
+
+    // Luego actualizar si hace falta (sin bloquear UI)
+    const results = await fetchIfNeeded();
+    if (results) {
+        document.getElementById('loadingState').style.display = 'none';
+        renderLaunches(results);
+    } else if (!cache) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+    }
+
+    // Auto-refresh cada 15 min (en background, sin que el usuario lo note)
+    setInterval(async () => {
+        const fresh = await fetchIfNeeded();
+        if (fresh) renderLaunches(fresh);
+    }, CACHE_TTL);
+}
+
+// ===== RENDER =====
+function renderLaunches(launches) {
+    document.getElementById('loadingState').style.display = 'none';
+    countdownTimers.forEach(t => clearInterval(t));
+    countdownTimers = [];
+
+    const list = document.getElementById('launchesList');
+    list.innerHTML = '';
+
+    if (!launches || launches.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.3);">No upcoming launches found.</div>';
+        return;
+    }
+
+    const now = new Date();
+    const upcoming = launches
+        .filter(l => new Date(l.net) >= now - 3600000)
+        .sort((a, b) => new Date(a.net) - new Date(b.net));
+    const past = launches
+        .filter(l => new Date(l.net) < now - 3600000)
+        .sort((a, b) => new Date(b.net) - new Date(a.net));
+
+    if (upcoming.length > 0) {
+        const t = document.createElement('div');
+        t.className = 'section-title';
+        t.textContent = 'Upcoming';
+        list.appendChild(t);
+        upcoming.forEach((l, i) => list.appendChild(buildCard(l, 'up-' + i)));
+    }
+
+    if (past.length > 0) {
+        const t = document.createElement('div');
+        t.className = 'section-title';
+        t.style.cssText = 'margin-top:32px;opacity:0.5;';
+        t.textContent = 'Recent launches';
+        list.appendChild(t);
+        past.forEach((l, i) => {
+            const card = buildCard(l, 'past-' + i);
+            card.style.opacity = '0.55';
+            list.appendChild(card);
+        });
+    }
+
+    // Mostrar hora de última actualización
+    const cache = getCache();
+    if (cache) {
+        const mins = Math.round((Date.now() - cache.ts) / 60000);
+        const footer = document.createElement('div');
+        footer.style.cssText = 'text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.2);padding:16px 0 4px;';
+        footer.textContent = mins < 1 ? 'Updated just now' : `Updated ${mins} min ago`;
+        list.appendChild(footer);
+    }
+}
+
+function buildCard(launch, id) {
+    const card = document.createElement('div');
+    const launchDate = new Date(launch.net);
+    const now = new Date();
+    const diffMs = launchDate - now;
+    const isToday = diffMs > 0 && diffMs < 86400000;
+    const isLive = diffMs < 0 && diffMs > -3600000;
+
+    card.className = 'launch-card' + (isToday ? ' today' : '');
+
+    let statusClass = 'tbd', statusText = 'TBD';
+    const abbrev = launch.status?.abbrev;
+    if (isLive)                    { statusClass = 'live';    statusText = 'LIVE'; }
+    else if (abbrev === 'Go')      { statusClass = 'go';      statusText = 'GO'; }
+    else if (abbrev === 'TBC')     { statusClass = 'tbc';     statusText = 'TBC'; }
+    else if (abbrev === 'Success') { statusClass = 'success'; statusText = 'SUCCESS'; }
+    else if (abbrev === 'Failure') { statusClass = 'failure'; statusText = 'FAILURE'; }
+
+    const vehicle   = launch.rocket?.configuration?.name || '—';
+    const mission   = launch.name || 'Unknown mission';
+    const padName   = launch.pad?.name || '';
+    const location  = launch.pad?.location?.name || '';
+    const padText   = [padName, location].filter(Boolean).join(' · ');
+    const desc      = launch.mission?.description || '';
+    const streamUrl = launch.vidURLs?.[0]?.url || null;
+    const imageUrl  = launch.image || null;
+    const padCoords = getPadCoords(launch);
+
+    const dateStr = launchDate.toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+    });
+
+    const watchBtn = streamUrl
+        ? `<a class="card-btn watch" href="${streamUrl}" target="_blank">Watch Live</a>`
+        : '';
+    const mapBtn = padCoords
+        ? `<button class="card-btn map" onclick="flyToPad(${padCoords.lat}, ${padCoords.lng}, '${escHtml(mission)}')">View on map</button>`
+        : '';
+    const descHtml = desc
+        ? `<div class="card-description">${escHtml(desc.substring(0, 220))}${desc.length > 220 ? '…' : ''}</div>`
+        : '';
+
+    card.innerHTML = `
+        ${imageUrl ? `<img class="card-image" src="${imageUrl}" alt="${escHtml(mission)}" loading="lazy" onerror="this.style.display='none'">` : ''}
+        <div class="card-top">
+            <div class="card-left">
+                <div class="card-vehicle">${escHtml(vehicle)}</div>
+                <div class="card-mission">${escHtml(mission)}</div>
+                <div class="card-pad">${escHtml(padText)}</div>
+            </div>
+            <div class="status-badge ${statusClass}">${statusText}</div>
+        </div>
+        <div class="card-bottom">
+            <div>
+                <div class="card-countdown" id="cd-${id}">—</div>
+                <div class="card-datetime">${dateStr}</div>
+            </div>
+            <div class="card-actions">${watchBtn}${mapBtn}</div>
+        </div>
+        ${descHtml}
+    `;
+
+    function updateCd() {
+        const el = document.getElementById(`cd-${id}`);
+        if (!el) return;
+        const diff = launchDate - new Date();
+        if (diff < -3600000)     { el.textContent = 'Launched'; el.className = 'card-countdown past'; }
+        else if (diff < 0)       { el.textContent = 'T+ ' + fmtDur(-diff); el.className = 'card-countdown'; }
+        else                     { el.textContent = 'T- ' + fmtDur(diff);  el.className = 'card-countdown'; }
+    }
+    updateCd();
+    countdownTimers.push(setInterval(updateCd, 1000));
+
+    return card;
+}
+
+function flyToPad(lat, lng, missionName) {
+    sessionStorage.setItem('flyToLat', lat);
+    sessionStorage.setItem('flyToLng', lng);
+    sessionStorage.setItem('flyToLabel', missionName);
+    window.location.href = 'index.html';
+}
+
+function fmtDur(ms) {
+    const s = Math.floor(ms / 1000);
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (d > 0) return `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
+    return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(sec).padStart(2,'0')}s`;
+}
+
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showCacheAge() {
+    const cache = getCache();
+    if (!cache) { alert('No data cached yet.'); return; }
+    const mins = Math.round((Date.now() - cache.ts) / 60000);
+    alert(mins < 1 ? 'Data updated just now.' : `Data updated ${mins} minute${mins !== 1 ? 's' : ''} ago.\nAuto-updates every 15 minutes.`);
+}
+
+init();
+
+</script>
+</body>
+</html>

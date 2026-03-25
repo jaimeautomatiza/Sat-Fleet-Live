@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>AR Sky View – SatFleet Live</title>
     <link rel="icon" type="image/png" href="images/logo.png">
-    <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+    <script src="js/satellite.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -536,7 +536,7 @@ let drawnSats = [];
 // Popup
 let selectedSat = null;
 // Filter
-let arFilters = new Set(['gps', 'iss', 'comm', 'military', 'weather', 'geo', 'tech']);
+let arFilters = new Set(['all']);
 // ═══════════════════════════════════════════════
 // RESIZE
 // ═══════════════════════════════════════════════

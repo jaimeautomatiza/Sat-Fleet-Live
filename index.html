@@ -60,8 +60,8 @@
 
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/satellite.js/dist/satellite.min.js"></script>
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <script src="js/satellite.min.js"></script>
 
     <!-- CesiumJS -->
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
@@ -531,7 +531,7 @@
         /* ===== DESKTOP SATELLITE INFO PANEL ===== */
         .satellite-info {
             position: fixed;
-            top: calc(var(--bar-height) + 12px);
+            top: calc(var(--bar-height) + 60px); /* Bajado para dejar espacio al widget */
             right: 16px;
             background: rgba(22, 22, 22, 0.93);
             backdrop-filter: blur(14px);
@@ -986,12 +986,11 @@
 
         /* User location markers */
         .user-location-marker {
-            width: 20px;
-            height: 20px;
-            background-color: #ff4444;
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            background-color: #ff4444 !important;
+            border: 3px solid white !important;
+            border-radius: 50% !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+            position: relative;
         }
 
         .user-location-compass {
@@ -1011,11 +1010,7 @@
         }
 
         .user-location-pulse {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ff4444;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
+            display: none; /* Pulso desactivado */
         }
 
         @keyframes pulse {
@@ -1094,7 +1089,8 @@
             #themeBtn,
             #toggleViewBtn,
             #visibilityToggle,
-            #visibilityControls { display: none !important; }
+            #visibilityControls,
+            #launchesBtn { display: none !important; }
 
             /* Buscador: flexible pero con límites razonables */
             #barSearch {
@@ -1401,6 +1397,232 @@
 #compass3D.hidden { display: none !important; }
 #compass3D.visible { display: flex !important; }
 
+/* ===== ROCKET MARKERS ===== */
+        .rocket-marker-icon {
+    filter: drop-shadow(0 0 6px rgba(255, 107, 53, 0.8));
+    transition: filter 0.3s;
+    background: transparent !important;
+    border: none !important;
+}
+        .rocket-marker-icon:hover {
+            filter: drop-shadow(0 0 10px rgba(255, 107, 53, 1));
+        }
+        .rocket-marker-live {
+            filter: drop-shadow(0 0 8px rgba(255, 50, 50, 1));
+            animation: rocketPulse 1.5s infinite;
+        }
+        .rocket-pad-icon {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+        @keyframes rocketPulse {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(255,50,50,0.8)); }
+            50%       { filter: drop-shadow(0 0 14px rgba(255,50,50,1)); }
+        }
+
+/* ===== LAUNCHES WIDGET ===== */
+        #launchesWidget {
+            position: fixed;
+            top: calc(var(--bar-height) + 12px);
+            right: 16px;
+            width: 280px;
+            z-index: 800;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .launch-card {
+            background: rgba(15,15,15,0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,107,53,0.25);
+            border-radius: 12px;
+            padding: 11px 13px;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .launch-card:hover {
+            border-color: rgba(255,107,53,0.6);
+            transform: translateY(-1px);
+        }
+
+        .launch-card.today {
+            border-color: rgba(255,107,53,0.7);
+            background: rgba(255,107,53,0.08);
+        }
+
+        .launch-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            gap: 8px;
+        }
+
+        .launch-vehicle {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #ff6b35;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .launch-status-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .launch-status-badge.go {
+            background: rgba(0,210,106,0.15);
+            color: #00d26a;
+            border: 1px solid rgba(0,210,106,0.3);
+        }
+
+        .launch-status-badge.tbc {
+            background: rgba(255,215,0,0.12);
+            color: #ffd700;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .launch-status-badge.live {
+            background: rgba(255,50,50,0.2);
+            color: #ff4444;
+            border: 1px solid rgba(255,50,50,0.4);
+            animation: livePulse 1.5s infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .launch-mission {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .launch-countdown {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ff6b35;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.3px;
+        }
+
+        .launch-countdown.past {
+            color: rgba(255,255,255,0.35);
+            font-weight: 400;
+        }
+
+        .launch-pad {
+            font-size: 0.66rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .launches-see-all {
+            font-size: 0.7rem;
+            color: rgba(255,107,53,0.7);
+            text-align: center;
+            cursor: pointer;
+            padding: 4px 0;
+            transition: color 0.2s;
+            text-decoration: none;
+            display: block;
+        }
+
+        .launches-see-all:hover { color: #ff6b35; }
+
+        /* ESTILOS GLOBALES DE LA BARRA COLAPSADA (PC Y MÓVIL) */
+        #launchesWidget .launches-collapsed-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15,15,15,0.92);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,107,53,0.35);
+            border-radius: 12px;
+            padding: 7px 14px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #launchesWidget .launches-collapsed-bar .lcb-mission {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #launchesWidget .launches-collapsed-bar .lcb-countdown {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ff6b35;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+
+        #launchesWidget .launches-collapsed-bar .lcb-arrow {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        #launchesWidget .launches-collapsed-bar.open .lcb-arrow {
+            transform: rotate(180deg);
+        }
+
+        #launchesWidget > .launch-card,
+        #launchesWidget > .launches-see-all {
+            display: none !important;
+        }
+
+        #launchesWidget.expanded > .launch-card,
+        #launchesWidget.expanded > .launches-see-all {
+            display: block !important;
+        }
+
+        #launchesWidget.expanded .launches-collapsed-bar {
+            border-radius: 0 0 12px 12px;
+            border-top: none;
+        }
+
+        @media (max-width: 768px) {
+            #launchesWidget {
+                top: calc(var(--bar-height) + 8px);
+                bottom: auto;
+                left: auto;
+                right: 8px;
+                width: 175px;
+                padding: 0;
+                z-index: 750;
+            }
+        }
+
     </style>
 </head>
 
@@ -1438,10 +1660,10 @@
 <!-- Desktop Legend -->
 <div class="legend collapsed" id="legendPanel">
     <div class="legend-header">
-            <div class="legend-title">Satellite Types</div>
-            <span class="legend-reopen" onclick="openLegend()">▶ Legend</span>
-            <button class="legend-close" onclick="closeLegend()" title="Collapse">−</button>
-        </div>
+        <div class="legend-title">Satellite Types</div>
+        <span class="legend-reopen" onclick="openLegend()">▶ Legend</span>
+        <button class="legend-close" onclick="closeLegend()" title="Collapse">−</button>
+    </div>
     <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>GPS / Navigation</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Station</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#00d26a"></div><span>Starlink / Internet</span></div>
@@ -1451,6 +1673,11 @@
     <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Geodetic / Tracking</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Technology / Exp.</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other / Misc</span></div>
+    
+    <div class="legend-item" style="width: 100%; height: 1px; background: rgba(128,128,128,0.3); margin: 6px 0;"></div>
+    <div class="legend-item" style="font-size: 0.72rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 2px;">Rocket Status</div>
+    <div class="legend-item"><img src="images/cohete_futuro.png" style="width:10px; height:20px; object-fit:contain; filter:drop-shadow(0 0 2px rgba(0,0,0,0.5));"><span>Upcoming Launch</span></div>
+    <div class="legend-item"><img src="images/cohete_live.png" style="width:10px; height:20px; object-fit:contain; filter:drop-shadow(0 0 4px rgba(255,50,50,0.8));"><span>Live Launch</span></div>
 </div>
 
 <!-- Filters Panel (flotante sobre el mapa) -->
@@ -1470,6 +1697,7 @@
         <button class="filter-chip active" data-type="geo" onclick="filterSatellites('geo')">Geodetic</button>
         <button class="filter-chip active" data-type="tech" onclick="filterSatellites('tech')">Technology</button>
         <button class="filter-chip" data-type="misc" onclick="filterSatellites('misc')">Other</button>
+        <button class="filter-chip active" id="rocketFilterBtn" onclick="toggleRockets()">Rockets</button>
     </div>
 </div>
 
@@ -1524,6 +1752,7 @@
                 <button class="mobile-filter-btn active" data-type="geo" onclick="mobileFilterSatellites('geo')">Geodetic</button>
                 <button class="mobile-filter-btn active" data-type="tech" onclick="mobileFilterSatellites('tech')">Technology</button>
                 <button class="mobile-filter-btn" data-type="misc" onclick="mobileFilterSatellites('misc')">Other</button>
+                <button class="mobile-filter-btn active" id="mobileRocketFilterBtn" onclick="toggleRockets()">Rockets</button>
             </div>
         </div>
 
@@ -1541,7 +1770,7 @@
 
         <!-- Legend -->
         <div class="mobile-section">
-            <div class="mobile-section-title">Legend</div>
+            <div class="mobile-section-title">Satellite Types</div>
             <div class="mobile-legend">
                 <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>GPS</span></div>
                 <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Station</span></div>
@@ -1552,6 +1781,12 @@
                 <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Geodetic</span></div>
                 <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Technology</span></div>
                 <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other</span></div>
+            </div>
+            
+            <div class="mobile-section-title" style="margin-top: 14px;">Rocket Status</div>
+            <div class="mobile-legend">
+                <div class="legend-item"><img src="images/cohete_futuro.png" style="width:11px; height:22px; object-fit:contain; filter:drop-shadow(0 0 2px rgba(0,0,0,0.5));"><span>Upcoming</span></div>
+                <div class="legend-item"><img src="images/cohete_live.png" style="width:11px; height:22px; object-fit:contain; filter:drop-shadow(0 0 4px rgba(255,50,50,0.8));"><span>Live</span></div>
             </div>
         </div>
 
@@ -1603,6 +1838,9 @@
     <a href="https://satfleetlive.com/privacy-policy" target="_blank">Privacy Policy</a>
 </div>
 
+<!-- LAUNCHES WIDGET -->
+<div id="launchesWidget"></div>
+
 <!-- Overflow menu (móvil) -->
 <div id="overflowMenu">
     <button class="overflow-item purple" onclick="toggleFiltersPanel(); closeOverflowMenu()">▼ Filters</button>
@@ -1611,6 +1849,7 @@
     <button class="overflow-item blue" id="overflowViewBtn" onclick="toggleView(); closeOverflowMenu()">3D</button>
     <button class="overflow-item gold" onclick="window.location.href='/blogs/'">Guides</button>
     <button class="overflow-item blue" onclick="window.location.href='next-passes.html'">Next Passes</button>
+    <button class="overflow-item" onclick="window.location.href='launches.html'" style="color:#ff6b35;">Launches</button>
     <button class="overflow-item" id="overflowArBtn" onclick="window.location.href='ar.html'; closeOverflowMenu()" style="color:#ff6b35;">AR Sky (Beta)</button>
     <div class="overflow-divider"></div>
     <button class="overflow-item" onclick="toggleTheme(); closeOverflowMenu()">Theme</button>
@@ -1650,6 +1889,7 @@
     <button class="bar-btn" id="visibilityToggle" onclick="toggleVisibility()">Only Visible</button>
     <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">Guides</button>
     <button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">Next Passes</button>
+    <button class="bar-btn" id="launchesBtn" onclick="window.location.href='launches.html'" style="border-color:rgba(255,107,53,0.5);color:#ff6b35;background:rgba(255,107,53,0.07);">Launches</button>
     <button class="bar-btn" id="toggleViewBtn" onclick="toggleView()">3D</button>
     <button class="bar-btn" id="arBtn" onclick="window.location.href='ar.html'" style="display:none;">AR (Beta)</button>
     <button class="bar-btn" id="themeBtn" onclick="toggleTheme()">Theme</button>
@@ -1671,7 +1911,7 @@
     <button id="mobilePanelBtn" onclick="toggleMobilePanel()">+</button>
 </div>
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/leaflet.js"></script>
 
     <script>
         // Variables globales
@@ -2046,6 +2286,25 @@ let cesiumUpdateInterval = null;
     const latText = sat.lat      ? sat.lat.toFixed(4) + '°' : 'Calculating...';
     const lngText = sat.lng      ? sat.lng.toFixed(4) + '°' : 'Calculating...';
 
+    // Restaurar los textos originales por si antes se clickeó un cohete
+    const labelsDesk = document.querySelectorAll('#satelliteInfo .info-label');
+    if(labelsDesk.length >= 4) {
+        labelsDesk[0].textContent = "Altitude";
+        labelsDesk[1].textContent = "Velocity";
+        labelsDesk[2].textContent = "Latitude";
+        labelsDesk[3].textContent = "Longitude";
+    }
+    document.getElementById('satelliteAltitude').style.color = '';
+    
+    const labelsMob = document.querySelectorAll('#mobileSatelliteSection .info-label');
+    if(labelsMob.length >= 4) {
+        labelsMob[0].textContent = "Altitude";
+        labelsMob[1].textContent = "Velocity";
+        labelsMob[2].textContent = "Latitude";
+        labelsMob[3].textContent = "Longitude";
+    }
+    document.getElementById('mobileSatelliteAltitude').style.color = '';
+
     // --- Desktop panel ---
     const nameEl = document.getElementById('satelliteName');
     nameEl.textContent = sat.name;
@@ -2216,76 +2475,102 @@ function closeSatelliteInfo() {
         }
 
         // Buscar satélites
-function searchSatellites() {
-    const query = (document.getElementById("barSearch") || document.getElementById("searchInput") || {value:''}).value.toLowerCase().trim();
+// Buscar satélites y cohetes
+        function searchSatellites() {
+            const query = (document.getElementById("barSearch") || document.getElementById("searchInput") || {value:''}).value.toLowerCase().trim();
 
-    if (!query) return;
+            if (!query) return;
 
-    let found = false;
+            let found = false;
 
-    for (let sat of allSatellites) {
-        // Buscar por nombre O por NORAD ID
-        const matchesName = sat.name.toLowerCase().includes(query);
-        const matchesNorad = sat.noradId && sat.noradId.toString().includes(query);
-        
-        if (matchesName || matchesNorad) {
-            // Calcular propiedades del satélite si no están disponibles
-            if (!sat.altitude || !sat.velocity || !sat.lat || !sat.lng) {
-                try {
-                    const now = new Date();
-                    const positionAndVelocity = satellite.propagate(sat.satrec, now);
-
-                    if (positionAndVelocity.position && positionAndVelocity.velocity) {
-                        const positionEci = positionAndVelocity.position;
-                        const velocityEci = positionAndVelocity.velocity;
-
-                        const gmst = satellite.gstime(now);
-                        const positionGd = satellite.eciToGeodetic(positionEci, gmst);
-
-                        const lat = satellite.degreesLat(positionGd.latitude);
-                        const lng = satellite.degreesLong(positionGd.longitude);
-                        const alt = positionGd.height;
-                        const vel = Math.sqrt(velocityEci.x * velocityEci.x + velocityEci.y * velocityEci.y + velocityEci.z * velocityEci.z) * 3600;
-
-                        sat.lat = lat;
-                        sat.lng = lng;
-                        sat.altitude = alt;
-                        sat.velocity = vel;
+            // 1. BUSCAR EN SATÉLITES PRIMERO (Prioridad)
+            for (let sat of allSatellites) {
+                const matchesName = sat.name.toLowerCase().includes(query);
+                const matchesNorad = sat.noradId && sat.noradId.toString().includes(query);
+                
+                if (matchesName || matchesNorad) {
+                    if (!sat.altitude || !sat.velocity || !sat.lat || !sat.lng) {
+                        try {
+                            const now = new Date();
+                            const positionAndVelocity = satellite.propagate(sat.satrec, now);
+                            if (positionAndVelocity.position && positionAndVelocity.velocity) {
+                                const positionEci = positionAndVelocity.position;
+                                const velocityEci = positionAndVelocity.velocity;
+                                const gmst = satellite.gstime(now);
+                                const positionGd = satellite.eciToGeodetic(positionEci, gmst);
+                                sat.lat = satellite.degreesLat(positionGd.latitude);
+                                sat.lng = satellite.degreesLong(positionGd.longitude);
+                                sat.altitude = positionGd.height;
+                                sat.velocity = Math.sqrt(velocityEci.x * velocityEci.x + velocityEci.y * velocityEci.y + velocityEci.z * velocityEci.z) * 3600;
+                            }
+                        } catch (error) {
+                            console.warn('Error calculando:', error);
+                        }
                     }
-                } catch (error) {
-                    console.warn('Error calculating satellite position for search:', sat.name, error);
+
+                    showSatelliteInfo(sat);
+
+                    if (is3DMode && cesiumViewer && sat.lat && sat.lng && sat.altitude) {
+                        cesiumViewer.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000 + 3000000),
+                            duration: 1.5
+                        });
+                    } else if (!is3DMode && sat.marker && sat.marker.getLatLng) {
+                        const pos = sat.marker.getLatLng();
+                        map.flyTo(pos, 4, { animate: true, duration: 1.5 });
+                    }
+                    found = true;
+                    return; // ¡IMPORTANTE! Salir aquí si encontramos un satélite
                 }
             }
 
-            showSatelliteInfo(sat);
+            // 2. SI NO ENCUENTRA SATÉLITE, BUSCAR EN COHETES
+            if (!found && showRockets) {
+                const allLaunches = (() => {
+                    try {
+                        const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+                        return raw ? JSON.parse(raw).results || [] : [];
+                    } catch(e) { return []; }
+                })();
 
-            if (is3DMode && cesiumViewer && sat.lat && sat.lng && sat.altitude) {
-    cesiumViewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(
-            sat.lng, sat.lat,
-            sat.altitude * 1000 + 3000000
-        ),
-        duration: 1.5
-    });
-} else if (!is3DMode && sat.marker && sat.marker.getLatLng) {
-    const pos = sat.marker.getLatLng();
-    map.flyTo(pos, 4, { animate: true, duration: 1.5 });
-}
-            found = true;
-            break;
+                const foundLaunch = allLaunches.find(l =>
+                    (l.name || '').toLowerCase().includes(query) ||
+                    (l.rocket?.configuration?.name || '').toLowerCase().includes(query) ||
+                    (l.pad?.name || '').toLowerCase().includes(query)
+                );
+
+                if (foundLaunch) {
+                    const lat = parseFloat(foundLaunch.pad?.latitude);
+                    const lng = parseFloat(foundLaunch.pad?.longitude);
+                    if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                        showRocketInfo3D(foundLaunch);
+                        if (is3DMode && cesiumViewer) {
+                            cesiumViewer.camera.flyTo({
+                                destination: Cesium.Cartesian3.fromDegrees(lng, lat, 800000),
+                                duration: 1.5
+                            });
+                        } else if (!is3DMode) {
+                            map.flyTo([lat, lng], 8, { animate: true, duration: 1.5 });
+                        }
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) {
+                console.log("No se encontró el satélite ni el cohete:", query);
+            }
         }
-    }
-
-    if (!found) {
-        console.log("No se encontró el satélite:", query);
-    }
-}
 
         // Filtrar satélites (Desktop)
         function filterSatellites(type) {
             if (type === 'all') {
-                activeFilters.clear();
-                activeFilters.add('all');
+                if (activeFilters.has('all')) {
+                    activeFilters.delete('all'); // Permitir que se apague
+                } else {
+                    activeFilters.clear();
+                    activeFilters.add('all');
+                }
             } else {
                 if (activeFilters.has('all')) activeFilters.delete('all');
                 if (activeFilters.has(type)) {
@@ -2293,18 +2578,24 @@ function searchSatellites() {
                 } else {
                     activeFilters.add(type);
                 }
-                if (activeFilters.size === 0) activeFilters.add('all');
             }
+            
+            // Si nos quedamos sin satélites pero los cohetes están apagados, activamos 'all' por defecto para no dejar la pantalla muerta
+            if (activeFilters.size === 0 && !showRockets) activeFilters.add('all');
+            
             syncFilterButtons();
             filterVisibleSatellites();
         }
-
 
         // Filtrar satélites (Mobile)
         function mobileFilterSatellites(type) {
             if (type === 'all') {
-                activeFilters.clear();
-                activeFilters.add('all');
+                if (activeFilters.has('all')) {
+                    activeFilters.delete('all'); // Permitir que se apague
+                } else {
+                    activeFilters.clear();
+                    activeFilters.add('all');
+                }
             } else {
                 if (activeFilters.has('all')) activeFilters.delete('all');
                 if (activeFilters.has(type)) {
@@ -2312,11 +2603,16 @@ function searchSatellites() {
                 } else {
                     activeFilters.add(type);
                 }
-                if (activeFilters.size === 0) activeFilters.add('all');
             }
+            
+            // Si nos quedamos sin satélites pero los cohetes están apagados, activamos 'all' por defecto para no dejar la pantalla muerta
+            if (activeFilters.size === 0 && !showRockets) activeFilters.add('all');
+            
             syncFilterButtons();
             filterVisibleSatellites();
         }
+
+
 
         // Funciones del panel móvil
         function toggleMobilePanel() {
@@ -2958,7 +3254,7 @@ function initCesium() {
         skyBox: false,
         skyAtmosphere: false,
         scene3DOnly: true,
-        requestRenderMode: false,
+        requestRenderMode: true,
         maximumRenderTimeChange: Infinity
     });
 
@@ -2968,11 +3264,11 @@ function initCesium() {
     // Añadir textura natural del globo (día/noche según tema)
     cesiumViewer.imageryLayers.removeAll();
 
-    // Capa base: foto satélite real de ESRI (mar azul, tierra verde/marrón)
+    // Capa base: foto satélite real de alta resolución de ESRI
     cesiumViewer.imageryLayers.addImageryProvider(
         new Cesium.UrlTemplateImageryProvider({
-            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
-            maximumLevel: 19,
+            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            maximumLevel: 17,
             credit: new Cesium.Credit('©Esri, Maxar, Earthstar Geographics', false)
         })
     );
@@ -2985,8 +3281,8 @@ function initCesium() {
             credit: new Cesium.Credit('©Esri', false)
         })
     );
-    cesiumViewer.imageryLayers.get(0).brightness = 0.5;
-    cesiumViewer.imageryLayers.get(1).alpha = 0.5;
+    cesiumViewer.imageryLayers.get(0).brightness = 1;
+    cesiumViewer.imageryLayers.get(1).alpha = 0.8;
 
     cesiumViewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0d0d0d');
     cesiumViewer.scene.globe.tileCacheSize = 100;
@@ -2997,12 +3293,12 @@ function initCesium() {
     if (isMobile) {
         cesiumViewer.resolutionScale = 1.0;
     } else if (isHighEnd) {
-        cesiumViewer.resolutionScale = 1.5;
+        cesiumViewer.resolutionScale = 1.0;
     } else {
         cesiumViewer.resolutionScale = 1.25;
     }
 
-    cesiumViewer.scene.globe.maximumScreenSpaceError = 2;
+    cesiumViewer.scene.globe.maximumScreenSpaceError = 3;
     cesiumViewer.scene.fog.enabled = false;
     cesiumViewer.scene.globe.enableLighting = false;
     cesiumViewer.scene.shadowMap.enabled = false;
@@ -3117,11 +3413,13 @@ function loadSatellitesIn3D() {
         satLabelCollection = null;
     }
 
-    // Limpiar entidades (órbita y marcador usuario)
-    cesiumViewer.entities.removeAll();
+    // Limpiar solo la órbita y los arrays de satélites (sin borrar los cohetes)
+    if (currentOrbit3D) {
+        cesiumViewer.entities.remove(currentOrbit3D);
+        currentOrbit3D = null;
+    }
     cesiumEntities = [];
     primitiveDataArray = [];
-    currentOrbit3D = null;
 
     // Pre-calcular posiciones
     const now = new Date();
@@ -3223,21 +3521,33 @@ function loadSatellitesIn3D() {
         Cesium.ScreenSpaceEventType.LEFT_CLICK
     );
     cesiumViewer.screenSpaceEventHandler.setInputAction(function(event) {
-        // Intentar pick sobre primitivas
         const pickedObject = cesiumViewer.scene.pick(event.position);
         if (Cesium.defined(pickedObject)) {
-            // Primitiva punto o label
+            // Cohete
+            if (pickedObject.id && pickedObject.id._rocketData) {
+                const launch = pickedObject.id._rocketData;
+                showRocketInfo3D(launch);
+                const lat = parseFloat(launch.pad?.latitude);
+                const lng = parseFloat(launch.pad?.longitude);
+                if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+                    cesiumViewer.camera.flyTo({
+                        destination: Cesium.Cartesian3.fromDegrees(lng, lat, 800000),
+                        duration: 1.5
+                    });
+                }
+                return;
+            }
+            // Satélite primitiva
             if (pickedObject.primitive && pickedObject.id && pickedObject.id.satrec) {
                 showSatelliteInfo(pickedObject.id);
                 return;
             }
-            // Entidad (marcador usuario, órbita)
+            // Entidad satélite
             if (pickedObject.id && pickedObject.id._satData) {
                 showSatelliteInfo(pickedObject.id._satData);
             }
         }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
     console.log(`🛰️ ${primitiveDataArray.length} satélites cargados como primitivas`);
 }
 
@@ -3275,6 +3585,8 @@ function updateCesiumPositions() {
 
         } catch(e) { /* silencioso */ }
     });
+// Le decimos a Cesium que renderice este fotograma porque los satélites se han movido
+    cesiumViewer.scene.requestRender();
 }
 
 // Marcador de ubicación del usuario en el globo 3D
@@ -3288,13 +3600,15 @@ function addUserLocationToCesium() {
     cesiumViewer.entities.add({
         id: 'userLocation3D',
         name: 'Your location',
-        position: Cesium.Cartesian3.fromDegrees(userLocation.lng, userLocation.lat, 0),
+        // Le damos una altitud de 50 metros en lugar de 0 para que no choque con el terreno
+        position: Cesium.Cartesian3.fromDegrees(userLocation.lng, userLocation.lat, 50),
         point: {
             pixelSize: 12,
             color: Cesium.Color.fromCssColorString('#ff4444'),
             outlineColor: Cesium.Color.WHITE,
             outlineWidth: 2,
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+            // ELIMINADO: heightReference: Cesium.HeightReference.CLAMP_TO_GROUND (Esto causaba el bug)
+            scaleByDistance: new Cesium.NearFarScalar(100, 1.0, 50000000, 1.0)
         },
         label: {
             text: 'Your location',
@@ -3305,7 +3619,7 @@ function addUserLocationToCesium() {
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
             verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
             pixelOffset: new Cesium.Cartesian2(0, -14),
-            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            // ELIMINADO: heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
             distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 8000000)
         }
     });
@@ -3326,10 +3640,14 @@ function toggleView() {
         mapEl.style.display    = 'none';
         cesiumEl.style.display = 'block';
         if (btn2d3d) btn2d3d.textContent = '2D';
+        
+        // Forzamos al motor 3D a redimensionarse para evitar el bug del punto gigante
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
 
         initCesium();
         if (allSatellites.length > 0) loadSatellitesIn3D();
         cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
+        loadRocketPadMarkers();
         updateCompass3DVisibility();
 
         // Mostrar brújula 3D si hay datos de brújula
@@ -3341,7 +3659,7 @@ function toggleView() {
     } else {
         mapEl.style.display    = 'block';
         cesiumEl.style.display = 'none';
-        if (btn2d3d) btn2d3d.textContent = '3D (Beta)';
+        if (btn2d3d) btn2d3d.textContent = '3D';
 
         if (cesiumUpdateInterval) {
             clearInterval(cesiumUpdateInterval);
@@ -3374,8 +3692,8 @@ function toggleView() {
         }, 100);
         filterVisibleSatellites();
         updateCompass3DVisibility();
+        loadRocketPadMarkers();
     }
-
     updateMobileViewBtn();
 }
 
@@ -3527,7 +3845,641 @@ if (selectedNoradId) {
 
             // Dar 1.5s de margen para que llegue la GPS antes de cargar satélites
             setTimeout(() => loadSatellites(), 1500);
+            // Volar al pad si viene de launches.html
+            const flyLat = sessionStorage.getItem('flyToLat');
+            const flyLng = sessionStorage.getItem('flyToLng');
+            if (flyLat && flyLng) {
+                sessionStorage.removeItem('flyToLat');
+                sessionStorage.removeItem('flyToLng');
+                sessionStorage.removeItem('flyToLabel');
+                setTimeout(() => {
+                    if (cesiumViewer) {
+                        cesiumViewer.camera.flyTo({
+                            destination: Cesium.Cartesian3.fromDegrees(
+                                parseFloat(flyLng), parseFloat(flyLat), 800000
+                            ),
+                            duration: 2
+                        });
+                    }
+                }, 2000);
+            }
         });
+
+        // ==================== LAUNCHES WIDGET ====================
+
+let launchCountdownTimers = [];
+
+const LAUNCHES_CACHE_KEY = 'satfleet_launches_v1'; // misma clave que launches.html
+const LAUNCHES_CACHE_TTL = 15 * 60 * 1000;
+
+async function loadUpcomingLaunches() {
+    // 1. Mostrar caché inmediatamente si existe
+    try {
+        const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+        if (raw) {
+            const { results } = JSON.parse(raw);
+            if (results?.length) renderLaunchWidget(results);
+        }
+    } catch(e) {}
+
+    // 2. Calcular TTL dinámico según proximidad del lanzamiento
+    try {
+        const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+        const cache = raw ? JSON.parse(raw) : null;
+
+        let effectiveTTL = LAUNCHES_CACHE_TTL; // 15 min por defecto
+
+        if (cache?.results?.length) {
+            const now = new Date();
+            const tiempos = cache.results
+                .map(l => new Date(l.net) - now)
+                .filter(d => d > -10800000)
+                .sort((a, b) => a - b);
+
+            if (tiempos.length > 0) {
+                const horasHasta = tiempos[0] / 3600000;
+                if (horasHasta < 0)       effectiveTTL = 5  * 60 * 1000; // LIVE: cada 5 min
+                else if (horasHasta < 1)  effectiveTTL = 5  * 60 * 1000; // < 1h:  cada 5 min
+                else if (horasHasta < 6)  effectiveTTL = 5  * 60 * 1000; // < 6h:  cada 5 min
+                else if (horasHasta < 24) effectiveTTL = 10 * 60 * 1000; // < 24h: cada 10 min
+            }
+        }
+
+        const isFresh = cache && (Date.now() - cache.ts) < effectiveTTL;
+        if (isFresh) return; // caché válido, no llamar a la API
+
+        const res = await fetch(
+            'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=100&mode=detailed',
+            { headers: { 'Accept': 'application/json' } }
+        );
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        localStorage.setItem(LAUNCHES_CACHE_KEY, JSON.stringify({
+            ts: Date.now(), results: data.results || []
+        }));
+        renderLaunchWidget(data.results || []);
+        loadRocketPadMarkers(); // redibujar marcadores con datos frescos
+    } catch(e) {
+        console.warn('Launches API no disponible:', e.message);
+    }
+}
+
+function renderLaunchWidget(launches) {
+    const widget = document.getElementById('launchesWidget');
+    if (!widget) return;
+
+    // Limpiar timers anteriores
+    launchCountdownTimers.forEach(t => clearInterval(t));
+    launchCountdownTimers = [];
+
+    // Coger los 2 primeros
+    const now = new Date();
+    const top2 = launches
+    .filter(l => new Date(l.net) >= now - 10800000)  // solo upcoming + live
+    .sort((a, b) => new Date(a.net) - new Date(b.net))  // más próximo primero
+    .slice(0, 2);
+    if (top2.length === 0) return;
+
+    widget.innerHTML = '';
+    widget.classList.remove('expanded');
+
+    // Crear barra colapsada para móvil (solo el próximo lanzamiento)
+    const firstLaunch = top2[0];
+    const firstDate = new Date(firstLaunch.net);
+    const collapsedBar = document.createElement('div');
+    collapsedBar.className = 'launches-collapsed-bar';
+    collapsedBar.innerHTML = `
+        <span class="lcb-mission">${firstLaunch.name || 'Unknown mission'}</span>
+        <span class="lcb-countdown" id="lcb-countdown">—</span>
+        <span class="lcb-arrow">▼</span>
+    `;
+    collapsedBar.onclick = () => {
+        widget.classList.toggle('expanded');
+        collapsedBar.classList.toggle('open');
+    };
+    widget.appendChild(collapsedBar);
+
+    // Countdown de la barra colapsada
+    function updateCollapsedCd() {
+        const el = document.getElementById('lcb-countdown');
+        if (!el) return;
+        const diff = firstDate - new Date();
+        if (diff < 0) { el.textContent = 'LIVE'; return; }
+        const totalSec = Math.floor(diff / 1000);
+        const d = Math.floor(totalSec / 86400);
+        const h = Math.floor((totalSec % 86400) / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        el.textContent = d > 0
+            ? `T- ${d}d ${String(h).padStart(2,'0')}h`
+            : `T- ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    updateCollapsedCd();
+    launchCountdownTimers.push(setInterval(updateCollapsedCd, 1000));
+
+    top2.forEach((launch, idx) => {
+        const card = document.createElement('div');
+        const launchDate = new Date(launch.net);
+        const now = new Date();
+        const diffMs = launchDate - now;
+        const isToday = Math.abs(diffMs) < 86400000 && diffMs > 0;
+        const isLive = diffMs < 0 && diffMs > -10800000; // hasta 1h después del T-0
+
+        card.className = 'launch-card' + (isToday ? ' today' : '');
+        card.onclick = () => window.location.href = 'launches.html';
+
+        // Estado
+        let statusClass = 'tbc';
+        let statusText = 'TBC';
+        if (isLive) { statusClass = 'live'; statusText = 'LIVE'; }
+        else if (launch.status?.abbrev === 'Go') { statusClass = 'go'; statusText = 'GO'; }
+        else if (launch.status?.abbrev === 'TBD') { statusClass = 'tbc'; statusText = 'TBD'; }
+
+        // Vehículo
+        const vehicle = launch.rocket?.configuration?.name || 'Unknown vehicle';
+        // Misión
+        const mission = launch.name || 'Unknown mission';
+        // Pad
+        const pad = launch.pad?.name || '';
+        const location = launch.pad?.location?.name || '';
+        const padText = [pad, location].filter(Boolean).join(', ');
+
+        card.innerHTML = `
+            <div class="launch-card-header">
+                <div class="launch-vehicle">${vehicle}</div>
+                <div class="launch-status-badge ${statusClass}">${statusText}</div>
+            </div>
+            <div class="launch-mission">${mission}</div>
+            <div class="launch-countdown" id="lc-countdown-${idx}">—</div>
+            <div class="launch-pad">${padText}</div>
+        `;
+
+        widget.appendChild(card);
+
+        // Countdown en tiempo real
+        function updateCountdown() {
+            const el = document.getElementById(`lc-countdown-${idx}`);
+            if (!el) return;
+            const now2 = new Date();
+            const diff = launchDate - now2;
+
+            if (diff < -10800000) {
+                el.textContent = 'Launched';
+                el.className = 'launch-countdown past';
+                return;
+            }
+            if (diff < 0) {
+                el.textContent = 'T+' + formatDuration(-diff);
+                el.className = 'launch-countdown';
+                return;
+            }
+            el.textContent = 'T-' + formatDuration(diff);
+            el.className = 'launch-countdown';
+        }
+
+        updateCountdown();
+        const timer = setInterval(updateCountdown, 1000);
+        launchCountdownTimers.push(timer);
+    });
+
+    // Ver todos
+    const seeAll = document.createElement('a');
+    seeAll.className = 'launches-see-all';
+    seeAll.href = 'launches.html';
+    seeAll.textContent = 'See all upcoming launches';
+    widget.appendChild(seeAll);
+}
+
+function formatDuration(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const d = Math.floor(totalSec / 86400);
+    const h = Math.floor((totalSec % 86400) / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if (d > 0) return `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
+    return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+}
+
+// Cargar al inicio y refrescar cada 5 minutos
+loadUpcomingLaunches();
+setInterval(loadUpcomingLaunches, 60 * 1000); // cada 1 min — el TTL adaptativo controla las llamadas reales a la API
+
+// ==================== ROCKET PAD MARKERS ====================
+
+let rocketMarkers = [];
+let showRockets = true;
+
+function toggleRockets() {
+    showRockets = !showRockets;
+    const btnDesk = document.getElementById('rocketFilterBtn');
+    const btnMob = document.getElementById('mobileRocketFilterBtn');
+    if (btnDesk) btnDesk.classList.toggle('active', showRockets);
+    if (btnMob) btnMob.classList.toggle('active', showRockets);
+
+    if (showRockets) {
+        loadRocketPadMarkers();
+    } else {
+        // Si se desactiva, borramos los marcadores del mapa
+        rocketMarkers.forEach(m => { try { map.removeLayer(m); } catch(e) {} });
+        rocketMarkers = [];
+        rocketEntities3D.forEach(e => { try { cesiumViewer.entities.remove(e); } catch(err) {} });
+        rocketEntities3D = [];
+        
+        // Si al quitar los cohetes nos quedamos con la pantalla vacía, volvemos a mostrar "all"
+        if (activeFilters.size === 0) {
+            activeFilters.add('all');
+            syncFilterButtons();
+            filterVisibleSatellites();
+        }
+    }
+}
+
+async function loadRocketPadMarkers() {
+    if (!showRockets) return;
+    // Usar el mismo caché de launches
+    let launches = [];
+    try {
+        const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            launches = parsed.results || [];
+        }
+    } catch(e) {}
+
+    // Si no hay caché, intentar fetch directo
+    if (!launches.length) {
+        try {
+            const res = await fetch(
+                'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=100&mode=detailed',
+                { headers: { 'Accept': 'application/json' } }
+            );
+            if (res.ok) {
+                const data = await res.json();
+                launches = data.results || [];
+                try { localStorage.setItem(LAUNCHES_CACHE_KEY, JSON.stringify({ ts: Date.now(), results: launches })); } catch(e) {}
+            }
+
+        } catch(e) {}
+    }
+
+    drawRocketMarkers(launches);
+}
+
+function drawRocketMarkers(launches) {
+    if (is3DMode) {
+        drawRocketMarkers3D(launches);
+        return;
+    }
+
+    // Limpiar marcadores anteriores
+    rocketMarkers.forEach(m => { try { map.removeLayer(m); } catch(e) {} });
+    rocketMarkers = [];
+
+    const now = new Date();
+
+    // Ordenar de más lejano a más próximo: el más cercano se pinta último y queda encima
+    const launchesSorted = [...launches].sort((a, b) => new Date(b.net) - new Date(a.net));
+
+    launchesSorted.forEach(launch => {
+        const lat = parseFloat(launch.pad?.latitude);
+        const lng = parseFloat(launch.pad?.longitude);
+        if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
+
+        const launchDate = new Date(launch.net);
+        const diffMs = launchDate - now;
+        
+        // El nuevo cerebro para saber si está en LIVE
+        const isWebcastLive = launch.webcast_live === true;
+        const isInFlight = launch.status?.abbrev === 'In Flight';
+        const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+        
+        let isLive = false;
+        if (!isFinished) {
+            // Se pone en LIVE si hay directo o si ya está volando (incluso antes del T-0)
+            if (isWebcastLive || isInFlight) {
+                isLive = true;
+            } 
+            // Si ya ha pasado el T-0 pero no hay info (Plan B: 1 hora cortesía)
+            else if (diffMs < 0 && diffMs > -10800000) {
+                isLive = true;
+            }
+        }
+
+        // Ocultar solo si NO está en directo, NO está volando y ha pasado más de 1 hora
+        if (diffMs < -10800000 && !isLive) return;
+
+        const mission  = launch.name || 'Unknown mission';
+        const vehicle  = launch.rocket?.configuration?.name || '—';
+        const pad      = launch.pad?.name || '';
+        const location = launch.pad?.location?.name || '';
+        const abbrev   = launch.status?.abbrev || 'TBD';
+
+        // Determinar estado para el color del tooltip
+        let statusLabel = abbrev;
+        if (isLive) statusLabel = 'LIVE';
+
+        // Countdown para el popup
+        const cdText = isLive
+            ? '🔴 LIVE NOW'
+            : diffMs < 86400000
+                ? 'T- ' + fmtCountdown(diffMs)
+                : 'T- ' + Math.floor(diffMs / 86400000) + 'd';
+
+        // Elegir la imagen según el estado del cohete
+        let imagenCohete = isLive ? 'images/cohete_live.png' : 'images/cohete_futuro.png';
+
+        const icon = L.divIcon({
+            className: 'rocket-pad-icon',
+            html: `<img src="${imagenCohete}"
+                        class="rocket-marker-icon"
+                        style="width:18px;height:36px;display:block;">`,
+            iconSize:   [18, 36], // Tamaño reducido
+            iconAnchor: [9, 36],  // Anclaje ajustado a la nueva base
+            popupAnchor:[0, -38]  // Popup ajustado a la nueva altura
+        });
+
+        const marker = L.marker([lat, lng], { icon, zIndexOffset: 500 });
+        marker._rocketData = launch; // Guardamos los datos aquí dentro para que el "vigilante" sepa a qué hora despega
+
+        marker.bindPopup(`
+            <div style="font-family:'Segoe UI',sans-serif;min-width:180px;">
+                <div style="font-size:0.8rem;font-weight:700;color:#ff6b35;
+                            text-transform:uppercase;letter-spacing:0.5px;
+                            margin-bottom:4px;">${vehicle}</div>
+                <div style="font-size:0.95rem;font-weight:700;
+                            color:#fff;margin-bottom:6px;">${mission}</div>
+                <div style="font-size:0.72rem;color:rgba(255,255,255,0.5);
+                            margin-bottom:6px;">${pad}${location ? ' · ' + location : ''}</div>
+                <div style="font-size:0.82rem;font-weight:700;
+                            color:${isLive ? '#ff4444' : '#ff6b35'};">${cdText}</div>
+                <div style="margin-top:8px;">
+                    <a href="launches.html"
+                       style="font-size:0.72rem;color:#ff6b35;text-decoration:none;">
+                       View details →
+                    </a>
+                </div>
+            </div>
+        `, {
+            className: 'rocket-popup'
+        });
+
+        marker.addTo(map);
+        rocketMarkers.push(marker);
+    });
+
+    console.log(`🚀 ${rocketMarkers.length} cohetes dibujados en el mapa`);
+}
+// Cohetes en Cesium 3D
+let rocketEntities3D = [];
+
+function drawRocketMarkers3D(launches) {
+    if (!cesiumViewer || !cesiumViewer.entities || !showRockets) {
+        setTimeout(() => { if (showRockets) drawRocketMarkers3D(launches); }, 1000);
+        return;
+    }
+
+    // Limpiar anteriores
+    rocketEntities3D.forEach(e => {
+        try { cesiumViewer.entities.remove(e); } catch(err) {}
+    });
+    rocketEntities3D = [];
+
+    const now = new Date();
+
+    // Ordenar de más lejano a más próximo: el más cercano se pinta último y queda encima
+    const launchesSorted = [...launches].sort((a, b) => new Date(b.net) - new Date(a.net));
+
+    launchesSorted.forEach(launch => {
+        const lat = parseFloat(launch.pad?.latitude);
+        const lng = parseFloat(launch.pad?.longitude);
+        if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
+
+        const diffMs = new Date(launch.net) - now;
+        const mission  = launch.name || 'Unknown mission';
+        const vehicle  = launch.rocket?.configuration?.name || '—';
+        
+        const isWebcastLive = launch.webcast_live === true;
+        const isInFlight = launch.status?.abbrev === 'In Flight';
+        const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+        
+        let isLive = false;
+        if (!isFinished) {
+            if (isWebcastLive || isInFlight) {
+                isLive = true;
+            } else if (diffMs < 0 && diffMs > -10800000) {
+                isLive = true;
+            }
+        }
+
+        // Ocultar solo si NO está en directo, NO está volando y ha pasado más de 1 hora
+        if (diffMs < -10800000 && !isLive) return;
+
+        // Elegir la imagen según el estado del cohete para 3D
+        let imagenCohete3D = isLive ? 'images/cohete_live.png' : 'images/cohete_futuro.png';
+
+        // Truco 3D: Cuanto más cerca el lanzamiento, más "tiramos" del icono hacia la cámara.
+        // Si está LIVE, lo tiramos muchísimo hacia la cámara (-50) para que tape a todos.
+        let zOffset = isLive ? -50 : -(20 / (1 + (diffMs / 86400000)));
+
+        const entity = cesiumViewer.entities.add({
+            id: 'rocket_' + (launch.id || Math.random()), // ID único de texto
+            position: Cesium.Cartesian3.fromDegrees(lng, lat, 0),
+            billboard: {
+                image: imagenCohete3D,
+                width:  20,
+                height: 40,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                color: Cesium.Color.WHITE, 
+                scaleByDistance: new Cesium.NearFarScalar(500000, 1.5, 50000000, 0.6),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 5e8),
+                eyeOffset: new Cesium.Cartesian3(0.0, 0.0, zOffset) // <-- El truco para ponerlo encima
+            },
+            label: {
+                text: vehicle,
+                font: '11px sans-serif',
+                fillColor: Cesium.Color.fromCssColorString('#ff6b35'),
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -52),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 3000000),
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+            }
+        });
+
+        entity._rocketData = launch; // Inyectamos los datos aquí de forma segura
+        rocketEntities3D.push(entity);
+    });
+
+    console.log(`🚀 ${rocketEntities3D.length} cohetes pintados en 3D`);
+}
+
+// Formatear countdown corto
+function fmtCountdown(ms) {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+// Redibujar cohetes cuando se cambia a modo 2D
+// (ya existe toggleView — solo hay que llamar a drawRocketMarkers al volver a 2D)
+
+// Mostrar información de un cohete al clickar en 3D reutilizando el panel
+// Mostrar información de un cohete al clickar en 3D reutilizando el panel
+function showRocketInfo3D(launch) {
+    const now = new Date();
+    const launchDate = new Date(launch.net);
+    const diffMs = launchDate - now;
+    
+    // Aplicamos el cerebro avanzado también al texto del panel
+    const isWebcastLive = launch.webcast_live === true;
+    const isInFlight = launch.status?.abbrev === 'In Flight';
+    const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+    
+    let isLive = false;
+    if (!isFinished) {
+        if (isWebcastLive || isInFlight) {
+            isLive = true;
+        } else if (diffMs < 0 && diffMs > -10800000) {
+            isLive = true;
+        }
+    }
+
+    const mission  = launch.name || 'Unknown mission';
+    const vehicle  = launch.rocket?.configuration?.name || '—';
+    const pad      = launch.pad?.name || '';
+    const location = launch.pad?.location?.name || '';
+    const padText  = pad + (location ? ' · ' + location : '');
+    
+    // Solo mostramos la cuenta atrás si NO estamos en directo
+    let cdText = isLive ? '🔴 LIVE NOW' : (diffMs < 86400000 ? 'T- ' + fmtCountdown(diffMs) : 'T- ' + Math.floor(diffMs / 86400000) + 'd');
+
+    // --- Desktop panel ---
+    const nameEl = document.getElementById('satelliteName');
+    nameEl.textContent = vehicle;
+    nameEl.style.cursor = 'pointer';
+    nameEl.style.textDecoration = 'underline';
+    nameEl.onclick = () => window.location.href = 'launches.html';
+
+    document.getElementById('satelliteAltitude').textContent  = cdText;
+    document.getElementById('satelliteAltitude').style.color  = isLive ? '#ff4444' : '#ff6b35';
+    document.getElementById('satelliteVelocity').textContent  = mission;
+    document.getElementById('satelliteLatitude').textContent  = padText;
+    document.getElementById('satelliteLongitude').textContent = "Launch Pad";
+
+    // Modificar etiquetas temporalmente
+    const labelsDesk = document.querySelectorAll('#satelliteInfo .info-label');
+    if(labelsDesk.length >= 4) {
+        labelsDesk[0].textContent = "Countdown";
+        labelsDesk[1].textContent = "Mission";
+        labelsDesk[2].textContent = "Location";
+        labelsDesk[3].textContent = "Type";
+    }
+
+    // --- Mobile panel ---
+    const mobileNameEl = document.getElementById('mobileSatelliteName');
+    mobileNameEl.textContent = vehicle;
+    mobileNameEl.style.cursor = 'pointer';
+    mobileNameEl.style.textDecoration = 'underline';
+    mobileNameEl.onclick = () => window.location.href = 'launches.html';
+
+    document.getElementById('mobileSatelliteAltitude').textContent  = cdText;
+    document.getElementById('mobileSatelliteAltitude').style.color  = isLive ? '#ff4444' : '#ff6b35';
+    document.getElementById('mobileSatelliteVelocity').textContent  = mission;
+    document.getElementById('mobileSatelliteLatitude').textContent  = padText;
+    document.getElementById('mobileSatelliteLongitude').textContent = "Launch Pad";
+
+    const labelsMob = document.querySelectorAll('#mobileSatelliteSection .info-label');
+    if(labelsMob.length >= 4) {
+        labelsMob[0].textContent = "Countdown";
+        labelsMob[1].textContent = "Mission";
+        labelsMob[2].textContent = "Location";
+        labelsMob[3].textContent = "Type";
+    }
+
+    document.getElementById('mobileSatelliteSection').style.display = 'block';
+    document.getElementById('satelliteInfo').classList.add('active');
+}
+
+// Cargar cohetes al inicio
+loadRocketPadMarkers();
+setInterval(loadRocketPadMarkers, 60 * 1000); // cada 1 min
+
+// Actualizar imágenes de los cohetes en vivo (cada segundo) sin que tengas que tocar nada
+function updateRocketImagesLive() {
+    if (!showRockets) return;
+    const now = new Date();
+
+    if (is3DMode) {
+        rocketEntities3D.forEach(entity => {
+            const launch = entity._rocketData;
+            if(!launch) return;
+            const diffMs = new Date(launch.net) - now;
+            const isWebcastLive = launch.webcast_live === true;
+            const isInFlight = launch.status?.abbrev === 'In Flight';
+            const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+            
+            let isLive = false;
+            if (!isFinished) {
+                if (isWebcastLive || isInFlight) {
+                    isLive = true;
+                } else if (diffMs < 0 && diffMs > -10800000) {
+                    isLive = true;
+                }
+            }
+            
+            let newImg = isLive ? 'images/cohete_live.png' : 'images/cohete_futuro.png';
+            
+            if (entity.billboard.image.getValue() !== newImg) {
+                entity.billboard.image = newImg;
+            }
+        });
+    } else {
+        rocketMarkers.forEach(marker => {
+            const launch = marker._rocketData;
+            if(!launch) return;
+            const diffMs = new Date(launch.net) - now;
+            
+            // Reparado: Añadido el cerebro de LIVE a los marcadores 2D
+            const isWebcastLive = launch.webcast_live === true;
+            const isInFlight = launch.status?.abbrev === 'In Flight';
+            const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+            
+            let isLive = false;
+            if (!isFinished) {
+                if (isWebcastLive || isInFlight) {
+                    isLive = true;
+                } else if (diffMs < 0 && diffMs > -10800000) {
+                    isLive = true;
+                }
+            }
+            
+            let newImg = isLive ? 'images/cohete_live.png' : 'images/cohete_futuro.png';
+
+            const currentHtml = marker.getIcon().options.html;
+            if (!currentHtml.includes(newImg)) {
+                const icon = L.divIcon({
+                    className: 'rocket-pad-icon',
+                    html: `<img src="${newImg}" class="rocket-marker-icon" style="width:18px;height:36px;display:block;">`,
+                    iconSize:   [18, 36],
+                    iconAnchor: [9, 36],
+                    popupAnchor:[0, -38]
+                });
+                marker.setIcon(icon);
+            }
+        });
+    }
+}
+// El vigilante mira los cohetes cada 1 segundo (1000 ms)
+setInterval(updateRocketImagesLive, 1000);
+
+// ==================== FIN ROCKET PAD MARKERS ====================
+
+// ==================== FIN LAUNCHES WIDGET ====================
 
     </script>
 </body>
