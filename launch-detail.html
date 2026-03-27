@@ -931,7 +931,7 @@ function render(launch) {
             <div class="info-card">
                 <div class="card-label">Mission</div>
                 <p class="desc-text" id="missionDesc">${esc(preview)}</p>
-                ${short ? `<button id="readMoreBtn" style="display:block;" onclick="expandDesc(${JSON.stringify(mDesc).replace(/</g,'\\u003c')})">Read more ↓</button>` : ''}
+                ${short ? `<button id="readMoreBtn" style="display:block;" onclick="expandDesc(${JSON.stringify(mDesc).replace(/</g,'\\u003c').replace(/"/g, '&quot;')})">Read more ↓</button>` : ''}
             </div>
         </div>`;
     }
