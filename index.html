@@ -3523,7 +3523,7 @@ function initCesium() {
             credit: new Cesium.Credit('©Esri', false)
         })
     );
-    cesiumViewer.imageryLayers.get(0).brightness = 1;
+    cesiumViewer.imageryLayers.get(0).brightness = 0.6;
     cesiumViewer.imageryLayers.get(1).alpha = 0.8;
 
     cesiumViewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0d0d0d');
@@ -3531,20 +3531,13 @@ function initCesium() {
     // Resolución adaptativa según capacidad del dispositivo
     const isMobile  = /Mobi|Android/i.test(navigator.userAgent);
     const isHighEnd = window.devicePixelRatio >= 2 && !isMobile;
+    cesiumViewer.resolutionScale = Math.min(window.devicePixelRatio || 1.0, 2.0);
 
-    if (isMobile) {
-        cesiumViewer.resolutionScale = 1.0;
-    } else if (isHighEnd) {
-        cesiumViewer.resolutionScale = 1.0;
-    } else {
-        cesiumViewer.resolutionScale = 1.25;
-    }
-
-    cesiumViewer.scene.globe.maximumScreenSpaceError = 3;
-    cesiumViewer.scene.fog.enabled = false;
+    cesiumViewer.scene.globe.maximumScreenSpaceError = 4;
+    cesiumViewer.scene.fog.enabled = true;
     cesiumViewer.scene.globe.enableLighting = false;
     cesiumViewer.scene.shadowMap.enabled = false;
-    cesiumViewer.scene.globe.showGroundAtmosphere = false;
+    cesiumViewer.scene.globe.showGroundAtmosphere = true;
     cesiumViewer.scene.highDynamicRange = false;
 
     // Clic en satélite → panel de info
