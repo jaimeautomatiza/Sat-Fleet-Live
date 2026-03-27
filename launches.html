@@ -114,6 +114,7 @@
             transition: border-color 0.2s, transform 0.15s;
             position: relative;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .launch-card::before {
@@ -523,12 +524,40 @@ function renderLaunches(launches) {
     }
 
     const now = new Date();
-    const upcoming = launches
-        .filter(l => new Date(l.net) >= now - 3600000)
-        .sort((a, b) => new Date(a.net) - new Date(b.net));
-    const past = launches
-        .filter(l => new Date(l.net) < now - 3600000)
-        .sort((a, b) => new Date(b.net) - new Date(a.net));
+
+    // FILTRO PARA UPCOMING (Próximos y En Directo)
+    const upcoming = launches.filter(l => {
+        const diffMs = new Date(l.net) - now;
+        const isWebcastLive = l.webcast_live === true;
+        const isInFlight = l.status?.abbrev === 'In Flight';
+        const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
+
+        // REGLA 1: Si la API confirma que ya ha terminado (Éxito/Fallo), FUERA de "Upcoming" al instante.
+        if (isFinished) return false;
+        
+        // REGLA 2: Si está en riguroso directo o volando, SE QUEDA en "Upcoming" sin importar cuántas horas pasen.
+        if (isWebcastLive || isInFlight) return true;
+        
+        // REGLA 3: Si la API no dice nada, le damos su hora de cortesía (la que elegiste para esta página).
+        return diffMs > -3600000;
+    }).sort((a, b) => new Date(a.net) - new Date(b.net));
+
+    // FILTRO PARA PAST (Historial / Recientes)
+    const past = launches.filter(l => {
+        const diffMs = new Date(l.net) - now;
+        const isWebcastLive = l.webcast_live === true;
+        const isInFlight = l.status?.abbrev === 'In Flight';
+        const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
+
+        // REGLA 1: Si ya terminó oficialmente, entra directo al Historial.
+        if (isFinished) return true;
+        
+        // REGLA 2: Si sigue en directo o volando, NO entra al historial todavía.
+        if (isWebcastLive || isInFlight) return false;
+        
+        // REGLA 3: Si la API calla y ya pasó la hora de cortesía, entra al historial por viejo.
+        return diffMs <= -3600000;
+    }).sort((a, b) => new Date(b.net) - new Date(a.net));
 
     if (upcoming.length > 0) {
         const t = document.createElement('div');
@@ -551,6 +580,25 @@ function renderLaunches(launches) {
         });
     }
 
+    // Scroll y resalte si viene del mapa con un cohete específico
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightId = urlParams.get('id');
+    if (highlightId) {
+        setTimeout(() => {
+            const el = document.getElementById('launch-' + highlightId);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.style.boxShadow = '0 0 0 2px var(--orange), 0 0 20px rgba(255,107,53,0.35)';
+                el.style.borderColor = 'rgba(255,107,53,0.7)';
+                setTimeout(() => {
+                    el.style.transition = 'box-shadow 1s, border-color 1s';
+                    el.style.boxShadow = '';
+                    el.style.borderColor = '';
+                }, 3000);
+            }
+        }, 150);
+    }
+
     // Mostrar hora de última actualización
     const cache = getCache();
     if (cache) {
@@ -568,9 +616,17 @@ function buildCard(launch, id) {
     const now = new Date();
     const diffMs = launchDate - now;
     const isToday = diffMs > 0 && diffMs < 86400000;
-    const isLive = diffMs < 0 && diffMs > -3600000;
+    const isLive = launch.webcast_live === true ||
+        launch.status?.abbrev === 'In Flight' ||
+        (launch.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -3600000);
 
+    card.id = 'launch-' + launch.id;
     card.className = 'launch-card' + (isToday ? ' today' : '');
+card.style.cursor = 'pointer';
+card.onclick = (e) => {          // ← y esto
+    if (e.target.closest('a, button')) return; // no interceptar clics en botones
+    window.location.href = `launch-detail.html?id=${launch.id}`;
+};
 
     let statusClass = 'tbd', statusText = 'TBD';
     const abbrev = launch.status?.abbrev;

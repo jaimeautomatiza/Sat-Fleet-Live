@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Detail – SatFleet Live</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #ff6b35;
+            --orange-dim: rgba(255,107,53,0.15);
+            --purple: #9c27b0;
+            --green: #00d26a;
+            --blue: #2196f3;
+            --gold: #ffd700;
+            --red: #ff4444;
+            --dark: #0f0f0f;
+            --card: rgba(20,20,20,0.97);
+            --card-border: rgba(255,255,255,0.07);
+            --bar: 56px;
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.4);
+            --text-dim: rgba(255,255,255,0.22);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ===== TOP BAR ===== */
+        #topBar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--bar);
+            background: rgba(10,10,10,0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,107,53,0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        #backBtn {
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 17px;
+            border: 1.5px solid rgba(255,107,53,0.5);
+            background: rgba(255,107,53,0.08);
+            color: var(--orange);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        #backBtn:hover { background: var(--orange); color: #fff; }
+
+        #topTitle {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.75);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #mapBtn {
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 17px;
+            border: 1.5px solid rgba(33,150,243,0.4);
+            background: rgba(33,150,243,0.08);
+            color: var(--blue);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        #mapBtn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+        /* ===== HERO ===== */
+        #hero {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            overflow: hidden;
+            margin-top: var(--bar);
+        }
+
+        #heroImg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.55);
+        }
+
+        #heroGradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                transparent 20%,
+                rgba(15,15,15,0.6) 60%,
+                var(--dark) 100%
+            );
+        }
+
+        #heroContent {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+        }
+
+        #heroVehicle {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--orange);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 6px;
+        }
+
+        #heroMission {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+        }
+
+        @media (max-width: 600px) {
+            #hero { height: 220px; }
+            #heroMission { font-size: 1.25rem; }
+        }
+
+        /* No hero fallback */
+        #heroBanner {
+            display: none;
+            margin-top: var(--bar);
+            padding: 28px 20px 0;
+        }
+        #heroBannerVehicle {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--orange);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 6px;
+        }
+        #heroBannerMission {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        /* ===== CONTENT ===== */
+        #content {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 20px 16px 60px;
+        }
+
+        /* ===== STATUS STRIP ===== */
+        #statusStrip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 10px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+        .status-badge.go      { background: rgba(0,210,106,0.12); color: var(--green); border: 1px solid rgba(0,210,106,0.3); }
+        .status-badge.tbc     { background: rgba(255,215,0,0.1);  color: var(--gold);  border: 1px solid rgba(255,215,0,0.25); }
+        .status-badge.tbd     { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.1); }
+        .status-badge.live    { background: rgba(255,50,50,0.18); color: var(--red);   border: 1px solid rgba(255,50,50,0.4); animation: livePulse 1.5s infinite; }
+        .status-badge.success { background: rgba(0,210,106,0.08); color: rgba(0,210,106,0.6); border: 1px solid rgba(0,210,106,0.15); }
+        .status-badge.failure { background: rgba(255,50,50,0.08); color: rgba(255,100,100,0.7); border: 1px solid rgba(255,50,50,0.15); }
+        .status-badge.hold    { background: rgba(255,215,0,0.1);  color: var(--gold);  border: 1px solid rgba(255,215,0,0.25); }
+
+        @keyframes livePulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+        .strip-orbit {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 10px;
+            background: rgba(33,150,243,0.1);
+            color: var(--blue);
+            border: 1px solid rgba(33,150,243,0.2);
+        }
+
+        .strip-type {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* ===== COUNTDOWN HERO BLOCK ===== */
+        #countdownBlock {
+            background: rgba(255,107,53,0.07);
+            border: 1px solid rgba(255,107,53,0.25);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        #mainCountdown {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--orange);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+            line-height: 1;
+        }
+
+        #mainCountdown.past  { font-size: 1.2rem; font-weight: 500; color: var(--text-muted); }
+        #mainCountdown.live  { color: var(--red); }
+
+        #countdownMeta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: right;
+        }
+
+        #launchDateStr {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.55);
+        }
+
+        #probabilityBar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prob-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .prob-track {
+            width: 90px;
+            height: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .prob-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--green);
+            transition: width 0.6s ease;
+        }
+
+        .prob-value {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--green);
+            min-width: 30px;
+        }
+
+        @media (max-width: 540px) {
+            #mainCountdown { font-size: 1.5rem; }
+            #countdownMeta { text-align: left; }
+            #countdownBlock { flex-direction: column; align-items: flex-start; }
+        }
+
+        /* ===== GRID DE SECCIONES ===== */
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .section-grid { grid-template-columns: 1fr; }
+        }
+
+        .section-grid.single { grid-template-columns: 1fr; }
+        .section-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+        @media (max-width: 700px) {
+            .section-grid.triple { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .section-grid.triple { grid-template-columns: 1fr; }
+        }
+
+        /* ===== INFO CARD ===== */
+        .info-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 16px 18px;
+        }
+
+        .info-card.span2 { grid-column: span 2; }
+        @media (max-width: 600px) { .info-card.span2 { grid-column: span 1; } }
+
+        .card-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--orange);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,107,53,0.18);
+        }
+
+        .card-icon { font-size: 0.85rem; }
+
+        /* Row dentro de una card */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-row:first-of-type { padding-top: 0; }
+
+        .row-key {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            padding-top: 1px;
+        }
+
+        .row-val {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.88);
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .row-val.orange { color: var(--orange); }
+        .row-val.green  { color: var(--green); }
+        .row-val.blue   { color: var(--blue); }
+        .row-val.gold   { color: var(--gold); }
+        .row-val.red    { color: var(--red); }
+        .row-val.muted  { color: var(--text-muted); font-weight: 400; }
+
+        /* Descripción larga */
+        .desc-text {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.65;
+        }
+
+        #readMoreBtn {
+            margin-top: 8px;
+            background: none;
+            border: none;
+            color: var(--orange);
+            font-size: 0.75rem;
+            cursor: pointer;
+            padding: 0;
+            display: none;
+        }
+        #readMoreBtn:hover { text-decoration: underline; }
+
+        /* ===== ESTADÍSTICAS DEL COHETE ===== */
+        .rocket-stats {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .rstat {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        .rstat-val {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--orange);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .rstat-key {
+            font-size: 0.62rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== VIDEO / LINKS ===== */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .link-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .link-item:hover {
+            background: rgba(255,107,53,0.1);
+            border-color: rgba(255,107,53,0.35);
+        }
+
+        .link-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--orange);
+            flex-shrink: 0;
+        }
+
+        .link-dot.live-dot {
+            background: var(--red);
+            animation: livePulse 1s infinite;
+        }
+
+        .link-name {
+            flex: 1;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .link-arrow {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== PAD / MAP PREVIEW ===== */
+        #padBlock {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        #padInfo { flex: 1; }
+
+        .pad-coords {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #viewOnMapBtn {
+            height: 36px;
+            padding: 0 16px;
+            border-radius: 18px;
+            border: 1.5px solid rgba(33,150,243,0.45);
+            background: rgba(33,150,243,0.08);
+            color: var(--blue);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        #viewOnMapBtn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+        /* ===== AGENCY ===== */
+        .agency-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .agency-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.06);
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .agency-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.88);
+        }
+
+        .agency-country {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* ===== HOLD / FAIL REASON ===== */
+        .reason-box {
+            background: rgba(255,50,50,0.06);
+            border: 1px solid rgba(255,50,50,0.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            color: rgba(255,150,150,0.8);
+            line-height: 1.5;
+        }
+
+        /* ===== LOADING ===== */
+        #loadingState {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 16px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 32px; height: 32px;
+            border: 3px solid rgba(255,107,53,0.15);
+            border-left: 3px solid var(--orange);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #notFound {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .not-found-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.55);
+        }
+
+        /* ===== FOOTER ===== */
+        #pageFooter {
+            text-align: center;
+            padding: 12px 16px;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            margin-top: 20px;
+        }
+        #pageFooter a { color: rgba(77,166,255,0.45); text-decoration: none; }
+        #pageFooter a:hover { color: #4da6ff; }
+
+        /* ===== WATCH LIVE BUTTON ===== */
+        #watchLiveBtn {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #ff4444, #cc2200);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 16px;
+            animation: livePulse 2s infinite;
+            letter-spacing: 0.5px;
+        }
+        #watchLiveBtn:hover { background: linear-gradient(135deg, #ff5555, #dd3311); }
+
+        /* ===== SECTION SPACING ===== */
+        .mb { margin-bottom: 12px; }
+
+        /* ===== WEATHER / ALERT BOX ===== */
+        .alert-box {
+            background: rgba(255,215,0,0.07);
+            border: 1px solid rgba(255,215,0,0.2);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            color: rgba(255,220,100,0.85);
+            line-height: 1.5;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .alert-icon { flex-shrink: 0; }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topBar">
+    <a id="backBtn" href="launches.html">← Launches</a>
+    <div id="topTitle">Loading…</div>
+    <button id="mapBtn" onclick="flyToMap()" style="display:none;">View on Map</button>
+</div>
+
+<!-- HERO (si hay imagen) -->
+<div id="hero" style="display:none;">
+    <img id="heroImg" src="" alt="">
+    <div id="heroGradient"></div>
+    <div id="heroContent">
+        <div id="heroVehicle"></div>
+        <div id="heroMission"></div>
+    </div>
+</div>
+
+<!-- HERO texto (si no hay imagen) -->
+<div id="heroBanner">
+    <div id="heroBannerVehicle"></div>
+    <div id="heroBannerMission"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="content">
+
+    <!-- Estado cargando -->
+    <div id="loadingState">
+        <div class="spinner"></div>
+        <span>Loading launch data…</span>
+    </div>
+
+    <!-- No encontrado -->
+    <div id="notFound">
+        <div class="not-found-title">Launch not found</div>
+        <p style="font-size:0.82rem;margin-bottom:16px;">This launch may no longer be in the local cache.</p>
+        <a href="launches.html" style="color:var(--orange);font-size:0.85rem;">← Back to all launches</a>
+    </div>
+
+    <!-- Contenido dinámico se inyecta aquí -->
+    <div id="dynamicContent" style="display:none;"></div>
+
+</div>
+
+<div id="pageFooter">
+    Data from <a href="https://thespacedevs.com" target="_blank">The Space Devs / Launch Library 2</a>
+    &nbsp;·&nbsp;
+    <a href="index.html">Open Map</a>
+    &nbsp;·&nbsp;
+    <a href="launches.html">All Launches</a>
+</div>
+
+<script>
+// ===== HELPERS =====
+function esc(str) {
+    return String(str || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDur(ms) {
+    const s = Math.floor(Math.abs(ms) / 1000);
+    const d = Math.floor(s / 86400);
+    const h = Math.floor((s % 86400) / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (d > 0) return `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
+    return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(sec).padStart(2,'0')}s`;
+}
+
+function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-US', {
+        weekday: 'short', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+    });
+}
+
+// ===== GET LAUNCH FROM CACHE =====
+function getLaunchById(id) {
+    try {
+        const raw = localStorage.getItem('satfleet_launches_v1');
+        if (!raw) return null;
+        const { results } = JSON.parse(raw);
+        return results.find(l => String(l.id) === String(id)) || null;
+    } catch(e) { return null; }
+}
+
+// ===== COUNTDOWN TICKER =====
+let cdTimer = null;
+
+function startCountdown(launch) {
+    const el = document.getElementById('mainCountdown');
+    if (!el) return;
+    const launchDate = new Date(launch.net);
+
+    const isWebcastLive = launch.webcast_live === true;
+    const isInFlight = launch.status?.abbrev === 'In Flight';
+    const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+
+    function tick() {
+        const now = new Date();
+        const diff = launchDate - now;
+        const diffMs = diff;
+        const isLive = !isFinished && (isWebcastLive || isInFlight ||
+            (launch.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -10800000));
+
+        if (diff < -10800000 && !isLive) {
+            el.textContent = 'Launched';
+            el.className = 'past';
+            return;
+        }
+        if (isLive || (diff < 0 && !isFinished)) {
+            el.textContent = '🔴 T+' + fmtDur(-diff);
+            el.className = 'live';
+        } else {
+            el.textContent = 'T− ' + fmtDur(diff);
+            el.className = '';
+        }
+    }
+    tick();
+    cdTimer = setInterval(tick, 1000);
+}
+
+// ===== STATUS HELPERS =====
+function getStatusInfo(launch) {
+    const now = new Date();
+    const launchDate = new Date(launch.net);
+    const diffMs = launchDate - now;
+    const isWebcastLive = launch.webcast_live === true;
+    const isInFlight = launch.status?.abbrev === 'In Flight';
+    const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+    const isGo = launch.status?.abbrev === 'Go';
+    const isLive = !isFinished && (isWebcastLive || isInFlight || (isGo && diffMs < 0 && diffMs > -10800000));
+
+    if (isLive) return { cls: 'live', text: '🔴 LIVE' };
+    const abbrev = launch.status?.abbrev || 'TBD';
+    if (abbrev === 'Go')      return { cls: 'go',      text: 'GO FOR LAUNCH' };
+    if (abbrev === 'TBC')     return { cls: 'tbc',     text: 'TBC' };
+    if (abbrev === 'TBD')     return { cls: 'tbd',     text: 'TBD' };
+    if (abbrev === 'Hold')    return { cls: 'hold',    text: 'ON HOLD' };
+    if (abbrev === 'Success') return { cls: 'success', text: 'SUCCESS ✓' };
+    if (abbrev === 'Failure') return { cls: 'failure', text: 'FAILURE' };
+    return { cls: 'tbd', text: abbrev };
+}
+
+function getProbColor(p) {
+    if (p >= 80) return '#00d26a';
+    if (p >= 50) return '#ffd700';
+    return '#ff6b35';
+}
+
+// ===== FLY TO MAP =====
+let _padLat = null, _padLng = null;
+function flyToMap() {
+    if (_padLat && _padLng) {
+        sessionStorage.setItem('flyToLat', _padLat);
+        sessionStorage.setItem('flyToLng', _padLng);
+        window.location.href = 'index.html';
+    }
+}
+
+// ===== MAIN RENDER =====
+function render(launch) {
+    document.getElementById('loadingState').style.display = 'none';
+
+    const vehicle  = launch.rocket?.configuration?.name || '—';
+    const mission  = launch.name || 'Unknown mission';
+    const agency   = launch.launch_service_provider?.name || '—';
+    const agencyCC = launch.launch_service_provider?.country_code || '';
+    const agencyLogo = launch.launch_service_provider?.logo_url || null;
+    const agencyType = launch.launch_service_provider?.type || '';
+    const agencyDesc = launch.launch_service_provider?.description || '';
+
+    const orbit    = launch.mission?.orbit?.name || null;
+    const orbitAbbr= launch.mission?.orbit?.abbrev || '';
+    const mType    = launch.mission?.type || null;
+    const mDesc    = launch.mission?.description || '';
+
+    const padName  = launch.pad?.name || '—';
+    const padLoc   = launch.pad?.location?.name || '';
+    const padLat   = parseFloat(launch.pad?.latitude);
+    const padLng   = parseFloat(launch.pad?.longitude);
+    const padCount = launch.pad?.total_launch_count;
+
+    const rktTotal   = launch.rocket?.configuration?.total_launch_count;
+    const rktSuccess = launch.rocket?.configuration?.successful_launches;
+    const rktFailed  = launch.rocket?.configuration?.failed_launches;
+    const rktPending = launch.rocket?.configuration?.pending_launches;
+    const rktDesc    = launch.rocket?.configuration?.description || '';
+    const rktFamily  = launch.rocket?.configuration?.family || '';
+    const rktVariant = launch.rocket?.configuration?.variant || '';
+
+    const probability = launch.probability;
+    const holdReason  = launch.holdreason || '';
+    const failReason  = launch.failreason || '';
+    const weatherNote = launch.weather_concerns || '';
+
+    const vidURLs  = launch.vidURLs  || [];
+    const infoURLs = launch.infoURLs || [];
+    const imageUrl = launch.image || null;
+
+    const statusInfo = getStatusInfo(launch);
+    const isLive = statusInfo.cls === 'live';
+
+    // Top bar
+    document.getElementById('topTitle').textContent = mission;
+
+    // Pad coords para "View on Map"
+    if (!isNaN(padLat) && !isNaN(padLng)) {
+        _padLat = padLat; _padLng = padLng;
+        document.getElementById('mapBtn').style.display = 'block';
+    }
+
+    // HERO
+    if (imageUrl) {
+        const heroEl = document.getElementById('hero');
+        heroEl.style.display = 'block';
+        document.getElementById('heroImg').src = imageUrl;
+        document.getElementById('heroImg').onerror = () => {
+            heroEl.style.display = 'none';
+            showTextBanner(vehicle, mission);
+        };
+        document.getElementById('heroVehicle').textContent = vehicle;
+        document.getElementById('heroMission').textContent = mission;
+    } else {
+        showTextBanner(vehicle, mission);
+    }
+
+    // Construir contenido dinámico
+    const dc = document.getElementById('dynamicContent');
+    dc.style.display = 'block';
+    let html = '';
+
+    // WATCH LIVE button
+    if (isLive && vidURLs.length > 0) {
+        html += `<a id="watchLiveBtn" href="${esc(vidURLs[0].url)}" target="_blank" style="display:block;">
+            🔴 WATCH LIVE NOW
+        </a>`;
+    }
+
+    // STATUS STRIP
+    html += `<div id="statusStrip" class="mb">
+        <span class="status-badge ${statusInfo.cls}">${statusInfo.text}</span>
+        ${orbit ? `<span class="strip-orbit">${esc(orbit)}${orbitAbbr ? ' · ' + orbitAbbr : ''}</span>` : ''}
+        ${mType  ? `<span class="strip-type">${esc(mType)}</span>` : ''}
+    </div>`;
+
+    // COUNTDOWN BLOCK
+    const dateStr = fmtDate(launch.net);
+    html += `<div id="countdownBlock" class="mb">
+        <div id="mainCountdown">—</div>
+        <div id="countdownMeta">
+            <div id="launchDateStr">${esc(dateStr)}</div>
+            ${probability != null ? `
+            <div id="probabilityBar" style="margin-top:6px;">
+                <span class="prob-label">GO probability</span>
+                <div class="prob-track">
+                    <div class="prob-fill" style="width:${probability}%;background:${getProbColor(probability)};"></div>
+                </div>
+                <span class="prob-value" style="color:${getProbColor(probability)};">${probability}%</span>
+            </div>` : ''}
+        </div>
+    </div>`;
+
+    // HOLD / FAIL REASON
+    if (holdReason) {
+        html += `<div class="reason-box mb">⏸ <strong>Hold reason:</strong> ${esc(holdReason)}</div>`;
+    }
+    if (failReason) {
+        html += `<div class="reason-box mb">✗ <strong>Failure reason:</strong> ${esc(failReason)}</div>`;
+    }
+    if (weatherNote) {
+        html += `<div class="alert-box mb"><span class="alert-icon">🌦</span><span>${esc(weatherNote)}</span></div>`;
+    }
+
+    // MISSION DESCRIPTION
+    if (mDesc) {
+        const short = mDesc.length > 300;
+        const preview = short ? mDesc.substring(0, 300) + '…' : mDesc;
+        html += `<div class="section-grid single mb">
+            <div class="info-card">
+                <div class="card-label">Mission</div>
+                <p class="desc-text" id="missionDesc">${esc(preview)}</p>
+                ${short ? `<button id="readMoreBtn" style="display:block;" onclick="expandDesc(${JSON.stringify(mDesc).replace(/</g,'\\u003c')})">Read more ↓</button>` : ''}
+            </div>
+        </div>`;
+    }
+
+    // LAUNCH DETAILS + VEHICLE
+    html += `<div class="section-grid mb">
+        <!-- LAUNCH DETAILS -->
+        <div class="info-card">
+            <div class="card-label">Launch Details</div>
+            <div class="info-row">
+                <span class="row-key">Vehicle</span>
+                <span class="row-val orange">${esc(vehicle)}</span>
+            </div>
+            ${rktFamily ? `<div class="info-row">
+                <span class="row-key">Family</span>
+                <span class="row-val">${esc(rktFamily)}${rktVariant ? ' / ' + esc(rktVariant) : ''}</span>
+            </div>` : ''}
+            <div class="info-row">
+                <span class="row-key">Agency</span>
+                <span class="row-val">${esc(agency)}</span>
+            </div>
+            ${agencyCC ? `<div class="info-row">
+                <span class="row-key">Country</span>
+                <span class="row-val">${esc(agencyCC)}</span>
+            </div>` : ''}
+            ${agencyType ? `<div class="info-row">
+                <span class="row-key">Agency type</span>
+                <span class="row-val muted">${esc(agencyType)}</span>
+            </div>` : ''}
+            ${launch.status?.description ? `<div class="info-row">
+                <span class="row-key">Status info</span>
+                <span class="row-val muted" style="font-size:0.74rem;">${esc(launch.status.description)}</span>
+            </div>` : ''}
+        </div>
+
+        <!-- VEHICLE RECORD -->
+        <div class="info-card">
+            <div class="card-label">Vehicle Record</div>
+            ${(rktTotal != null || rktSuccess != null || rktFailed != null) ? `
+            <div class="rocket-stats">
+                ${rktTotal   != null ? `<div class="rstat"><div class="rstat-val">${rktTotal}</div><div class="rstat-key">Total Flights</div></div>` : ''}
+                ${rktSuccess != null ? `<div class="rstat"><div class="rstat-val" style="color:var(--green);">${rktSuccess}</div><div class="rstat-key">Successes</div></div>` : ''}
+                ${rktFailed  != null ? `<div class="rstat"><div class="rstat-val" style="color:var(--red);">${rktFailed}</div><div class="rstat-key">Failures</div></div>` : ''}
+            </div>` : '<span class="row-val muted" style="font-size:0.78rem;">No flight history available</span>'}
+            ${rktPending != null ? `<div class="info-row" style="margin-top:10px;">
+                <span class="row-key">Pending launches</span>
+                <span class="row-val blue">${rktPending}</span>
+            </div>` : ''}
+            ${rktDesc ? `<p class="desc-text" style="margin-top:10px;font-size:0.76rem;">${esc(rktDesc.substring(0,220))}${rktDesc.length > 220 ? '…' : ''}</p>` : ''}
+        </div>
+    </div>`;
+
+    // LAUNCH PAD
+    html += `<div class="section-grid single mb">
+        <div class="info-card">
+            <div class="card-label">Launch Pad</div>
+            <div id="padBlock">
+                <div id="padInfo">
+                    <div class="info-row">
+                        <span class="row-key">Pad</span>
+                        <span class="row-val">${esc(padName)}</span>
+                    </div>
+                    ${padLoc ? `<div class="info-row">
+                        <span class="row-key">Location</span>
+                        <span class="row-val">${esc(padLoc)}</span>
+                    </div>` : ''}
+                    ${!isNaN(padLat) && !isNaN(padLng) ? `<div class="info-row">
+                        <span class="row-key">Coordinates</span>
+                        <span class="row-val muted" style="font-size:0.74rem;">${padLat.toFixed(4)}°, ${padLng.toFixed(4)}°</span>
+                    </div>` : ''}
+                    ${padCount != null ? `<div class="info-row">
+                        <span class="row-key">Total launches from pad</span>
+                        <span class="row-val orange">${padCount}</span>
+                    </div>` : ''}
+                </div>
+                ${(!isNaN(padLat) && !isNaN(padLng)) ? `<button id="viewOnMapBtn" onclick="flyToMap()">Map</button>` : ''}
+            </div>
+        </div>
+    </div>`;
+
+    // VIDEO / STREAMS
+    if (vidURLs.length > 0) {
+        html += `<div class="section-grid single mb">
+            <div class="info-card">
+                <div class="card-label">Watch</div>
+                <div class="links-list">`;
+        vidURLs.forEach(v => {
+            const name = v.title || v.url;
+            html += `<a class="link-item" href="${esc(v.url)}" target="_blank">
+                <div class="link-dot${isLive ? ' live-dot' : ''}"></div>
+                <span class="link-name">${esc(name)}</span>
+                <span class="link-arrow">↗</span>
+            </a>`;
+        });
+        html += `</div></div></div>`;
+    }
+
+    // INFO LINKS
+    if (infoURLs.length > 0) {
+        html += `<div class="section-grid single mb">
+            <div class="info-card">
+                <div class="card-label">More Info</div>
+                <div class="links-list">`;
+        infoURLs.slice(0, 5).forEach(l => {
+            const name = l.title || l.url;
+            html += `<a class="link-item" href="${esc(l.url)}" target="_blank">
+                <div class="link-dot" style="background:var(--blue);"></div>
+                <span class="link-name">${esc(name)}</span>
+                <span class="link-arrow">↗</span>
+            </a>`;
+        });
+        html += `</div></div></div>`;
+    }
+
+    // AGENCY DESCRIPTION
+    if (agencyDesc) {
+        html += `<div class="section-grid single mb">
+            <div class="info-card">
+                <div class="card-label">About ${esc(agency)}</div>
+                ${agencyLogo ? `<div class="agency-row">
+                    <img class="agency-logo" src="${esc(agencyLogo)}" alt="${esc(agency)}" onerror="this.style.display='none'">
+                    <div>
+                        <div class="agency-name">${esc(agency)}</div>
+                        <div class="agency-country">${esc(agencyCC)} · ${esc(agencyType)}</div>
+                    </div>
+                </div>` : ''}
+                <p class="desc-text">${esc(agencyDesc)}</p>
+            </div>
+        </div>`;
+    }
+
+    dc.innerHTML = html;
+
+    // Activar countdown en vivo
+    startCountdown(launch);
+}
+
+function showTextBanner(vehicle, mission) {
+    const b = document.getElementById('heroBanner');
+    b.style.display = 'block';
+    document.getElementById('heroBannerVehicle').textContent = vehicle;
+    document.getElementById('heroBannerMission').textContent = mission;
+}
+
+function expandDesc(fullText) {
+    document.getElementById('missionDesc').textContent = fullText;
+    document.getElementById('readMoreBtn').style.display = 'none';
+}
+
+// ===== INIT =====
+function init() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('notFound').style.display = 'block';
+        return;
+    }
+
+    const launch = getLaunchById(id);
+
+    if (!launch) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('notFound').style.display = 'block';
+        return;
+    }
+
+    render(launch);
+}
+
+init();
+</script>
+</body>
+</html>
