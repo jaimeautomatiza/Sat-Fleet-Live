@@ -800,11 +800,14 @@ function getProbColor(p) {
 }
 
 // ===== FLY TO MAP =====
-let _padLat = null, _padLng = null;
+let _padLat = null, _padLng = null, _launchId = null;
 function flyToMap() {
     if (_padLat && _padLng) {
         sessionStorage.setItem('flyToLat', _padLat);
         sessionStorage.setItem('flyToLng', _padLng);
+        if (_launchId) {
+            sessionStorage.setItem('flyToLaunchId', _launchId);
+        }
         window.location.href = 'index.html';
     }
 }
@@ -857,7 +860,7 @@ function render(launch) {
 
     // Pad coords para "View on Map"
     if (!isNaN(padLat) && !isNaN(padLng)) {
-        _padLat = padLat; _padLng = padLng;
+        _padLat = padLat; _padLng = padLng; _launchId = launch.id;
         document.getElementById('mapBtn').style.display = 'block';
     }
 

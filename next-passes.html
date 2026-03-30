@@ -1134,7 +1134,7 @@ function closeLocationPicker() {
         // Cargar satélites
         async function loadSatellites() {
             try {
-                const response = await fetch('tle/TODOS_PRUEBA.txt?v=' + Date.now());
+                const response = await fetch('https://worker.satfleetlive.com/api/tle');
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const text = await response.text();
                 allSatellites = parseTLE(text);

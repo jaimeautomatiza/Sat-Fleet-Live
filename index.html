@@ -2284,19 +2284,10 @@ let cesiumUpdateInterval = null;
             try {
                 // Función para cargar TLE
         async function fetchTLE() {
-             const SOURCES = [
-    'https://raw.githubusercontent.com/jaimeautomatiza/Sat-Fleet-Live/main/tle/TODOS_PRUEBA.txt',
-    'https://cdn.jsdelivr.net/gh/jaimeautomatiza/Sat-Fleet-Live@main/tle/TODOS_PRUEBA.txt'
-];
-                    try {
-                        let textLocal = null;
-                        for (const src of SOURCES) {
-                            try {
-                                const responseLocal = await fetch(src + '?v=' + Date.now());
-                                if (responseLocal.ok) { textLocal = await responseLocal.text(); break; }
-                            } catch(e) { continue; }
-                        }
-                        if (!textLocal) throw new Error("Error cargando TLE desde las fuentes remotas");
+             try {
+                        const responseLocal = await fetch('https://worker.satfleetlive.com/api/tle');
+                        if (!responseLocal.ok) throw new Error('TLE worker error: ' + responseLocal.status);
+                        const textLocal = await responseLocal.text();
 
                         // Guardar en localStorage
                         localStorage.setItem('backupTLE', textLocal);
@@ -2808,6 +2799,8 @@ function closeSatelliteInfo() {
                 if (activeFilters.has('all')) {
                     activeFilters.delete('all'); // Permitir que se apague
                 } else {
+                    const confirmed = confirm("⚠️ Loading ALL satellites (15,000+) may cause lag or freezing depending on your device.\n\nDo you want to continue?");
+                    if (!confirmed) return;
                     activeFilters.clear();
                     activeFilters.add('all');
                 }
@@ -2833,6 +2826,8 @@ function closeSatelliteInfo() {
                 if (activeFilters.has('all')) {
                     activeFilters.delete('all'); // Permitir que se apague
                 } else {
+                    const confirmed = confirm("⚠️ Loading ALL satellites (15,000+) may cause lag or freezing depending on your device.\n\nDo you want to continue?");
+                    if (!confirmed) return;
                     activeFilters.clear();
                     activeFilters.add('all');
                 }
@@ -4101,10 +4096,12 @@ if (selectedNoradId) {
             // Volar al pad si viene de launches.html
             const flyLat = sessionStorage.getItem('flyToLat');
             const flyLng = sessionStorage.getItem('flyToLng');
+            const flyLaunchId = sessionStorage.getItem('flyToLaunchId');
             if (flyLat && flyLng) {
                 sessionStorage.removeItem('flyToLat');
                 sessionStorage.removeItem('flyToLng');
                 sessionStorage.removeItem('flyToLabel');
+                sessionStorage.removeItem('flyToLaunchId');
                 setTimeout(() => {
                     if (cesiumViewer) {
                         cesiumViewer.camera.flyTo({
@@ -4113,6 +4110,23 @@ if (selectedNoradId) {
                             ),
                             duration: 2
                         });
+                    } else if (map) {
+                        map.flyTo([parseFloat(flyLat), parseFloat(flyLng)], 8, { animate: true, duration: 2 });
+                    }
+                    // Mostrar panel del cohete si viene de launches.html
+                    if (flyLaunchId) {
+                        const tryShowRocket = setInterval(() => {
+                            try {
+                                const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+                                if (!raw) return;
+                                const { results } = JSON.parse(raw);
+                                const launch = results.find(l => String(l.id) === String(flyLaunchId));
+                                if (!launch) return;
+                                clearInterval(tryShowRocket);
+                                showRocketInfo3D(launch);
+                            } catch(e) { clearInterval(tryShowRocket); }
+                        }, 400);
+                        setTimeout(() => clearInterval(tryShowRocket), 8000);
                     }
                 }, 2000);
             }
@@ -4162,7 +4176,7 @@ async function loadUpcomingLaunches() {
         if (isFresh) return; // caché válido, no llamar a la API
 
         const res = await fetch(
-            'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=100&mode=detailed',
+            'https://worker.satfleetlive.com/api/launches/upcoming?limit=100&mode=detailed',
             { headers: { 'Accept': 'application/json' } }
         );
         if (!res.ok) throw new Error('API error');
@@ -4549,7 +4563,7 @@ async function loadRocketPadMarkers() {
     if (!launches.length) {
         try {
             const res = await fetch(
-                'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=100&mode=detailed',
+                'https://worker.satfleetlive.com/api/launches/upcoming?limit=100&mode=detailed',
                 { headers: { 'Accept': 'application/json' } }
             );
             if (res.ok) {

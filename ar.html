@@ -581,7 +581,7 @@ function initLocation() {
 // ═══════════════════════════════════════════════
 async function loadSatellites() {
     try {
-        const res = await fetch('tle/TODOS_PRUEBA.txt?v=' + Date.now());
+        const res = await fetch('https://worker.satfleetlive.com/api/tle');
         if (!res.ok) throw new Error('fetch failed');
         const text = await res.text();
         allSatellites = parseTLE(text);

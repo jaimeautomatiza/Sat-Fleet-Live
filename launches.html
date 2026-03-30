@@ -468,7 +468,7 @@ async function fetchIfNeeded() {
     console.log('🌐 Actualizando lanzamientos desde API...');
     try {
         const res = await fetch(
-            'https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=50&mode=detailed',
+            'https://worker.satfleetlive.com/api/launches/upcoming?limit=100&mode=detailed',
             { headers: { 'Accept': 'application/json' } }
         );
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -539,7 +539,7 @@ function renderLaunches(launches) {
         if (isWebcastLive || isInFlight) return true;
         
         // REGLA 3: Si la API no dice nada, le damos su hora de cortesía (la que elegiste para esta página).
-        return diffMs > -3600000;
+        return diffMs > -10800000;
     }).sort((a, b) => new Date(a.net) - new Date(b.net));
 
     // FILTRO PARA PAST (Historial / Recientes)
@@ -655,7 +655,7 @@ card.onclick = (e) => {          // ← y esto
         ? `<a class="card-btn watch" href="${streamUrl}" target="_blank">Watch Live</a>`
         : '';
     const mapBtn = padCoords
-        ? `<button class="card-btn map" onclick="flyToPad(${padCoords.lat}, ${padCoords.lng}, '${escHtml(mission)}')">View on map</button>`
+        ? `<button class="card-btn map" onclick="flyToPad(${padCoords.lat}, ${padCoords.lng}, '${escHtml(mission)}', '${escHtml(launch.id)}')">View on map</button>`
         : '';
     const descHtml = desc
         ? `<div class="card-description">${escHtml(desc.substring(0, 220))}${desc.length > 220 ? '…' : ''}</div>`
@@ -695,10 +695,11 @@ card.onclick = (e) => {          // ← y esto
     return card;
 }
 
-function flyToPad(lat, lng, missionName) {
+function flyToPad(lat, lng, missionName, launchId) {
     sessionStorage.setItem('flyToLat', lat);
     sessionStorage.setItem('flyToLng', lng);
     sessionStorage.setItem('flyToLabel', missionName);
+    if (launchId) sessionStorage.setItem('flyToLaunchId', launchId);
     window.location.href = 'index.html';
 }
 
