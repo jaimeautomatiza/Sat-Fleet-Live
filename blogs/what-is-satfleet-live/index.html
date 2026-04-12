@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+
+    <!-- SEO -->
+    <title>What Is SatFleet Live? Complete Guide to Every Feature | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SatFleet Live is a free real-time satellite tracker with 14,000+ satellites, 3D globe, live rocket launches, AR sky view, and next pass predictions. Full guide to every feature — no sign-up needed.">
+    <meta name="keywords" content="SatFleet Live, satellite tracker, real-time satellite tracking, free satellite map, ISS tracker, Starlink tracker, live rocket launches, 3D satellite globe, next passes, AR sky view">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/what-is-satfleet-live/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="What Is SatFleet Live? Complete Guide to Every Feature">
+    <meta property="og:description" content="Free real-time satellite tracker with 14,000+ satellites, 3D globe, live rocket launches, AR sky view, and next pass predictions. Full guide to every feature.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/what-is-satfleet-live/">
+    <meta property="og:image" content="/images/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="What Is SatFleet Live? Complete Guide to Every Feature">
+    <meta name="twitter:description" content="Free real-time satellite tracker with 14,000+ satellites, 3D globe, live rocket launches, AR sky view, and next pass predictions.">
+    <meta name="twitter:image" content="/images/logo.png">
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "What Is SatFleet Live? Complete Guide to Every Feature",
+      "description": "SatFleet Live is a free real-time satellite tracker with 14,000+ satellites, 3D globe, live rocket launches, AR sky view, and next pass predictions. Full guide to every feature.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": { "@type": "Organization", "name": "SatFleet Live", "url": "https://satfleetlive.com" },
+      "datePublished": "2026-04-01",
+      "url": "https://satfleetlive.com/blogs/what-is-satfleet-live/"
+    }
+    </script>
+
+    <!-- FAQPage Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is SatFleet Live?",
+          "acceptedAnswer": { "@type": "Answer", "text": "SatFleet Live is a free, browser-based real-time satellite tracker that shows the live position of 14,000+ active satellites on an interactive 2D map or 3D globe. It also displays upcoming rocket launches with live countdown timers, predicts satellite passes over your location, and includes an experimental AR Sky View mode." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is SatFleet Live free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, SatFleet Live is completely free. There are no subscriptions, no paywalls, and no account required. All features — including the 3D globe, Next Passes, launch tracker, and AR mode — are accessible without registration." }
+        },
+        {
+          "@type": "Question",
+          "name": "How accurate is SatFleet Live?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Satellite positions are calculated using TLE (Two-Line Element) orbital data from CelesTrak / NORAD, updated every 48 hours. The SGP4 propagation model then computes real-time positions to within a few kilometres for most satellites. Rocket launch data comes from the Launch Library 2 API (The Space Devs), refreshed every 5–15 minutes depending on proximity to launch time." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does SatFleet Live work on mobile?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. SatFleet Live is fully responsive and works on smartphones and tablets. On mobile, the top bar adapts to show only the most essential controls, and a compact overflow menu gives access to all other features. The 3D globe, AR mode, and Next Passes all work on mobile browsers." }
+        },
+        {
+          "@type": "Question",
+          "name": "What satellites can I track on SatFleet Live?",
+          "acceptedAnswer": { "@type": "Answer", "text": "SatFleet Live tracks over 14,000 active satellites, including GPS/navigation constellations (GPS, Galileo, GLONASS, BeiDou), the International Space Station (ISS) and China's Tiangong, Starlink and OneWeb internet satellites, military/spy satellites, weather satellites (NOAA, GOES, Meteosat), Earth observation satellites (Sentinel, Landsat), and thousands of technology and experimental spacecraft." }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+            --orange: #ff6b35;
+            --green: #00d26a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            overflow-x: hidden;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background-color: var(--dark-secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-section { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+        .logo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+        .logo-placeholder { width: 40px; height: 40px; background-color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; }
+        .site-title { font-size: 1.5rem; font-weight: 650; color: var(--primary-purple); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); text-decoration: none; }
+        .header-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 2px solid var(--primary-purple); color: var(--primary-purple); padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .nav-btn:hover { background-color: var(--primary-purple); color: white; }
+        .nav-btn.blue { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .nav-btn.blue:hover { background-color: var(--primary-blue); color: white; }
+
+        /* ── HERO ── */
+        .article-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d1b33 50%, #1a1a2e 100%);
+            border-bottom: 2px solid var(--primary-purple);
+            padding: 3.5rem 1.5rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .article-hero::before { content: '🛰️'; position: absolute; font-size: 10rem; opacity: 0.04; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-secondary-dark); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--primary-blue); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .article-hero h1 { font-size: 2.2rem; font-weight: 700; color: #ffffff; line-height: 1.25; max-width: 820px; margin: 0 auto 1rem; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        .article-hero h1 span { color: var(--primary-purple); }
+        .article-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary-dark); margin-top: 1rem; }
+
+        /* ── LAYOUT ── */
+        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+        /* ── TOC ── */
+        .toc { background-color: var(--dark-secondary); border-left: 4px solid var(--primary-purple); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+        .toc-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .toc ol { margin-left: 1.2rem; }
+        .toc li { margin-bottom: 0.4rem; }
+        .toc a { color: var(--primary-blue); text-decoration: none; font-size: 0.95rem; }
+        .toc a:hover { text-decoration: underline; color: #64b5f6; }
+
+        /* ── ARTICLE CONTENT ── */
+        .article-body p { color: var(--text-secondary-dark); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
+        .article-body strong { color: #ffffff; }
+        .article-body a { color: var(--primary-blue); text-decoration: none; }
+        .article-body a:hover { text-decoration: underline; }
+        .article-body h2 { font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-purple); scroll-margin-top: 80px; }
+        .article-body h3 { font-size: 1.1rem; font-weight: 600; color: var(--primary-purple); margin: 1.75rem 0 0.75rem; }
+
+        /* ── HIGHLIGHT BOX ── */
+        .highlight-box { background: linear-gradient(135deg, rgba(156,39,176,0.12), rgba(33,150,243,0.08)); border: 1px solid rgba(156,39,176,0.35); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0; }
+        .highlight-box p { margin-bottom: 0 !important; color: #e0d0e8 !important; }
+        .highlight-label { font-size: 0.78rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block; }
+
+        /* ── FEATURE GRID ── */
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem; }
+        .feature-card { background-color: var(--dark-secondary); border-radius: 12px; padding: 1.25rem; border-top: 3px solid var(--primary-purple); transition: transform 0.2s, border-top-color 0.2s; }
+        .feature-card:hover { transform: translateY(-3px); }
+        .feature-card.orange { border-top-color: var(--orange); }
+        .feature-card.green { border-top-color: var(--green); }
+        .feature-card.blue { border-top-color: var(--primary-blue); }
+        .feature-card.gold { border-top-color: #ffd700; }
+        .feature-icon { font-size: 1.6rem; margin-bottom: 0.6rem; display: block; }
+        .feature-title { font-size: 1rem; font-weight: 700; color: #ffffff; margin-bottom: 0.4rem; }
+        .feature-desc { font-size: 0.88rem; color: var(--text-secondary-dark); line-height: 1.55; }
+
+        /* ── STEP LIST ── */
+        .step-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 1.25rem 0 1.75rem; }
+        .step-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.25rem; }
+        .step-list li::before { content: counter(step-counter); background-color: var(--primary-purple); color: white; font-weight: 700; font-size: 0.9rem; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .step-list li span { color: var(--text-secondary-dark); line-height: 1.7; font-size: 0.98rem; }
+        .step-list li strong { color: #ffffff; display: block; margin-bottom: 0.2rem; }
+
+        /* ── CATEGORY COLOR TABLE ── */
+        .category-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0 1.75rem; font-size: 0.93rem; }
+        .category-table thead tr { background: rgba(156,39,176,0.12); }
+        .category-table th { padding: 0.8rem 1rem; text-align: left; font-weight: 600; color: var(--text-primary-dark); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .category-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--dark-tertiary); color: var(--text-secondary-dark); vertical-align: middle; }
+        .category-table tbody tr:hover { background: rgba(156,39,176,0.05); }
+        .category-table td:first-child { color: var(--text-primary-dark); font-weight: 600; }
+        .color-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 8px; flex-shrink: 0; }
+
+        /* ── FAQ ── */
+        .faq-item { background-color: var(--dark-secondary); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; }
+        .faq-question { width: 100%; background: none; border: none; color: #ffffff; font-size: 1rem; font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background 0.2s; font-family: inherit; }
+        .faq-question:hover { background-color: rgba(156,39,176,0.12); }
+        .faq-arrow { color: var(--primary-purple); font-size: 1.1rem; transition: transform 0.3s ease; flex-shrink: 0; }
+        .faq-question.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary-dark); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display: block; }
+        .faq-answer a { color: var(--primary-blue); text-decoration: none; }
+        .faq-answer a:hover { text-decoration: underline; }
+
+        /* ── RELATED ARTICLES ── */
+        .related-articles { margin: 2.5rem 0 1.5rem; }
+        .related-title { font-size: 1rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        .related-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem; text-decoration: none; border: 1px solid var(--dark-tertiary); transition: border-color 0.3s, background 0.3s; margin-bottom: 0.6rem; }
+        .related-card:hover { border-color: var(--primary-purple); background-color: rgba(156,39,176,0.08); }
+        .related-icon { font-size: 1.8rem; flex-shrink: 0; }
+        .related-text strong { display: block; color: #ffffff; font-size: 0.98rem; margin-bottom: 0.2rem; }
+        .related-text span { color: var(--text-secondary-dark); font-size: 0.87rem; }
+
+        /* ── CTA BANNER ── */
+        .cta-banner { background: linear-gradient(135deg, rgba(156,39,176,0.2), rgba(33,150,243,0.15)); border: 1px solid rgba(156,39,176,0.4); border-radius: 14px; padding: 2rem; text-align: center; margin: 3rem 0 2rem; }
+        .cta-banner h2 { font-size: 1.4rem; color: #ffffff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; }
+        .cta-banner p { color: var(--text-secondary-dark); margin-bottom: 1.25rem; font-size: 1rem; }
+        .cta-btn { display: inline-block; background-color: var(--primary-purple); color: white; padding: 0.75rem 2rem; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: 2px solid var(--primary-purple); margin: 0.25rem; }
+        .cta-btn:hover { background-color: transparent; color: var(--primary-purple); }
+        .cta-btn.blue { background-color: var(--primary-blue); border-color: var(--primary-blue); }
+        .cta-btn.blue:hover { background-color: transparent; color: var(--primary-blue); }
+
+        /* ── LAUNCH BADGE ── */
+        .live-badge { display: inline-block; background: rgba(255,50,50,0.2); color: #ff4444; border: 1px solid rgba(255,50,50,0.4); font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.5px; vertical-align: middle; animation: livePulse 1.5s infinite; margin-left: 6px; }
+        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* ── FOOTER ── */
+        .footer { background-color: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 12px; color: var(--text-secondary-dark); border-top: 1px solid var(--dark-tertiary); }
+        .footer a { color: #4da6ff; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* ── INLINE FEATURE ROW ── */
+        .feature-row { display: flex; align-items: flex-start; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--dark-tertiary); }
+        .feature-row:last-child { border-bottom: none; }
+        .feature-row-icon { font-size: 1.8rem; flex-shrink: 0; width: 40px; text-align: center; }
+        .feature-row-body strong { display: block; color: #ffffff; font-size: 1rem; margin-bottom: 0.25rem; }
+        .feature-row-body span { color: var(--text-secondary-dark); font-size: 0.92rem; line-height: 1.6; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .article-hero h1 { font-size: 1.6rem; }
+            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
+            .header-nav { justify-content: center; }
+            .blog-container { padding: 1.75rem 1rem 3rem; }
+            .article-body h2 { font-size: 1.3rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .category-table { font-size: 0.8rem; }
+            .category-table th, .category-table td { padding: 0.55rem 0.65rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/images/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero">
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; What Is SatFleet Live?
+        </p>
+        <h1>What Is <span>SatFleet Live</span>?<br>A Complete Guide to Every Feature</h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 April 2026</span>
+            <span>⏱️ 9 min read</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <!-- TOC -->
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#what-is">What is SatFleet Live?</a></li>
+                <li><a href="#live-map">The Live Satellite Map (2D)</a></li>
+                <li><a href="#3d-globe">3D Globe Mode</a></li>
+                <li><a href="#satellite-categories">Satellite Categories &amp; Filters</a></li>
+                <li><a href="#only-visible">Only Visible — See What's Above You Tonight</a></li>
+                <li><a href="#next-passes">Next Passes — Predict Satellite Overheads</a></li>
+                <li><a href="#rocket-launches">Rocket Launches &amp; Live Tracking</a></li>
+                <li><a href="#ar-sky">AR Sky View (Beta)</a></li>
+                <li><a href="#search">Satellite Search by Name or NORAD ID</a></li>
+                <li><a href="#data-sources">Data Sources &amp; Accuracy</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                If you've ever looked up at the night sky and wondered which of those moving dots are satellites — or wanted to know exactly when the ISS will pass over your house — <strong>SatFleet Live</strong> is the tool for you. It is a free, browser-based satellite tracker that shows the live position of over <strong>14,000 active satellites</strong> in real time, with no downloads, no subscriptions, and no account required.
+            </p>
+            <p>
+                But SatFleet Live is more than just a map of dots. It includes a 3D globe powered by CesiumJS, a rocket launch tracker with live countdown timers and YouTube streams, a next-pass predictor for your exact GPS location, and even an experimental <strong>augmented reality sky viewer</strong> you can point at the sky with your phone. This guide walks through every feature, explains how it all works, and shows you how to get the most out of it.
+            </p>
+
+            <!-- SECTION 1 -->
+            <h2 id="what-is">What Is SatFleet Live?</h2>
+
+            <p>
+                SatFleet Live is a <strong>real-time satellite tracking website</strong> built entirely in the browser. There is nothing to install — you open it in Chrome, Firefox, Safari, or Edge and you immediately see thousands of satellites moving across a world map, updated every second.
+            </p>
+
+            <p>
+                Under the hood, SatFleet Live pulls orbital data in TLE (Two-Line Element) format from CelesTrak / NORAD — the universal standard for satellite position data, used by space agencies worldwide. It then runs those numbers through the SGP4 orbital mechanics model directly in your browser using the <code style="color:#00d26a;font-family:monospace;">satellite.js</code> library, computing each satellite's exact position in real time. No server-side processing, no delays — the calculations happen on your device.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🛰️</span>
+                    <div class="feature-title">14,000+ satellites tracked</div>
+                    <div class="feature-desc">Every active satellite with current TLE data — GPS, ISS, Starlink, military, weather, and more.</div>
+                </div>
+                <div class="feature-card blue">
+                    <span class="feature-icon">🌐</span>
+                    <div class="feature-title">2D map + 3D globe</div>
+                    <div class="feature-desc">Switch between a classic flat map (Leaflet) and an interactive 3D globe (CesiumJS) with satellite imagery.</div>
+                </div>
+                <div class="feature-card orange">
+                    <span class="feature-icon">🚀</span>
+                    <div class="feature-title">Live rocket launches</div>
+                    <div class="feature-desc">Upcoming launches with countdowns, pad markers on the map, and embedded live streams when a rocket is in the air.</div>
+                </div>
+                <div class="feature-card green">
+                    <span class="feature-icon">📍</span>
+                    <div class="feature-title">Next Passes</div>
+                    <div class="feature-desc">Predict exactly when any satellite will fly over your GPS location — with elevation, direction, and brightness.</div>
+                </div>
+                <div class="feature-card gold">
+                    <span class="feature-icon">📱</span>
+                    <div class="feature-title">AR Sky View</div>
+                    <div class="feature-desc">Point your phone at the sky to see real satellites overlaid on your camera feed, positioned using your compass.</div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🔒</span>
+                    <div class="feature-title">100% free, no account</div>
+                    <div class="feature-desc">No subscriptions, no paywalls, no registration. All features open to everyone, forever.</div>
+                </div>
+            </div>
+
+            <!-- SECTION 2 -->
+            <h2 id="live-map">The Live Satellite Map (2D)</h2>
+
+            <p>
+                The default view when you open SatFleet Live is the <strong>interactive 2D world map</strong>, built on Leaflet.js. Each satellite appears as a colour-coded dot moving in real time across the map — positions are updated every second using SGP4 calculations.
+            </p>
+
+            <p>
+                The map comes in a dark theme by default, using CartoDB's dark basemap, which makes the coloured satellite dots easy to read at a glance. You can switch to a light map using the Theme button in the top bar.
+            </p>
+
+            <h3>Clicking a satellite</h3>
+            <p>
+                Tap or click any dot on the map to open the <strong>satellite info panel</strong>. It shows the satellite's name, current altitude (in km), velocity (in km/h), and live latitude and longitude coordinates. The map also draws the satellite's predicted orbit path for the next ~100 minutes as a dashed line. Click the satellite's name in the panel to open its detail page with more historical and technical information.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">📍 Your location on the map</span>
+                <p>SatFleet Live places a marker on the map at your GPS location (with your permission). On devices with a working compass, the marker becomes a directional arrow that rotates as you move — useful for outdoor observations. Your location is used to calculate satellite visibility and next passes, and is stored only in your browser's local storage.</p>
+            </div>
+
+            <!-- SECTION 3 -->
+            <h2 id="3d-globe">3D Globe Mode</h2>
+
+            <p>
+                Press the <strong>3D</strong> button in the top bar to switch to the interactive globe, powered by CesiumJS with ESRI satellite imagery. The globe renders Earth as it actually looks from space — with real photographic textures, country borders, and atmospheric effects.
+            </p>
+
+            <p>
+                In 3D mode, satellites appear as colour-coded points floating above the globe at their correct altitudes. You can rotate and zoom freely with mouse or touch gestures. The satellites update their positions every 2 seconds, and labels appear when you zoom in close enough. Clicking a satellite opens the same info panel as in 2D mode, and also draws the 3D orbital path as a dashed line curved around the globe.
+            </p>
+
+            <h3>Why 3D is different</h3>
+            <p>
+                In 2D, a GPS satellite at 20,200 km and an ISS at 400 km look identical on the map — both are just dots. In 3D, the altitude difference is immediately obvious: you can see the ISS skimming just above the surface while GPS satellites hover in a distant shell and geostationary satellites sit at a dramatically higher orbit far from Earth. It makes the geometry of space actually tangible.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🧭 3D compass</span>
+                <p>In 3D mode with an active compass (mobile devices), a small compass rose appears in the corner showing your current heading — a useful reference when cross-referencing what you see on the globe with the real sky above you.</p>
+            </div>
+
+            <!-- SECTION 4 -->
+            <h2 id="satellite-categories">Satellite Categories &amp; Filters</h2>
+
+            <p>
+                With 14,000+ satellites on screen at once, filters are essential. Click the <strong>Layers</strong> button to open the filter panel. Satellites are divided into two main layers — Satellites and Rockets — each with their own sub-filters.
+            </p>
+
+            <p>
+                Each satellite category has a unique colour so you can identify groups instantly on the map:
+            </p>
+
+            <div style="overflow-x:auto;">
+                <table class="category-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Colour</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>GPS / Navigation</td>
+                            <td><span class="color-dot" style="background:#4285f4;"></span>Blue</td>
+                            <td>GPS (NAVSTAR), Galileo, GLONASS, BeiDou, NavIC</td>
+                        </tr>
+                        <tr>
+                            <td>Space Station</td>
+                            <td><span class="color-dot" style="background:#ffffff;border:1px solid #555;"></span>White</td>
+                            <td>ISS (Zarya), Tiangong, crewed spacecraft, cargo ships</td>
+                        </tr>
+                        <tr>
+                            <td>Starlink / Internet</td>
+                            <td><span class="color-dot" style="background:#00d26a;"></span>Green</td>
+                            <td>Starlink, OneWeb, Amazon Kuiper</td>
+                        </tr>
+                        <tr>
+                            <td>Communications</td>
+                            <td><span class="color-dot" style="background:#ff6b35;"></span>Orange</td>
+                            <td>Intelsat, Eutelsat, Iridium, Inmarsat, SES</td>
+                        </tr>
+                        <tr>
+                            <td>Military / Spy</td>
+                            <td><span class="color-dot" style="background:#ff0000;"></span>Red</td>
+                            <td>Yaogan, USA-series, NRO launches, Kosmos</td>
+                        </tr>
+                        <tr>
+                            <td>Weather / Climate</td>
+                            <td><span class="color-dot" style="background:#ffd700;"></span>Gold</td>
+                            <td>NOAA, GOES, Metop, Himawari, Fengyun</td>
+                        </tr>
+                        <tr>
+                            <td>Geodetic / Tracking</td>
+                            <td><span class="color-dot" style="background:#00ced1;"></span>Cyan</td>
+                            <td>Sentinel, Landsat, GRACE, Copernicus, LAGEOS</td>
+                        </tr>
+                        <tr>
+                            <td>Technology / Exp.</td>
+                            <td><span class="color-dot" style="background:#9400d3;"></span>Purple</td>
+                            <td>CubeSats, amateur radio satellites, AMSAT</td>
+                        </tr>
+                        <tr>
+                            <td>Other / Misc</td>
+                            <td><span class="color-dot" style="background:#ff69b4;"></span>Pink</td>
+                            <td>Everything that doesn't fit the above categories</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>
+                By default, SatFleet Live loads GPS, Space Station, Communications, Military, Weather, Geodetic, and Technology satellites. Starlink and "Other" categories are off by default to avoid overloading the map — switching Starlink on will add over 9,000 dots at once (a warning dialog confirms before proceeding).
+            </p>
+
+            <p>
+                You can activate multiple categories simultaneously and combine them with the visibility filter. Switching off the Satellites layer entirely hides all satellites and leaves only rocket markers on the map.
+            </p>
+
+            <!-- SECTION 5 -->
+            <h2 id="only-visible">Only Visible — See What's Above You Tonight</h2>
+
+            <p>
+                Press <strong>Only Visible</strong> in the top bar to filter satellites down to only those that are actually observable from your location at this moment. A satellite is considered visible when three conditions are met simultaneously: it is above your horizon (by at least the minimum elevation you set), the sky at your location is dark enough (the Sun is more than 6° below your horizon), and the satellite itself is still lit by sunlight — meaning it is above Earth's shadow cone.
+            </p>
+
+            <p>
+                The minimum elevation slider lets you raise the cutoff from 0° (anything above the horizon) to 90° (directly overhead). Raising it to 20–30° gives more realistic results, since low-elevation satellites are often obscured by buildings, trees, and atmospheric haze.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🔭 When to use "Only Visible"</span>
+                <p>This mode is most useful during astronomical twilight — roughly 30–90 minutes after sunset or before sunrise. At that time, your sky is dark enough to see satellites, but sunlight still reaches satellites orbiting at 400–600 km. During full daylight, almost nothing passes the visibility check. At midnight, nothing illuminated by the Sun passes over equatorial regions, so the filter may show very few results.</p>
+            </div>
+
+            <!-- SECTION 6 -->
+            <h2 id="next-passes">Next Passes — Predict Satellite Overheads</h2>
+
+            <p>
+                The <a href="/next-passes.html"><strong>Next Passes</strong></a> page calculates exactly when specific satellites will fly over your location over the next 1–7 days, including the precise start time, maximum elevation, direction (azimuth), and estimated visual brightness (apparent magnitude).
+            </p>
+
+            <h3>How it works</h3>
+            <p>
+                Click "Calculate Passes," select how many days and which satellite category you want, and SatFleet Live runs SGP4 calculations for every satellite in that category — checking every 2-minute window for visibility. It then refines each pass with 10-second resolution, so start and end times are accurate to within a few seconds. The full calculation runs entirely in your browser with no server calls.
+            </p>
+
+            <h3>What the results tell you</h3>
+            <p>
+                Each pass card shows the <strong>start time</strong> (when the satellite rises above 10°), the <strong>maximum elevation</strong> (the highest point it will reach — higher means brighter and easier to see), the <strong>direction</strong> expressed as three compass points (rising from → peaking at → setting to), and a <strong>brightness estimate</strong> in apparent magnitude (negative numbers are brighter; the ISS routinely reaches −3 to −4, brighter than anything in the night sky except the Moon).
+            </p>
+
+            <h3>Starlink train detection</h3>
+            <p>
+                Next Passes automatically detects <strong>Starlink trains</strong> — clusters of recently launched Starlink satellites passing in close succession. When three or more Starlink satellites pass within 10 minutes of each other from the same general direction, they are grouped under a "Starlink Train" header with a count and a link to the spotting guide.
+            </p>
+
+            <h3>Pass alerts</h3>
+            <p>
+                Click the <strong>Notify me</strong> button on any pass card to schedule browser notifications — 10 minutes before and 2 minutes before the pass. Notifications require permission and need the browser tab to stay open in the background. Enable them site-wide using the 🔔 button in the header, then set individual alerts per pass.
+            </p>
+
+            <h3>Custom location</h3>
+            <p>
+                If your GPS isn't available or you want to calculate passes for a different city, click <strong>Change location</strong> on the Next Passes page to open a mini Leaflet map. Click anywhere on the map or drag the marker to set your observation point. You can also tap "Use my GPS" to re-detect your position.
+            </p>
+
+            <!-- SECTION 7 -->
+            <h2 id="rocket-launches">Rocket Launches &amp; Live Tracking <span class="live-badge">LIVE</span></h2>
+
+            <p>
+                SatFleet Live integrates launch data from the <strong>Launch Library 2 API</strong> (The Space Devs) to show upcoming and recent rocket launches directly on the map, complete with countdown timers and live streams.
+            </p>
+
+            <h3>The launches widget</h3>
+            <p>
+                A collapsible widget on the map shows the next upcoming launch with a live countdown. Expand it to see all launches in the next few days, each with the mission name, vehicle, launch pad, status badge (GO / TBC / LIVE), and countdown. Click any card to go to the full launches page.
+            </p>
+
+            <h3>Rocket markers on the map</h3>
+            <p>
+                Each upcoming launch appears as a rocket icon on the map at its launch pad location. Icons are colour-coded by provider — SpaceX Falcon rockets look different from Soyuz or Long March or Electron. The marker size and z-ordering prioritise imminent launches so they are never buried under other markers.
+            </p>
+
+            <h3>LIVE detection logic</h3>
+            <p>
+                A rocket switches to LIVE status — shown with a pulsing red badge and glow animation — when any of these conditions are met: the API reports <code style="color:#00d26a;font-family:monospace;">webcast_live: true</code>, the launch status changes to "In Flight," or the status is "Go" and the scheduled launch time has already passed (within a 3-hour window). The LIVE state persists as long as those conditions hold, regardless of how many hours have elapsed — so a long ascent or orbital insertion burn keeps the rocket visible on the map until the API reports Success or Failure.
+            </p>
+
+            <h3>Embedded live streams</h3>
+            <p>
+                When a launch is LIVE and there is a YouTube stream URL available from the API, the launch card in the widget displays a click-to-play thumbnail. Clicking it replaces the thumbnail with an embedded YouTube iframe that auto-plays the stream. On mobile, a Fullscreen button appears below the player. Collapsing the widget stops the stream and restores the thumbnail to avoid background audio.
+            </p>
+
+            <h3>Filtering rocket markers</h3>
+            <p>
+                The Layers panel includes rocket sub-filters: All, 🔴 Live, Today, SpaceX, Rocket Lab, Soyuz, China, Europe, ULA / Blue Origin, and Other. You can combine rocket filters with satellite filters, or turn off the entire Rockets layer with the Rockets toggle button.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🗺️ Flying to a launch pad from the Launches page</span>
+                <p>On the dedicated Launches page, each card has a "View on map" button. Clicking it stores the pad coordinates in sessionStorage and redirects to the main map, which then flies the camera to that exact location and opens the rocket's info panel automatically — useful for zooming in to watch a live launch in real time.</p>
+            </div>
+
+            <!-- SECTION 8 -->
+            <h2 id="ar-sky">AR Sky View (Beta)</h2>
+
+            <p>
+                Available at <a href="/ar.html">satfleetlive.com/ar.html</a>, the <strong>AR Sky View</strong> is a mobile-first tool that overlays real satellite positions on your sky using your phone's compass and accelerometer. Point your device at any part of the sky and coloured dots appear where satellites currently are — in real time.
+            </p>
+
+            <h3>Two modes</h3>
+            <p>
+                In <strong>Compass Mode</strong> (the default), satellites are plotted on a dark sky canvas with cardinal directions and elevation rings. This works without the camera. Switch to <strong>Camera Mode</strong> using the "Camera" button to activate your rear camera — the canvas becomes semi-transparent, overlaying satellite positions on your actual camera feed for a true augmented reality experience.
+            </p>
+
+            <h3>Calibration</h3>
+            <p>
+                Compass-based AR requires a calibrated magnetometer. If satellites appear misaligned, a calibration modal explains how to move your phone in a figure-8 motion to recalibrate. A toast notification appears if no compass data is detected within 1.5 seconds of loading.
+            </p>
+
+            <h3>Filters in AR</h3>
+            <p>
+                A Filters button in AR mode opens the same category panel as the main map — you can restrict the view to Space Station only (great for ISS spotting), GPS, Starlink, or any other category. The "Only Visible (night)" filter applies the same three-condition visibility check as the main map.
+            </p>
+
+            <h3>Tapping satellites</h3>
+            <p>
+                Tap any satellite dot in AR mode to open a popup showing its name, altitude, velocity, elevation angle, and azimuth. A dashed orbital path also appears on the sky canvas showing where the satellite is heading.
+            </p>
+
+            <!-- SECTION 9 -->
+            <h2 id="search">Satellite Search by Name or NORAD ID</h2>
+
+            <p>
+                The search box in the top bar accepts both satellite names and NORAD IDs. Type "ISS" to jump to the International Space Station, or type "25544" (the ISS's NORAD Catalog Number) for the same result. Partial matches work — typing "Starlink" will match the first Starlink satellite it finds.
+            </p>
+
+            <p>
+                When a satellite is found, the map flies to its current position and opens the info panel. If the satellite isn't currently within the active filters, the search still finds and focuses it. The search also covers rocket launches — typing a rocket name, vehicle, or pad name will find and fly to a matching launch.
+            </p>
+
+            <!-- SECTION 10 -->
+            <h2 id="data-sources">Data Sources &amp; Accuracy</h2>
+
+            <div class="feature-row" style="margin-top:1rem;">
+                <div class="feature-row-icon">🛰️</div>
+                <div class="feature-row-body">
+                    <strong>Satellite orbital data</strong>
+                    <span>TLE (Two-Line Element) data from <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a>, served via SatFleet's own API worker and refreshed every 48 hours. The SGP4/SDP4 propagation model computes live positions to within a few km for most LEO satellites. For satellites that recently manoeuvred (orbital boosts, collision avoidance), accuracy degrades until a fresh TLE is published.</span>
+                </div>
+            </div>
+            <div class="feature-row">
+                <div class="feature-row-icon">🚀</div>
+                <div class="feature-row-body">
+                    <strong>Rocket launch data</strong>
+                    <span>Launch Library 2 API by <a href="https://thespacedevs.com" target="_blank" rel="noopener">The Space Devs</a>. SatFleet Live caches results locally and uses an adaptive TTL — refreshing every 5 minutes when a launch is within 6 hours, every 10 minutes when within 24 hours, and every 15 minutes otherwise. This minimises API calls while keeping countdown timers accurate.</span>
+                </div>
+            </div>
+            <div class="feature-row">
+                <div class="feature-row-icon">📍</div>
+                <div class="feature-row-body">
+                    <strong>Your location</strong>
+                    <span>Obtained via the browser's Geolocation API (GPS or network triangulation) with your explicit permission. Stored only in your browser's <code style="color:#00d26a;font-family:monospace;">localStorage</code> — never sent to any server. A cached location from a previous session is loaded instantly on page open, while GPS updates in the background.</span>
+                </div>
+            </div>
+            <div class="feature-row">
+                <div class="feature-row-icon">☀️</div>
+                <div class="feature-row-body">
+                    <strong>Sun position</strong>
+                    <span>Calculated in real time using a standard astronomical algorithm (Julian Day + ecliptic longitude), not fetched from any API. This powers the "Only Visible" filter, visibility twilight checks, and the AR sky illumination model. Accuracy is within ±1° for current dates.</span>
+                </div>
+            </div>
+
+            <!-- SECTION 11 — FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What is SatFleet Live and what can I do with it?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    SatFleet Live is a free real-time satellite tracking website. You can watch 14,000+ active satellites move across a 2D world map or 3D globe, track live rocket launches with embedded streams, predict exactly when satellites will pass over your location, and use an AR sky viewer to see satellites overlaid on your phone's camera. No account or download is required.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Is SatFleet Live completely free?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes — all features are completely free. There are no paid tiers, no ads, and no paywalled features. The 3D globe, Next Passes, rocket tracker, AR mode, and everything else are available to everyone without registration.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How accurate are the satellite positions?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Positions are calculated from TLE orbital data updated every 48 hours from CelesTrak / NORAD, using the SGP4 propagation model. For most LEO satellites (like the ISS and Starlink), this gives accuracy within 1–5 km. Accuracy degrades after a satellite manoeuvres — a new TLE is typically published within 24–48 hours of any manoeuvre. Geostationary satellites are essentially stationary, so TLE age matters less for them.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Which satellites can I track on SatFleet Live?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    SatFleet Live tracks over 14,000 active, operational satellites — everything from the ISS and Tiangong to the full Starlink and OneWeb constellations, GPS/GLONASS/Galileo/BeiDou navigation systems, NOAA and GOES weather satellites, military satellites (Yaogan, Kosmos, USA-series), Earth observation satellites like Sentinel and Landsat, and thousands of smaller CubeSats and experimental spacecraft. Defunct satellites and space debris are excluded — every dot on the map is functioning hardware.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Does SatFleet Live work on mobile?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes, fully. On mobile, the top bar adapts to show just the logo, search bar, Layers button, and a ⋯ overflow menu that contains all other controls. The map supports pinch-to-zoom and pan gestures. The 3D globe, AR Sky View, and Next Passes all work on mobile browsers. AR mode works best on Android and iOS with a working compass.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How do I find out when the ISS passes over my house?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Open the <a href="/next-passes.html">Next Passes</a> page, allow location access, select "Space Stations" from the satellite type dropdown, and click "Calculate Passes." The ISS is typically among the brightest and most frequent results. You can then tap "Notify me" on any specific pass to receive a browser notification 10 minutes before it begins — with the exact direction to look and the maximum elevation it will reach.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can I watch a rocket launch live on SatFleet Live?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes. When a launch is LIVE and a YouTube stream URL is available from the Launch Library 2 API, the launch widget on the map shows a clickable thumbnail. Tapping it opens the embedded YouTube stream directly in the widget — no need to leave the page. On mobile, a Fullscreen button appears below the player. The rocket's launch pad marker on the map also turns red and pulses while the mission is in progress.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What is the "Only Visible" filter?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    The Only Visible filter limits the map to satellites that are genuinely observable from your location at this moment. Three conditions must be true: the satellite must be above your horizon (default minimum 10°, adjustable with a slider), your local sky must be dark enough (Sun below −6°), and the satellite must be above Earth's shadow (still in sunlight at its altitude). This filter is most useful during evening or morning twilight — roughly 30–90 minutes after sunset or before sunrise.
+                </div>
+            </div>
+
+            <!-- RELATED -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Guides</div>
+
+                <a href="/blogs/how-to-use-ar-to-spot-satellites/" class="related-card">
+    <span class="related-icon">🔭</span>
+    <div class="related-text">
+        <strong>How to Use AR to Spot Satellites With Your Phone</strong>
+        <span>Point your phone at the sky and see every satellite in real time — full guide to AR Sky View.</span>
+    </div>
+</a>
+                <a href="/blogs/3d-satellite-tracking/" class="related-card">
+                    <span class="related-icon">🌐</span>
+                    <div class="related-text">
+                        <strong>3D Satellite Tracking: See Every Orbit in Real Time</strong>
+                        <span>Everything about the 3D globe mode — how to navigate it and what makes it different from a flat map.</span>
+                    </div>
+                </a>
+                <a href="/blogs/next-passes-predict-satellites/" class="related-card">
+                    <span class="related-icon">🔭</span>
+                    <div class="related-text">
+                        <strong>Next Passes: How to Predict Satellite Overheads</strong>
+                        <span>Plan an ISS sighting, detect Starlink trains, and set pass alerts — full guide to the Next Passes feature.</span>
+                    </div>
+                </a>
+                <a href="/blogs/iss-pass-tonight/" class="related-card">
+                    <span class="related-icon">⭐</span>
+                    <div class="related-text">
+                        <strong>ISS Pass Tonight — When &amp; Where to See the Space Station</strong>
+                        <span>Find tonight's ISS flyover for your exact location and know exactly where to look.</span>
+                    </div>
+                </a>
+                <a href="/blogs/how-to-spot-a-starlink-train/" class="related-card">
+                    <span class="related-icon">🟢</span>
+                    <div class="related-text">
+                        <strong>How to Spot a Starlink Train Tonight</strong>
+                        <span>Use SatFleet Live to identify upcoming Starlink trains and know when to step outside.</span>
+                    </div>
+                </a>
+                <a href="/blogs/what-is-a-tle/" class="related-card">
+                    <span class="related-icon">🔢</span>
+                    <div class="related-text">
+                        <strong>What Is a TLE and How to Read It</strong>
+                        <span>The orbital data format that powers SatFleet Live — explained field by field.</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-banner">
+                <h2>Ready to Explore?</h2>
+                <p>Open SatFleet Live and watch 14,000+ satellites move in real time — no sign-up, no download, completely free.</p>
+                <a href="/" class="cta-btn">🌍 Open Live Map</a>
+                <a href="/next-passes.html" class="cta-btn blue">📍 Find Passes Over Me</a>
+            </div>
+
+        </article>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a> |
+            <a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+
+</body>
+</html>

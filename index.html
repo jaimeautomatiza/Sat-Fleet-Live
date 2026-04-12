@@ -3,14 +3,34 @@
 
 <head>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <!-- Google tag (gtag.js) — carga solo con consentimiento -->
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
 
-        gtag('config', 'G-THHVVZCJ4B');
+        function loadGA() {
+            var s = document.createElement('script');
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B';
+            s.async = true;
+            document.head.appendChild(s);
+            gtag('js', new Date());
+            gtag('config', 'G-THHVVZCJ4B');
+        }
+
+        if (localStorage.getItem('cookieConsent') === 'yes') {
+            loadGA();
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'yes');
+            document.getElementById('cookieBanner').style.display = 'none';
+            loadGA();
+        }
+
+        function rejectCookies() {
+            localStorage.setItem('cookieConsent', 'no');
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
     </script>
 
     <!-- Favicon principal y compatibilidad general -->
@@ -1167,6 +1187,104 @@ body.light-mode .rocket-filter-chip {
     background: rgba(255,107,53,0.14);
     color: #ff6b35;
 }
+
+/* ===== YOUTUBE CLICK-TO-PLAY ===== */
+        .yt-thumb-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #000;
+        }
+
+        .yt-thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .yt-thumb-wrap:hover img {
+            transform: scale(1.04);
+            filter: brightness(0.75);
+        }
+
+        .yt-thumb-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .yt-thumb-wrap:hover .yt-thumb-overlay {
+            background: rgba(0,0,0,0.15);
+        }
+
+        .yt-play-btn {
+            width: 52px;
+            height: 52px;
+            background: rgba(255,0,0,0.88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 18px rgba(255,0,0,0.55);
+            animation: ytPulse 2s ease-in-out infinite;
+            transition: transform 0.2s;
+        }
+
+        .yt-thumb-wrap:hover .yt-play-btn {
+            transform: scale(1.12);
+            animation: none;
+        }
+
+        @keyframes ytPulse {
+            0%, 100% { box-shadow: 0 4px 18px rgba(255,0,0,0.55); transform: scale(1); }
+            50%       { box-shadow: 0 4px 28px rgba(255,0,0,0.85); transform: scale(1.06); }
+        }
+
+        .yt-play-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #fff;
+            margin-left: 4px;
+        }
+
+        .yt-live-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #fff;
+            background: rgba(255,0,0,0.85);
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .yt-iframe-wrap {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .yt-iframe-wrap iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* ===== FIN YOUTUBE CLICK-TO-PLAY ===== */
         
         /* ===== RESPONSIVE MÓVIL ===== */
         @media (max-width: 768px) {
@@ -1800,6 +1918,7 @@ body.light-mode .rocket-filter-chip {
         <div class="info-label">Longitude</div>
         <div class="info-value" id="satelliteLongitude">---°</div>
     </div>
+    <div id="rocketVideoContainer" style="display:none; margin-top:10px;"></div>
 </div>
 
 <!-- Desktop Legend -->
@@ -2263,8 +2382,8 @@ let cesiumUpdateInterval = null;
                     'geodetic', 'cartography', 'mapping', 'surveying', 'positioning', 'navigation', 'timing')
             ) return 'geo';
 
-            // Tecnología / Demostración / Experimental
-            if (
+                        // Tecnología / Demostración / Experimental
+            if (!any('starlink', 'oneweb', 'kuiper') &&
                 any('demo', 'test', 'tech', 'prototype', 'expres', 'x-', 'demons', 'techdemo', 'proba', 'pathfinder', 'experiment',
                     'xss', 'otv', 'cubesat', 'cube-sat', 'cute-', 'cubex', 'protosat', 'skysat', 'technology', 'demonstration',
                     'experimental', 'research', 'science', 'mission', 'payload', 'instrument', 'sensor', 'detector', 'camera',
@@ -2284,95 +2403,54 @@ let cesiumUpdateInterval = null;
             try {
                 // Función para cargar TLE
         async function fetchTLE() {
-             try {
-                        const responseLocal = await fetch('https://worker.satfleetlive.com/api/tle');
-                        if (!responseLocal.ok) throw new Error('TLE worker error: ' + responseLocal.status);
-                        const textLocal = await responseLocal.text();
-
-                        // Guardar en localStorage
-                        localStorage.setItem('backupTLE', textLocal);
-
-                        // Buscar línea de última actualización
-                        const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
-                        let lastUpdate = null;
-
-                        if (lastUpdateLine) {
-                            const lastUpdateStr = lastUpdateLine.replace('# Last update:', '').trim();
-                            const parsedDate = Date.parse(lastUpdateStr); // parse explícito
-                            if (!isNaN(parsedDate)) {
-                                lastUpdate = new Date(parsedDate);
-                            }
+                    try {
+                        const response = await fetch('https://worker.satfleetlive.com/api/tle');
+                        if (!response.ok) {
+                            const errText = await response.text().catch(() => '');
+                            throw new Error('HTTP ' + response.status + ' ' + response.statusText + (errText ? ' → ' + errText.substring(0, 300) : ''));
                         }
+                        const data = await response.json();
 
-                        // Si no se pudo parsear, usar backup o desconocida
-                        if (!lastUpdate) {
-                            const backupStr = localStorage.getItem('lastUpdateBackup');
-                            lastUpdate = backupStr ? new Date(backupStr) : null;
-                        }
+                        const tleUpdated = response.headers.get('X-TLE-Updated');
+                        const serverDate = response.headers.get('Date');
+                        const lastUpdate = tleUpdated ? new Date(tleUpdated) : (serverDate ? new Date(serverDate) : new Date());
+                        localStorage.setItem('lastUpdateBackup', lastUpdate.toISOString());
+                        console.log("📡 " + data.length + " satélites cargados correctamente");
+                        console.log("⏰ Última descarga de GitHub Actions (datos de CelesTrak):", lastUpdate.toLocaleString());
+                        console.log("📦 Cache del Worker activa — no se llamó a GitHub en esta petición");
 
-                        // Guardamos la última actualización en localStorage si es válida
-                        if (lastUpdate) localStorage.setItem('lastUpdateBackup', lastUpdate.toISOString());
-
-                        console.log("📂 Satélites cargados de archivo local");
-                        if (lastUpdate) {
-                            console.log("⏰ Última actualización TLE:", lastUpdate.toLocaleString());
-                        } else {
-                            console.log("⏰ Última actualización TLE: desconocida");
-                        }
-
-                        return textLocal;
+                        return data;
 
                     } catch (localError) {
-                        console.warn("⚠️ Error en archivo local, probando backup...");
-
-                        const backup = localStorage.getItem('backupTLE');
+                        console.error("❌ Fallo al descargar del worker:", localError.message);
+                        console.warn("⚠️ Probando backup en localStorage...");
+                        const backup = localStorage.getItem('backupGP');
                         if (backup) {
-                            const backupStr = localStorage.getItem('lastUpdateBackup');
-                            const backupDate = backupStr ? new Date(backupStr) : null;
+                            const backupDate = localStorage.getItem('lastUpdateBackup');
                             console.log("♻️ Satélites cargados de backup en localStorage");
-                            if (backupDate) {
-                                console.log("⏰ Última actualización TLE guardada:", backupDate.toLocaleString());
-                            } else {
-                                console.log("⏰ Última actualización TLE guardada: desconocida");
-                            }
-                            return backup;
+                            if (backupDate) console.log("⏰ Backup guardado el:", new Date(backupDate).toLocaleString());
+                            return JSON.parse(backup);
                         }
-
                         throw new Error('❌ No hay datos de satélites disponibles');
                     }
                 }
 
-                // Parsear TLE
-                function parseTLEWithType(tleText) {
-                    let satellites = [];
-                    const lines = tleText
-                        .split('\n')
-                        .map(l => l.trim())
-                        .filter(l => l.length > 0);
-
-                    for (let i = 0; i < lines.length; i += 3) {
-                        const name = lines[i];
-                        const line1 = lines[i + 1];
-                        const line2 = lines[i + 2];
-
-                        // Ignorar líneas de comentario
-                        if (!name || name.startsWith('#')) {
-                            i -= 2; // retrocedemos para no saltarnos satélites
-                            continue;
-                        }
-
-                        if (!line1 || !line2) continue;
-
+                // Parsear JSON GP (nuevo formato CelesTrak)
+                function parseTLEWithType(gpData) {
+                    const satellites = [];
+                    for (const obj of gpData) {
                         try {
-                            const satrec = satellite.twoline2satrec(line1, line2);
+                            const satrec = satellite.json2satrec(obj);
+                            const name = obj.OBJECT_NAME;
+                            const noradId = obj.NORAD_CAT_ID.toString();
                             const type = getSatelliteType(name);
-                            // Extraer NORAD ID de la línea 1 del TLE (posiciones 2-7)
-                            const noradId = line1.substring(2, 7).trim();
                             satellites.push({ name, type, satrec, noradId });
                         } catch (err) {
-                            console.warn(`No se pudo parsear satélite ${name}:`, err);
+                            console.warn(`No se pudo parsear satélite ${obj.OBJECT_NAME}:`, err);
                         }
                     }
+                    // Guardar backup
+                    try { localStorage.setItem('backupGP', JSON.stringify(gpData)); } catch(e) {}
                     return satellites;
                 }
 
@@ -2508,6 +2586,11 @@ let cesiumUpdateInterval = null;
     const velText = sat.velocity ? Math.round(sat.velocity).toLocaleString()  + ' km/h': 'Calculating...';
     const latText = sat.lat      ? sat.lat.toFixed(4) + '°' : 'Calculating...';
     const lngText = sat.lng      ? sat.lng.toFixed(4) + '°' : 'Calculating...';
+
+    // Ocultar el vídeo temporalmente al ver un satélite (sin borrarlo)
+    const vc = document.getElementById('rocketVideoContainer');
+    if (vc) { vc.style.display = 'none'; }
+    // NO borramos rocketVideoWidget — sigue vivo en el widget de lanzamientos
 
     // Restaurar los textos originales por si antes se clickeó un cohete
     const labelsDesk = document.querySelectorAll('#satelliteInfo .info-label');
@@ -3421,53 +3504,7 @@ function updateCompass3DVisibility() {
 
         // Abrir página de detalles del satélite
         function openSatelliteDetail(noradId) {
-            console.log('Opening satellite detail for NORAD ID:', noradId);
-
-            // Buscar el satélite en allSatellites para obtener su nombre
-            const satellite = allSatellites.find(sat => sat.noradId === noradId);
-
-            if (satellite && satellite.name) {
-                const satelliteName = satellite.name.toLowerCase();
-
-                // Detectar constelaciones y redirigir a la entrada genérica correspondiente
-                if (satelliteName.includes('starlink')) {
-                    window.location.href = `satellite-detail.html?id=STARLINK`;
-                } else if (satelliteName.includes('oneweb')) {
-                    window.location.href = `satellite-detail.html?id=ONEWEB`;
-                } else if (satelliteName.includes('iridium')) {
-                    window.location.href = `satellite-detail.html?id=IRIDIUM`;
-                } else if (satelliteName.includes('globalstar')) {
-                    window.location.href = `satellite-detail.html?id=GLOBALSTAR`;
-                } else if (satelliteName.includes('kuiper')) {
-                    window.location.href = `satellite-detail.html?id=KUIPER`;
-                } else if (satelliteName.includes('o3b') || satelliteName.includes('ses')) {
-                    window.location.href = `satellite-detail.html?id=SES_O3b`;
-                } else if (satelliteName.includes('qianfan')) {
-                    window.location.href = `satellite-detail.html?id=CHINA_QIANFAN`;
-                } else if (satelliteName.includes('hongyu')) {
-                    window.location.href = `satellite-detail.html?id=CHINA_HONGYU`;
-                } else if (satelliteName.includes('spire')) {
-                    window.location.href = `satellite-detail.html?id=SPIRE`;
-                } else if (satelliteName.includes('sateliot')) {
-                    window.location.href = `satellite-detail.html?id=SATELIOT`;
-                } else if (satelliteName.includes('sicral')) {
-                    window.location.href = `satellite-detail.html?id=SICRAL`;
-                } else if (satelliteName.includes('syracuse')) {
-                    window.location.href = `satellite-detail.html?id=SYRACUSE`;
-                } else if (satelliteName.includes('satcombw') || satelliteName.includes('satcom bw')) {
-                    window.location.href = `satellite-detail.html?id=SATCOMBW`;
-                } else if (satelliteName.includes('swarm')) {
-                    window.location.href = `satellite-detail.html?id=SWARM`;
-                } else if (satelliteName.includes('lightspeed') || satelliteName.includes('telesat') || satelliteName.includes('anik')) {
-                    window.location.href = `satellite-detail.html?id=TELESAT_LIGHTSPEED`;
-                } else {
-                    // Si no es de ninguna constelación conocida, usar el NORAD ID específico
-                    window.location.href = `satellite-detail.html?id=${noradId}`;
-                }
-            } else {
-                // Si no se encuentra el satélite, usar el NORAD ID específico
-                window.location.href = `satellite-detail.html?id=${noradId}`;
-            }
+            window.location.href = `satellite-detail.html?id=${noradId}`;
         }
 
         // ==================== CESIUM 3D LOGIC ====================
@@ -4135,17 +4172,35 @@ if (selectedNoradId) {
         // ==================== LAUNCHES WIDGET ====================
 
 let launchCountdownTimers = [];
+let selectedLiveIndex = 0;
+let liveAutoSelected = false;
 
 const LAUNCHES_CACHE_KEY = 'satfleet_launches_v1'; // misma clave que launches.html
 const LAUNCHES_CACHE_TTL = 15 * 60 * 1000;
 
+let isFirstLoad = true;
+
 async function loadUpcomingLaunches() {
-    // 1. Mostrar caché inmediatamente si existe
+    const isInitialLoad = isFirstLoad;
+    isFirstLoad = false;
+
+    // 1. Mostrar caché inmediatamente si existe (solo si no hay vídeo activo)
+    const widgetEl = document.getElementById('launchesWidget');
+    const hasActiveVideo = widgetEl && widgetEl.querySelector('iframe') !== null;
+    const wasExpanded = widgetEl && widgetEl.classList.contains('expanded');
+
     try {
         const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
         if (raw) {
             const { results } = JSON.parse(raw);
-            if (results?.length) renderLaunchWidget(results);
+            if (results?.length && !hasActiveVideo) {
+                renderLaunchWidget(results);
+                if (wasExpanded) {
+                    widgetEl.classList.add('expanded');
+                    const bar = widgetEl.querySelector('.launches-collapsed-bar');
+                    if (bar) bar.classList.add('open');
+                }
+            }
         }
     } catch(e) {}
 
@@ -4172,7 +4227,7 @@ async function loadUpcomingLaunches() {
             }
         }
 
-        const isFresh = cache && (Date.now() - cache.ts) < effectiveTTL;
+        const isFresh = !isInitialLoad && cache && (Date.now() - cache.ts) < effectiveTTL;
         if (isFresh) return; // caché válido, no llamar a la API
 
         const res = await fetch(
@@ -4182,9 +4237,18 @@ async function loadUpcomingLaunches() {
         if (!res.ok) throw new Error('API error');
         const data = await res.json();
         localStorage.setItem(LAUNCHES_CACHE_KEY, JSON.stringify({
-            ts: Date.now(), results: data.results || []
+            ts: Date.now(), results: data.results || [], _meta: data._meta || null
         }));
-        renderLaunchWidget(data.results || []);
+        const activeVideo = widgetEl && widgetEl.querySelector('iframe') !== null;
+        if (!activeVideo) {
+            const isExpanded = widgetEl && widgetEl.classList.contains('expanded');
+            renderLaunchWidget(data.results || []);
+            if (isExpanded) {
+                widgetEl.classList.add('expanded');
+                const bar = widgetEl.querySelector('.launches-collapsed-bar');
+                if (bar) bar.classList.add('open');
+            }
+        }
         loadRocketPadMarkers(); // redibujar marcadores con datos frescos
     } catch(e) {
         console.warn('Launches API no disponible:', e.message);
@@ -4207,59 +4271,157 @@ function renderLaunchWidget(launches) {
     const widget = document.getElementById('launchesWidget');
     if (!widget) return;
 
-    // Limpiar timers anteriores
     launchCountdownTimers.forEach(t => clearInterval(t));
     launchCountdownTimers = [];
 
-    // Coger los 2 primeros
     const now = new Date();
-    const top2 = launches
-    .filter(l => {
+
+    // Clasificar lanzamientos
+    function isLaunchLive(l) {
         const diffMs = new Date(l.net) - now;
-        const isWebcastLive = l.webcast_live === true;
-        const isInFlight = l.status?.abbrev === 'In Flight';
         const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
-        
-        // REGLA 1: Si la API confirma que ya ha terminado (Éxito/Fallo), FUERA del widget al instante.
         if (isFinished) return false;
-        
-        // REGLA 2: Si está en riguroso directo o volando, SE QUEDA en el widget sin importar si pasan 4 o 10 horas.
-        if (isWebcastLive || isInFlight) return true;
-        
-        // REGLA 3: Si la API no dice nada (silencio de radio), le damos las 3 horas de cortesía (Plan C) igual que al mapa.
-        return diffMs > -10800000; 
-    })
-    .sort((a, b) => new Date(a.net) - new Date(b.net))  // más próximo primero
-    .slice(0, 2);
-    if (top2.length === 0) return;
+        if (diffMs < -10800000 && !l.webcast_live && l.status?.abbrev !== 'In Flight') return false;
+        return (l.webcast_live === true) ||
+               l.status?.abbrev === 'In Flight' ||
+               (l.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -10800000);
+    }
+
+    const validLaunches = launches.filter(l => {
+        const diffMs = new Date(l.net) - now;
+        const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
+        if (isFinished) return false;
+        if (isLaunchLive(l)) return true;
+        return diffMs > -10800000;
+    }).sort((a, b) => new Date(a.net) - new Date(b.net));
+
+    if (validLaunches.length === 0) return;
+
+    // Recoger todos los LIVE
+    const liveLaunches = validLaunches.filter(l => isLaunchLive(l));
+    const hasMultipleLive = liveLaunches.length >= 2;
+
+    // Solo autoseleccionar una vez al inicio — nunca sobreescribir la selección manual del usuario
+    if (hasMultipleLive && !liveAutoSelected) {
+        liveAutoSelected = true;
+        const withStream = liveLaunches.findIndex(l =>
+            (l.vid_urls || []).some(v => v.url && (v.url.includes('youtube.com') || v.url.includes('youtu.be')))
+        );
+        if (withStream !== -1) selectedLiveIndex = withStream;
+    }
+    // Si el índice guardado ya no es válido (p.ej. un LIVE desapareció), resetear
+    if (selectedLiveIndex >= liveLaunches.length) {
+        selectedLiveIndex = 0;
+        liveAutoSelected = false;
+    }
+
+    const liveLaunch = liveLaunches.length > 0 ? liveLaunches[selectedLiveIndex] : null;
+    const displayList = liveLaunch ? [liveLaunch] : validLaunches.slice(0, 2);
 
     widget.innerHTML = '';
     widget.classList.remove('expanded');
 
-    // Crear barra colapsada para móvil (solo el próximo lanzamiento)
-    const firstLaunch = top2[0];
+    // Barra colapsada — siempre muestra el primero
+    const firstLaunch = displayList[0];
     const firstDate = new Date(firstLaunch.net);
+    const firstIsLive = isLaunchLive(firstLaunch);
+
     const collapsedBar = document.createElement('div');
     collapsedBar.className = 'launches-collapsed-bar';
+    const barMissionText = hasMultipleLive
+        ? `🔴 ${liveLaunches[selectedLiveIndex].name || 'Unknown mission'}`
+        : `${firstIsLive ? '🔴 ' : ''}${firstLaunch.name || 'Unknown mission'}`;
     collapsedBar.innerHTML = `
-        <span class="lcb-mission">${firstLaunch.name || 'Unknown mission'}</span>
-        <span class="lcb-countdown" id="lcb-countdown">—</span>
+        <span class="lcb-mission" style="${firstIsLive ? 'color:#ff4444;' : ''}">${barMissionText}</span>
+        <span class="lcb-countdown" id="lcb-countdown" style="${firstIsLive ? 'color:#ff4444;' : ''}">—</span>
         <span class="lcb-arrow">▼</span>
     `;
     collapsedBar.onclick = () => {
+        const wasExpanded = widget.classList.contains('expanded');
         widget.classList.toggle('expanded');
         collapsedBar.classList.toggle('open');
+
+        // Al cerrar: destruir iframe para cortar el directo
+        if (wasExpanded) {
+            const iframe = widget.querySelector('iframe');
+            if (iframe) {
+                const iframeWrap = iframe.closest('.yt-iframe-wrap');
+                if (iframeWrap) {
+                    // Reconstruir el thumbnail en su lugar
+                    const videoId = iframe.src.match(/embed\/([^?]+)/)?.[1];
+                    if (videoId) {
+                        const thumbUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                        const newThumb = document.createElement('div');
+                        newThumb.className = 'yt-thumb-wrap';
+                        newThumb.dataset.videoid = videoId;
+                        newThumb.style.cssText = 'border-radius:7px;overflow:hidden;';
+                        newThumb.title = 'Watch Live';
+                        newThumb.innerHTML = `
+                            <img src="${thumbUrl}" alt="thumbnail"
+                                 style="width:100%;height:auto;display:block;"
+                                 onerror="this.src='https://img.youtube.com/vi/${videoId}/0.jpg'">
+                            <div class="yt-thumb-overlay">
+                                <div class="yt-play-btn" style="width:38px;height:38px;">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                                <div class="yt-live-tag">Watch Live</div>
+                            </div>
+                        `;
+                        // Restaurar el click handler
+                        newThumb.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const vid = this.dataset.videoid;
+                            const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'yt-iframe-wrap';
+                            wrapper.style.cssText = 'width:100%;aspect-ratio:16/9;border-radius:7px;overflow:hidden;';
+                            wrapper.onclick = (ev) => ev.stopPropagation();
+                            const newIframe = document.createElement('iframe');
+                            newIframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+                            newIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                            newIframe.allowFullscreen = true;
+                            newIframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+                            wrapper.appendChild(newIframe);
+                            this.replaceWith(wrapper);
+                            if (isMobileDevice) {
+                                const fsBtn = document.createElement('button');
+                                fsBtn.textContent = '⛶ Fullscreen';
+                                fsBtn.style.cssText = 'margin-top:6px;width:100%;padding:6px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.4);border-radius:7px;color:#ff6b35;font-size:0.75rem;font-weight:700;cursor:pointer;';
+                                fsBtn.onclick = (ev) => {
+                                    ev.stopPropagation();
+                                    if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+                                    else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+                                    else if (newIframe.requestFullscreen) newIframe.requestFullscreen();
+                                    else if (newIframe.webkitRequestFullscreen) newIframe.webkitRequestFullscreen();
+                                };
+                                wrapper.parentElement?.appendChild(fsBtn);
+                                document.addEventListener('fullscreenchange', () => {
+                                    fsBtn.textContent = document.fullscreenElement ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+                                });
+                            }
+                        });
+                        iframeWrap.replaceWith(newThumb);
+
+                        // Eliminar también el botón de fullscreen si existe
+                        const fsBtn = widget.querySelector('button[style*="Fullscreen"], button');
+                        if (fsBtn && fsBtn.textContent.includes('Fullscreen')) fsBtn.remove();
+                    } else {
+                        // Si no se puede extraer el ID, simplemente vaciar el iframe
+                        iframe.src = '';
+                    }
+                }
+            }
+        }
     };
     widget.appendChild(collapsedBar);
 
-    // Countdown de la barra colapsada
+    // Countdown barra colapsada
     function updateCollapsedCd() {
         const el = document.getElementById('lcb-countdown');
         if (!el) return;
+        if (firstIsLive) { el.textContent = 'LIVE'; return; }
         const diff = firstDate - new Date();
-        const firstIsFinished = firstLaunch.status?.abbrev === 'Success' || firstLaunch.status?.abbrev === 'Failure';
-if (diff < 0 && !firstIsFinished) { el.textContent = 'LIVE'; return; }
-if (diff < 0 && firstIsFinished)  { el.textContent = 'Done';  return; }
+        if (diff < 0) { el.textContent = 'Launched'; return; }
         const totalSec = Math.floor(diff / 1000);
         const d = Math.floor(totalSec / 86400);
         const h = Math.floor((totalSec % 86400) / 3600);
@@ -4272,37 +4434,111 @@ if (diff < 0 && firstIsFinished)  { el.textContent = 'Done';  return; }
     updateCollapsedCd();
     launchCountdownTimers.push(setInterval(updateCollapsedCd, 1000));
 
-    top2.forEach((launch, idx) => {
+    // Selector inline si hay 2+ LIVE — aparece dentro del panel expandido, no como dropdown
+    if (hasMultipleLive) {
+        const selectorWrap = document.createElement('div');
+        selectorWrap.className = 'launch-card';
+        selectorWrap.style.cssText = 'margin-bottom:8px; cursor:default; padding:8px 10px;';
+        selectorWrap.onclick = (e) => e.stopPropagation();
+
+        liveLaunches.forEach((l, i) => {
+            const hasVid = (l.vid_urls || []).some(v => v.url && (v.url.includes('youtube.com') || v.url.includes('youtu.be')));
+            const isSelected = i === selectedLiveIndex;
+            const item = document.createElement('div');
+            item.style.cssText = `
+                padding:7px 12px;
+                margin-bottom:4px;
+                border-radius:8px;
+                border:1.5px solid ${isSelected ? 'rgba(255,50,50,0.6)' : 'rgba(255,50,50,0.18)'};
+                background:${isSelected ? 'rgba(255,50,50,0.12)' : 'rgba(255,50,50,0.03)'};
+                color:${isSelected ? '#ff4444' : 'rgba(255,150,150,0.65)'};
+                font-size:0.78rem;
+                font-weight:${isSelected ? '700' : '500'};
+                cursor:${isSelected ? 'default' : 'pointer'};
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+                user-select:none;
+                -webkit-user-select:none;
+                transition:background 0.15s, border-color 0.15s;
+            `;
+            item.textContent = '🔴 ' + (l.name || 'Unknown') + (hasVid ? ' 📺' : '');
+
+            if (!isSelected) {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    selectedLiveIndex = i;
+                    renderLaunchWidget(launches);
+                    widget.classList.add('expanded');
+                    const bar = widget.querySelector('.launches-collapsed-bar');
+                    if (bar) bar.classList.add('open');
+                });
+                item.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(255,50,50,0.08)';
+                    this.style.borderColor = 'rgba(255,50,50,0.4)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.background = 'rgba(255,50,50,0.03)';
+                    this.style.borderColor = 'rgba(255,50,50,0.18)';
+                });
+            }
+
+            selectorWrap.appendChild(item);
+        });
+
+        widget.appendChild(selectorWrap);
+    }
+
+    // Renderizar tarjetas
+    displayList.forEach((launch, idx) => {
         const card = document.createElement('div');
         const launchDate = new Date(launch.net);
-        const now = new Date();
-        const diffMs = launchDate - now;
+        const diffMs = launchDate - new Date();
+        const isLive = isLaunchLive(launch);
         const isToday = Math.abs(diffMs) < 86400000 && diffMs > 0;
-        const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
-const isLive = !isFinished && (
-    launch.webcast_live === true ||
-    launch.status?.abbrev === 'In Flight' ||
-    (launch.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -10800000)
-);
 
         card.className = 'launch-card' + (isToday ? ' today' : '');
         card.onclick = () => window.location.href = 'launches.html';
 
-        // Estado
-        let statusClass = 'tbc';
-        let statusText = 'TBC';
+        let statusClass = 'tbc', statusText = 'TBC';
         if (isLive) { statusClass = 'live'; statusText = 'LIVE'; }
-        else if (launch.status?.abbrev === 'Go') { statusClass = 'go'; statusText = 'GO'; }
+        else if (launch.status?.abbrev === 'Go')  { statusClass = 'go';  statusText = 'GO'; }
         else if (launch.status?.abbrev === 'TBD') { statusClass = 'tbc'; statusText = 'TBD'; }
 
-        // Vehículo
         const vehicle = launch.rocket?.configuration?.name || 'Unknown vehicle';
-        // Misión
         const mission = launch.name || 'Unknown mission';
-        // Pad
         const pad = launch.pad?.name || '';
         const location = launch.pad?.location?.name || '';
         const padText = [pad, location].filter(Boolean).join(', ');
+
+        // Vídeo compacto solo si hay LIVE
+        let videoHtml = '';
+        if (isLive) {
+            const vidUrl = (launch.vid_urls || []).find(v =>
+                v.url && (v.url.includes('youtube.com') || v.url.includes('youtu.be'))
+            );
+            const videoId = vidUrl ? getYouTubeId(vidUrl.url) : null;
+            if (videoId) {
+                const thumbUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                videoHtml = `
+                    <div style="margin-top:8px;border-top:1px solid rgba(255,107,53,0.18);padding-top:8px;" onclick="event.stopPropagation()">
+                        <div style="font-size:0.62rem;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">🔴 Live Stream</div>
+                        <div class="yt-thumb-wrap" id="ytThumbWrap-${idx}" data-videoid="${videoId}"
+                             style="border-radius:7px;overflow:hidden;" title="Watch Live">
+                            <img src="${thumbUrl}" alt="thumbnail"
+                                 style="width:100%;height:auto;display:block;"
+                                 onerror="this.src='https://img.youtube.com/vi/${videoId}/0.jpg'">
+                            <div class="yt-thumb-overlay">
+                                <div class="yt-play-btn" style="width:38px;height:38px;">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                                <div class="yt-live-tag">Watch Live</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
 
         card.innerHTML = `
             <div class="launch-card-header">
@@ -4312,41 +4548,77 @@ const isLive = !isFinished && (
             <div class="launch-mission">${mission}</div>
             <div class="launch-countdown" id="lc-countdown-${idx}">—</div>
             <div class="launch-pad">${padText}</div>
+            ${videoHtml}
         `;
 
         widget.appendChild(card);
 
-        // Countdown en tiempo real
+        // Click en thumbnail → abre iframe con pantalla completa en móvil
+        if (videoHtml) {
+            const thumb = card.querySelector(`#ytThumbWrap-${idx}`);
+            if (thumb) {
+                thumb.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const vid = this.dataset.videoid;
+                    const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'yt-iframe-wrap';
+                    wrapper.style.cssText = 'width:100%;aspect-ratio:16/9;border-radius:7px;overflow:hidden;';
+                    wrapper.onclick = (ev) => ev.stopPropagation();
+
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                    iframe.allowFullscreen = true;
+                    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+
+                    wrapper.appendChild(iframe);
+                    this.replaceWith(wrapper);
+
+                    // En móvil: añadir botón de pantalla completa
+                    if (isMobileDevice) {
+                        const fsBtn = document.createElement('button');
+                        fsBtn.textContent = '⛶ Fullscreen';
+                        fsBtn.style.cssText = 'margin-top:6px;width:100%;padding:6px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.4);border-radius:7px;color:#ff6b35;font-size:0.75rem;font-weight:700;cursor:pointer;';
+                        fsBtn.onclick = (ev) => {
+                            ev.stopPropagation();
+                            if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+                            else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+                            else if (iframe.requestFullscreen) iframe.requestFullscreen();
+                            else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+                        };
+                        wrapper.parentElement?.appendChild(fsBtn);
+
+                        // Al salir de pantalla completa, el botón sigue disponible
+                        document.addEventListener('fullscreenchange', () => {
+                            fsBtn.textContent = document.fullscreenElement ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+                        }, { once: false });
+                    }
+                });
+            }
+        }
+
+        // Countdown de la tarjeta
         function updateCountdown() {
             const el = document.getElementById(`lc-countdown-${idx}`);
             if (!el) return;
-            const now2 = new Date();
-            const diff = launchDate - now2;
-
-            if (diff < -10800000) {
-                el.textContent = 'Launched';
-                el.className = 'launch-countdown past';
-                return;
-            }
-            if (diff < 0) {
-                el.textContent = 'T+' + formatDuration(-diff);
-                el.className = 'launch-countdown';
-                return;
-            }
+            if (isLive) { el.textContent = '🔴 LIVE NOW'; el.className = 'launch-countdown'; el.style.color = '#ff4444'; return; }
+            const diff = launchDate - new Date();
+            if (diff < -10800000) { el.textContent = 'Launched'; el.className = 'launch-countdown past'; return; }
+            if (diff < 0) { el.textContent = 'T+' + formatDuration(-diff); return; }
             el.textContent = 'T-' + formatDuration(diff);
             el.className = 'launch-countdown';
         }
-
         updateCountdown();
-        const timer = setInterval(updateCountdown, 1000);
-        launchCountdownTimers.push(timer);
+        launchCountdownTimers.push(setInterval(updateCountdown, 1000));
     });
 
     // Ver todos
     const seeAll = document.createElement('a');
     seeAll.className = 'launches-see-all';
     seeAll.href = 'launches.html';
-    seeAll.textContent = 'See all upcoming launches';
+    seeAll.textContent = liveLaunch ? 'See all launches' : 'See all upcoming launches';
     widget.appendChild(seeAll);
 }
 
@@ -4608,18 +4880,15 @@ function drawRocketMarkers(launches) {
         const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
         
         let isLive = false;
-        if (!isFinished) {
-            // Se pone en LIVE si hay directo o si ya está volando (incluso antes del T-0)
-            if (isWebcastLive || isInFlight) {
+        if (!isFinished && diffMs > -10800000) {
+            if ((isWebcastLive || isInFlight)) {
                 isLive = true;
-            } 
-            // Plan B: solo si seguía en estado 'Go' cuando llegó el T-0
-            else if (diffMs < 0 && diffMs > -10800000 && launch.status?.abbrev === 'Go') {
+            } else if (diffMs < 0 && diffMs > -10800000 && launch.status?.abbrev === 'Go') {
                 isLive = true;
             }
         }
 
-        // Ocultar solo si NO está en directo, NO está volando y ha pasado más de 1 hora
+        // Ocultar si han pasado más de 3 horas, SALVO que siga en directo o en vuelo
         if (diffMs < -10800000 && !isLive) return;
 
         const mission  = launch.name || 'Unknown mission';
@@ -4714,9 +4983,9 @@ function drawRocketMarkers3D(launches) {
         const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
         const isGo = launch.status?.abbrev === 'Go';
 
-        // Evaluar si de inicio ya debemos descartarlo por viejo
+        // Siempre descartar si han pasado más de 3 horas, a no ser que siga en LIVE
         const initialDiff = new Date(launch.net) - now;
-        let initialLive = !isFinished && (isWebcastLive || isInFlight || (isGo && initialDiff < 0 && initialDiff > -10800000));
+        const initialLive = !isFinished && (isWebcastLive || isInFlight || (isGo && initialDiff < 0));
         if (initialDiff < -10800000 && !initialLive) return;
 
         // Eje Z para ponerlo por encima del resto
@@ -4730,14 +4999,18 @@ function drawRocketMarkers3D(launches) {
         // Color rojo fijo sin latido
         let dynamicColor = new Cesium.CallbackProperty(function() {
             const dMs = new Date(launch.net) - Date.now();
-            const isL = !isFinished && (isWebcastLive || isInFlight || (isGo && dMs < 0 && dMs > -10800000));
+            const isL = !isFinished && dMs > -10800000 && (
+                (isWebcastLive || isInFlight) || (isGo && dMs < 0 && dMs > -10800000)
+            );
             return isL ? Cesium.Color.fromCssColorString('#f22222') : Cesium.Color.WHITE;
         }, false);
 
         // Variable booleana para mostrar u ocultar el SVG
         let showLiveBadge = new Cesium.CallbackProperty(function() {
             const dMs = new Date(launch.net) - Date.now();
-            return !isFinished && (isWebcastLive || isInFlight || (isGo && dMs < 0 && dMs > -10800000));
+            return !isFinished && dMs > -10800000 && (
+                (isWebcastLive || isInFlight) || (isGo && dMs < 0 && dMs > -10800000)
+            );
         }, false);
 
         const vehicle = launch.rocket?.configuration?.name || '—';
@@ -4943,10 +5216,65 @@ function updateRocketImagesLive() {
 // El vigilante mira los cohetes cada 1 segundo (1000 ms)
 setInterval(updateRocketImagesLive, 1000);
 
+// ==================== YOUTUBE CLICK-TO-PLAY ====================
+
+function getYouTubeId(url) {
+    if (!url) return null;
+    try {
+        const u = new URL(url);
+        // Formato: youtu.be/ID
+        if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+        // Formato: youtube.com/watch?v=ID
+        if (u.searchParams.get('v')) return u.searchParams.get('v');
+        // Formato: youtube.com/live/ID o /embed/ID
+        const pathParts = u.pathname.split('/').filter(Boolean);
+        const liveIdx = pathParts.indexOf('live');
+        if (liveIdx !== -1 && pathParts[liveIdx + 1]) return pathParts[liveIdx + 1];
+        const embedIdx = pathParts.indexOf('embed');
+        if (embedIdx !== -1 && pathParts[embedIdx + 1]) return pathParts[embedIdx + 1];
+    } catch(e) {}
+    return null;
+}
+
+let _currentLiveLaunch = null;
+
+// ==================== FIN YOUTUBE CLICK-TO-PLAY ====================
+
 // ==================== FIN ROCKET PAD MARKERS ====================
 
 // ==================== FIN LAUNCHES WIDGET ====================
 
     </script>
+    
+<!-- Banner de cookies -->
+<div id="cookieBanner" style="
+    display:flex;
+    position:fixed; bottom:0; left:0; right:0;
+    background:rgba(15,15,15,0.97);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    color:#fff; padding:12px 20px;
+    align-items:center; justify-content:space-between;
+    gap:12px; z-index:9999; font-size:0.8rem;
+    border-top:1px solid rgba(156,39,176,0.3);
+    flex-wrap:wrap;">
+  <span style="color:rgba(255,255,255,0.7);">
+    We use analytics cookies to improve the experience.
+    <a href="/privacy-policy" style="color:#9c27b0;">Privacy Policy</a>
+  </span>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="rejectCookies()" style="padding:6px 16px;background:transparent;border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.65);border-radius:19px;cursor:pointer;font-size:0.78rem;">Reject</button>
+    <button onclick="acceptCookies()" style="padding:6px 16px;background:#9c27b0;border:none;color:#fff;border-radius:19px;cursor:pointer;font-size:0.78rem;font-weight:600;">Accept</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var consent = localStorage.getItem('cookieConsent');
+    if (consent === 'yes' || consent === 'no') {
+      document.getElementById('cookieBanner').style.display = 'none';
+    }
+  })();
+</script>
 </body>
 </html>

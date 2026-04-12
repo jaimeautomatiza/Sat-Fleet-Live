@@ -367,6 +367,25 @@
         #pageFooter a { color: rgba(77,166,255,0.5); text-decoration: none; }
         #pageFooter a:hover { color: #4da6ff; }
 
+        /* ===== YOUTUBE CLICK-TO-PLAY ===== */
+        .yt-thumb-wrap {
+            position: relative; width: 100%; aspect-ratio: 16/9;
+            border-radius: 10px; overflow: hidden; cursor: pointer; background: #000;
+            margin-top: 10px;
+        }
+        .yt-thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s ease, filter 0.3s ease; }
+        .yt-thumb-wrap:hover img { transform: scale(1.04); filter: brightness(0.75); }
+        .yt-thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s; }
+        .yt-thumb-wrap:hover .yt-thumb-overlay { background: rgba(0,0,0,0.15); }
+        .yt-play-btn { width: 52px; height: 52px; background: rgba(255,0,0,0.88); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 18px rgba(255,0,0,0.55); animation: ytPulse 2s ease-in-out infinite; transition: transform 0.2s; }
+        .yt-thumb-wrap:hover .yt-play-btn { transform: scale(1.12); animation: none; }
+        @keyframes ytPulse { 0%, 100% { box-shadow: 0 4px 18px rgba(255,0,0,0.55); transform: scale(1); } 50% { box-shadow: 0 4px 28px rgba(255,0,0,0.85); transform: scale(1.06); } }
+        .yt-play-btn svg { width: 22px; height: 22px; fill: #fff; margin-left: 4px; }
+        .yt-live-tag { font-size: 0.65rem; font-weight: 800; color: #fff; background: rgba(255,0,0,0.85); padding: 2px 8px; border-radius: 4px; letter-spacing: 0.8px; text-transform: uppercase; }
+        .yt-iframe-wrap { width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; background: #000; margin-top: 10px; }
+        .yt-iframe-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+        /* ===== FIN YOUTUBE CLICK-TO-PLAY ===== */
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 600px) {
             .card-mission { font-size: 0.9rem; }
@@ -395,7 +414,7 @@
     <div id="errorState">
         <div class="error-title">Could not load launches</div>
         <div class="error-text">Check your connection and try again.</div>
-        <button class="retry-btn" onclick="refreshLaunches()">Try again</button>
+        <button class="retry-btn" onclick="init()">Try again</button>
     </div>
     <div id="launchesList"></div>
 </div>
@@ -447,9 +466,9 @@ function getCache() {
     } catch(e) { return null; }
 }
 
-function setCache(results) {
+function setCache(results, meta) {
     try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), results }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), results, _meta: meta || null }));
     } catch(e) {}
 }
 
@@ -473,7 +492,7 @@ async function fetchIfNeeded() {
         );
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-        setCache(data.results || []);
+        setCache(data.results || [], data._meta || null);
         console.log('✅ Caché actualizado');
         return data.results || [];
     } catch(e) {
@@ -564,7 +583,11 @@ function renderLaunches(launches) {
         t.className = 'section-title';
         t.textContent = 'Upcoming';
         list.appendChild(t);
-        upcoming.forEach((l, i) => list.appendChild(buildCard(l, 'up-' + i)));
+        upcoming.forEach((l, i) => {
+            const card = buildCard(l, 'up-' + i);
+            list.appendChild(card);
+            renderVideoInCard(l, `yt-card-${l.id}`);
+        });
     }
 
     if (past.length > 0) {
@@ -577,6 +600,7 @@ function renderLaunches(launches) {
             const card = buildCard(l, 'past-' + i);
             card.style.opacity = '0.55';
             list.appendChild(card);
+            renderVideoInCard(l, `yt-card-${l.id}`);
         });
     }
 
@@ -623,8 +647,10 @@ function buildCard(launch, id) {
     card.id = 'launch-' + launch.id;
     card.className = 'launch-card' + (isToday ? ' today' : '');
 card.style.cursor = 'pointer';
-card.onclick = (e) => {          // ← y esto
-    if (e.target.closest('a, button')) return; // no interceptar clics en botones
+card.onclick = (e) => {
+    // Añadimos '.yt-thumb-wrap' a la lista de "objetos prohibidos" para el redireccionamiento
+    if (e.target.closest('a, button, .yt-thumb-wrap')) return; 
+    
     window.location.href = `launch-detail.html?id=${launch.id}`;
 };
 
@@ -642,8 +668,8 @@ card.onclick = (e) => {          // ← y esto
     const location  = launch.pad?.location?.name || '';
     const padText   = [padName, location].filter(Boolean).join(' · ');
     const desc      = launch.mission?.description || '';
-    const streamUrl = launch.vidURLs?.[0]?.url || null;
-    const imageUrl  = launch.image || null;
+    const streamUrl = launch.vid_urls?.[0]?.url || launch.vidURLs?.[0]?.url || null;
+    const imageUrl  = launch.image?.image_url || null;
     const padCoords = getPadCoords(launch);
 
     const dateStr = launchDate.toLocaleDateString('en-US', {
@@ -679,6 +705,7 @@ card.onclick = (e) => {          // ← y esto
             <div class="card-actions">${watchBtn}${mapBtn}</div>
         </div>
         ${descHtml}
+        <div id="yt-card-${launch.id}"></div>
     `;
 
     function updateCd() {
@@ -719,11 +746,167 @@ function escHtml(str) {
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function showToast(msg) {
+    // Eliminar toast anterior si existe
+    const existing = document.getElementById('satfleet-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'satfleet-toast';
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(18, 18, 18, 0.97);
+        border: 1px solid rgba(255, 107, 53, 0.35);
+        border-radius: 16px;
+        padding: 16px 22px;
+        max-width: 340px;
+        width: calc(100vw - 40px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,107,53,0.1);
+        z-index: 9999;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        opacity: 0;
+        transition: opacity 0.22s ease, transform 0.22s ease;
+        white-space: pre-line;
+        cursor: pointer;
+    `;
+
+    // Convertir emojis de línea en bloques visuales
+    const lines = msg.split('\n').filter(l => l.trim());
+    let html = '';
+    lines.forEach((line, i) => {
+        if (i === 0) {
+            html += `<div style="font-weight:700;color:#ff6b35;margin-bottom:10px;font-size:0.88rem;">${line}</div>`;
+        } else if (line.startsWith('🚫')) {
+            html += `<div style="background:rgba(255,50,50,0.1);border:1px solid rgba(255,50,50,0.25);border-radius:8px;padding:8px 10px;margin-top:4px;color:#ff6666;">${line}</div>`;
+        } else if (line.startsWith('🔑')) {
+            html += `<div style="background:rgba(0,210,106,0.08);border:1px solid rgba(0,210,106,0.2);border-radius:8px;padding:8px 10px;margin-top:4px;color:#00d26a;">${line}</div>`;
+        } else if (line.startsWith('(')) {
+            html += `<div style="color:rgba(255,255,255,0.35);font-size:0.75rem;margin-top:6px;">${line}</div>`;
+        } else {
+            html += `<div style="margin-top:4px;">${line}</div>`;
+        }
+    });
+
+    // Botón de cerrar
+    html += `<div style="text-align:right;margin-top:12px;">
+        <span style="font-size:0.72rem;color:rgba(255,107,53,0.7);cursor:pointer;letter-spacing:0.3px;">Tap to close ✕</span>
+    </div>`;
+
+    toast.innerHTML = html;
+    document.body.appendChild(toast);
+
+    // Animar entrada
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        });
+    });
+
+    // Cerrar al hacer clic
+    toast.addEventListener('click', () => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(10px)';
+        setTimeout(() => toast.remove(), 220);
+    });
+
+    // Auto-cerrar a los 6 segundos
+    setTimeout(() => {
+        if (document.getElementById('satfleet-toast')) {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(10px)';
+            setTimeout(() => toast.remove(), 220);
+        }
+    }, 6000);
+}
+
 function showCacheAge() {
     const cache = getCache();
-    if (!cache) { alert('No data cached yet.'); return; }
+    if (!cache) { showToast('No cached data yet.\nTry refreshing the page.'); return; }
+    
     const mins = Math.round((Date.now() - cache.ts) / 60000);
-    alert(mins < 1 ? 'Data updated just now.' : `Data updated ${mins} minute${mins !== 1 ? 's' : ''} ago.\nAuto-updates every 15 minutes.`);
+    const timeStr = mins < 1 ? 'just now' : `${mins} minute${mins !== 1 ? 's' : ''} ago`;
+    let msg = `Data fetched: ${timeStr}\n`;
+    
+    const t = cache._meta?.throttle;
+    if (t) {
+        if (t.banned) {
+            msg += `🚫 API RATE LIMITED\nRetry after: ${t.retryAfter}s\n(Showing cached data)`;
+        } else {
+            // Actualizado para v2.3.0: usamos your_request_limit y current_use
+            const limit = t.your_request_limit || 15;
+            const used  = t.current_use || 0;
+            const remaining = limit - used;
+            
+            msg += `🔑 API calls remaining: ${remaining} / ${limit}`;
+            
+            if (t.next_use_secs > 0) {
+                msg += `\nNext reset in: ${Math.round(t.next_use_secs / 60)} min`;
+            }
+        }
+    } else {
+        msg += `(No throttle info available yet)`;
+    }
+    
+    showToast(msg);
+}
+
+function getYouTubeId(url) {
+    if (!url) return null;
+    try {
+        const u = new URL(url);
+        if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+        if (u.searchParams.get('v')) return u.searchParams.get('v');
+        const parts = u.pathname.split('/').filter(Boolean);
+        const li = parts.indexOf('live');
+        if (li !== -1 && parts[li + 1]) return parts[li + 1];
+        const ei = parts.indexOf('embed');
+        if (ei !== -1 && parts[ei + 1]) return parts[ei + 1];
+    } catch(e) {}
+    return null;
+}
+
+function renderVideoInCard(launch, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const isFinished    = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+    const isWebcastLive = launch.webcast_live === true;
+    const isInFlight    = launch.status?.abbrev === 'In Flight';
+    const diffMs        = new Date(launch.net) - Date.now();
+    const isGo          = launch.status?.abbrev === 'Go';
+    const isLive        = !isFinished && (isWebcastLive || isInFlight || (isGo && diffMs < 0 && diffMs > -10800000));
+
+    if (!isLive) return;
+
+    const vidUrl = (launch.vid_urls || []).find(v =>
+        v.url && (v.url.includes('youtube.com') || v.url.includes('youtu.be'))
+    );
+    const videoId = vidUrl ? getYouTubeId(vidUrl.url) : null;
+    if (!videoId) return;
+
+    const thumbUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+    container.innerHTML = `
+        <div class="yt-thumb-wrap" data-videoid="${videoId}" title="Watch Live">
+            <img src="${thumbUrl}" alt="Live stream" onerror="this.src='https://img.youtube.com/vi/${videoId}/0.jpg'">
+            <div class="yt-thumb-overlay">
+                <div class="yt-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+                <div class="yt-live-tag">🔴 Watch Live</div>
+            </div>
+        </div>
+    `;
+    container.querySelector('.yt-thumb-wrap').addEventListener('click', function() {
+        const vid = this.dataset.videoid;
+        this.outerHTML = `<div class="yt-iframe-wrap"><iframe src="https://www.youtube.com/embed/${vid}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    });
 }
 
 init();
