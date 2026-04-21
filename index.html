@@ -3,14 +3,34 @@
 
 <head>
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <!-- Google tag (gtag.js) — carga solo con consentimiento -->
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
 
-        gtag('config', 'G-THHVVZCJ4B');
+        function loadGA() {
+            var s = document.createElement('script');
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B';
+            s.async = true;
+            document.head.appendChild(s);
+            gtag('js', new Date());
+            gtag('config', 'G-THHVVZCJ4B');
+        }
+
+        if (localStorage.getItem('cookieConsent') === 'yes') {
+            loadGA();
+        }
+
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'yes');
+            document.getElementById('cookieBanner').style.display = 'none';
+            loadGA();
+        }
+
+        function rejectCookies() {
+            localStorage.setItem('cookieConsent', 'no');
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
     </script>
 
     <!-- Favicon principal y compatibilidad general -->
@@ -1167,6 +1187,104 @@ body.light-mode .rocket-filter-chip {
     background: rgba(255,107,53,0.14);
     color: #ff6b35;
 }
+
+/* ===== YOUTUBE CLICK-TO-PLAY ===== */
+        .yt-thumb-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #000;
+        }
+
+        .yt-thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .yt-thumb-wrap:hover img {
+            transform: scale(1.04);
+            filter: brightness(0.75);
+        }
+
+        .yt-thumb-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .yt-thumb-wrap:hover .yt-thumb-overlay {
+            background: rgba(0,0,0,0.15);
+        }
+
+        .yt-play-btn {
+            width: 52px;
+            height: 52px;
+            background: rgba(255,0,0,0.88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 18px rgba(255,0,0,0.55);
+            animation: ytPulse 2s ease-in-out infinite;
+            transition: transform 0.2s;
+        }
+
+        .yt-thumb-wrap:hover .yt-play-btn {
+            transform: scale(1.12);
+            animation: none;
+        }
+
+        @keyframes ytPulse {
+            0%, 100% { box-shadow: 0 4px 18px rgba(255,0,0,0.55); transform: scale(1); }
+            50%       { box-shadow: 0 4px 28px rgba(255,0,0,0.85); transform: scale(1.06); }
+        }
+
+        .yt-play-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #fff;
+            margin-left: 4px;
+        }
+
+        .yt-live-tag {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: #fff;
+            background: rgba(255,0,0,0.85);
+            padding: 2px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .yt-iframe-wrap {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .yt-iframe-wrap iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* ===== FIN YOUTUBE CLICK-TO-PLAY ===== */
         
         /* ===== RESPONSIVE MÓVIL ===== */
         @media (max-width: 768px) {
@@ -1301,6 +1419,77 @@ body.light-mode .rocket-filter-chip {
             .mobile-panel,
             #mobilePanelBtn { display: none !important; }
         }
+
+        /* ===== POV BUTTON ===== */
+        .pov-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 8px;
+        }
+        .pov-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+        .pov-btn.active {
+            background: rgba(156, 39, 176, 0.2);
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 10px rgba(156, 39, 176, 0.4);
+        }
+        
+        .pov-icon { width: 18px; height: 18px; filter: invert(1); opacity: 0.8; transition: all 0.2s;}
+        body.light-mode .pov-icon { filter: invert(0); }
+        body.light-mode .pov-btn { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.15); }
+        body.light-mode .pov-btn:hover { background: rgba(0,0,0,0.1); }
+        body.light-mode .pov-btn.active { background: rgba(156, 39, 176, 0.15); border-color: var(--primary-purple); }
+        
+        /* Ícono morado cuando está activo */
+        .pov-btn.active .pov-icon { 
+            opacity: 1; 
+            filter: invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%); 
+        }
+
+        /* ===== CUSTOM WARNING MODAL ===== */
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            z-index: 5000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+        }
+        .custom-modal-overlay.active {
+            opacity: 1; pointer-events: all;
+        }
+        .custom-modal {
+            background: rgba(22, 22, 22, 0.95); border: 1px solid rgba(156, 39, 176, 0.4);
+            border-radius: 18px; padding: 26px 20px; max-width: 320px; width: 90%;
+            text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            transform: translateY(20px); transition: transform 0.25s ease;
+        }
+        .custom-modal-overlay.active .custom-modal { transform: translateY(0); }
+        body.light-mode .custom-modal { background: rgba(250, 250, 250, 0.98); border-color: rgba(156, 39, 176, 0.25); }
+        
+        .custom-modal-icon { font-size: 2.8rem; margin-bottom: 12px; filter: drop-shadow(0 0 10px rgba(255,215,0,0.4)); }
+        .custom-modal-title { color: var(--primary-purple); font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; letter-spacing: 0.5px;}
+        .custom-modal-text { font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-bottom: 22px; line-height: 1.5; }
+        body.light-mode .custom-modal-text { color: rgba(0,0,0,0.65); }
+        
+        .custom-modal-actions { display: flex; gap: 12px; justify-content: center; }
+        .custom-modal-btn { 
+            padding: 9px 18px; border-radius: 20px; font-weight: 700; cursor: pointer; 
+            font-size: 0.82rem; transition: all 0.2s; border: none; letter-spacing: 0.3px;
+        }
+        .custom-modal-btn.cancel { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); border: 1.5px solid rgba(255,255,255,0.1); }
+        .custom-modal-btn.cancel:hover { background: rgba(255,255,255,0.15); color: #fff;}
+        body.light-mode .custom-modal-btn.cancel { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.7); border-color: rgba(0,0,0,0.1);}
+        body.light-mode .custom-modal-btn.cancel:hover { background: rgba(0,0,0,0.1); color: #000; }
+        
+        .custom-modal-btn.confirm { background: var(--primary-purple); color: #fff; box-shadow: 0 0 15px rgba(156,39,176,0.3); }
+        .custom-modal-btn.confirm:hover { background: #b02ec7; box-shadow: 0 0 20px rgba(156,39,176,0.5); transform: translateY(-1px); }
 
         /* ===== FOOTER INFO BAR ===== */
         #infoFooter {
@@ -1561,6 +1750,18 @@ body.light-mode .rocket-filter-chip {
     0%, 100% { opacity: 1; }
     50%       { opacity: 0.45; }
 }
+
+/* ===== ROCKET TRAJECTORY TOOLTIPS ===== */
+.rocket-event-tooltip {
+    background: rgba(12,12,12,0.95) !important;
+    border: 1px solid rgba(255,107,53,0.45) !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    font-size: 0.74rem !important;
+    padding: 5px 9px !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5) !important;
+}
+.leaflet-tooltip.rocket-event-tooltip::before { display: none !important; }
         @keyframes rocketPulse {
             0%, 100% { filter: drop-shadow(0 0 6px rgba(255,50,50,0.8)); }
             50%       { filter: drop-shadow(0 0 14px rgba(255,50,50,1)); }
@@ -1782,7 +1983,9 @@ body.light-mode .rocket-filter-chip {
 <div class="satellite-info" id="satelliteInfo">
     <div class="info-header">
         <div class="satellite-name" id="satelliteName">Satellite Name</div>
-        <button class="close-btn" onclick="closeSatelliteInfo()">×</button>
+        <div style="display:flex; align-items:center;">
+            <button class="close-btn" onclick="closeSatelliteInfo()">×</button>
+        </div>
     </div>
     <div class="info-item">
         <div class="info-label">Altitude</div>
@@ -1800,6 +2003,7 @@ body.light-mode .rocket-filter-chip {
         <div class="info-label">Longitude</div>
         <div class="info-value" id="satelliteLongitude">---°</div>
     </div>
+    <div id="rocketVideoContainer" style="display:none; margin-top:10px;"></div>
 </div>
 
 <!-- Desktop Legend -->
@@ -1900,7 +2104,9 @@ body.light-mode .rocket-filter-chip {
         <div class="mobile-section" id="mobileSatelliteSection" style="display:none;">
             <div class="mobile-section-title">Satellite Information</div>
             <div class="mobile-satellite-info">
-                <div class="mobile-satellite-name" id="mobileSatelliteName">Select a satellite</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div class="mobile-satellite-name" id="mobileSatelliteName" style="margin-bottom: 0;">Select a satellite</div>
+                </div>
                 <div class="mobile-info-grid">
                     <div class="mobile-info-item">
                         <div class="info-label">Altitude</div>
@@ -2026,6 +2232,28 @@ body.light-mode .rocket-filter-chip {
 
 <!-- Footer info -->
 
+<!-- Botón 360 flotante independiente -->
+<div id="povBtnFloat" style="
+    display: none;
+    position: fixed;
+    bottom: 100px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(15,15,15,0.6);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    box-shadow: none;
+    cursor: pointer;
+    z-index: 850;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+" onclick="togglePovMode()" title="360° POV Mode">
+    <img src="images/360-degrees.svg" style="width:26px;height:26px;filter:invert(1);opacity:0.3;" alt="POV">
+</div>
+
 <!-- Brújula 3D — widget flotante esquina inferior izquierda -->
 <div id="compass3D" class="hidden">
     <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" id="compass3DSvg">
@@ -2081,6 +2309,18 @@ body.light-mode .rocket-filter-chip {
 <div class="loading" id="loading">
     <div class="spinner"></div>
     <p style="font-size:0.85rem;color:rgba(255,255,255,0.65);">Loading satellites...</p>
+</div>
+
+<div class="custom-modal-overlay" id="allWarningModal">
+    <div class="custom-modal">
+        <div class="custom-modal-icon">⚠️</div>
+        <div class="custom-modal-title">Performance Warning</div>
+        <div class="custom-modal-text">Loading ALL satellites (15,000+) may cause lag or freezing depending on your device.</div>
+        <div class="custom-modal-actions">
+            <button class="custom-modal-btn cancel" onclick="closeAllWarningModal()">Cancel</button>
+            <button class="custom-modal-btn confirm" onclick="confirmAllSatellites()">Load Anyway</button>
+        </div>
+    </div>
 </div>
 
 <!-- Bottom Bar -->
@@ -2150,6 +2390,13 @@ body.light-mode .rocket-filter-chip {
 
         // ==================== CESIUM 3D ====================
 let cesiumViewer = null;
+let satWorker = null;           // El empleado Web Worker
+let workerReady = false;        // ¿Está listo el worker?
+let lastWorkerPositions = [];   // Últimas posiciones recibidas del worker
+let prevWorkerPositions = [];   // Posiciones anteriores (para interpolar)
+let lastWorkerTime = 0;         // Cuándo fue el último cálculo
+let interpFrame = null;   // requestAnimationFrame de interpolación
+let rawGpData   = null;   // Copia del GP data para el worker
 let cesiumEntities = [];
 let is3DMode = true;
 let cesiumUpdateInterval = null;
@@ -2263,8 +2510,8 @@ let cesiumUpdateInterval = null;
                     'geodetic', 'cartography', 'mapping', 'surveying', 'positioning', 'navigation', 'timing')
             ) return 'geo';
 
-            // Tecnología / Demostración / Experimental
-            if (
+                        // Tecnología / Demostración / Experimental
+            if (!any('starlink', 'oneweb', 'kuiper') &&
                 any('demo', 'test', 'tech', 'prototype', 'expres', 'x-', 'demons', 'techdemo', 'proba', 'pathfinder', 'experiment',
                     'xss', 'otv', 'cubesat', 'cube-sat', 'cute-', 'cubex', 'protosat', 'skysat', 'technology', 'demonstration',
                     'experimental', 'research', 'science', 'mission', 'payload', 'instrument', 'sensor', 'detector', 'camera',
@@ -2281,120 +2528,59 @@ let cesiumUpdateInterval = null;
 
         // Cargar satélites desde archivo local (sin llamadas directas a Celestrak)
         async function loadSatellites() {
-            try {
-                // Función para cargar TLE
+    try {
         async function fetchTLE() {
-             try {
-                        const responseLocal = await fetch('https://worker.satfleetlive.com/api/tle');
-                        if (!responseLocal.ok) throw new Error('TLE worker error: ' + responseLocal.status);
-                        const textLocal = await responseLocal.text();
-
-                        // Guardar en localStorage
-                        localStorage.setItem('backupTLE', textLocal);
-
-                        // Buscar línea de última actualización
-                        const lastUpdateLine = textLocal.split('\n').find(line => line.startsWith('# Last update:'));
-                        let lastUpdate = null;
-
-                        if (lastUpdateLine) {
-                            const lastUpdateStr = lastUpdateLine.replace('# Last update:', '').trim();
-                            const parsedDate = Date.parse(lastUpdateStr); // parse explícito
-                            if (!isNaN(parsedDate)) {
-                                lastUpdate = new Date(parsedDate);
-                            }
-                        }
-
-                        // Si no se pudo parsear, usar backup o desconocida
-                        if (!lastUpdate) {
-                            const backupStr = localStorage.getItem('lastUpdateBackup');
-                            lastUpdate = backupStr ? new Date(backupStr) : null;
-                        }
-
-                        // Guardamos la última actualización en localStorage si es válida
-                        if (lastUpdate) localStorage.setItem('lastUpdateBackup', lastUpdate.toISOString());
-
-                        console.log("📂 Satélites cargados de archivo local");
-                        if (lastUpdate) {
-                            console.log("⏰ Última actualización TLE:", lastUpdate.toLocaleString());
-                        } else {
-                            console.log("⏰ Última actualización TLE: desconocida");
-                        }
-
-                        return textLocal;
-
-                    } catch (localError) {
-                        console.warn("⚠️ Error en archivo local, probando backup...");
-
-                        const backup = localStorage.getItem('backupTLE');
-                        if (backup) {
-                            const backupStr = localStorage.getItem('lastUpdateBackup');
-                            const backupDate = backupStr ? new Date(backupStr) : null;
-                            console.log("♻️ Satélites cargados de backup en localStorage");
-                            if (backupDate) {
-                                console.log("⏰ Última actualización TLE guardada:", backupDate.toLocaleString());
-                            } else {
-                                console.log("⏰ Última actualización TLE guardada: desconocida");
-                            }
-                            return backup;
-                        }
-
-                        throw new Error('❌ No hay datos de satélites disponibles');
-                    }
-                }
-
-                // Parsear TLE
-                function parseTLEWithType(tleText) {
-                    let satellites = [];
-                    const lines = tleText
-                        .split('\n')
-                        .map(l => l.trim())
-                        .filter(l => l.length > 0);
-
-                    for (let i = 0; i < lines.length; i += 3) {
-                        const name = lines[i];
-                        const line1 = lines[i + 1];
-                        const line2 = lines[i + 2];
-
-                        // Ignorar líneas de comentario
-                        if (!name || name.startsWith('#')) {
-                            i -= 2; // retrocedemos para no saltarnos satélites
-                            continue;
-                        }
-
-                        if (!line1 || !line2) continue;
-
-                        try {
-                            const satrec = satellite.twoline2satrec(line1, line2);
-                            const type = getSatelliteType(name);
-                            // Extraer NORAD ID de la línea 1 del TLE (posiciones 2-7)
-                            const noradId = line1.substring(2, 7).trim();
-                            satellites.push({ name, type, satrec, noradId });
-                        } catch (err) {
-                            console.warn(`No se pudo parsear satélite ${name}:`, err);
-                        }
-                    }
-                    return satellites;
-                }
-
-                // Cargar todos los satélites
-                const todoTLE = await fetchTLE();
-                allSatellites = parseTLEWithType(todoTLE);
-
-                if (is3DMode) {
-                    loadSatellitesIn3D();
-                    cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
-                } else {
-                    filterVisibleSatellites();
-                }
-                hideLoading();
-                updateStats();
-
-            } catch (error) {
-                console.error('Error cargando satélites:', error);
-                hideLoading();
-                alert('No se pudieron cargar los satélites.');
+            try {
+                const response = await fetch('https://worker.satfleetlive.com/api/tle');
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const data = await response.json();
+                const tleUpdated = response.headers.get('X-TLE-Updated');
+                const serverDate = response.headers.get('Date');
+                const lastUpdate = tleUpdated ? new Date(tleUpdated) : (serverDate ? new Date(serverDate) : new Date());
+                localStorage.setItem('lastUpdateBackup', lastUpdate.toISOString());
+                return data;
+            } catch (localError) {
+                console.error("❌ Fallo worker:", localError.message);
+                const backup = localStorage.getItem('backupGP');
+                if (backup) return JSON.parse(backup);
+                throw new Error('❌ No hay datos disponibles');
             }
         }
+
+        function parseTLEWithType(gpData) {
+            const satellites = [];
+            for (const obj of gpData) {
+                try {
+                    const satrec = satellite.json2satrec(obj);
+                    const name = obj.OBJECT_NAME;
+                    const noradId = obj.NORAD_CAT_ID.toString();
+                    const type = getSatelliteType(name);
+                    satellites.push({ name, type, satrec, noradId });
+                } catch (err) {}
+            }
+            try { localStorage.setItem('backupGP', JSON.stringify(gpData)); } catch(e) {}
+            return satellites;
+        }
+
+        const todoTLE = await fetchTLE();
+        rawGpData = todoTLE; // Guardar para el worker
+        allSatellites = parseTLEWithType(todoTLE);
+
+        if (is3DMode) {
+            initSatWorker(todoTLE); // Arrancar el worker con los datos
+        } else {
+            filterVisibleSatellites();
+        }
+
+        hideLoading();
+        updateStats();
+
+    } catch (error) {
+        console.error('Error cargando satélites:', error);
+        hideLoading();
+        alert('No se pudieron cargar los satélites.');
+    }
+}
 
         // Mostrar satélites en el mapa
         function displaySatellites(satellites) {
@@ -2485,13 +2671,214 @@ let cesiumUpdateInterval = null;
         }
 
         // Mostrar información del satélite
+        let currentSelectedSat = null;
+        let povEntity = null;
+        let isPovActive = false;
+        let isPovAnimating = false;
+        let currentSelectedRocket = null; // Cohete actualmente en POV
+
+// Variables para guardar el ángulo de la cámara POV controlado por el usuario
+let povUserHeading = 0;       // rotación horizontal (izquierda/derecha)
+let povUserPitch = -0.6;      // rotación vertical (arriba/abajo), en radianes
+let povUserRange = 2000000;   // distancia al satélite en metros
+let povLastMouseX = null;
+let povLastMouseY = null;
+let _povRestartTimeout = null; // Token para cancelar reinicios pendientes
+        // Magia real: Una propiedad que Cesium sabe rastrear fluidamente
+        let povPositionProp = null; // Se crea en initCesium
+
+        function togglePovMode() {
+    if (!is3DMode || !cesiumViewer || (!currentSelectedSat && !currentSelectedRocket)) return;
+
+    isPovActive = !isPovActive;
+
+    const btnFloat = document.getElementById('povBtnFloat');
+    if (btnFloat) {
+        btnFloat.classList.toggle('active', isPovActive);
+        btnFloat.style.borderColor = isPovActive ? 'var(--primary-purple)' : 'rgba(255,255,255,0.12)';
+        btnFloat.style.boxShadow = isPovActive ? '0 0 20px rgba(156,39,176,0.6)' : 'none';
+        btnFloat.style.background = isPovActive ? 'rgba(156,39,176,0.2)' : 'rgba(15,15,15,0.6)';
+        btnFloat.querySelector('img').style.filter = isPovActive
+            ? 'invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(150%) contrast(100%)'
+            : 'invert(1)';
+        btnFloat.querySelector('img').style.opacity = isPovActive ? '1' : '0.3';
+    }
+
+    if (isPovActive) {
+    // Unificar satélite y cohete en un único objeto de destino POV
+    let _povTarget = null;
+    let _povIsRocket = false;
+    if (currentSelectedSat && currentSelectedSat.lat != null) {
+        _povTarget = { lat: currentSelectedSat.lat, lng: currentSelectedSat.lng, altitude: currentSelectedSat.altitude || 400 };
+    } else if (currentSelectedRocket) {
+        const rLat = parseFloat(currentSelectedRocket.pad?.latitude);
+        const rLng = parseFloat(currentSelectedRocket.pad?.longitude);
+        if (!isNaN(rLat) && !isNaN(rLng)) {
+            _povTarget = { lat: rLat, lng: rLng, altitude: 0.05 }; // 50m sobre el suelo
+            _povIsRocket = true;
+        }
+    }
+    if (_povTarget) {
+        const povAlt = _povTarget.altitude * 1000;
+        // Satélites: distancia grande. Cohetes: distancia pequeña (5 km de arranque)
+        const orbitDist = _povIsRocket ? 5000 : Math.max(povAlt * 0.8, 1500000);
+        // Inicializar ángulos POV
+        povUserHeading = 0;
+        povUserPitch = -0.6;
+        povUserRange = orbitDist;
+
+isPovAnimating = true;
+cesiumViewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(
+        _povTarget.lng,
+        _povTarget.lat,
+        povAlt + orbitDist
+    ),
+    duration: 1.8,
+    complete: function() {
+    isPovAnimating = false;
+    if (!isPovActive) return;
+    const canvas = cesiumViewer.canvas;
+
+    cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
+    cesiumViewer.scene.screenSpaceCameraController.enableTilt = false;
+    cesiumViewer.scene.screenSpaceCameraController.enableTranslate = false;
+    cesiumViewer.scene.screenSpaceCameraController.enableZoom = false;
+
+    const container = document.getElementById('cesiumContainer');
+    if (canvas._povCleanupFn) { canvas._povCleanupFn(); canvas._povCleanupFn = null; }
+
+    let _povBtnDown = false;
+    let _prevPinchDist = null;
+    const _activePointers = new Map();
+
+    const _onPointerDown = (e) => {
+        _activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (_activePointers.size === 1) {
+            _povBtnDown = true;
+            povLastMouseX = e.clientX;
+            povLastMouseY = e.clientY;
+        }
+    };
+    const _onPointerUp = (e) => {
+        _activePointers.delete(e.pointerId);
+        if (_activePointers.size === 0) {
+            _povBtnDown = false;
+            _prevPinchDist = null;
+            povLastMouseX = null;
+            povLastMouseY = null;
+        }
+    };
+    const _onPointerMove = (e) => {
+        if (!isPovActive) return;
+        const prev = _activePointers.get(e.pointerId);
+        _activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (_activePointers.size === 1 && _povBtnDown && prev) {
+            // Ratón PC o un dedo móvil: rotar cámara
+            const dx = e.clientX - prev.x;
+            const dy = e.clientY - prev.y;
+            povUserHeading -= dx * 0.005;
+            povUserPitch = Math.max(-Math.PI * 0.49, Math.min(Math.PI * 0.49, povUserPitch - dy * 0.005));
+        } else if (_activePointers.size === 2) {
+            // Dos dedos móvil: zoom con pinch
+            const pts = [..._activePointers.values()];
+            const dx2 = pts[0].x - pts[1].x;
+            const dy2 = pts[0].y - pts[1].y;
+            const dist = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+            if (_prevPinchDist !== null) {
+                const delta = _prevPinchDist - dist;
+                povUserRange = Math.max(_povMinRange, Math.min(_povMaxRange,
+                    povUserRange + delta * povUserRange * 0.003));
+            }
+            _prevPinchDist = dist;
+        }
+    };
+    // Cohetes: rango 50m–500km. Satélites: 100km–20000km
+    const _povMinRange = _povIsRocket ? 50        : 100000;
+    const _povMaxRange = _povIsRocket ? 8000000   : 20000000;
+    const _onWheel = (e) => {
+        if (!isPovActive) return;
+        e.preventDefault();
+        e.stopPropagation();
+        povUserRange = Math.max(_povMinRange, Math.min(_povMaxRange,
+            povUserRange + e.deltaY * povUserRange * 0.001));
+    };
+
+    // capture: true = interceptamos ANTES que Cesium. ESE es el truco para que funcione en PC
+    document.addEventListener('pointerdown',   _onPointerDown, true);
+    document.addEventListener('pointerup',     _onPointerUp,   true);
+    document.addEventListener('pointermove',   _onPointerMove, true);
+    document.addEventListener('pointercancel', _onPointerUp,   true);
+    container.addEventListener('wheel', _onWheel, { passive: false, capture: true });
+
+    canvas._povCleanupFn = function() {
+        document.removeEventListener('pointerdown',   _onPointerDown, true);
+        document.removeEventListener('pointerup',     _onPointerUp,   true);
+        document.removeEventListener('pointermove',   _onPointerMove, true);
+        document.removeEventListener('pointercancel', _onPointerUp,   true);
+        container.removeEventListener('wheel', _onWheel, { passive: false, capture: true });
+    };
+}
+});
+    }
+} else {
+   // *** Reactivar los controles de Cesium al salir del POV ***
+cesiumViewer.scene.screenSpaceCameraController.enableRotate = true;
+cesiumViewer.scene.screenSpaceCameraController.enableTilt = true;
+cesiumViewer.scene.screenSpaceCameraController.enableTranslate = true;
+cesiumViewer.scene.screenSpaceCameraController.enableZoom = true;
+
+const canvas = cesiumViewer.canvas;
+if (canvas._povCleanupFn) {
+    canvas._povCleanupFn();
+    canvas._povCleanupFn = null;
+}
+if (canvas._povBtnCleanup) {
+  canvas._povBtnCleanup();
+  canvas._povBtnCleanup = null;
+}
+povLastMouseX = null;
+povLastMouseY = null;
+cesiumViewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+cesiumViewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(0, 20, 25000000),
+    duration: 1.5
+});
+
+// Si el panel de info está cerrado, ocultar el botón 360 por completo y limpiar mapa
+const infoPanel = document.getElementById('satelliteInfo');
+if (!infoPanel.classList.contains('active')) {
+    const btnFloat = document.getElementById('povBtnFloat');
+    if (btnFloat) btnFloat.style.display = 'none';
+    
+    // Limpiar trayectorias y órbitas porque ya no hay nada seleccionado
+    clearRocketTrajectory();
+    if (currentOrbitPath) {
+        if (map) map.removeLayer(currentOrbitPath);
+        currentOrbitPath = null;
+    }
+    if (currentOrbit3D && cesiumViewer) {
+        cesiumViewer.entities.remove(currentOrbit3D);
+        currentOrbit3D = null;
+    }
+    currentSelectedSat = null;
+    currentSelectedRocket = null;
+}
+}
+}
+
         function showSatelliteInfo(sat) {
+    clearRocketTrajectory();
+    currentSelectedSat = sat;
+    const povFloat = document.getElementById('povBtnFloat');
+    if (povFloat) povFloat.style.display = is3DMode ? 'flex' : 'none';
+
     // Asegurarse de tener lat/lng/alt/vel calculados
-    if (!sat.lat || !sat.lng || !sat.altitude) {
+    if (!sat.lat || !sat.lng || !sat.altitude || !sat.velocity) {
         try {
             const now = new Date();
             const pv  = window.satellite.propagate(sat.satrec, now);
-            if (pv && pv.position) {
+            if (pv && pv.position && pv.velocity) {
                 const gmst = window.satellite.gstime(now);
                 const geo  = window.satellite.eciToGeodetic(pv.position, gmst);
                 sat.lat      = window.satellite.degreesLat(geo.latitude);
@@ -2508,6 +2895,11 @@ let cesiumUpdateInterval = null;
     const velText = sat.velocity ? Math.round(sat.velocity).toLocaleString()  + ' km/h': 'Calculating...';
     const latText = sat.lat      ? sat.lat.toFixed(4) + '°' : 'Calculating...';
     const lngText = sat.lng      ? sat.lng.toFixed(4) + '°' : 'Calculating...';
+
+    // Ocultar el vídeo temporalmente al ver un satélite (sin borrarlo)
+    const vc = document.getElementById('rocketVideoContainer');
+    if (vc) { vc.style.display = 'none'; }
+    // NO borramos rocketVideoWidget — sigue vivo en el widget de lanzamientos
 
     // Restaurar los textos originales por si antes se clickeó un cohete
     const labelsDesk = document.querySelectorAll('#satelliteInfo .info-label');
@@ -2559,6 +2951,20 @@ let cesiumUpdateInterval = null;
 
     // El panel de info flotante es visible en todos los dispositivos — no se necesita panel adicional
     // --- Órbita ---
+    /// Si el POV estaba activo con otro objetivo, reiniciarlo con el nuevo
+    if (isPovActive) {
+        isPovActive = false;
+        const canvas = cesiumViewer.canvas;
+        if (canvas._povCleanupFn) { canvas._povCleanupFn(); canvas._povCleanupFn = null; }
+        cesiumViewer.scene.screenSpaceCameraController.enableRotate = true;
+        cesiumViewer.scene.screenSpaceCameraController.enableTilt = true;
+        cesiumViewer.scene.screenSpaceCameraController.enableTranslate = true;
+        cesiumViewer.scene.screenSpaceCameraController.enableZoom = true;
+        cesiumViewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        if (_povRestartTimeout) { clearTimeout(_povRestartTimeout); _povRestartTimeout = null; }
+        _povRestartTimeout = setTimeout(() => { _povRestartTimeout = null; togglePovMode(); }, 100);
+    }
+
     if (is3DMode) {
         drawOrbit3D(sat);
     } else {
@@ -2681,14 +3087,40 @@ function updateStats() {
         // Cerrar panel de información
 function closeSatelliteInfo() {
     document.getElementById('satelliteInfo').classList.remove('active');
-    if (currentOrbitPath) {
-        if (map) map.removeLayer(currentOrbitPath);
-        currentOrbitPath = null;
+    
+    // Solo borrar trayectoria de cohete al cerrar (no la órbita satelital)
+    if (!isPovActive) {
+        clearRocketTrajectory();
+        if (currentOrbitPath) {
+            if (map) map.removeLayer(currentOrbitPath);
+            currentOrbitPath = null;
+        }
+        if (currentOrbit3D && cesiumViewer) {
+            cesiumViewer.entities.remove(currentOrbit3D);
+            currentOrbit3D = null;
+        }
     }
-    if (currentOrbit3D && cesiumViewer) {
-        cesiumViewer.entities.remove(currentOrbit3D);
-        currentOrbit3D = null;
-    }
+    
+    // Forzar render para que desaparezca visualmente
+    if (cesiumViewer) cesiumViewer.scene.requestRender();
+    
+    // Si el POV NO está activo, volvemos a la vista general
+    if (!isPovActive && is3DMode && cesiumViewer && (currentSelectedSat || currentSelectedRocket)) {
+    cesiumViewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(0, 20, 25000000),
+        duration: 1.5
+    });
+}
+    // Si el POV está activo, lo dejamos funcionar — el usuario puede desactivarlo
+    // pulsando de nuevo el botón 360 o haciendo click en el vacío del globo
+    
+    // NO limpiamos currentSelectedSat ni currentSelectedRocket aquí
+    // para que el botón 360 siga funcionando aunque el panel esté cerrado.
+    // Solo los limpiamos si el usuario hace clic en el globo sin seleccionar nada.
+    const btnFloat = document.getElementById('povBtnFloat');
+if (btnFloat && !isPovActive) {
+    btnFloat.style.display = 'none';
+}
 }
 
 
@@ -2764,7 +3196,7 @@ function closeSatelliteInfo() {
                 const isFinished    = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
     // Descartar si terminó oficialmente o si pasaron más de 3 horas sin estar en directo
     if (isFinished) return false;
-    if (diffMs < -10800000 && !isWebcastLive && !isInFlight) return false;
+    if (diffMs < -2700000 && !isWebcastLive && !isInFlight) return false;
     return (l.name || '').toLowerCase().includes(query) ||
            (l.rocket?.configuration?.name || '').toLowerCase().includes(query) ||
            (l.pad?.name || '').toLowerCase().includes(query);
@@ -2794,15 +3226,28 @@ function closeSatelliteInfo() {
         }
 
         // Filtrar satélites (Desktop)
+
+        // Lógica del nuevo Modal Custom
+        function confirmAllSatellites() {
+            closeAllWarningModal();
+            activeFilters.clear();
+            activeFilters.add('all');
+            syncFilterButtons();
+            filterVisibleSatellites();
+        }
+
+        function closeAllWarningModal() {
+            document.getElementById('allWarningModal').classList.remove('active');
+        }
+
+        // Filtrar satélites (Desktop)
         function filterSatellites(type) {
             if (type === 'all') {
                 if (activeFilters.has('all')) {
                     activeFilters.delete('all'); // Permitir que se apague
                 } else {
-                    const confirmed = confirm("⚠️ Loading ALL satellites (15,000+) may cause lag or freezing depending on your device.\n\nDo you want to continue?");
-                    if (!confirmed) return;
-                    activeFilters.clear();
-                    activeFilters.add('all');
+                    document.getElementById('allWarningModal').classList.add('active');
+                    return; // Paramos aquí, el modal se encarga de llamar a confirmAllSatellites()
                 }
             } else {
                 if (activeFilters.has('all')) activeFilters.delete('all');
@@ -2813,7 +3258,6 @@ function closeSatelliteInfo() {
                 }
             }
             
-            // Si nos quedamos sin satélites pero los cohetes están apagados, activamos 'all' por defecto para no dejar la pantalla muerta
             if (activeFilters.size === 0 && !showRockets) activeFilters.add('all');
             
             syncFilterButtons();
@@ -2826,10 +3270,8 @@ function closeSatelliteInfo() {
                 if (activeFilters.has('all')) {
                     activeFilters.delete('all'); // Permitir que se apague
                 } else {
-                    const confirmed = confirm("⚠️ Loading ALL satellites (15,000+) may cause lag or freezing depending on your device.\n\nDo you want to continue?");
-                    if (!confirmed) return;
-                    activeFilters.clear();
-                    activeFilters.add('all');
+                    document.getElementById('allWarningModal').classList.add('active');
+                    return; // Paramos aquí también
                 }
             } else {
                 if (activeFilters.has('all')) activeFilters.delete('all');
@@ -2840,13 +3282,11 @@ function closeSatelliteInfo() {
                 }
             }
             
-            // Si nos quedamos sin satélites pero los cohetes están apagados, activamos 'all' por defecto para no dejar la pantalla muerta
             if (activeFilters.size === 0 && !showRockets) activeFilters.add('all');
             
             syncFilterButtons();
             filterVisibleSatellites();
         }
-
 
 
         // Funciones del panel móvil
@@ -3421,53 +3861,7 @@ function updateCompass3DVisibility() {
 
         // Abrir página de detalles del satélite
         function openSatelliteDetail(noradId) {
-            console.log('Opening satellite detail for NORAD ID:', noradId);
-
-            // Buscar el satélite en allSatellites para obtener su nombre
-            const satellite = allSatellites.find(sat => sat.noradId === noradId);
-
-            if (satellite && satellite.name) {
-                const satelliteName = satellite.name.toLowerCase();
-
-                // Detectar constelaciones y redirigir a la entrada genérica correspondiente
-                if (satelliteName.includes('starlink')) {
-                    window.location.href = `satellite-detail.html?id=STARLINK`;
-                } else if (satelliteName.includes('oneweb')) {
-                    window.location.href = `satellite-detail.html?id=ONEWEB`;
-                } else if (satelliteName.includes('iridium')) {
-                    window.location.href = `satellite-detail.html?id=IRIDIUM`;
-                } else if (satelliteName.includes('globalstar')) {
-                    window.location.href = `satellite-detail.html?id=GLOBALSTAR`;
-                } else if (satelliteName.includes('kuiper')) {
-                    window.location.href = `satellite-detail.html?id=KUIPER`;
-                } else if (satelliteName.includes('o3b') || satelliteName.includes('ses')) {
-                    window.location.href = `satellite-detail.html?id=SES_O3b`;
-                } else if (satelliteName.includes('qianfan')) {
-                    window.location.href = `satellite-detail.html?id=CHINA_QIANFAN`;
-                } else if (satelliteName.includes('hongyu')) {
-                    window.location.href = `satellite-detail.html?id=CHINA_HONGYU`;
-                } else if (satelliteName.includes('spire')) {
-                    window.location.href = `satellite-detail.html?id=SPIRE`;
-                } else if (satelliteName.includes('sateliot')) {
-                    window.location.href = `satellite-detail.html?id=SATELIOT`;
-                } else if (satelliteName.includes('sicral')) {
-                    window.location.href = `satellite-detail.html?id=SICRAL`;
-                } else if (satelliteName.includes('syracuse')) {
-                    window.location.href = `satellite-detail.html?id=SYRACUSE`;
-                } else if (satelliteName.includes('satcombw') || satelliteName.includes('satcom bw')) {
-                    window.location.href = `satellite-detail.html?id=SATCOMBW`;
-                } else if (satelliteName.includes('swarm')) {
-                    window.location.href = `satellite-detail.html?id=SWARM`;
-                } else if (satelliteName.includes('lightspeed') || satelliteName.includes('telesat') || satelliteName.includes('anik')) {
-                    window.location.href = `satellite-detail.html?id=TELESAT_LIGHTSPEED`;
-                } else {
-                    // Si no es de ninguna constelación conocida, usar el NORAD ID específico
-                    window.location.href = `satellite-detail.html?id=${noradId}`;
-                }
-            } else {
-                // Si no se encuentra el satélite, usar el NORAD ID específico
-                window.location.href = `satellite-detail.html?id=${noradId}`;
-            }
+            window.location.href = `satellite-detail.html?id=${noradId}`;
         }
 
         // ==================== CESIUM 3D LOGIC ====================
@@ -3499,7 +3893,7 @@ function initCesium() {
         skyAtmosphere: false,
         scene3DOnly: true,
         requestRenderMode: true,
-        maximumRenderTimeChange: Infinity
+        maximumRenderTimeChange: 0.0
     });
 
     // Eliminar TODAS las capas (incluida la que acabamos de pasar como placeholder)
@@ -3549,6 +3943,18 @@ function initCesium() {
             showSatelliteInfo(picked.id._satData);
         }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    // POV: callback que siempre lee la posición actual del satélite seleccionado
+povPositionProp = new Cesium.CallbackProperty(function(time, result) {
+    if (!currentSelectedSat || currentSelectedSat.lat == null) return undefined;
+    return Cesium.Cartesian3.fromDegrees(
+        currentSelectedSat.lng,
+        currentSelectedSat.lat,
+        (currentSelectedSat.altitude || 0) * 1000,
+        undefined,
+        result
+    );
+}, false);
 
     console.log('✅ CesiumJS inicializado sin Ion');
 }
@@ -3610,21 +4016,20 @@ function drawOrbit3D(sat) {
         id: 'orbitPath3D',
         polyline: {
             positions: points,
-            width: 1.5,
-            material: new Cesium.PolylineDashMaterialProperty({
-                color: orbitColor,
-                dashLength: 16
-            }),
-            arcType: Cesium.ArcType.NONE  // línea recta entre puntos en 3D real
+            width: 7,
+            material: new Cesium.PolylineGlowMaterialProperty({ glowPower: 0.22, color: orbitColor }),
+           arcType: Cesium.ArcType.GEODESIC,
+            // Sin límite de distancia: visible desde cualquier zoom
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
         }
     });
 
-    // Volar suavemente hacia el satélite
-    if (sat.lat && sat.lng && sat.altitude) {
+    // Volar suavemente hacia el satélite (solo si el POV no está activo)
+    if (!isPovActive && sat.lat && sat.lng && sat.altitude) {
         cesiumViewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
                 sat.lng, sat.lat,
-                sat.altitude * 1000 + 3000000  // altitud del satélite + 3000 km de cámara
+                sat.altitude * 1000 + 3000000
             ),
             duration: 1.5
         });
@@ -3699,58 +4104,42 @@ function loadSatellitesIn3D() {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
     const labelDistLimit = isMobile ? 400000 : 400000;
 
-    filtered.forEach(sat => {
-        try {
+    // DESPUÉS — usa posiciones del worker si existen, SGP4 solo como fallback
+filtered.forEach(sat => {
+    try {
+        let lat = sat.lat, lng = sat.lng, altMeters = (sat.altitude || 0) * 1000;
+
+        // Solo recalcular si el worker aún no ha dado posición
+        if (!lat || !lng) {
             const pv = window.satellite.propagate(sat.satrec, now);
             if (!pv || !pv.position) return;
+            const gmst = window.satellite.gstime(now);
+            const geo  = window.satellite.eciToGeodetic(pv.position, gmst);
+            lat = window.satellite.degreesLat(geo.latitude);
+            lng = window.satellite.degreesLong(geo.longitude);
+            altMeters = geo.height * 1000;
+            sat.lat = lat; sat.lng = lng; sat.altitude = geo.height;
+        }
 
-            const gmst      = window.satellite.gstime(now);
-            const geo       = window.satellite.eciToGeodetic(pv.position, gmst);
-            const lat       = window.satellite.degreesLat(geo.latitude);
-            const lng       = window.satellite.degreesLong(geo.longitude);
-            const altMeters = geo.height * 1000;
+        if (isNaN(lat) || isNaN(lng)) return;
 
-            if (isNaN(lat) || isNaN(lng)) return;
-
-            sat.lat      = lat;
-            sat.lng      = lng;
-            sat.altitude = geo.height;
-            sat.velocity = Math.sqrt(
-                pv.velocity.x ** 2 + pv.velocity.y ** 2 + pv.velocity.z ** 2
-            ) * 3600;
-
-            const cesiumColor = cssColorToCesium(getSatelliteColor(sat.name));
-            const pos = Cesium.Cartesian3.fromDegrees(lng, lat, altMeters);
-
-            // Añadir punto a la colección
-            const point = satPointCollection.add({
-                position:  pos,
-                color:     cesiumColor,
-                pixelSize: 7,
-                scaleByDistance: new Cesium.NearFarScalar(5e5, 1.6, 3e7, 0.4),
-                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1.5e10),
-                id: sat  // referencia al sat para el click
-            });
-
-            // Añadir label a la colección
-            const label = satLabelCollection.add({
-                position:        pos,
-                text:            sat.name,
-                font:            '10px sans-serif',
-                fillColor:       cesiumColor,
-                outlineColor:    Cesium.Color.BLACK,
-                outlineWidth:    2,
-                style:           Cesium.LabelStyle.FILL_AND_OUTLINE,
-                verticalOrigin:  Cesium.VerticalOrigin.BOTTOM,
-                pixelOffset:     new Cesium.Cartesian2(0, -8),
-                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, labelDistLimit),
-                id: sat
-            });
-
-            primitiveDataArray.push({ sat, point, label });
-
-        } catch(e) { /* silencioso */ }
-    });
+        const cesiumColor = cssColorToCesium(getSatelliteColor(sat.name));
+        const pos = Cesium.Cartesian3.fromDegrees(lng, lat, altMeters);
+        const point = satPointCollection.add({ position: pos, color: cesiumColor, pixelSize: 7,
+            scaleByDistance: new Cesium.NearFarScalar(5e5, 1.6, 3e7, 0.4),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1.5e10),
+            id: sat });
+        const label = satLabelCollection.add({ position: pos, text: sat.name,
+            font: '10px sans-serif', fillColor: cesiumColor,
+            outlineColor: Cesium.Color.BLACK, outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -8),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, labelDistLimit),
+            id: sat });
+        primitiveDataArray.push({ sat, point, label });
+    } catch(e) {}
+});
 
     // Añadir colecciones a la escena (un solo draw call cada una)
     cesiumViewer.scene.primitives.add(satPointCollection);
@@ -3767,14 +4156,40 @@ function loadSatellitesIn3D() {
         Cesium.ScreenSpaceEventType.LEFT_CLICK
     );
     cesiumViewer.screenSpaceEventHandler.setInputAction(function(event) {
-        const pickedObject = cesiumViewer.scene.pick(event.position);
+        const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+        // En móvil usamos un área de toque más grande (cuadrado de 30x30 px)
+        // En escritorio un punto exacto
+        const pickedObject = isMobileDevice
+            ? cesiumViewer.scene.pick(event.position, 30, 30)
+            : cesiumViewer.scene.pick(event.position);
         if (Cesium.defined(pickedObject)) {
             // Cohete
             if (pickedObject.id && pickedObject.id._rocketData) {
-                const launch = pickedObject.id._rocketData;
-                showRocketInfo3D(launch);
-                const lat = parseFloat(launch.pad?.latitude);
-                const lng = parseFloat(launch.pad?.longitude);
+                const clickedLaunch = pickedObject.id._rocketData;
+                // Buscar el lanzamiento más próximo en ese pad
+                let launches = [];
+                try {
+                    const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+                    if (raw) launches = JSON.parse(raw).results || [];
+                } catch(e) {}
+                const now = new Date();
+                
+                // Usamos latitud y longitud exactas para no saltar a otro lugar
+                const latTarget = clickedLaunch.pad?.latitude;
+                const lngTarget = clickedLaunch.pad?.longitude;
+                
+                const samePad = launches.filter(l => {
+                    if (!latTarget || l.pad?.latitude !== latTarget || l.pad?.longitude !== lngTarget) return false;
+                    const diff = new Date(l.net) - now;
+                    const finished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
+                    return !finished && diff > -2700000;
+                }).sort((a, b) => new Date(a.net) - new Date(b.net));
+                
+                const launchToShow = samePad[0] || clickedLaunch;
+                showRocketInfo3D(launchToShow);
+                
+                const lat = parseFloat(launchToShow.pad?.latitude);
+                const lng = parseFloat(launchToShow.pad?.longitude);
                 if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
                     cesiumViewer.camera.flyTo({
                         destination: Cesium.Cartesian3.fromDegrees(lng, lat, 800000),
@@ -3792,7 +4207,13 @@ function loadSatellitesIn3D() {
             if (pickedObject.id && pickedObject.id._satData) {
                 showSatelliteInfo(pickedObject.id._satData);
             }
-        }
+        } else {
+    // Click en el vacío — primero desactivar POV (necesita sat/rocket todavía asignado)
+    if (isPovActive) togglePovMode();
+    closeSatelliteInfo();
+    currentSelectedSat = null;
+    currentSelectedRocket = null;
+}
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
     console.log(`🛰️ ${primitiveDataArray.length} satélites cargados como primitivas`);
 }
@@ -3878,10 +4299,6 @@ function toggleView() {
     const mapEl    = document.getElementById('map');
     const cesiumEl = document.getElementById('cesiumContainer');
 
-    // Resetear filtros a los valores por defecto
-    activeFilters = new Set(DEFAULT_FILTERS);
-    syncFilterButtons();
-
     if (is3DMode) {
         mapEl.style.display    = 'none';
         cesiumEl.style.display = 'block';
@@ -3891,9 +4308,16 @@ function toggleView() {
         setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
 
         initCesium();
-        if (allSatellites.length > 0) loadSatellitesIn3D();
+if (allSatellites.length > 0) {
+    if (rawGpData) {
+        initSatWorker(rawGpData); // Usar el worker
+    } else {
+        loadSatellitesIn3D();
         cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
+    }
+}
         loadRocketPadMarkers();
+        checkAndStartFlightAnimations();
         updateCompass3DVisibility();
 
         // Mostrar brújula 3D si hay datos de brújula
@@ -3906,6 +4330,8 @@ function toggleView() {
         mapEl.style.display    = 'block';
         cesiumEl.style.display = 'none';
         if (btn2d3d) btn2d3d.textContent = '3D';
+
+        stopAllFlightAnimations();
 
         if (cesiumUpdateInterval) {
             clearInterval(cesiumUpdateInterval);
@@ -3928,6 +4354,11 @@ function toggleView() {
             currentOrbit3D = null;
         }
 
+        // Parar la interpolación
+        if (interpFrame) { cancelAnimationFrame(interpFrame); interpFrame = null; }
+        // Parar el worker
+        if (satWorker) { satWorker.terminate(); satWorker = null; workerReady = false; }
+
         // Ocultar brújula 3D
         const c = document.getElementById('compass3D');
         if (c) { c.classList.remove('visible'); c.classList.add('hidden'); }
@@ -3941,6 +4372,247 @@ function toggleView() {
         loadRocketPadMarkers();
     }
     updateMobileViewBtn();
+}
+
+// ==================== WEB WORKER PARA 3D ====================
+
+function initSatWorker(gpData) {
+    // Si ya existe un worker, lo terminamos
+    if (satWorker) { satWorker.terminate(); satWorker = null; }
+    workerReady = false;
+
+    try {
+        satWorker = new Worker('satworker.js');
+    } catch(e) {
+        console.warn('Web Worker no soportado, usando modo clásico');
+        // Fallback al modo antiguo
+        loadSatellitesIn3D();
+        cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
+        return;
+    }
+
+    satWorker.onmessage = function(e) {
+        const { type, payload } = e.data;
+
+        if (type === 'READY') {
+            workerReady = true;
+            // Forzar render inmediato para que aparezcan los satélites sin necesidad de tocar
+setTimeout(() => {
+    if (cesiumViewer) cesiumViewer.scene.requestRender();
+}, 100);
+setTimeout(() => {
+    if (cesiumViewer) cesiumViewer.scene.requestRender();
+}, 500);
+setTimeout(() => {
+    if (cesiumViewer) cesiumViewer.scene.requestRender();
+}, 1500);
+            console.log(`✅ Web Worker listo con ${e.data.count} satélites`);
+            // Ahora sí, cargar en pantalla y arrancar el bucle
+            loadSatellitesIn3D();
+            startWorkerLoop();
+        }
+
+        if (type === 'POSITIONS') {
+            const { buf, timestamp } = e.data;
+            lastWorkerTime = timestamp;
+
+            for (let i = 0; i < allSatellites.length; i++) {
+                const sat = allSatellites[i];
+                const lat = buf[i * 4];
+                const lng = buf[i * 4 + 1];
+                const alt = buf[i * 4 + 2];
+                const vel = buf[i * 4 + 3]; // <-- Leemos la velocidad
+
+                if (alt === -1000) continue;
+
+                if (sat.lat === undefined) {
+                    sat.lat = lat;
+                    sat.lng = lng;
+                    sat.altitude = alt;
+                    sat.velocity = vel;
+                }
+                
+                sat.targetLat = lat;
+                sat.targetLng = lng;
+                sat.targetAlt = alt;
+                sat.velocity = vel; // <-- Se la asignamos al satélite
+            }
+        }
+    };
+
+    satWorker.onerror = function(err) {
+        console.error('Worker error:', err.message);
+        // Fallback
+        loadSatellitesIn3D();
+        cesiumUpdateInterval = setInterval(updateCesiumPositions, 2000);
+    };
+
+    // Enviar los datos al worker para que los inicialice
+    satWorker.postMessage({ type: 'INIT', payload: { gpData } });
+}
+
+function startWorkerLoop() {
+    // El worker ya se dispara solo cada 200ms desde su setInterval interno
+    // Solo arrancamos la interpolación visual
+    startInterpolation();
+}
+
+function requestWorkerCalc() {
+    if (!satWorker || !workerReady) return;
+    satWorker.postMessage({
+        type: 'CALC',
+        payload: { timestamp: Date.now() }
+    });
+}
+
+let _lastRenderTs = 0;
+let _lastWorkerUpdateProcessed = 0;
+
+// EL TRUCO MAGICO: Reutilizamos un único objeto en memoria para no saturar la RAM
+const _scratchPos = new Cesium.Cartesian3();
+
+function startInterpolation() {
+    if (interpFrame) { cancelAnimationFrame(interpFrame); interpFrame = null; }
+
+    function loop(ts) {
+        interpFrame = requestAnimationFrame(loop);
+        if (!is3DMode || !satPointCollection || !cesiumViewer) return;
+
+        const totalSats = primitiveDataArray.length;
+
+        // MODO MASIVO (+3000 satélites)
+        if (totalSats > 3000) {
+            if (lastWorkerTime > _lastWorkerUpdateProcessed) {
+                _lastWorkerUpdateProcessed = lastWorkerTime;
+                
+                for (let i = 0; i < totalSats; i++) {
+                    const { sat, point, label } = primitiveDataArray[i];
+                    if (sat.targetLat === undefined) continue;
+                    
+                    sat.lat = sat.targetLat;
+                    sat.lng = sat.targetLng;
+                    sat.altitude = sat.targetAlt;
+                    
+                    Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000, undefined, _scratchPos);
+                    point.position = _scratchPos;
+                    if (label) label.position = _scratchPos;
+                }
+                cesiumViewer.scene.requestRender();
+            }
+            // Si el modo 360 está activo, mover la cámara también en modo masivo
+            // POV: seguir al satélite cada frame manteniendo el ángulo del usuario
+        let _loopTarget = null;
+        if (currentSelectedSat && currentSelectedSat.lat != null) {
+            _loopTarget = currentSelectedSat;
+        } else if (currentSelectedRocket) {
+            const _lid2 = String(currentSelectedRocket.id);
+            const _fSlots = _flightEnts[_lid2];
+            if (_fSlots) {
+                const _mainSlot = _fSlots.find(s => s.type === 'main');
+                if (_mainSlot) {
+                    const _el2 = (Date.now() - new Date(currentSelectedRocket.net).getTime()) / 1000;
+                    const _rp  = _fInterp(_mainSlot.pts, _el2);
+                    if (_rp && _mainSlot.entity.show) {
+                        _loopTarget = { lat: _rp.lat, lng: _rp.lng, altitude: _rp.alt };
+                    }
+                }
+            }
+            if (!_loopTarget) {
+                _loopTarget = {
+                    lat: parseFloat(currentSelectedRocket.pad?.latitude),
+                    lng: parseFloat(currentSelectedRocket.pad?.longitude),
+                    altitude: 0.05
+                };
+            }
+        }
+        if (isPovActive && !isPovAnimating && _loopTarget && _loopTarget.lat != null) {
+    const povPos = Cesium.Cartesian3.fromDegrees(
+        _loopTarget.lng, _loopTarget.lat,
+        (_loopTarget.altitude || 0) * 1000);
+    const transform = Cesium.Transforms.eastNorthUpToFixedFrame(povPos);
+    // Usamos NUESTRAS variables de ángulo, no las de Cesium
+    // Así el usuario tiene control total y el satélite siempre en el centro
+    cesiumViewer.camera.lookAtTransform(
+        transform,
+        new Cesium.HeadingPitchRange(povUserHeading, povUserPitch, povUserRange)
+    );
+    cesiumViewer.scene.requestRender();
+}
+            return;
+        }
+
+        // MODO ULTRAFLUIDO (-3000 satélites)
+        const dt = _lastRenderTs ? (ts - _lastRenderTs) : 16.6; 
+        _lastRenderTs = ts;
+        const lerpFactor = Math.min(dt / 2000.0, 1.0);
+        let needsRender = false;
+
+        for (let i = 0; i < totalSats; i++) {
+            const { sat, point, label } = primitiveDataArray[i];
+            if (sat.targetLat === undefined) continue;
+
+            needsRender = true;
+
+            sat.lat += (sat.targetLat - sat.lat) * lerpFactor;
+            sat.altitude += (sat.targetAlt - sat.altitude) * lerpFactor;
+
+            let dlng = sat.targetLng - sat.lng;
+            if (dlng > 180) dlng -= 360;
+            else if (dlng < -180) dlng += 360;
+            sat.lng += dlng * lerpFactor;
+            
+            if (sat.lng > 180) sat.lng -= 360;
+            else if (sat.lng < -180) sat.lng += 360;
+
+            Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000, undefined, _scratchPos);
+            point.position = _scratchPos;
+            if (label) label.position = _scratchPos;
+        
+        }
+
+        if (needsRender) cesiumViewer.scene.requestRender();
+        
+        // Si el modo 360 está activo, mover la cámara con el satélite cada fotograma
+        // POV: seguir al satélite cada frame manteniendo el ángulo del usuario
+        let _loopTarget = null;
+        if (currentSelectedSat && currentSelectedSat.lat != null) {
+            _loopTarget = currentSelectedSat;
+        } else if (currentSelectedRocket) {
+            const _lid2 = String(currentSelectedRocket.id);
+            const _fSlots = _flightEnts[_lid2];
+            if (_fSlots) {
+                const _mainSlot = _fSlots.find(s => s.type === 'main');
+                if (_mainSlot) {
+                    const _el2 = (Date.now() - new Date(currentSelectedRocket.net).getTime()) / 1000;
+                    const _rp  = _fInterp(_mainSlot.pts, _el2);
+                    if (_rp && _mainSlot.entity.show) {
+                        _loopTarget = { lat: _rp.lat, lng: _rp.lng, altitude: _rp.alt };
+                    }
+                }
+            }
+            if (!_loopTarget) {
+                _loopTarget = {
+                    lat: parseFloat(currentSelectedRocket.pad?.latitude),
+                    lng: parseFloat(currentSelectedRocket.pad?.longitude),
+                    altitude: 0.05
+                };
+            }
+        }
+        if (isPovActive && !isPovAnimating && _loopTarget && _loopTarget.lat != null) {
+    const povPos = Cesium.Cartesian3.fromDegrees(
+        _loopTarget.lng, _loopTarget.lat,
+        (_loopTarget.altitude || 0) * 1000);
+    const transform = Cesium.Transforms.eastNorthUpToFixedFrame(povPos);
+    // Usamos NUESTRAS variables de ángulo, no las de Cesium
+    // Así el usuario tiene control total y el satélite siempre en el centro
+    cesiumViewer.camera.lookAtTransform(
+        transform,
+        new Cesium.HeadingPitchRange(povUserHeading, povUserPitch, povUserRange)
+    );
+    cesiumViewer.scene.requestRender();
+}
+    }
+    interpFrame = requestAnimationFrame(loop);
 }
 
 // ==================== FIN CESIUM 3D ====================
@@ -4061,6 +4733,10 @@ if (selectedNoradId) {
                 destination: Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000 + 3000000),
                 duration: 1.5
             });
+            // Esperamos a que la cámara llegue antes de dibujar la órbita
+            setTimeout(() => {
+                if (sat && cesiumViewer) drawOrbit3D(sat);
+            }, 2000);
         } else if (!is3DMode && sat.lat && sat.lng) {
             map.setView([sat.lat, sat.lng], 4);
         }
@@ -4132,20 +4808,656 @@ if (selectedNoradId) {
             }
         });
 
+        // ==================== ROCKET TRAJECTORY ====================
+
+let currentRocketTrajectory2D = []; // Líneas y puntos en Leaflet
+let currentRocketTrajectory3D = []; // Entidades en Cesium
+let _trajProfileCache = {};         // Caché de perfiles ya cargados
+let _trajIndex = null;              // Contenido de index.json
+
+// Carga el index.json de trayectorias (solo una vez)
+async function loadTrajectoryIndex() {
+    if (_trajIndex) return _trajIndex;
+    try {
+        const res = await fetch('./trajectories/index.json');
+        if (!res.ok) throw new Error('Not found');
+        _trajIndex = await res.json();
+        return _trajIndex;
+    } catch(e) {
+        console.warn('Trajectory index.json not found:', e.message);
+        _trajIndex = { profiles: [] };
+        return _trajIndex;
+    }
+}
+
+// Carga un perfil JSON individual (y lo guarda en caché)
+async function loadTrajectoryProfileData(profileMeta) {
+    if (_trajProfileCache[profileMeta.id]) return _trajProfileCache[profileMeta.id];
+    try {
+        const res = await fetch(profileMeta.path);
+        if (!res.ok) throw new Error('Not found');
+        const data = await res.json();
+        _trajProfileCache[profileMeta.id] = data;
+        return data;
+    } catch(e) {
+        console.warn('Trajectory profile not found:', profileMeta.path);
+        return null;
+    }
+}
+
+// Encuentra el perfil que mejor encaja con un lanzamiento concreto
+async function findTrajectoryProfile(launch) {
+    const index = await loadTrajectoryIndex();
+    if (!index || !index.profiles || !index.profiles.length) return null;
+
+    const missionName  = (launch.name || '').toLowerCase();
+    const vehicleName  = (launch.rocket?.configuration?.name || '').toLowerCase();
+    const providerName = (launch.launch_service_provider?.name || '').toLowerCase();
+    const padLocation  = (launch.pad?.location?.name || '').toLowerCase();
+    const padName      = (launch.pad?.name || '').toLowerCase();
+    const orbitAbbrev  = (launch.mission?.orbit?.abbrev || '').toLowerCase();
+    const missionType  = (launch.mission?.type || '').toLowerCase();
+
+    let bestData  = null;
+    let bestScore = -1;
+
+    for (const meta of index.profiles) {
+        if (!meta.enabled) continue;
+        const data = await loadTrajectoryProfileData(meta);
+        if (!data) continue;
+
+        const hints = data.matchingHints || {};
+        let score = 0;
+
+        if (hints.launchServiceProvider) {
+            for (const p of hints.launchServiceProvider) {
+                if (providerName.includes(p.toLowerCase())) { score += 3; break; }
+            }
+        }
+        if (hints.rocketFamily) {
+            let matchFamily = false;
+            for (const f of hints.rocketFamily) {
+                if (vehicleName.includes(f.toLowerCase())) {
+                    score += 5;
+                    matchFamily = true;
+                    break;
+                }
+            }
+            // ESTRICTO: si el cohete no coincide con ninguna familia del perfil, descartarlo
+            if (!matchFamily) continue;
+        }
+        if (hints.missionTypeContains) {
+            for (const m of hints.missionTypeContains) {
+                const ml = m.toLowerCase();
+                if (missionName.includes(ml) || missionType.includes(ml)) { score += 5; break; }
+            }
+        }
+        if (hints.orbitAbbrevIn) {
+            for (const o of hints.orbitAbbrevIn) {
+                if (orbitAbbrev === o.toLowerCase()) { score += 4; break; }
+            }
+        }
+        if (hints.padLocationContains) {
+            let matchesPad = false;
+            for (const loc of hints.padLocationContains) {
+                const ll = loc.toLowerCase();
+                if (padLocation.includes(ll) || padName.includes(ll)) {
+                     matchesPad = true; score += 3; break; }
+            }
+            // MODO ESTRICTO: Si no coincide la plataforma, cancelamos
+            if (!matchesPad) continue;
+        }
+        
+        if (score > bestScore) { bestScore = score; bestData = data; }
+    }
+
+    // Mínimo de puntuación para considerar una coincidencia válida
+    return bestScore >= 5 ? bestData : null;
+}
+
+// Interpola la posición (lat/lng/alt) en un instante T entre los anchorPoints
+function interpolateTrajPos(anchorPoints, t) {
+    if (!anchorPoints || !anchorPoints.length) return null;
+    const sorted = [...anchorPoints].sort((a, b) => a.t - b.t);
+    if (t <= sorted[0].t) return { lat: sorted[0].lat, lng: sorted[0].lng, alt: sorted[0].alt };
+    const last = sorted[sorted.length - 1];
+    if (t >= last.t) return { lat: last.lat, lng: last.lng, alt: last.alt };
+    for (let i = 0; i < sorted.length - 1; i++) {
+        if (t >= sorted[i].t && t <= sorted[i+1].t) {
+            const r = (t - sorted[i].t) / (sorted[i+1].t - sorted[i].t);
+            return {
+                lat: sorted[i].lat + (sorted[i+1].lat - sorted[i].lat) * r,
+                lng: sorted[i].lng + (sorted[i+1].lng - sorted[i].lng) * r,
+                alt: sorted[i].alt + (sorted[i+1].alt - sorted[i].alt) * r
+            };
+        }
+    }
+    return { lat: last.lat, lng: last.lng, alt: last.alt };
+}
+
+// Borra la trayectoria del cohete del mapa (2D y 3D)
+function clearRocketTrajectory() {
+    currentRocketTrajectory2D.forEach(layer => { try { map.removeLayer(layer); } catch(e) {} });
+    currentRocketTrajectory2D = [];
+    if (cesiumViewer) {
+        currentRocketTrajectory3D.forEach(entity => { try { cesiumViewer.entities.remove(entity); } catch(e) {} });
+    }
+    currentRocketTrajectory3D = [];
+}
+
+// Función principal: carga el perfil y dibuja la trayectoria
+async function drawRocketTrajectory(launch) {
+    clearRocketTrajectory();
+    if (!is3DMode) return; // Trayectorias solo en modo 3D
+
+    const profileData = await findTrajectoryProfile(launch);
+    if (!profileData) {
+        console.log('ℹ️ No hay perfil de trayectoria para:', launch.name);
+        return;
+    }
+
+    // Coordenadas reales del pad (del API) como origen
+    const siteLat = parseFloat(launch.pad?.latitude)  || profileData.launchSite.lat;
+    const siteLng = parseFloat(launch.pad?.longitude) || profileData.launchSite.lon;
+
+    // Convertir todos los anchorPoints a coordenadas absolutas (offset + origen del pad)
+    const absPoints = profileData.anchorPoints.map(ap => ({
+        lat:     siteLat + ap.latOffsetDeg,
+        lng:     siteLng + ap.lonOffsetDeg,
+        alt:     ap.altKm,
+        t:       ap.t,
+        segment: ap.segment
+    }));
+
+    // PROTECCIÓN: forzar el punto t=0 a estar exactamente en el pad (nunca en el mar)
+    const liftoffPoint = absPoints.find(p => p.t === 0);
+    if (liftoffPoint) {
+        liftoffPoint.lat = siteLat;
+        liftoffPoint.lng = siteLng;
+        liftoffPoint.alt = 0;
+    }
+
+    // Separar segmentos:
+    const stage1Asc    = absPoints.filter(p => p.segment === 'liftoff' || p.segment === 'ascent_stage1');
+    const boosterRet   = absPoints.filter(p => p.segment === 'booster_boostback' || p.segment === 'booster_entry' || p.segment === 'booster_landing');
+    const stage2       = absPoints.filter(p => p.segment === 'stage2_insertion');
+    const coastArc     = absPoints.filter(p => p.segment === 'coast_arc');
+    const gtoBurn      = absPoints.filter(p => p.segment === 'gto_burn' || p.segment === 'gto_insertion' || p.segment === 'payload_deploy');
+
+    const sideBooster  = absPoints.filter(p => 
+    p.segment === 'side_booster_entry' || p.segment === 'side_booster_landing');
+    const centerCore   = absPoints.filter(p => 
+    p.segment === 'center_core_entry' || p.segment === 'center_core_landing');
+
+    // Punto de MECO: es la bisagra entre etapa 1, regreso del booster y etapa 2
+    const mecoEvent = profileData.events.find(e => e.id === 'meco');
+    const mecoT     = mecoEvent ? mecoEvent.t : null;
+    const mecoAp    = mecoT != null ? absPoints.find(p => p.t === mecoT) : null;
+
+    if (mecoAp) {
+        if (!stage1Asc.find(p => p.t === mecoAp.t))  stage1Asc.push({ ...mecoAp });
+        if (!boosterRet.find(p => p.t === mecoAp.t)) boosterRet.unshift({ ...mecoAp });
+        if (!stage2.find(p => p.t === mecoAp.t))      stage2.unshift({ ...mecoAp });
+    }
+
+    stage1Asc.sort((a, b) => a.t - b.t);
+    boosterRet.sort((a, b) => a.t - b.t);
+    stage2.sort((a, b) => a.t - b.t);
+
+    // Calcular posición de cada evento importante para poner los puntos en el mapa
+    const EVENT_IDS = [
+    'liftoff','max_q','meco','stage_sep','ses1','ses2','fairing_sep',
+    'entry_burn_start','landing','seco1','seco2','deploy','srb_sep',
+    'side_booster_sep','center_core_sep','side_booster_landing','center_core_landing',
+    'battery_hotswap'
+];
+    const EVENT_COLORS = {
+    liftoff: '#ffffff', max_q: '#ffd700', meco: '#ff6b35',
+    stage_sep: '#ff8c00', ses1: '#cc88ff', ses2: '#cc88ff',
+    fairing_sep: '#00d26a', entry_burn_start: '#aaaaaa',
+    landing: '#4285f4', seco1: '#9c27b0', seco2: '#9c27b0',
+    deploy: '#00d26a', srb_sep: '#ff9800',
+    side_booster_sep: '#ff6b35', center_core_sep: '#ffaa00',
+    side_booster_landing: '#4285f4', center_core_landing: '#2196f3',
+    battery_hotswap: '#00bcd4'
+};
+
+    const eventsWithPos = profileData.events
+        .filter(ev => EVENT_IDS.includes(ev.id))
+        .map(ev => {
+            const pos = interpolateTrajPos(absPoints, ev.t);
+            if (!pos) return null;
+            return { ...ev, lat: pos.lat, lng: pos.lng, alt: pos.alt };
+        })
+        .filter(Boolean);
+
+    if (is3DMode && cesiumViewer) {
+        _drawRocketTraj3D(stage1Asc, boosterRet, stage2, coastArc, gtoBurn, sideBooster, centerCore, eventsWithPos, EVENT_COLORS);
+    }
+}
+
+function catmullRomSpline(points, segmentsPerInterval = 12) {
+    if (points.length < 2) return points;
+    const result = [];
+        
+    for (let i = 0; i < points.length - 1; i++) {
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        
+        // EXCEPCIÓN: El primer segmento (despegue desde el pad) lo hacemos RECTO
+        if (i === 0) {
+            for (let j = 0; j < segmentsPerInterval; j++) {
+                const t = j / segmentsPerInterval;
+                result.push({
+                    lat: p1.lat + (p2.lat - p1.lat) * t,
+                    lng: p1.lng + (p2.lng - p1.lng) * t,
+                    alt: p1.alt + (p2.alt - p1.alt) * t
+                });
+            }
+            continue; // Saltamos a la siguiente iteración para no aplicar la curva
+        }
+
+        // Para el resto del viaje, aplicamos la curva matemática suave (Catmull-Rom)
+        const p0 = points[Math.max(0, i - 1)];
+        const p3 = points[Math.min(points.length - 1, i + 2)];
+                
+        for (let j = 0; j < segmentsPerInterval; j++) {
+            const t  = j / segmentsPerInterval;
+            const t2 = t * t;
+            const t3 = t2 * t;
+                        
+            const interp = (a, b, c, d) => 0.5 * (
+                2*b + (-a + c)*t + (2*a - 5*b + 4*c - d)*t2 + (-a + 3*b - 3*c + d)*t3
+            );
+                        
+            result.push({
+                lat: interp(p0.lat, p1.lat, p2.lat, p3.lat),
+                lng: interp(p0.lng, p1.lng, p2.lng, p3.lng),
+                alt: Math.max(0, interp(p0.alt, p1.alt, p2.alt, p3.alt))
+            });
+        }
+    }
+    result.push(points[points.length - 1]);
+    return result;
+}
+
+// --- Dibujar en 3D (Cesium) ---
+function _drawRocketTraj3D(stage1, booster, stage2, coastArc, gtoBurn, sideBooster, centerCore, events, colors) {
+    // Suavizar con Catmull-Rom
+    const smooth1      = catmullRomSpline(stage1, 14);
+    const smoothBoost  = catmullRomSpline(booster, 10);
+    const smooth2      = catmullRomSpline(stage2, 14);
+    const smoothCoast  = catmullRomSpline(coastArc, 10);
+    const smoothGTO    = catmullRomSpline(gtoBurn, 14);
+    const smoothSide   = catmullRomSpline(sideBooster, 10);
+    const smoothCenter = catmullRomSpline(centerCore, 10);
+
+    function toCart(pts) {
+        return pts.map(p => Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.alt * 1000));
+    }
+
+    // Etapa 1 — naranja
+    if (smooth1.length >= 2) {
+        const e = cesiumViewer.entities.add({ polyline: {
+            positions: toCart(smooth1), width: 3, arcType: Cesium.ArcType.NONE,
+            material: new Cesium.PolylineGlowMaterialProperty(
+                { glowPower: 0.22, color: Cesium.Color.fromCssColorString('#ff6b35') })
+        }});
+        currentRocketTrajectory3D.push(e);
+    }
+    // Booster de vuelta — gris discontinuo
+    if (smoothBoost.length >= 2) {
+        const e = cesiumViewer.entities.add({ polyline: {
+            positions: toCart(smoothBoost), width: 2, arcType: Cesium.ArcType.NONE,
+            material: new Cesium.PolylineDashMaterialProperty(
+                { color: Cesium.Color.fromCssColorString('#aaaaaa').withAlpha(0.55), dashLength: 18 })
+        }});
+        currentRocketTrajectory3D.push(e);
+    }
+    // Etapa 2 ascenso (stage2_insertion) — morado sólido
+    if (smooth2.length >= 2) {
+        const e = cesiumViewer.entities.add({ polyline: {
+            positions: toCart(smooth2), width: 3, arcType: Cesium.ArcType.NONE,
+            material: new Cesium.PolylineGlowMaterialProperty(
+                { glowPower: 0.22, color: Cesium.Color.fromCssColorString('#9c27b0') })
+        }});
+        currentRocketTrajectory3D.push(e);
+    }
+    // Coast arc (planeo orbital) — morado discontinuo
+    if (smoothCoast.length >= 2) {
+        const e = cesiumViewer.entities.add({ polyline: {
+            positions: toCart(smoothCoast), width: 2, arcType: Cesium.ArcType.NONE,
+            material: new Cesium.PolylineDashMaterialProperty(
+                { color: Cesium.Color.fromCssColorString('#9c27b0').withAlpha(0.65), dashLength: 14 })
+        }});
+        currentRocketTrajectory3D.push(e);
+    }
+    // GTO burn + inserción + deploy — morado sólido
+    if (smoothGTO.length >= 2) {
+        const e = cesiumViewer.entities.add({ polyline: {
+            positions: toCart(smoothGTO), width: 3, arcType: Cesium.ArcType.NONE,
+            material: new Cesium.PolylineGlowMaterialProperty(
+                { glowPower: 0.22, color: Cesium.Color.fromCssColorString('#9c27b0') })
+        }});
+        currentRocketTrajectory3D.push(e);
+    }
+    // Side boosters FH — verde sólido
+    if (smoothSide.length >= 2) {
+        const e = cesiumViewer.entities.add({ polyline: {
+            positions: toCart(smoothSide), width: 2, arcType: Cesium.ArcType.NONE,
+            material: new Cesium.PolylineGlowMaterialProperty(
+                { glowPower: 0.25, color: Cesium.Color.fromCssColorString('#00d26a') }) 
+        }});
+        currentRocketTrajectory3D.push(e);
+    }
+    // Centro FH de vuelta — gris discontinuo
+    if (smoothCenter.length >= 2) {
+        const e = cesiumViewer.entities.add({ polyline: {
+            positions: toCart(smoothCenter), width: 2, arcType: Cesium.ArcType.NONE,
+            material: new Cesium.PolylineDashMaterialProperty(
+                { color: Cesium.Color.fromCssColorString('#aaaaaa').withAlpha(0.7), dashLength: 14 })
+        }});
+        currentRocketTrajectory3D.push(e);
+    }
+
+    events.forEach(ev => {
+        const col = Cesium.Color.fromCssColorString(colors[ev.id] || '#ffffff');
+        const e = cesiumViewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(ev.lng, ev.lat, (ev.alt || ev.altKm || 0) * 1000),
+            point: {
+                pixelSize: 10, color: col,
+                outlineColor: Cesium.Color.BLACK, outlineWidth: 1.5,
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 6e7)
+            },
+            label: {
+                text: ev.label, font: '11px sans-serif', fillColor: col,
+                outlineColor: Cesium.Color.BLACK, outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -14),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 8e6)
+            }
+        });
+        currentRocketTrajectory3D.push(e);
+    });
+    cesiumViewer.scene.requestRender();
+}
+
+// ==================== FLIGHT ANIMATION SYSTEM ====================
+
+// Variables globales del sistema de animación de vuelo
+let _flightTmrs = {};   // { launchId: intervalId }
+let _flightEnts = {};   // { launchId: [{entity, pts, type, sepT}] }
+
+// Segmentos del cohete principal (trayectoria central)
+const _MAIN_SEGS = new Set([
+    'liftoff', 'ascent_stage1', 'stage2_insertion',
+    'coast_arc', 'gto_burn', 'gto_insertion', 'payload_deploy'
+]);
+
+// Grupos de segmentos para etapas que caen/regresan por separado
+const _FALL_GRPS = [
+    ['booster_boostback', 'booster_entry', 'booster_landing'],
+    ['side_booster_entry', 'side_booster_landing'],
+    ['center_core_entry', 'center_core_landing'],
+];
+
+function _fAbs(launch, profile) {
+    const sLat = parseFloat(launch.pad?.latitude)  || profile.launchSite.lat;
+    const sLng = parseFloat(launch.pad?.longitude) || profile.launchSite.lon;
+    return profile.anchorPoints.map(p => ({
+        lat: sLat + p.latOffsetDeg,
+        lng: sLng + p.lonOffsetDeg,
+        alt: p.altKm,
+        t:   p.t,
+        seg: p.segment
+    }));
+}
+
+function _fInterp(pts, t) {
+    if (!pts || !pts.length) return null;
+    const s = [...pts].sort((a, b) => a.t - b.t);
+    if (t <= s[0].t) return { ...s[0], ended: false };
+    const last = s[s.length - 1];
+    if (t >= last.t) return { ...last, ended: true };
+    for (let i = 0; i < s.length - 1; i++) {
+        if (t >= s[i].t && t < s[i+1].t) {
+            const r = (t - s[i].t) / (s[i+1].t - s[i].t);
+            return {
+                lat: s[i].lat + (s[i+1].lat - s[i].lat) * r,
+                lng: s[i].lng + (s[i+1].lng - s[i].lng) * r,
+                alt: Math.max(0, s[i].alt + (s[i+1].alt - s[i].alt) * r),
+                ended: false
+            };
+        }
+    }
+    return { ...last, ended: true };
+}
+
+function _fRot(pts, t) {
+    const W = 8;
+    const p0 = _fInterp(pts, Math.max(0, t - W / 2));
+    const p1 = _fInterp(pts, t + W / 2);
+    if (!p0 || !p1) return 0;
+    const dLat = p1.lat - p0.lat;
+    const dLng = (p1.lng - p0.lng) * Math.cos(p0.lat * Math.PI / 180);
+    if (Math.abs(dLat) < 1e-10 && Math.abs(dLng) < 1e-10) return 0;
+    return -Math.atan2(dLng, dLat);
+}
+
+async function _startFlight(launch) {
+    if (!is3DMode || !cesiumViewer) return;
+    const lid = String(launch.id);
+    if (_flightTmrs[lid]) return;
+
+    const profile = await findTrajectoryProfile(launch);
+    if (!profile) return;
+
+    const allPts  = _fAbs(launch, profile);
+    const maxT    = Math.max(...allPts.map(p => p.t));
+    const mainPts = allPts.filter(p => _MAIN_SEGS.has(p.seg)).sort((a, b) => a.t - b.t);
+    if (!mainPts.length) return;
+
+    const slots = [];
+
+    // --- Cohete principal (rocket_x.png) ---
+    const mp0 = _fInterp(mainPts, 0) || mainPts[0];
+    const mainEnt = cesiumViewer.entities.add({
+        id: 'flightMain_' + lid,
+        position: Cesium.Cartesian3.fromDegrees(mp0.lng, mp0.lat, mp0.alt * 1000),
+        billboard: {
+            image: getRocketImage(launch),
+            width: 20, height: 40,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            rotation: 0,
+            alignedAxis: Cesium.Cartesian3.ZERO,
+            scaleByDistance: new Cesium.NearFarScalar(300000, 1.8, 15000000, 0.5),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 5e8),
+            eyeOffset: new Cesium.Cartesian3(0, 0, -200)
+        }
+    });
+    mainEnt._rocketData = launch;
+    slots.push({ entity: mainEnt, pts: mainPts, type: 'main', sepT: 0 });
+
+    // --- Etapas que se separan (falling_stage.png) ---
+    _FALL_GRPS.forEach((grp, gi) => {
+        const gPts = allPts.filter(p => grp.includes(p.seg)).sort((a, b) => a.t - b.t);
+        if (!gPts.length) return;
+        const sepT = gPts[0].t;
+        const fp0  = gPts[0];
+        const fEnt = cesiumViewer.entities.add({
+            id: `flightFall_${lid}_${gi}`,
+            show: false,
+            position: Cesium.Cartesian3.fromDegrees(fp0.lng, fp0.lat, fp0.alt * 1000),
+            billboard: {
+                image: 'images/rockets/falling_stage.png',
+                width: 16, height: 32,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                rotation: 0,
+                alignedAxis: Cesium.Cartesian3.ZERO,
+                scaleByDistance: new Cesium.NearFarScalar(300000, 1.8, 15000000, 0.5),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 5e8),
+                eyeOffset: new Cesium.Cartesian3(0, 0, -150)
+            }
+        });
+        slots.push({ entity: fEnt, pts: gPts, type: 'fall', sepT });
+    });
+
+    _flightEnts[lid] = slots;
+    if (is3DMode) loadRocketPadMarkers();
+
+    function tick() {
+        if (!is3DMode || !cesiumViewer) return;
+
+        // Ocultar todo si la capa cohetes está desactivada
+        if (!showRockets) {
+            slots.forEach(d => { try { d.entity.show = false; } catch(e) {} });
+            return;
+        }
+
+        const elapsed = (Date.now() - new Date(launch.net).getTime()) / 1000;
+
+        // Releer estado desde caché (sin llamadas extra a la API)
+        let abbrev = null;
+        try {
+            const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+            if (raw) {
+                const r = JSON.parse(raw).results || [];
+                const cur = r.find(l => String(l.id) === lid);
+                if (cur) abbrev = cur.status?.abbrev;
+            }
+        } catch(e) {}
+
+        const isFinished = abbrev === 'Success' || abbrev === 'Failure';
+        if (isFinished || elapsed > maxT + 120) { _stopFlight(lid); return; }
+
+        // Antes de T=0 ocultar entidades
+        if (elapsed < 0) {
+            slots.forEach(d => { try { d.entity.show = false; } catch(e) {} });
+            cesiumViewer.scene.requestRender();
+            return;
+        }
+
+        slots.forEach(d => {
+            try {
+                if (d.type === 'main') {
+                    const pos = _fInterp(d.pts, elapsed);
+                    if (!pos) return;
+                    const _cMain = Cesium.Cartesian3.fromDegrees(pos.lng, pos.lat, pos.alt * 1000);
+                    d.entity.position = _cMain;
+                    if (!pos.ended) {
+                        d.entity.billboard.rotation    = _fRot(d.pts, elapsed);
+                        d.entity.billboard.alignedAxis = Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(_cMain);
+                    }
+                    d.entity.show = true;
+                } else {
+                    if (elapsed < d.sepT) { d.entity.show = false; return; }
+                    const pos = _fInterp(d.pts, elapsed);
+                    if (!pos || pos.ended || pos.alt <= 0.05) { d.entity.show = false; return; }
+                    const _cFall = Cesium.Cartesian3.fromDegrees(pos.lng, pos.lat, pos.alt * 1000);
+                    d.entity.position              = _cFall;
+                    d.entity.billboard.rotation    = _fRot(d.pts, elapsed) + Math.PI;
+                    d.entity.billboard.alignedAxis = Cesium.Ellipsoid.WGS84.geodeticSurfaceNormal(_cFall);
+                    d.entity.show = true;
+                }
+            } catch(e) {}
+        });
+
+        cesiumViewer.scene.requestRender();
+    }
+
+    tick();
+    _flightTmrs[lid] = setInterval(tick, 50);
+}
+
+function _stopFlight(lid) {
+    if (_flightTmrs[lid])    { clearInterval(_flightTmrs[lid]);  delete _flightTmrs[lid]; }
+    if (_flightTmrs['cd_'+lid]) { clearTimeout(_flightTmrs['cd_'+lid]); delete _flightTmrs['cd_'+lid]; }
+    if (_flightEnts[lid]) {
+        _flightEnts[lid].forEach(d => { try { cesiumViewer.entities.remove(d.entity); } catch(e) {} });
+        delete _flightEnts[lid];
+    }
+    setTimeout(() => { if (is3DMode) loadRocketPadMarkers(); }, 500);
+}
+
+function stopAllFlightAnimations() {
+    Object.keys(_flightTmrs).forEach(k => { clearInterval(_flightTmrs[k]); clearTimeout(_flightTmrs[k]); });
+    _flightTmrs = {};
+    Object.keys(_flightEnts).forEach(lid => {
+        (_flightEnts[lid] || []).forEach(d => { try { if (cesiumViewer) cesiumViewer.entities.remove(d.entity); } catch(e) {} });
+    });
+    _flightEnts = {};
+}
+
+async function checkAndStartFlightAnimations() {
+    if (!is3DMode || !cesiumViewer) return;
+    let launches = [];
+    try {
+        const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
+        if (raw) launches = JSON.parse(raw).results || [];
+    } catch(e) {}
+
+    const now = Date.now();
+    for (const launch of launches) {
+        const lid     = String(launch.id);
+        const elapsed = (now - new Date(launch.net).getTime()) / 1000;
+        const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
+
+        if (isFinished) { _stopFlight(lid); continue; }
+
+        // Lanzamiento en vuelo → arrancar animación
+        if (elapsed >= 0 && !_flightTmrs[lid]) {
+            _startFlight(launch);
+        }
+
+        // Próximos 2 horas → programar inicio exacto en T=0
+        const cdKey = 'cd_' + lid;
+        if (elapsed < 0 && elapsed > -7200 && !_flightTmrs[cdKey]) {
+            const ms = new Date(launch.net).getTime() - now;
+            _flightTmrs[cdKey] = setTimeout(() => {
+                delete _flightTmrs[cdKey];
+                _startFlight(launch);
+            }, ms);
+        }
+    }
+}
+
+// ==================== FIN FLIGHT ANIMATION SYSTEM ====================
+
+// ==================== FIN ROCKET TRAJECTORY ====================
+
         // ==================== LAUNCHES WIDGET ====================
 
 let launchCountdownTimers = [];
+let selectedLiveIndex = 0;
+let liveAutoSelected = false;
 
 const LAUNCHES_CACHE_KEY = 'satfleet_launches_v1'; // misma clave que launches.html
 const LAUNCHES_CACHE_TTL = 15 * 60 * 1000;
 
+let isFirstLoad = true;
+
 async function loadUpcomingLaunches() {
-    // 1. Mostrar caché inmediatamente si existe
+    const isInitialLoad = isFirstLoad;
+    isFirstLoad = false;
+
+    // 1. Mostrar caché inmediatamente si existe (solo si no hay vídeo activo)
+    const widgetEl = document.getElementById('launchesWidget');
+    const hasActiveVideo = widgetEl && widgetEl.querySelector('iframe') !== null;
+    const wasExpanded = widgetEl && widgetEl.classList.contains('expanded');
+
     try {
         const raw = localStorage.getItem(LAUNCHES_CACHE_KEY);
         if (raw) {
             const { results } = JSON.parse(raw);
-            if (results?.length) renderLaunchWidget(results);
+            if (results?.length && !hasActiveVideo) {
+                renderLaunchWidget(results);
+                if (wasExpanded) {
+                    widgetEl.classList.add('expanded');
+                    const bar = widgetEl.querySelector('.launches-collapsed-bar');
+                    if (bar) bar.classList.add('open');
+                }
+            }
         }
     } catch(e) {}
 
@@ -4159,8 +5471,14 @@ async function loadUpcomingLaunches() {
         if (cache?.results?.length) {
             const now = new Date();
             const tiempos = cache.results
+                .filter(l => {
+                    const diffMs = new Date(l.net) - now;
+                    const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
+                    if (isFinished) return false; // Si ya terminó, fuera.
+                    if (l.webcast_live === true || l.status?.abbrev === 'In Flight') return true; // Si hay directo o vuela, se queda.
+                    return diffMs > -2700000; // Si no, aplicamos los 45 mins.
+                })
                 .map(l => new Date(l.net) - now)
-                .filter(d => d > -10800000)
                 .sort((a, b) => a - b);
 
             if (tiempos.length > 0) {
@@ -4172,7 +5490,7 @@ async function loadUpcomingLaunches() {
             }
         }
 
-        const isFresh = cache && (Date.now() - cache.ts) < effectiveTTL;
+        const isFresh = !isInitialLoad && cache && (Date.now() - cache.ts) < effectiveTTL;
         if (isFresh) return; // caché válido, no llamar a la API
 
         const res = await fetch(
@@ -4182,9 +5500,18 @@ async function loadUpcomingLaunches() {
         if (!res.ok) throw new Error('API error');
         const data = await res.json();
         localStorage.setItem(LAUNCHES_CACHE_KEY, JSON.stringify({
-            ts: Date.now(), results: data.results || []
+            ts: Date.now(), results: data.results || [], _meta: data._meta || null
         }));
-        renderLaunchWidget(data.results || []);
+        const activeVideo = widgetEl && widgetEl.querySelector('iframe') !== null;
+        if (!activeVideo) {
+            const isExpanded = widgetEl && widgetEl.classList.contains('expanded');
+            renderLaunchWidget(data.results || []);
+            if (isExpanded) {
+                widgetEl.classList.add('expanded');
+                const bar = widgetEl.querySelector('.launches-collapsed-bar');
+                if (bar) bar.classList.add('open');
+            }
+        }
         loadRocketPadMarkers(); // redibujar marcadores con datos frescos
     } catch(e) {
         console.warn('Launches API no disponible:', e.message);
@@ -4207,59 +5534,157 @@ function renderLaunchWidget(launches) {
     const widget = document.getElementById('launchesWidget');
     if (!widget) return;
 
-    // Limpiar timers anteriores
     launchCountdownTimers.forEach(t => clearInterval(t));
     launchCountdownTimers = [];
 
-    // Coger los 2 primeros
     const now = new Date();
-    const top2 = launches
-    .filter(l => {
+
+    // Clasificar lanzamientos
+    function isLaunchLive(l) {
         const diffMs = new Date(l.net) - now;
-        const isWebcastLive = l.webcast_live === true;
-        const isInFlight = l.status?.abbrev === 'In Flight';
         const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
-        
-        // REGLA 1: Si la API confirma que ya ha terminado (Éxito/Fallo), FUERA del widget al instante.
         if (isFinished) return false;
-        
-        // REGLA 2: Si está en riguroso directo o volando, SE QUEDA en el widget sin importar si pasan 4 o 10 horas.
-        if (isWebcastLive || isInFlight) return true;
-        
-        // REGLA 3: Si la API no dice nada (silencio de radio), le damos las 3 horas de cortesía (Plan C) igual que al mapa.
-        return diffMs > -10800000; 
-    })
-    .sort((a, b) => new Date(a.net) - new Date(b.net))  // más próximo primero
-    .slice(0, 2);
-    if (top2.length === 0) return;
+        if (diffMs < -2700000 && !l.webcast_live && l.status?.abbrev !== 'In Flight') return false;
+        return (l.webcast_live === true) ||
+               l.status?.abbrev === 'In Flight' ||
+               (l.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -2700000);
+    }
+
+    const validLaunches = launches.filter(l => {
+        const diffMs = new Date(l.net) - now;
+        const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
+        if (isFinished) return false;
+        if (isLaunchLive(l)) return true;
+        return diffMs > -2700000; // 45 minutos de cortesía
+    }).sort((a, b) => new Date(a.net) - new Date(b.net));
+
+    if (validLaunches.length === 0) return;
+
+    // Recoger todos los LIVE
+    const liveLaunches = validLaunches.filter(l => isLaunchLive(l));
+    const hasMultipleLive = liveLaunches.length >= 2;
+
+    // Solo autoseleccionar una vez al inicio — nunca sobreescribir la selección manual del usuario
+    if (hasMultipleLive && !liveAutoSelected) {
+        liveAutoSelected = true;
+        const withStream = liveLaunches.findIndex(l =>
+            (l.vid_urls || []).some(v => v.url && (v.url.includes('youtube.com') || v.url.includes('youtu.be')))
+        );
+        if (withStream !== -1) selectedLiveIndex = withStream;
+    }
+    // Si el índice guardado ya no es válido (p.ej. un LIVE desapareció), resetear
+    if (selectedLiveIndex >= liveLaunches.length) {
+        selectedLiveIndex = 0;
+        liveAutoSelected = false;
+    }
+
+    const liveLaunch = liveLaunches.length > 0 ? liveLaunches[selectedLiveIndex] : null;
+    const displayList = liveLaunch ? [liveLaunch] : validLaunches.slice(0, 2);
 
     widget.innerHTML = '';
     widget.classList.remove('expanded');
 
-    // Crear barra colapsada para móvil (solo el próximo lanzamiento)
-    const firstLaunch = top2[0];
+    // Barra colapsada — siempre muestra el primero
+    const firstLaunch = displayList[0];
     const firstDate = new Date(firstLaunch.net);
+    const firstIsLive = isLaunchLive(firstLaunch);
+
     const collapsedBar = document.createElement('div');
     collapsedBar.className = 'launches-collapsed-bar';
+    const barMissionText = hasMultipleLive
+        ? `🔴 ${liveLaunches[selectedLiveIndex].name || 'Unknown mission'}`
+        : `${firstIsLive ? '🔴 ' : ''}${firstLaunch.name || 'Unknown mission'}`;
     collapsedBar.innerHTML = `
-        <span class="lcb-mission">${firstLaunch.name || 'Unknown mission'}</span>
-        <span class="lcb-countdown" id="lcb-countdown">—</span>
+        <span class="lcb-mission" style="${firstIsLive ? 'color:#ff4444;' : ''}">${barMissionText}</span>
+        <span class="lcb-countdown" id="lcb-countdown" style="${firstIsLive ? 'color:#ff4444;' : ''}">—</span>
         <span class="lcb-arrow">▼</span>
     `;
     collapsedBar.onclick = () => {
+        const wasExpanded = widget.classList.contains('expanded');
         widget.classList.toggle('expanded');
         collapsedBar.classList.toggle('open');
+
+        // Al cerrar: destruir iframe para cortar el directo
+        if (wasExpanded) {
+            const iframe = widget.querySelector('iframe');
+            if (iframe) {
+                const iframeWrap = iframe.closest('.yt-iframe-wrap');
+                if (iframeWrap) {
+                    // Reconstruir el thumbnail en su lugar
+                    const videoId = iframe.src.match(/embed\/([^?]+)/)?.[1];
+                    if (videoId) {
+                        const thumbUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                        const newThumb = document.createElement('div');
+                        newThumb.className = 'yt-thumb-wrap';
+                        newThumb.dataset.videoid = videoId;
+                        newThumb.style.cssText = 'border-radius:7px;overflow:hidden;';
+                        newThumb.title = 'Watch Live';
+                        newThumb.innerHTML = `
+                            <img src="${thumbUrl}" alt="thumbnail"
+                                 style="width:100%;height:auto;display:block;"
+                                 onerror="this.src='https://img.youtube.com/vi/${videoId}/0.jpg'">
+                            <div class="yt-thumb-overlay">
+                                <div class="yt-play-btn" style="width:38px;height:38px;">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                                <div class="yt-live-tag">Watch Live</div>
+                            </div>
+                        `;
+                        // Restaurar el click handler
+                        newThumb.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const vid = this.dataset.videoid;
+                            const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'yt-iframe-wrap';
+                            wrapper.style.cssText = 'width:100%;aspect-ratio:16/9;border-radius:7px;overflow:hidden;';
+                            wrapper.onclick = (ev) => ev.stopPropagation();
+                            const newIframe = document.createElement('iframe');
+                            newIframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+                            newIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                            newIframe.allowFullscreen = true;
+                            newIframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+                            wrapper.appendChild(newIframe);
+                            this.replaceWith(wrapper);
+                            if (isMobileDevice) {
+                                const fsBtn = document.createElement('button');
+                                fsBtn.textContent = '⛶ Fullscreen';
+                                fsBtn.style.cssText = 'margin-top:6px;width:100%;padding:6px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.4);border-radius:7px;color:#ff6b35;font-size:0.75rem;font-weight:700;cursor:pointer;';
+                                fsBtn.onclick = (ev) => {
+                                    ev.stopPropagation();
+                                    if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+                                    else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+                                    else if (newIframe.requestFullscreen) newIframe.requestFullscreen();
+                                    else if (newIframe.webkitRequestFullscreen) newIframe.webkitRequestFullscreen();
+                                };
+                                wrapper.parentElement?.appendChild(fsBtn);
+                                document.addEventListener('fullscreenchange', () => {
+                                    fsBtn.textContent = document.fullscreenElement ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+                                });
+                            }
+                        });
+                        iframeWrap.replaceWith(newThumb);
+
+                        // Eliminar también el botón de fullscreen si existe
+                        const fsBtn = widget.querySelector('button[style*="Fullscreen"], button');
+                        if (fsBtn && fsBtn.textContent.includes('Fullscreen')) fsBtn.remove();
+                    } else {
+                        // Si no se puede extraer el ID, simplemente vaciar el iframe
+                        iframe.src = '';
+                    }
+                }
+            }
+        }
     };
     widget.appendChild(collapsedBar);
 
-    // Countdown de la barra colapsada
+    // Countdown barra colapsada
     function updateCollapsedCd() {
         const el = document.getElementById('lcb-countdown');
         if (!el) return;
+        if (firstIsLive) { el.textContent = 'LIVE'; return; }
         const diff = firstDate - new Date();
-        const firstIsFinished = firstLaunch.status?.abbrev === 'Success' || firstLaunch.status?.abbrev === 'Failure';
-if (diff < 0 && !firstIsFinished) { el.textContent = 'LIVE'; return; }
-if (diff < 0 && firstIsFinished)  { el.textContent = 'Done';  return; }
+        if (diff < 0) { el.textContent = 'Launched'; return; }
         const totalSec = Math.floor(diff / 1000);
         const d = Math.floor(totalSec / 86400);
         const h = Math.floor((totalSec % 86400) / 3600);
@@ -4272,37 +5697,111 @@ if (diff < 0 && firstIsFinished)  { el.textContent = 'Done';  return; }
     updateCollapsedCd();
     launchCountdownTimers.push(setInterval(updateCollapsedCd, 1000));
 
-    top2.forEach((launch, idx) => {
+    // Selector inline si hay 2+ LIVE — aparece dentro del panel expandido, no como dropdown
+    if (hasMultipleLive) {
+        const selectorWrap = document.createElement('div');
+        selectorWrap.className = 'launch-card';
+        selectorWrap.style.cssText = 'margin-bottom:8px; cursor:default; padding:8px 10px;';
+        selectorWrap.onclick = (e) => e.stopPropagation();
+
+        liveLaunches.forEach((l, i) => {
+            const hasVid = (l.vid_urls || []).some(v => v.url && (v.url.includes('youtube.com') || v.url.includes('youtu.be')));
+            const isSelected = i === selectedLiveIndex;
+            const item = document.createElement('div');
+            item.style.cssText = `
+                padding:7px 12px;
+                margin-bottom:4px;
+                border-radius:8px;
+                border:1.5px solid ${isSelected ? 'rgba(255,50,50,0.6)' : 'rgba(255,50,50,0.18)'};
+                background:${isSelected ? 'rgba(255,50,50,0.12)' : 'rgba(255,50,50,0.03)'};
+                color:${isSelected ? '#ff4444' : 'rgba(255,150,150,0.65)'};
+                font-size:0.78rem;
+                font-weight:${isSelected ? '700' : '500'};
+                cursor:${isSelected ? 'default' : 'pointer'};
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+                user-select:none;
+                -webkit-user-select:none;
+                transition:background 0.15s, border-color 0.15s;
+            `;
+            item.textContent = '🔴 ' + (l.name || 'Unknown') + (hasVid ? ' 📺' : '');
+
+            if (!isSelected) {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    selectedLiveIndex = i;
+                    renderLaunchWidget(launches);
+                    widget.classList.add('expanded');
+                    const bar = widget.querySelector('.launches-collapsed-bar');
+                    if (bar) bar.classList.add('open');
+                });
+                item.addEventListener('mouseenter', function() {
+                    this.style.background = 'rgba(255,50,50,0.08)';
+                    this.style.borderColor = 'rgba(255,50,50,0.4)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.background = 'rgba(255,50,50,0.03)';
+                    this.style.borderColor = 'rgba(255,50,50,0.18)';
+                });
+            }
+
+            selectorWrap.appendChild(item);
+        });
+
+        widget.appendChild(selectorWrap);
+    }
+
+    // Renderizar tarjetas
+    displayList.forEach((launch, idx) => {
         const card = document.createElement('div');
         const launchDate = new Date(launch.net);
-        const now = new Date();
-        const diffMs = launchDate - now;
+        const diffMs = launchDate - new Date();
+        const isLive = isLaunchLive(launch);
         const isToday = Math.abs(diffMs) < 86400000 && diffMs > 0;
-        const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
-const isLive = !isFinished && (
-    launch.webcast_live === true ||
-    launch.status?.abbrev === 'In Flight' ||
-    (launch.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -10800000)
-);
 
         card.className = 'launch-card' + (isToday ? ' today' : '');
         card.onclick = () => window.location.href = 'launches.html';
 
-        // Estado
-        let statusClass = 'tbc';
-        let statusText = 'TBC';
+        let statusClass = 'tbc', statusText = 'TBC';
         if (isLive) { statusClass = 'live'; statusText = 'LIVE'; }
-        else if (launch.status?.abbrev === 'Go') { statusClass = 'go'; statusText = 'GO'; }
+        else if (launch.status?.abbrev === 'Go')  { statusClass = 'go';  statusText = 'GO'; }
         else if (launch.status?.abbrev === 'TBD') { statusClass = 'tbc'; statusText = 'TBD'; }
 
-        // Vehículo
         const vehicle = launch.rocket?.configuration?.name || 'Unknown vehicle';
-        // Misión
         const mission = launch.name || 'Unknown mission';
-        // Pad
         const pad = launch.pad?.name || '';
         const location = launch.pad?.location?.name || '';
         const padText = [pad, location].filter(Boolean).join(', ');
+
+        // Vídeo compacto solo si hay LIVE
+        let videoHtml = '';
+        if (isLive) {
+            const vidUrl = (launch.vid_urls || []).find(v =>
+                v.url && (v.url.includes('youtube.com') || v.url.includes('youtu.be'))
+            );
+            const videoId = vidUrl ? getYouTubeId(vidUrl.url) : null;
+            if (videoId) {
+                const thumbUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+                videoHtml = `
+                    <div style="margin-top:8px;border-top:1px solid rgba(255,107,53,0.18);padding-top:8px;" onclick="event.stopPropagation()">
+                        <div style="font-size:0.62rem;color:rgba(255,255,255,0.38);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">🔴 Live Stream</div>
+                        <div class="yt-thumb-wrap" id="ytThumbWrap-${idx}" data-videoid="${videoId}"
+                             style="border-radius:7px;overflow:hidden;" title="Watch Live">
+                            <img src="${thumbUrl}" alt="thumbnail"
+                                 style="width:100%;height:auto;display:block;"
+                                 onerror="this.src='https://img.youtube.com/vi/${videoId}/0.jpg'">
+                            <div class="yt-thumb-overlay">
+                                <div class="yt-play-btn" style="width:38px;height:38px;">
+                                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                                <div class="yt-live-tag">Watch Live</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
 
         card.innerHTML = `
             <div class="launch-card-header">
@@ -4312,41 +5811,77 @@ const isLive = !isFinished && (
             <div class="launch-mission">${mission}</div>
             <div class="launch-countdown" id="lc-countdown-${idx}">—</div>
             <div class="launch-pad">${padText}</div>
+            ${videoHtml}
         `;
 
         widget.appendChild(card);
 
-        // Countdown en tiempo real
+        // Click en thumbnail → abre iframe con pantalla completa en móvil
+        if (videoHtml) {
+            const thumb = card.querySelector(`#ytThumbWrap-${idx}`);
+            if (thumb) {
+                thumb.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const vid = this.dataset.videoid;
+                    const isMobileDevice = /Mobi|Android/i.test(navigator.userAgent);
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'yt-iframe-wrap';
+                    wrapper.style.cssText = 'width:100%;aspect-ratio:16/9;border-radius:7px;overflow:hidden;';
+                    wrapper.onclick = (ev) => ev.stopPropagation();
+
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                    iframe.allowFullscreen = true;
+                    iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
+
+                    wrapper.appendChild(iframe);
+                    this.replaceWith(wrapper);
+
+                    // En móvil: añadir botón de pantalla completa
+                    if (isMobileDevice) {
+                        const fsBtn = document.createElement('button');
+                        fsBtn.textContent = '⛶ Fullscreen';
+                        fsBtn.style.cssText = 'margin-top:6px;width:100%;padding:6px;background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.4);border-radius:7px;color:#ff6b35;font-size:0.75rem;font-weight:700;cursor:pointer;';
+                        fsBtn.onclick = (ev) => {
+                            ev.stopPropagation();
+                            if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+                            else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+                            else if (iframe.requestFullscreen) iframe.requestFullscreen();
+                            else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+                        };
+                        wrapper.parentElement?.appendChild(fsBtn);
+
+                        // Al salir de pantalla completa, el botón sigue disponible
+                        document.addEventListener('fullscreenchange', () => {
+                            fsBtn.textContent = document.fullscreenElement ? '✕ Exit Fullscreen' : '⛶ Fullscreen';
+                        }, { once: false });
+                    }
+                });
+            }
+        }
+
+        // Countdown de la tarjeta
         function updateCountdown() {
             const el = document.getElementById(`lc-countdown-${idx}`);
             if (!el) return;
-            const now2 = new Date();
-            const diff = launchDate - now2;
-
-            if (diff < -10800000) {
-                el.textContent = 'Launched';
-                el.className = 'launch-countdown past';
-                return;
-            }
-            if (diff < 0) {
-                el.textContent = 'T+' + formatDuration(-diff);
-                el.className = 'launch-countdown';
-                return;
-            }
+            if (isLive) { el.textContent = '🔴 LIVE NOW'; el.className = 'launch-countdown'; el.style.color = '#ff4444'; return; }
+            const diff = launchDate - new Date();
+            if (diff < -2700000) { el.textContent = 'Launched'; el.className = 'launch-countdown past'; return; }
+            if (diff < 0) { el.textContent = 'T+' + formatDuration(-diff); return; }
             el.textContent = 'T-' + formatDuration(diff);
             el.className = 'launch-countdown';
         }
-
         updateCountdown();
-        const timer = setInterval(updateCountdown, 1000);
-        launchCountdownTimers.push(timer);
+        launchCountdownTimers.push(setInterval(updateCountdown, 1000));
     });
 
     // Ver todos
     const seeAll = document.createElement('a');
     seeAll.className = 'launches-see-all';
     seeAll.href = 'launches.html';
-    seeAll.textContent = 'See all upcoming launches';
+    seeAll.textContent = liveLaunch ? 'See all launches' : 'See all upcoming launches';
     widget.appendChild(seeAll);
 }
 
@@ -4467,8 +6002,8 @@ function rocketMatchesFilter(launch) {
     const isInFlight = launch.status?.abbrev === 'In Flight';
     const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
     const isGo = launch.status?.abbrev === 'Go';
-    const isLive = !isFinished && (isWebcastLive || isInFlight || (isGo && diffMs < 0 && diffMs > -10800000));
-    const isToday = diffMs > -10800000 && diffMs < 86400000;
+    const isLive = !isFinished && (isWebcastLive || isInFlight || (isGo && diffMs < 0 && diffMs > -2700000));
+    const isToday = diffMs > -2700000 && diffMs < 86400000;
     
     const vName = (launch.rocket?.configuration?.name || '').toLowerCase();
     const aName = (launch.launch_service_provider?.name || '').toLowerCase();
@@ -4608,19 +6143,16 @@ function drawRocketMarkers(launches) {
         const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
         
         let isLive = false;
-        if (!isFinished) {
-            // Se pone en LIVE si hay directo o si ya está volando (incluso antes del T-0)
-            if (isWebcastLive || isInFlight) {
+        if (!isFinished && diffMs > -2700000) {
+            if ((isWebcastLive || isInFlight)) {
                 isLive = true;
-            } 
-            // Plan B: solo si seguía en estado 'Go' cuando llegó el T-0
-            else if (diffMs < 0 && diffMs > -10800000 && launch.status?.abbrev === 'Go') {
+            } else if (diffMs < 0 && diffMs > -2700000 && launch.status?.abbrev === 'Go') {
                 isLive = true;
             }
         }
 
-        // Ocultar solo si NO está en directo, NO está volando y ha pasado más de 1 hora
-        if (diffMs < -10800000 && !isLive) return;
+        // Ocultar si han pasado más de 3 horas, SALVO que siga en directo o en vuelo
+        if (diffMs < -2700000 && !isLive) return;
 
         const mission  = launch.name || 'Unknown mission';
         const vehicle  = launch.rocket?.configuration?.name || '—';
@@ -4709,20 +6241,30 @@ function drawRocketMarkers3D(launches) {
         if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
         if (!rocketMatchesFilter(launch)) return;
 
-        const isWebcastLive = launch.webcast_live === true;
+    // Si el cohete ya tiene animación de vuelo activa, no pintar el marcador estático en el pad
+    const _lid = String(launch.id);
+    const _elap = (Date.now() - new Date(launch.net).getTime()) / 1000;
+    if (_elap >= 0 &&
+        _flightEnts[_lid] &&
+        launch.status?.abbrev !== 'Success' &&
+        launch.status?.abbrev !== 'Failure') {
+        return;
+    }
+
+    const isWebcastLive = launch.webcast_live === true;
         const isInFlight = launch.status?.abbrev === 'In Flight';
         const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
         const isGo = launch.status?.abbrev === 'Go';
 
-        // Evaluar si de inicio ya debemos descartarlo por viejo
+        // Siempre descartar si han pasado más de 3 horas, a no ser que siga en LIVE
         const initialDiff = new Date(launch.net) - now;
-        let initialLive = !isFinished && (isWebcastLive || isInFlight || (isGo && initialDiff < 0 && initialDiff > -10800000));
-        if (initialDiff < -10800000 && !initialLive) return;
+        const initialLive = !isFinished && (isWebcastLive || isInFlight || (isGo && initialDiff < 0));
+        if (initialDiff < -2700000 && !initialLive) return;
 
         // Eje Z para ponerlo por encima del resto
         let dynamicZ = new Cesium.CallbackProperty(function() {
             const dMs = new Date(launch.net) - Date.now();
-            const isL = !isFinished && (isWebcastLive || isInFlight || (isGo && dMs < 0 && dMs > -10800000));
+            const isL = !isFinished && (isWebcastLive || isInFlight || (isGo && dMs < 0 && dMs > -2700000));
             let z = isL ? -50 : -(20 / (1 + (Math.max(0, dMs) / 86400000)));
             return new Cesium.Cartesian3(0.0, 0.0, isNaN(z) ? 0 : z);
         }, false);
@@ -4730,14 +6272,18 @@ function drawRocketMarkers3D(launches) {
         // Color rojo fijo sin latido
         let dynamicColor = new Cesium.CallbackProperty(function() {
             const dMs = new Date(launch.net) - Date.now();
-            const isL = !isFinished && (isWebcastLive || isInFlight || (isGo && dMs < 0 && dMs > -10800000));
+            const isL = !isFinished && dMs > -2700000 && (
+                (isWebcastLive || isInFlight) || (isGo && dMs < 0 && dMs > -2700000)
+            );
             return isL ? Cesium.Color.fromCssColorString('#f22222') : Cesium.Color.WHITE;
         }, false);
 
         // Variable booleana para mostrar u ocultar el SVG
         let showLiveBadge = new Cesium.CallbackProperty(function() {
             const dMs = new Date(launch.net) - Date.now();
-            return !isFinished && (isWebcastLive || isInFlight || (isGo && dMs < 0 && dMs > -10800000));
+            return !isFinished && dMs > -2700000 && (
+                (isWebcastLive || isInFlight) || (isGo && dMs < 0 && dMs > -2700000)
+            );
         }, false);
 
         const vehicle = launch.rocket?.configuration?.name || '—';
@@ -4811,8 +6357,24 @@ function fmtCountdown(ms) {
 // (ya existe toggleView — solo hay que llamar a drawRocketMarkers al volver a 2D)
 
 // Mostrar información de un cohete al clickar en 3D reutilizando el panel
-// Mostrar información de un cohete al clickar en 3D reutilizando el panel
 function showRocketInfo3D(launch) {
+    // Marcar el cohete como seleccionado y limpiar satélite
+    currentSelectedRocket = launch;
+    currentSelectedSat = null;
+    
+    // LIMPIAR ÓRBITA DEL SATÉLITE ANTERIOR
+    if (currentOrbitPath && typeof map !== 'undefined' && map) {
+        map.removeLayer(currentOrbitPath);
+        currentOrbitPath = null;
+    }
+    if (typeof currentOrbit3D !== 'undefined' && currentOrbit3D && typeof cesiumViewer !== 'undefined' && cesiumViewer) {
+        cesiumViewer.entities.remove(currentOrbit3D);
+        currentOrbit3D = null;
+    }
+
+    const povFloat = document.getElementById('povBtnFloat');
+    if (povFloat) povFloat.style.display = is3DMode ? 'flex' : 'none';
+
     const now = new Date();
     const launchDate = new Date(launch.net);
     const diffMs = launchDate - now;
@@ -4826,7 +6388,7 @@ function showRocketInfo3D(launch) {
     if (!isFinished) {
         if (isWebcastLive || isInFlight) {
             isLive = true;
-        } else if (diffMs < 0 && diffMs > -10800000) {
+        } else if (diffMs < 0 && diffMs > -2700000) {
             isLive = true;
         }
     }
@@ -4885,11 +6447,32 @@ function showRocketInfo3D(launch) {
 
     document.getElementById('mobileSatelliteSection').style.display = 'block';
     document.getElementById('satelliteInfo').classList.add('active');
+
+    // Si el POV estaba activo con otro objetivo, reiniciarlo con el nuevo
+    if (isPovActive) {
+        isPovActive = false;
+        const canvas = cesiumViewer.canvas;
+        if (canvas._povCleanupFn) { canvas._povCleanupFn(); canvas._povCleanupFn = null; }
+        cesiumViewer.scene.screenSpaceCameraController.enableRotate = true;
+        cesiumViewer.scene.screenSpaceCameraController.enableTilt = true;
+        cesiumViewer.scene.screenSpaceCameraController.enableTranslate = true;
+        cesiumViewer.scene.screenSpaceCameraController.enableZoom = true;
+        cesiumViewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        if (_povRestartTimeout) { clearTimeout(_povRestartTimeout); _povRestartTimeout = null; }
+        _povRestartTimeout = setTimeout(() => { _povRestartTimeout = null; togglePovMode(); }, 100);
+    }
+
+    // Dibujar trayectoria del cohete en el mapa
+    drawRocketTrajectory(launch);
 }
 
 // Cargar cohetes al inicio
 loadRocketPadMarkers();
 setInterval(loadRocketPadMarkers, 60 * 1000); // cada 1 min
+
+// Arrancar animaciones de vuelo (espera 4s a que Cesium esté listo)
+setTimeout(checkAndStartFlightAnimations, 4000);
+setInterval(checkAndStartFlightAnimations, 60000);
 
 // Actualizar imágenes de los cohetes en vivo (cada segundo) sin que tengas que tocar nada
 // Actualizar animaciones LIVE en tiempo real (cada segundo)
@@ -4912,7 +6495,7 @@ function updateRocketImagesLive() {
             let isLive = false;
             if (!isFinished) {
                 if (isWebcastLive || isInFlight) isLive = true;
-                else if (isGo && diffMs < 0 && diffMs > -10800000) isLive = true;
+                else if (isGo && diffMs < 0 && diffMs > -2700000) isLive = true;
             }
             
             const newImg      = getRocketImage(launch);
@@ -4943,10 +6526,65 @@ function updateRocketImagesLive() {
 // El vigilante mira los cohetes cada 1 segundo (1000 ms)
 setInterval(updateRocketImagesLive, 1000);
 
+// ==================== YOUTUBE CLICK-TO-PLAY ====================
+
+function getYouTubeId(url) {
+    if (!url) return null;
+    try {
+        const u = new URL(url);
+        // Formato: youtu.be/ID
+        if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+        // Formato: youtube.com/watch?v=ID
+        if (u.searchParams.get('v')) return u.searchParams.get('v');
+        // Formato: youtube.com/live/ID o /embed/ID
+        const pathParts = u.pathname.split('/').filter(Boolean);
+        const liveIdx = pathParts.indexOf('live');
+        if (liveIdx !== -1 && pathParts[liveIdx + 1]) return pathParts[liveIdx + 1];
+        const embedIdx = pathParts.indexOf('embed');
+        if (embedIdx !== -1 && pathParts[embedIdx + 1]) return pathParts[embedIdx + 1];
+    } catch(e) {}
+    return null;
+}
+
+let _currentLiveLaunch = null;
+
+// ==================== FIN YOUTUBE CLICK-TO-PLAY ====================
+
 // ==================== FIN ROCKET PAD MARKERS ====================
 
 // ==================== FIN LAUNCHES WIDGET ====================
 
     </script>
+    
+<!-- Banner de cookies -->
+<div id="cookieBanner" style="
+    display:flex;
+    position:fixed; bottom:0; left:0; right:0;
+    background:rgba(15,15,15,0.97);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    color:#fff; padding:12px 20px;
+    align-items:center; justify-content:space-between;
+    gap:12px; z-index:9999; font-size:0.8rem;
+    border-top:1px solid rgba(156,39,176,0.3);
+    flex-wrap:wrap;">
+  <span style="color:rgba(255,255,255,0.7);">
+    We use analytics cookies to improve the experience.
+    <a href="/privacy-policy" style="color:#9c27b0;">Privacy Policy</a>
+  </span>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="rejectCookies()" style="padding:6px 16px;background:transparent;border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.65);border-radius:19px;cursor:pointer;font-size:0.78rem;">Reject</button>
+    <button onclick="acceptCookies()" style="padding:6px 16px;background:#9c27b0;border:none;color:#fff;border-radius:19px;cursor:pointer;font-size:0.78rem;font-weight:600;">Accept</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var consent = localStorage.getItem('cookieConsent');
+    if (consent === 'yes' || consent === 'no') {
+      document.getElementById('cookieBanner').style.display = 'none';
+    }
+  })();
+</script>
 </body>
 </html>

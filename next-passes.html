@@ -12,725 +12,955 @@
     <script src="js/satellite.min.js"></script>
     <!-- Leaflet (para el location picker) -->
     <link rel="stylesheet" href="css/leaflet.css" />
-    <script src="js/satellite.min.js"></script>
+    <script src="js/leaflet.js"></script>
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-purple: #9c27b0;
-            --dark-bg: #1a1a1a;
-            --dark-secondary: #2d2d2d;
-            --dark-tertiary: #3d3d3d;
-            --light-bg: #ffffff;
-            --light-secondary: #f5f5f5;
-            --light-tertiary: #e0e0e0;
-            --text-primary-dark: #ffffff;
-            --text-secondary-dark: #cccccc;
-            --text-primary-light: #333333;
-            --text-secondary-light: #666666;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-primary-dark);
-            transition: all 0.3s ease;
-            min-height: 100vh;
-        }
-
-        body.light-mode {
-            background-color: var(--light-bg);
-            color: var(--text-primary-light);
-        }
-
-        /* Header */
-        .header {
-            background-color: var(--dark-secondary);
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        body.light-mode .header {
-            background-color: var(--light-secondary);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            background-color: transparent;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            border-radius: 50%;
-        }
-
-        .logo-placeholder {
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .title {
-            font-size: 1.5rem;
-            font-weight: 650;
-            color: var(--primary-purple);
-            letter-spacing: -0.2px;  /* Opcional: mejora visual */
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .theme-toggle, .back-btn {
-            background: none;
-            border: 2px solid var(--primary-purple);
-            color: var(--primary-purple);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-
-        .theme-toggle:hover, .back-btn:hover {
-            background-color: var(--primary-purple);
-            color: white;
-        }
-
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 2rem;
-            color: var(--primary-purple);
-        }
-
-        /* Controls */
-        .controls-section {
-            background-color: var(--dark-secondary);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        body.light-mode .controls-section {
-            background-color: var(--light-secondary);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .controls-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1rem;
-        }
-
-        @media (max-width: 768px) {
-        .controls-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        }
-       }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .control-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary-dark);
-            font-weight: 500;
-        }
-
-        body.light-mode .control-label {
-            color: var(--text-secondary-light);
-        }
-
-        .select-input {
-            padding: 0.75rem;
-            border: 2px solid var(--dark-tertiary);
-            border-radius: 10px;
-            background-color: var(--dark-bg);
-            color: var(--text-primary-dark);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .select-input:focus {
-            outline: none;
-            border-color: var(--primary-purple);
-        }
-
-        body.light-mode .select-input {
-            background-color: var(--light-bg);
-            color: var(--text-primary-light);
-            border-color: var(--light-tertiary);
-        }
-
-        .calculate-btn {
-            padding: 0.75rem 2rem;
-            background-color: var(--primary-purple);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
-        }
-
-        .calculate-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            display: none;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--dark-tertiary);
-            border-left: 4px solid var(--primary-purple);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Passes List */
-        .passes-container {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .pass-card {
-            background-color: var(--dark-secondary);
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .pass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(156, 39, 176, 0.3);
-            border-color: var(--primary-purple);
-        }
-
-        body.light-mode .pass-card {
-            background-color: var(--light-secondary);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .pass-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-            gap: 1rem;
-        }
-
-        .satellite-info {
-            flex: 1;
-        }
-
-        .satellite-name {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--primary-purple);
-            margin-bottom: 0.25rem;
-        }
-
-        .norad-id {
-            font-size: 0.9rem;
-            color: var(--text-secondary-dark);
-        }
-
-        body.light-mode .norad-id {
-            color: var(--text-secondary-light);
-        }
-
-        .brightness-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .brightness-very-bright {
-            background-color: #ffd700;
-            color: #1a1a1a;
-        }
-
-        .brightness-bright {
-            background-color: #ffeb3b;
-            color: #1a1a1a;
-        }
-
-        .brightness-normal {
-            background-color: #ff9800;
-            color: white;
-        }
-
-        .brightness-dim {
-            background-color: #607d8b;
-            color: white;
-        }
-
-        .pass-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .detail-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary-dark);
-        }
-
-        body.light-mode .detail-label {
-            color: var(--text-secondary-light);
-        }
-
-        .detail-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .show-map-btn {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--primary-purple);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .show-map-btn:hover {
-            background-color: #7b1fa2;
-        }
-
-        .no-passes {
-            text-align: center;
-            padding: 3rem;
-            font-size: 1.2rem;
-            color: var(--text-secondary-dark);
-        }
-
-        body.light-mode .no-passes {
-            color: var(--text-secondary-light);
-        }
-
-        .location-info {
-            text-align: center;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background-color: var(--dark-tertiary);
-            border-radius: 10px;
-            font-size: 0.9rem;
-        }
-
-        body.light-mode .location-info {
-            background-color: var(--light-tertiary);
-        }
-
-/* Responsive */
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .header-buttons {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
-
-    .theme-toggle, .back-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.85rem;
-    }
-
-    .page-title {
-        font-size: 1.5rem;
-    }
-
-    .controls-section {
-        padding: 1rem;
-    }
-
-    .controls-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .select-input {
-        width: 100%;
-        font-size: 0.9rem;
-    }
-
-    .calculate-btn {
-        width: 100%;
-        padding: 0.75rem 1rem;
-    }
-
-    .pass-header {
-        flex-direction: column;
-    }
-
-    .pass-details {
-        grid-template-columns: 1fr 1fr;
-    }
+    <!-- General Sans font -->
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SATFLEET LIVE — NEXT PASSES — DESIGN SYSTEM
+   Art direction: Space tech SaaS → dark precision, teal accent
+   Palette: Deep space dark + teal primary
+   Typography: General Sans — clean, technical, modern
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Surfaces */
+  --bg:           #0d0e11;
+  --surface:      #13151a;
+  --surface-2:    #181b22;
+  --surface-3:    #1e2029;
+  --border:       rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.13);
+  --divider:      rgba(255,255,255,0.05);
+
+  /* Text */
+  --text:         #e8e9ec;
+  --text-muted:   #8a8f9e;
+  --text-faint:   #4a4f5e;
+  --text-inverse: #0d0e11;
+
+  /* Primary — Teal (SatFleet accent) */
+  --primary:        #2ab8c8;
+  --primary-hover:  #1fa3b3;
+  --primary-dim:    rgba(42,184,200,0.12);
+  --primary-border: rgba(42,184,200,0.3);
+
+  /* Secondary — Purple (keeps identity from index.html) */
+  --purple:        #9c27b0;
+  --purple-hover:  #7b1fa2;
+  --purple-dim:    rgba(156,39,176,0.12);
+  --purple-border: rgba(156,39,176,0.3);
+
+  /* Starlink green */
+  --green:         #00d26a;
+  --green-dim:     rgba(0,210,106,0.1);
+  --green-border:  rgba(0,210,106,0.3);
+
+  /* Status */
+  --gold:   #f5c842;
+  --orange: #ff9800;
+  --red:    #f44336;
+
+  /* Radius */
+  --r-sm:   4px;
+  --r-md:   8px;
+  --r-lg:   12px;
+  --r-xl:   16px;
+  --r-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+
+  /* Type scale */
+  --text-xs:   clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  --text-sm:   clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);
+  --text-base: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
+  --text-lg:   clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+  --text-xl:   clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);
+
+  /* Spacing */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.25rem; --sp-6: 1.5rem; --sp-8: 2rem; --sp-10: 2.5rem;
+  --sp-12: 3rem; --sp-16: 4rem;
+
+  /* Transitions */
+  --t: 160ms cubic-bezier(0.16,1,0.3,1);
+
+  /* Bar height (matches index.html) */
+  --bar-height: 58px;
+}
+
+/* Light mode */
+body.light-mode {
+  --bg:           #f4f5f7;
+  --surface:      #ffffff;
+  --surface-2:    #f8f9fb;
+  --surface-3:    #eef0f4;
+  --border:       rgba(0,0,0,0.08);
+  --border-hover: rgba(0,0,0,0.14);
+  --divider:      rgba(0,0,0,0.05);
+  --text:         #1a1d26;
+  --text-muted:   #5a6075;
+  --text-faint:   #a0a5b5;
+  --text-inverse: #ffffff;
+  --primary-dim:    rgba(42,184,200,0.08);
+  --primary-border: rgba(42,184,200,0.25);
+  --purple-dim:    rgba(156,39,176,0.07);
+  --purple-border: rgba(156,39,176,0.2);
+  --green-dim:     rgba(0,210,106,0.07);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'General Sans', 'Segoe UI', system-ui, sans-serif;
+  font-size: var(--text-base);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+img { display: block; max-width: 100%; }
+button { cursor: pointer; font: inherit; }
+input, select { font: inherit; }
+
+/* ── HEADER ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: var(--bar-height);
+  background: rgba(13,14,17,0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--purple-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--sp-5);
+  gap: var(--sp-3);
+}
+
+body.light-mode .header {
+  background: rgba(255,255,255,0.97);
+  border-bottom: 1px solid var(--purple-border);
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(156,39,176,0.45);
+}
+
+.logo-placeholder {
+  width: 36px;
+  height: 36px;
+  background: var(--purple);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--purple);
+  letter-spacing: 0.2px;
+  text-shadow: 0 0 16px rgba(156,39,176,0.4);
+}
+
+.header-buttons {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+/* Header buttons */
+.theme-toggle,
+.back-btn,
+.notif-header-btn {
+  height: 32px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--border-hover);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  transition: all var(--t);
+}
+
+.theme-toggle:hover,
+.back-btn:hover {
+  border-color: var(--purple-border);
+  color: var(--purple);
+  background: var(--purple-dim);
+}
+
+.notif-header-btn { border-color: var(--primary-border); color: var(--primary); }
+.notif-header-btn:hover { background: var(--primary-dim); }
+.notif-header-btn.granted { border-color: var(--green-border); color: var(--green); }
+.notif-header-btn.denied { border-color: rgba(244,67,54,0.3); color: var(--red); cursor: not-allowed; opacity: 0.6; }
+
+.notif-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.65); }
+}
+
+/* ── MAIN CONTAINER ── */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-5) var(--sp-16);
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-8);
+}
+
+.page-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.page-title span {
+  color: var(--purple);
+}
+
+.location-info {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.location-info button {
+  background: none;
+  border: 1px solid var(--primary-border);
+  color: var(--primary);
+  padding: 2px var(--sp-3);
+  border-radius: var(--r-full);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  transition: all var(--t);
+}
+
+.location-info button:hover {
+  background: var(--primary-dim);
+}
+
+/* ── CONTROLS SECTION ── */
+.controls-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-6);
+  margin-bottom: var(--sp-8);
+  box-shadow: var(--shadow-md);
+}
+
+body.light-mode .controls-section {
+  box-shadow: var(--shadow-sm);
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.control-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.select-input {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1.5px solid var(--border-hover);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--t);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8f9e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: var(--sp-8);
+}
+
+.select-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(42,184,200,0.12);
+}
+
+body.light-mode .select-input {
+  background-color: var(--surface-3);
+  color: var(--text);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6075' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.controls-action {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-3);
+}
+
+.calculate-btn {
+  flex: 1;
+  padding: var(--sp-3) var(--sp-6);
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: all var(--t);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+}
+
+.calculate-btn:hover:not(:disabled) {
+  background: var(--purple-hover);
+  box-shadow: 0 4px 16px rgba(156,39,176,0.4);
+  transform: translateY(-1px);
+}
+
+.calculate-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── LOADING ── */
+.loading {
+  display: none;
+  text-align: center;
+  padding: var(--sp-12) var(--sp-5);
+}
+
+.loading.active { display: block; }
+
+.loading-inner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8) var(--sp-10);
+  box-shadow: var(--shadow-lg);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--surface-3);
+  border-left: 3px solid var(--purple);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#loadingText {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── PASSES GRID ── */
+.passes-container {
+  display: grid;
+  gap: var(--sp-4);
+}
+
+/* ── PASS CARD ── */
+.pass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t), border-color var(--t), transform var(--t);
+}
+
+.pass-card:hover {
+  border-color: var(--purple-border);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(156,39,176,0.1);
+  transform: translateY(-2px);
+}
+
+/* Card inner layout: info + map side by side */
+.pass-card-inner {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  min-height: 200px;
+}
+
+.pass-card-content {
+  padding: var(--sp-5) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* Card map */
+.pass-card-map {
+  border-left: 1px solid var(--border);
+  background: #0a1520;
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pass-card-map .mini-map {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+}
+
+body.light-mode .pass-card-map {
+  background: #e8eef5;
+}
+
+.map-label {
+  position: absolute;
+  bottom: var(--sp-2);
+  right: var(--sp-2);
+  background: rgba(0,0,0,0.55);
+  color: rgba(255,255,255,0.7);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  letter-spacing: 0.3px;
+  pointer-events: none;
+  z-index: 500;
+}
+
+/* ── CARD HEADER ── */
+.pass-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.satellite-info { flex: 1; min-width: 0; }
+
+.satellite-name {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--purple);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: var(--sp-1);
+}
+
+.norad-id {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.brightness-badge {
+  flex-shrink: 0;
+  align-self: flex-start;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.brightness-very-bright { background: rgba(245,200,66,0.18); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+.brightness-bright       { background: rgba(245,200,66,0.1); color: #e8b830; border: 1px solid rgba(245,200,66,0.2); }
+.brightness-normal       { background: rgba(255,152,0,0.12); color: var(--orange); border: 1px solid rgba(255,152,0,0.25); }
+.brightness-dim          { background: rgba(138,143,158,0.1); color: var(--text-muted); border: 1px solid var(--border-hover); }
+
+/* ── PASS DETAILS GRID ── */
+.pass-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--sp-3);
+}
+
+.detail-item { display: flex; flex-direction: column; gap: 3px; }
+
+.detail-label {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── CARD ACTIONS ── */
+.card-actions {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  margin-top: auto;
+}
+
+.show-map-btn {
+  flex: 1;
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--primary-dim);
+  border: 1.5px solid var(--primary-border);
+  color: var(--primary);
+  border-radius: var(--r-md);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-1);
+  transition: all var(--t);
+}
+
+.show-map-btn:hover {
+  background: var(--primary);
+  color: var(--text-inverse);
+  border-color: var(--primary);
+}
+
+/* ── NOTIFICATION BUTTON ── */
+:root {
+  --notif-on-bg:     rgba(42,184,200,0.12);
+  --notif-on-border: rgba(42,184,200,0.5);
+  --notif-on-text:   #2ab8c8;
+  --notif-off-bg:    rgba(255,255,255,0.04);
+  --notif-off-border:rgba(255,255,255,0.1);
+  --notif-off-text:  rgba(255,255,255,0.35);
+}
+
+body.light-mode {
+  --notif-off-bg:    rgba(0,0,0,0.04);
+  --notif-off-border:rgba(0,0,0,0.12);
+  --notif-off-text:  rgba(0,0,0,0.35);
+  --notif-on-text:   #1a8a96;
+}
+
+.notif-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-md);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  border: 1.5px solid var(--notif-off-border);
+  background: var(--notif-off-bg);
+  color: var(--notif-off-text);
+  transition: all 200ms cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap;
+}
+
+.notif-toggle-btn.active {
+  border-color: var(--notif-on-border);
+  background: var(--notif-on-bg);
+  color: var(--notif-on-text);
+}
+
+.notif-toggle-btn:hover { transform: scale(1.03); }
+
+.notif-bell {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  font-size: 14px;
+}
+
+.notif-toggle-btn.active .notif-bell {
+  animation: bell-ring 0.6s ease-in-out;
+}
+
+@keyframes bell-ring {
+  0%   { transform: rotate(0); }
+  20%  { transform: rotate(-18deg); }
+  40%  { transform: rotate(18deg); }
+  60%  { transform: rotate(-10deg); }
+  80%  { transform: rotate(10deg); }
+  100% { transform: rotate(0); }
+}
+
+/* Alert pills */
+.alert-pills {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-top: var(--sp-2);
+  animation: slide-down 0.25s ease;
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.alert-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--text-xs);
+  padding: 2px var(--sp-3);
+  border-radius: var(--r-full);
+  border: 1px solid var(--primary-border);
+  background: var(--primary-dim);
+  color: var(--notif-on-text);
+  font-weight: 600;
+}
+
+.alert-pill .pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.alert-pill.fired { opacity: 0.4; text-decoration: line-through; }
+
+.notif-browser-warning {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  margin-top: var(--sp-2);
+  font-style: italic;
 }
 
 /* ── STARLINK TRAIN ── */
 .train-separator {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.6rem 1rem;
-    background: linear-gradient(135deg, rgba(0,210,106,0.12), rgba(0,210,106,0.05));
-    border: 1px solid rgba(0,210,106,0.35);
-    border-radius: 10px;
-    margin-bottom: -0.5rem; /* se solapa visualmente con la primera card */
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  background: linear-gradient(135deg, rgba(0,210,106,0.08), rgba(0,210,106,0.03));
+  border: 1px solid var(--green-border);
+  border-radius: var(--r-lg);
+  margin-bottom: calc(-1 * var(--sp-1));
 }
 
-.train-separator-icon {
-    font-size: 1.1rem;
-}
+.train-separator-icon { font-size: 1rem; }
 
 .train-separator-text {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #00d26a;
-    letter-spacing: 0.04em;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .train-separator-sub {
-    font-size: 0.75rem;
-    color: rgba(0,210,106,0.65);
-    margin-left: auto;
-    white-space: nowrap;
+  font-size: var(--text-xs);
+  color: rgba(0,210,106,0.55);
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .pass-card.is-train {
-    border-color: rgba(0,210,106,0.4) !important;
-    background: linear-gradient(135deg, rgba(0,210,106,0.06), var(--dark-secondary)) !important;
-}
-
-body.light-mode .pass-card.is-train {
-    background: linear-gradient(135deg, rgba(0,210,106,0.08), var(--light-secondary)) !important;
+  border-color: var(--green-border) !important;
 }
 
 .pass-card.is-train:hover {
-    border-color: #00d26a !important;
-    box-shadow: 0 8px 25px rgba(0,210,106,0.25) !important;
+  border-color: var(--green) !important;
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(0,210,106,0.12) !important;
 }
 
-.pass-card.is-train .satellite-name {
-    color: #00d26a !important;
-}
+.pass-card.is-train .satellite-name { color: var(--green) !important; }
 
 .train-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    background: rgba(0,210,106,0.15);
-    border: 1px solid rgba(0,210,106,0.45);
-    color: #00d26a;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 0.2rem 0.6rem;
-    border-radius: 10px;
-    margin-left: 0.5rem;
-    vertical-align: middle;
-    letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--r-sm);
+  margin-left: var(--sp-2);
+  vertical-align: middle;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }
 
 .train-blog-link {
-    display: block;
-    text-align: center;
-    font-size: 0.78rem;
-    color: rgba(0,210,106,0.7);
-    text-decoration: none;
-    margin-top: 0.5rem;
-    transition: color 0.2s;
+  display: block;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: rgba(0,210,106,0.6);
+  text-decoration: none;
+  margin-top: var(--sp-2);
+  transition: color var(--t);
 }
 
-.train-blog-link:hover {
-    color: #00d26a;
-    text-decoration: underline;
+.train-blog-link:hover { color: var(--green); text-decoration: underline; }
+
+/* ── NO PASSES ── */
+.no-passes {
+  text-align: center;
+  padding: var(--sp-16) var(--sp-5);
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
 }
 
-/* ── NOTIFICACIONES ── */
-:root {
-    --notif-on-bg: rgba(156, 39, 176, 0.15);
-    --notif-on-border: rgba(156, 39, 176, 0.6);
-    --notif-on-text: #ce93d8;
-    --notif-off-bg: rgba(255,255,255,0.04);
-    --notif-off-border: rgba(255,255,255,0.12);
-    --notif-off-text: rgba(255,255,255,0.4);
-}
-body.light-mode {
-    --notif-off-bg: rgba(0,0,0,0.04);
-    --notif-off-border: rgba(0,0,0,0.15);
-    --notif-off-text: rgba(0,0,0,0.4);
-    --notif-on-text: #7b1fa2;
-}
-
-.notif-header-btn {
-    display: flex; align-items: center; gap: 0.4rem;
-    background: none; border: 2px solid rgba(156,39,176,0.4);
-    color: rgba(156,39,176,0.7); padding: 0.5rem 1rem;
-    border-radius: 25px; cursor: pointer;
-    transition: all 0.3s ease; font-size: 0.85rem; white-space: nowrap;
-}
-.notif-header-btn:hover { border-color: var(--primary-purple); color: var(--primary-purple); }
-.notif-header-btn.granted { border-color: #4caf50; color: #4caf50; }
-.notif-header-btn.denied  { border-color: #f44336; color: #f44336; cursor: not-allowed; opacity: 0.6; }
-.notif-header-btn .notif-dot {
-    width: 7px; height: 7px; border-radius: 50%; background: currentColor;
-    animation: pulse-dot 2s ease-in-out infinite;
-}
-@keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.4; transform: scale(0.7); }
-}
-
-.card-actions { display: flex; gap: 0.6rem; align-items: stretch; }
-
-.notif-toggle-btn {
-    display: flex; align-items: center; gap: 0.45rem;
-    padding: 0.75rem 1rem; border-radius: 10px; cursor: pointer;
-    font-size: 0.85rem; font-weight: 600;
-    border: 2px solid var(--notif-off-border);
-    background: var(--notif-off-bg); color: var(--notif-off-text);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    white-space: nowrap; position: relative; overflow: hidden;
-}
-.notif-toggle-btn.active {
-    border-color: var(--notif-on-border); background: var(--notif-on-bg);
-    color: var(--notif-on-text); box-shadow: 0 0 12px rgba(156,39,176,0.2);
-}
-.notif-toggle-btn:hover { transform: scale(1.03); }
-.notif-bell { display: inline-block; transition: transform 0.3s ease; }
-.notif-toggle-btn.active .notif-bell { animation: bell-ring 0.6s ease-in-out; }
-@keyframes bell-ring {
-    0%  { transform: rotate(0); }   20% { transform: rotate(-20deg); }
-    40% { transform: rotate(20deg); } 60% { transform: rotate(-10deg); }
-    80% { transform: rotate(10deg); } 100%{ transform: rotate(0); }
-}
-
-.alert-pills { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; animation: slide-down 0.25s ease; }
-@keyframes slide-down {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-.alert-pill {
-    display: flex; align-items: center; gap: 0.3rem;
-    font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 20px;
-    border: 1px solid rgba(156,39,176,0.35); background: rgba(156,39,176,0.08);
-    color: var(--notif-on-text); font-weight: 600;
-}
-.alert-pill .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: #ce93d8; animation: pulse-dot 1.8s ease-in-out infinite; }
-.alert-pill.fired { opacity: 0.45; text-decoration: line-through; }
-
-.notif-browser-warning {
-    font-size: 0.75rem; color: rgba(255,255,255,0.35);
-    margin-top: 0.5rem; text-align: center; font-style: italic;
-}
-body.light-mode .notif-browser-warning { color: rgba(0,0,0,0.35); }
-
+/* ── TOAST ── */
 #satfleet-toast {
-    position: fixed; bottom: 1.5rem; left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: #2d2d2d; color: white;
-    padding: 0.85rem 1.4rem; border-radius: 30px;
-    font-size: 0.9rem; font-weight: 500;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    border: 1px solid rgba(156,39,176,0.4);
-    z-index: 9999; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
-    opacity: 0; white-space: nowrap; pointer-events: none;
+  position: fixed;
+  bottom: var(--sp-6);
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: var(--sp-3) var(--sp-6);
+  border-radius: var(--r-full);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--purple-border);
+  z-index: 9999;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+  opacity: 0;
+  white-space: normal;
+  max-width: min(90vw, 380px);
+  text-align: center;
+  pointer-events: none;
 }
-#satfleet-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-body.light-mode #satfleet-toast { background: #333; }
 
-    </style>
+#satfleet-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ── LOCATION PICKER MODAL ── */
+#locationPickerModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .pass-card-inner {
+    grid-template-columns: 1fr;
+  }
+  .pass-card-map {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    min-height: 160px;
+  }
+  .pass-card-map .mini-map { min-height: 160px; }
+}
+
+@media (max-width: 640px) {
+  :root { --bar-height: 52px; }
+
+  .container { padding: var(--sp-5) var(--sp-4) var(--sp-12); }
+
+  .header { padding: 0 var(--sp-4); }
+
+  .header-buttons { gap: var(--sp-2); }
+
+  .theme-toggle,
+  .back-btn,
+  .notif-header-btn { padding: 0 var(--sp-3); font-size: 10px; height: 30px; }
+
+  .controls-grid { grid-template-columns: 1fr; }
+
+  .controls-section { padding: var(--sp-4); }
+
+  .pass-details { grid-template-columns: 1fr 1fr; }
+
+  .card-actions { flex-wrap: wrap; }
+
+  .page-title { font-size: var(--text-lg); }
+}
+
+@media (max-width: 400px) {
+  .title { display: none; }
+}
+</style>
 </head>
 <body>
     <div id="satfleet-toast"></div>
-    <!-- Header -->
-    <div class="header">
-        <div class="logo-section">
-            <div class="logo">
-                <img src="images/logo.png" alt="SatFleet Live Logo" 
-                     onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
-            </div>
-            <h1 class="title">SatFleet Live</h1>
-        </div>
 
-        <div style="text-align:center; font-size:12px; flex:1;">
-    <div id="copyrightText">© 2026 SatFleetLive</div>
-    <div>
-        <span id="sourceText">Source:</span> <a href="https://celestrak.org" target="_blank"
-            style="color:#4da6ff;">CelesTrak / NORAD</a> | <a href="https://www.wikidata.org" target="_blank"
-            style="color:#4da6ff;">Wikidata</a>
-        | <a href="mailto:jaime.automatiza@gmail.com" style="color:#4da6ff;" id="contactText">Contact</a>
-        | <a href="https://satfleetlive.com/privacy-policy" target="_blank" style="color:#4da6ff;"
-            id="privacyPolicyText">Privacy Policy</a>
+<!-- Header -->
+<header class="header">
+  <div class="logo-section">
+    <div class="logo">
+      <img src="images/logo.png" alt="SatFleet Live"
+           onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>S</div>'">
     </div>
-</div>
-        <div class="header-buttons">
-            <button class="notif-header-btn" id="notifPermBtn" onclick="requestNotifPermission()">
-    <span class="notif-dot"></span>
-    <span id="notifPermLabel">🔔 Enable Alerts</span>
-</button>
-            <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
-            <button class="back-btn" onclick="goBack()">← Back to Map</button>
-        </div>
+    <h1 class="title">SatFleet Live</h1>
+  </div>
+
+  <div class="header-buttons">
+    <button class="notif-header-btn" id="notifPermBtn" onclick="requestNotifPermission()">
+      <span class="notif-dot"></span>
+      <span id="notifPermLabel">Alerts</span>
+    </button>
+    <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
+    <button class="back-btn" onclick="goBack()">&#8592; Map</button>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h2 class="page-title">Next <span>Visible Passes</span></h2>
+    <div class="location-info" id="locationInfo">Detecting your location...</div>
+  </div>
+
+  <!-- Controls -->
+  <section class="controls-section">
+    <div class="controls-grid">
+      <div class="control-group">
+        <label class="control-label" id="daysLabel">Days to calculate</label>
+        <select class="select-input" id="daysSelect">
+          <option value="1">1 day</option>
+          <option value="3" selected>3 days</option>
+          <option value="7">7 days</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label" id="filterLabel">Satellite types</label>
+        <select class="select-input" id="filterSelect" onchange="applyFilter()">
+          <option value="relevant">Relevant satellites (default)</option>
+          <option value="all">ALL satellites — slow</option>
+          <option value="gps">GPS Navigation</option>
+          <option value="iss">Space Stations</option>
+          <option value="comm">Communications</option>
+          <option value="starlink">Starlink Internet — slow</option>
+          <option value="military">Military / Spy</option>
+          <option value="weather">Weather / Climate</option>
+          <option value="geo">Geodetic Tracking</option>
+          <option value="tech">Technology Experimental</option>
+          <option value="misc">Other Miscellaneous — slow</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label class="control-label" id="sortLabel">Sort by</label>
+        <select class="select-input" id="sortSelect">
+          <option value="time">Earliest first</option>
+          <option value="brightness">Brightest first</option>
+          <option value="elevation">Highest elevation</option>
+          <option value="duration">Longest duration</option>
+        </select>
+      </div>
+      <div class="control-group controls-action">
+        <label class="control-label" style="opacity:0">Action</label>
+        <button class="calculate-btn" onclick="calculatePasses()" id="calculateBtn">
+          Calculate Passes
+        </button>
+      </div>
     </div>
+  </section>
 
-    <!-- Main Content -->
-    <div class="container">
-        <h2 class="page-title" id="pageTitle">Next Visible Passes from Your Location</h2>
-        
-        <div class="location-info" id="locationInfo">
-            Detecting your location...
-        </div>
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="loading-inner">
+      <div class="spinner"></div>
+      <p id="loadingText">Calculating visible passes...</p>
+    </div>
+  </div>
 
-        <!-- Controls -->
-        <div class="controls-section">
-            <div class="controls-grid">
-                <div class="control-group">
-                    <label class="control-label" id="daysLabel">Days to calculate:</label>
-                    <select class="select-input" id="daysSelect">
-                        <option value="1">1 day</option>
-                        <option value="3" selected>3 days</option>
-                        <option value="7">7 days</option>
-                    </select>
-                </div>
-                <div class="control-group">
-    <label class="control-label" id="filterLabel">Satellite types:</label>
-    <select class="select-input" id="filterSelect" onchange="applyFilter()">
-        <option value="relevant">Relevant satellites (default)</option>
-        <option value="all">ALL satellites (‼️ Slow, this may take a while...)</option>
-        <option value="gps">GPS / Navigation</option>
-        <option value="iss">Space Stations</option>
-        <option value="comm">Communications</option>
-        <option value="starlink">Starlink / Internet (‼️ Slow, this may take a while...)</option>
-        <option value="military">Military / Spy</option>
-        <option value="weather">Weather / Climate</option>
-        <option value="geo">Geodetic / Tracking</option>
-        <option value="tech">Technology / Experimental</option>
-        <option value="misc">Other / Miscellaneous(‼️ Slow, this may take a while...)</option>
-    </select>
-</div>
-                <div class="control-group">
-                    <label class="control-label" id="sortLabel">Sort by:</label>
-                    <select class="select-input" id="sortSelect">
-                        <option value="time">Earliest first</option>
-                        <option value="brightness">Brightest first</option>
-                        <option value="elevation">Highest elevation</option>
-                        <option value="duration">Longest duration</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" style="opacity: 0;">Action</label>
-                    <button class="calculate-btn" onclick="calculatePasses()" id="calculateBtn">
-                        Calculate Passes
-                    </button>
-                </div>
-            </div>
-        </div>
+  <!-- Passes Container -->
+  <div class="passes-container" id="passesContainer"></div>
 
-        <!-- Loading -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p id="loadingText">Calculating visible passes...</p>
-        </div>
-
-        <!-- Passes Container -->
-        <div class="passes-container" id="passesContainer"></div>
+</main>
     </div>
 
     <script>
@@ -748,10 +978,26 @@ function showToast(msg, duration = 4000) {
     toastTimer = setTimeout(() => el.classList.remove('show'), duration);
 }
 
+// Detecta si estamos dentro de la app Android de SatFleet
+function isAndroidApp() {
+    return typeof Android !== 'undefined' && typeof Android.getPlayerId === 'function';
+}
+
 function updateNotifPermBtn() {
     const btn   = document.getElementById('notifPermBtn');
     const label = document.getElementById('notifPermLabel');
     if (!btn) return;
+
+    // Dentro de la app Android: OneSignal gestiona los permisos nativamente
+    if (isAndroidApp()) {
+        btn.className = 'notif-header-btn granted';
+        label.textContent = '🔔 Alerts Ready';
+        btn.title = 'Push notifications managed by the SatFleet app';
+        btn.onclick = () => showToast('🔔 Tap "Notify me" on any pass to get a push alert!');
+        return;
+    }
+
+    // Navegador web normal
     if (!('Notification' in window)) {
         btn.style.display = 'none';
         return;
@@ -763,10 +1009,7 @@ function updateNotifPermBtn() {
         label.textContent = '🔔 Alerts ON';
         btn.title = 'Notifications enabled. Cancel individual alerts on each pass card.';
         btn.onclick = () => showToast('🔔 Alerts are ON. Use "Alert set" buttons on each pass to cancel.');
-    }
-    else if (perm === 'denied') {
-        // Solo mostrar bloqueado si el usuario lo bloqueó explícitamente
-        // (guardamos un flag cuando el usuario interactúa)
+    } else if (perm === 'denied') {
         const userExplicitlyDenied = localStorage.getItem('notif_explicitly_denied');
         if (userExplicitlyDenied) {
             btn.classList.add('denied');
@@ -845,22 +1088,95 @@ function scheduleLocalAlerts(passId, pass, direction) {
     return timers;
 }
 
-function toggleNotification(passId) {
+async function toggleNotification(passId) {
     const pass = calculatedPasses.find(p => buildPassId(p) === passId);
     if (!pass) return;
 
-    if (!('Notification' in window) || Notification.permission !== 'granted') {
-        requestNotifPermission();
-        return;
-    }
     if (pass.startTime.getTime() <= Date.now()) {
         showToast('⏱️ This pass has already started.');
         return;
     }
 
     const state = notifState[passId];
+
+    // ════ MODO APP ANDROID: usa OneSignal push real ════
+    if (isAndroidApp()) {
+        if (state && state.active) {
+            try {
+                await fetch('https://worker.satfleetlive.com/api/notify/pass', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cancel: true,
+                        playerId: Android.getPlayerId(),
+                        satelliteName: pass.satellite.name,
+                        passTimeIso: pass.startTime.toISOString(),
+                        notifIds: state.notifIds || [],
+                    }),
+                });
+            } catch(e) { console.warn('Cancel error:', e); }
+            notifState[passId] = { active: false, timers: [] };
+            updateToggleBtn(passId, false);
+            removePills(passId);
+            showToast('🔕 Alert cancelled for ' + pass.satellite.name);
+            return;
+        }
+
+        // Activar: obtener player ID y llamar al worker
+        const playerId = Android.getPlayerId();
+        if (!playerId) {
+            showToast('⚠️ Could not get device ID. Try restarting the app.');
+            return;
+        }
+
+        const direction = buildDirText(pass);
+        const brightness = typeof pass.brightness === 'number' ? pass.brightness : null;
+
+        try {
+            const res = await fetch('https://worker.satfleetlive.com/api/notify/pass', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    playerId,
+                    satelliteName: pass.satellite.name,
+                    passTimeIso:   pass.startTime.toISOString(),
+                    maxElevation:  pass.maxElevation.toFixed(1),
+                    direction,
+                    brightness,
+                }),
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.error || 'Worker error');
+
+            // Calcular cuántos minutos faltan para las alertas
+            const now  = Date.now();
+            const start = pass.startTime.getTime();
+            const fakeTimers = [
+                { ms: 10 * 60 * 1000, label: '10 minutes', fireAt: start - 10 * 60 * 1000 },
+                { ms:  2 * 60 * 1000, label: '2 minutes',  fireAt: start -  2 * 60 * 1000 },
+            ].filter(t => t.fireAt > now);
+
+            notifState[passId] = { active: true, timers: fakeTimers, notifIds: data.notifIds || [] };
+            updateToggleBtn(passId, true);
+            renderPills(passId, fakeTimers);
+            showToast(`🔔 Push alert set! You'll be notified before ${pass.satellite.name} passes.`);
+
+        } catch(err) {
+            console.error('Notify pass error:', err);
+            showToast('❌ Could not schedule alert. Check your connection.');
+        }
+        return;
+    }
+
+    // ════ MODO NAVEGADOR: usa Notification API del navegador ════
+    if (!('Notification' in window) || Notification.permission !== 'granted') {
+        requestNotifPermission();
+        return;
+    }
+
     if (state && state.active) {
-        state.timers.forEach(({ tid }) => clearTimeout(tid));
+        state.timers.forEach(({ tid }) => { if (tid) clearTimeout(tid); });
         notifState[passId] = { active: false, timers: [] };
         updateToggleBtn(passId, false);
         removePills(passId);
@@ -877,7 +1193,7 @@ function toggleNotification(passId) {
         updateToggleBtn(passId, true);
         renderPills(passId, timers);
         saveScheduledAlerts();
-        showToast(`🔔 Alert set! You'll be notified 10 min & 2 min before.`);
+        showToast(`🔔 Alert set! Keep this tab open to receive alerts.`);
     }
 }
 
@@ -947,6 +1263,7 @@ function restoreScheduledAlerts() {
         let allSatellites = [];
         let calculatedPasses = [];
         let isDarkMode = true;
+        const miniMapInstances = {};
 
         // Obtener ubicación del usuario
 
@@ -996,8 +1313,8 @@ function updateLocationInfo() {
         &nbsp;
         <button onclick="openLocationPicker()" style="
             background: none;
-            border: 1px solid #9c27b0;
-            color: #9c27b0;
+            border: 1px solid #2196f3;
+            color: #2196f3;
             padding: 2px 10px;
             border-radius: 12px;
             cursor: pointer;
@@ -1026,10 +1343,10 @@ function openLocationPicker() {
             <div style="
                 background: #1e1e1e; border-radius: 16px; padding: 20px;
                 width: min(560px, 95vw); box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-                border: 1px solid rgba(156,39,176,0.3);
+                border: 1px solid rgba(33,150,243,0.3);
             ">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                    <span style="font-weight:700; color:#9c27b0; font-size:1rem;">Choose observation location</span>
+                    <span style="font-weight:700; color:#2196f3; font-size:1rem;">Choose observation location</span>
                     <button onclick="closeLocationPicker()" style="
                         background:none; border:none; color:rgba(255,255,255,0.5);
                         font-size:1.3rem; cursor:pointer; line-height:1;
@@ -1041,12 +1358,12 @@ function openLocationPicker() {
                 <div id="pickerMapContainer" style="height:320px; border-radius:10px; overflow:hidden; margin-bottom:14px;"></div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <button onclick="useMyGPS()" style="
-                        flex:1; padding:9px; background:rgba(156,39,176,0.15);
-                        border:1.5px solid #9c27b0; color:#9c27b0;
+                        flex:1; padding:9px; background:rgba(33,150,243,0.15);
+                        border:1.5px solid #2196f3; color:#2196f3;
                         border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:600;
                     ">Use my GPS</button>
                     <button onclick="confirmLocation()" style="
-                        flex:1; padding:9px; background:#9c27b0;
+                        flex:1; padding:9px; background:#2196f3;
                         border:none; color:#fff;
                         border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:600;
                     ">Confirm location</button>
@@ -1071,7 +1388,18 @@ function openLocationPicker() {
                 subdomains: 'abcd', maxZoom: 18
             }).addTo(pickerMap);
 
-            pickerMarker = L.marker([userLocation.lat, userLocation.lng], { draggable: true }).addTo(pickerMap);
+            // Creamos un icono azul personalizado para no depender de las imágenes por defecto de Leaflet
+            const pickerIcon = L.divIcon({
+                className: '',
+                html: '<div style="width:16px;height:16px;border-radius:50%;background:#2196f3;border:2px solid #fff;box-shadow:0 0 12px rgba(33,150,243,0.9);"></div>',
+                iconSize: [16,16], 
+                iconAnchor: [8,8]
+            });
+
+            pickerMarker = L.marker([userLocation.lat, userLocation.lng], { 
+                draggable: true,
+                icon: pickerIcon 
+            }).addTo(pickerMap);
             pickerMarker.on('dragend', updatePickerCoords);
 
             pickerMap.on('click', function(e) {
@@ -1136,8 +1464,8 @@ function closeLocationPicker() {
             try {
                 const response = await fetch('https://worker.satfleetlive.com/api/tle');
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const text = await response.text();
-                allSatellites = parseTLE(text);
+                const data = await response.json();
+                allSatellites = parseTLE(data);
                 console.log(`Loaded ${allSatellites.length} satellites`);
             } catch (error) {
                 console.error('Error loading satellites:', error);
@@ -1150,31 +1478,18 @@ function closeLocationPicker() {
             }
         }
 
-        function parseTLE(tleText) {
+        function parseTLE(gpData) {
             const satellites = [];
-            const lines = tleText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            
-            for (let i = 0; i < lines.length; i += 3) {
-                const name = lines[i];
-                const line1 = lines[i + 1];
-                const line2 = lines[i + 2];
-                
-                if (!name || name.startsWith('#')) {
-                    i -= 2;
-                    continue;
-                }
-                
-                if (!line1 || !line2) continue;
-                
+            for (const obj of gpData) {
                 try {
-                    const satrec = satellite.twoline2satrec(line1, line2);
-                    const noradId = line1.substring(2, 7).trim();
+                    const satrec = satellite.json2satrec(obj);
+                    const name = obj.OBJECT_NAME;
+                    const noradId = obj.NORAD_CAT_ID.toString();
                     satellites.push({ name, noradId, satrec });
                 } catch (err) {
-                    console.warn(`Could not parse satellite ${name}`);
+                    console.warn(`Could not parse satellite ${obj.OBJECT_NAME}`);
                 }
             }
-            
             return satellites;
         }
 
@@ -1300,7 +1615,7 @@ function applyFilter() {
         const position = getSatellitePosition(satellite, time);
         if (!position) return false;
         const sunPos = calculateSunPosition(time, userLocation.lat, userLocation.lng);
-        return position.elevation > 10 && sunPos.elevation < -6 && position.satSunlit;
+        return position.elevation > 10 && sunPos.elevation < -3 && position.satSunlit;
     }
 
     // Refinar el cruce del horizonte con pasos de 10s entre t0 (invisible) y t1 (visible)
@@ -1323,7 +1638,7 @@ function applyFilter() {
         }
 
         const sunPos = calculateSunPosition(currentTime, userLocation.lat, userLocation.lng);
-        const isNight = sunPos.elevation < -6;
+        const isNight = sunPos.elevation < -3;
         const isVisible = position.elevation > 10 && isNight && position.satSunlit;
 
         if (isVisible && !inPass) {
@@ -1716,6 +2031,9 @@ function calculateSunPositionECI(date) {
 }
 
 function displayPasses() {
+    // Destruir instancias Leaflet previas para evitar bloqueo y memory leaks
+    Object.values(miniMapInstances).forEach(m => { try { m.remove(); } catch(e) {} });
+    Object.keys(miniMapInstances).forEach(k => delete miniMapInstances[k]);
     const container = document.getElementById('passesContainer');
     if (calculatedPasses.length === 0) {
         container.innerHTML = `<div class="no-passes">No visible passes found for the selected period. Try selecting more days or check back later when it's nighttime.</div>`;
@@ -1760,9 +2078,11 @@ function displayPasses() {
         const passId = buildPassId(pass);
         const isPast = pass.startTime.getTime() <= Date.now();
 
-        html.push(`
-            <div class="pass-card${isTrain ? ' is-train' : ''}">
-                <div class="pass-header">
+        const mapId = `mini-map-${passId}-${index}`;
+html.push(`<div class="pass-card${isTrain ? ' is-train' : ''}" data-pass-index="${index}" data-map-id="${mapId}">
+  <div class="pass-card-inner">
+    <div class="pass-card-content">
+      <div class="pass-header">
                     <div class="satellite-info">
                         <div class="satellite-name">
                             ${pass.satellite.name}${trainBadge}
@@ -1800,15 +2120,177 @@ function displayPasses() {
                         <span class="notif-bell">🔕</span> Notify me
                     </button>` : ''}
                 </div>
-                ${!isPast ? `<p class="notif-browser-warning">⚠️ Keep the browser open in the background to receive alerts</p>` : ''}
-                ${trainBlogLink}
-            </div>
-        `);
+                            ${trainBlogLink}
+          </div>
+    </div><!-- end pass-card-content -->
+    <div class="pass-card-map" id="map-container-${passId}-${index}">
+      <div id="${mapId}" class="mini-map"></div>
+      <div class="map-label">Trajectory</div>
+    </div>
+  </div><!-- end pass-card-inner -->
+</div>`);
     });
 
-    container.innerHTML = html.join('');
+              container.innerHTML = html.join('');
+    initMiniMapsLazy();
 }
 
+function initMiniMapsLazy() {
+    let renderQueue = [];
+    let renderScheduled = false;
+
+    function drainQueue() {
+        if (renderQueue.length === 0) { renderScheduled = false; return; }
+        const { mapId, idx } = renderQueue.shift();
+        renderMiniMap(mapId, idx);
+        setTimeout(drainQueue, 30); // 30 ms entre mapas = UI siempre fluida
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const card = entry.target;
+            observer.unobserve(card);
+            const idx   = parseInt(card.getAttribute('data-pass-index'));
+            const mapId = card.getAttribute('data-map-id');
+            renderQueue.push({ mapId, idx });
+            if (!renderScheduled) { renderScheduled = true; setTimeout(drainQueue, 0); }
+        });
+    }, { rootMargin: '200px' });
+    document.querySelectorAll('.pass-card[data-pass-index]').forEach(c => observer.observe(c));
+}
+
+function renderMiniMap(mapId, passIndex) {
+    const mapEl = document.getElementById(mapId);
+    if (!mapEl || miniMapInstances[mapId]) return;
+    const pass = calculatedPasses[passIndex];
+    if (!pass || !pass.satellite || !pass.satellite.satrec) return;
+    try {
+        const miniMap = miniMapInstances[mapId] = L.map(mapId, {
+            zoomControl: false, attributionControl: false,
+            dragging: false, scrollWheelZoom: false,
+            touchZoom: false, doubleClickZoom: false, keyboard: false
+        });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+            subdomains: 'abcd', maxZoom: 6
+        }).addTo(miniMap);
+
+        const passStart = pass.startTime.getTime();
+        const passEnd   = pass.endTime ? pass.endTime.getTime() : passStart + (pass.duration || 5) * 60000;
+        const bufStart  = passStart - 5 * 60000;
+        const bufEnd    = passEnd   + 5 * 60000;
+
+        function satGeo(t) {
+            try {
+                const pv = window.satellite.propagate(pass.satellite.satrec, t);
+                if (!pv || !pv.position) return null;
+                const gmst = window.satellite.gstime(t);
+                const geo  = window.satellite.eciToGeodetic(pv.position, gmst);
+                const lat  = window.satellite.degreesLat(geo.latitude);
+                const lng  = window.satellite.degreesLong(geo.longitude);
+                if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90) return null;
+                return [lat, lng];
+            } catch(e) { return null; }
+        }
+
+        function calcBearing(p1, p2) {
+            const dLng = (p2[1] - p1[1]) * Math.PI / 180;
+            const lat1R = p1[0] * Math.PI / 180;
+            const lat2R = p2[0] * Math.PI / 180;
+            const y = Math.sin(dLng) * Math.cos(lat2R);
+            const x = Math.cos(lat1R) * Math.sin(lat2R) - Math.sin(lat1R) * Math.cos(lat2R) * Math.cos(dLng);
+            return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+        }
+
+        // Segmento pre-pase (contexto orbital antes de que sea visible) — discontinuo
+        const preCoords = [];
+        for (let i = 0; i <= 12; i++) {
+            const c = satGeo(new Date(bufStart + (passStart - bufStart) * (i / 12)));
+            if (c) preCoords.push(c);
+        }
+        if (preCoords.length > 1)
+            L.polyline(preCoords, { color: 'rgba(156,39,176,0.3)', weight: 1.5, dashArray: '5,6' }).addTo(miniMap);
+
+        // Tramo visible — sólido y brillante
+        const visCoords = [];
+        for (let i = 0; i <= 28; i++) {
+            const c = satGeo(new Date(passStart + (passEnd - passStart) * (i / 28)));
+            if (c) visCoords.push(c);
+        }
+        if (visCoords.length > 1)
+            L.polyline(visCoords, { color: '#b044d8', weight: 3.5, opacity: 1 }).addTo(miniMap);
+
+        // Segmento post-pase — discontinuo
+        const postCoords = [];
+        for (let i = 0; i <= 12; i++) {
+            const c = satGeo(new Date(passEnd + (bufEnd - passEnd) * (i / 12)));
+            if (c) postCoords.push(c);
+        }
+        if (postCoords.length > 1)
+            L.polyline(postCoords, { color: 'rgba(156,39,176,0.3)', weight: 1.5, dashArray: '5,6' }).addTo(miniMap);
+
+        // Flechas de dirección sobre el tramo visible (a 25% y 65%)
+        if (visCoords.length >= 3) {
+            [0.25, 0.65].forEach(frac => {
+                const idx = Math.floor(frac * (visCoords.length - 2));
+                const p1 = visCoords[idx];
+                const p2 = visCoords[idx + 1];
+                if (!p1 || !p2) return;
+                const deg = calcBearing(p1, p2);
+                L.marker(p1, {
+                    icon: L.divIcon({
+                        className: '',
+                        html: `<div style="
+                            width: 0; height: 0;
+                            border-left: 5px solid transparent;
+                            border-right: 5px solid transparent;
+                            border-bottom: 11px solid #d070ff;
+                            transform: rotate(${deg}deg);
+                            transform-origin: center 7px;
+                            filter: drop-shadow(0 0 3px rgba(180,60,240,0.9));
+                        "></div>`,
+                        iconSize: [10, 11],
+                        iconAnchor: [5, 5]
+                    }),
+                    interactive: false,
+                    zIndexOffset: 200
+                }).addTo(miniMap);
+            });
+        }
+
+        // Observador — punto rojo (se añade antes para que quede debajo)
+        L.marker([userLocation.lat, userLocation.lng], {
+            icon: L.divIcon({
+                className: '',
+                html: '<div style="width:10px;height:10px;border-radius:50%;background:#ff4444;border:2.5px solid #fff;box-shadow:0 0 8px rgba(255,68,68,0.9)"></div>',
+                iconSize: [10,10], iconAnchor: [5,5]
+            }),
+            zIndexOffset: 0
+        }).addTo(miniMap);
+
+        // Satélite — punto morado fijo en el centro de la línea sólida (siempre visible, nunca sobre discontinua)
+        const midIdx = Math.floor(visCoords.length / 2);
+        if (visCoords[midIdx]) {
+            L.marker(visCoords[midIdx], {
+                icon: L.divIcon({
+                    className: '',
+                    html: '<div style="width:13px;height:13px;border-radius:50%;background:#c060f0;border:2px solid rgba(230,170,255,0.95);box-shadow:0 0 14px rgba(180,60,240,1)"></div>',
+                    iconSize: [13,13], iconAnchor: [6,6]
+                }),
+                zIndexOffset: 1000
+            }).addTo(miniMap);
+        }
+
+        // fitBounds sobre TODOS los puntos del tramo visible + observador → línea siempre entera en pantalla
+        if (visCoords.length > 0) {
+            const allPoints = [[userLocation.lat, userLocation.lng], ...visCoords];
+            miniMap.fitBounds(L.latLngBounds(allPoints).pad(0.4), { maxZoom: 4 });
+        } else {
+            miniMap.setView([userLocation.lat, userLocation.lng], 3);
+        }
+        setTimeout(() => miniMap.invalidateSize(), 150);
+    } catch(err) { console.warn('renderMiniMap error:', err); }
+}
         function formatDateTime(date) {
             const options = { 
                 month: 'short', 
