@@ -820,7 +820,9 @@ function render(launch) {
     const mission  = launch.name || 'Unknown mission';
     const agency   = launch.launch_service_provider?.name || '—';
     const agencyCC = launch.launch_service_provider?.country_code || '';
-    const agencyLogo = launch.launch_service_provider?.logo_url || null;
+    const agencyLogo = launch.launch_service_provider?.logo?.image_url
+        || launch.launch_service_provider?.logo_url
+        || null;
     const agencyType = launch.launch_service_provider?.type || '';
     const agencyDesc = launch.launch_service_provider?.description || '';
 
@@ -844,13 +846,15 @@ function render(launch) {
     const rktVariant = launch.rocket?.configuration?.variant || '';
 
     const probability = launch.probability;
-    const holdReason  = launch.holdreason || '';
-    const failReason  = launch.failreason || '';
+    // holdreason fue eliminado en v2.3; la info de hold está en status.description
+    const holdReason  = (launch.status?.abbrev === 'Hold' ? launch.status?.description : '') || '';
+    const failReason  = launch.failreason || launch.status?.description && launch.status?.abbrev === 'Failure'
+        ? launch.status.description : '';
     const weatherNote = launch.weather_concerns || '';
 
-    const vidURLs  = launch.vidURLs  || [];
-    const infoURLs = launch.infoURLs || [];
-    const imageUrl = launch.image || null;
+    const vidURLs  = launch.vid_urls  || launch.vidURLs  || [];
+    const infoURLs = launch.info_urls || launch.infoURLs || [];
+    const imageUrl = launch.image?.image_url || null;
 
     const statusInfo = getStatusInfo(launch);
     const isLive = statusInfo.cls === 'live';
@@ -983,7 +987,7 @@ function render(launch) {
                 <span class="row-key">Pending launches</span>
                 <span class="row-val blue">${rktPending}</span>
             </div>` : ''}
-            ${rktDesc ? `<p class="desc-text" style="margin-top:10px;font-size:0.76rem;">${esc(rktDesc.substring(0,220))}${rktDesc.length > 220 ? '…' : ''}</p>` : ''}
+            ${rktDesc ? `<p class="desc-text" style="margin-top:10px;font-size:0.76rem;">${esc(rktDesc)}</p>` : ''}
         </div>
     </div>`;
 

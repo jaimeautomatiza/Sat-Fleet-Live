@@ -1,517 +1,867 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Favicon principal y compatibilidad general -->
-    <link rel="icon" type="image/png" href="images/logo.png">
-    <link rel="shortcut icon" href="images/logo.png" type="image/png">
-    <!-- Icono para dispositivos Apple -->
-    <link rel="apple-touch-icon" href="images/logo.png">
-
-    <!-- Título SEO-friendly -->
-    <title>Satellite Details - SatFleet Live</title>
-
-    <!-- Meta etiquetas principales -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Satellite Details – SatFleet Live</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
+    <meta name="description" content="Live satellite tracking data and detailed orbital information – SatFleet Live">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/satellite-detail.html">
 
-    <!-- Descripción optimizada -->
-    <meta name="description" content="Detailed information about satellites tracked by SatFleet Live.">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SatFleet Live">
+    <meta property="og:image" content="https://satfleetlive.com/images/logo.png">
 
-    <!-- Palabras clave -->
-    <meta name="keywords" content="satellite, tracking, GPS, ISS, Starlink, space, orbit, NORAD, satellite tracking, real-time satellites">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@satfleetlive">
 
-    <!-- Autor -->
-    <meta name="author" content="SatFleetLive">
+    <!-- JSON-LD structured data — filled dynamically by JS -->
+    <script id="jsonLd" type="application/ld+json">{}</script>
+
+    <link rel="stylesheet" href="css/leaflet.css" />
+    <script src="js/satellite.min.js"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary-purple: #9c27b0;
-            --dark-bg: #1a1a1a;
-            --dark-secondary: #2d2d2d;
-            --dark-tertiary: #3d3d3d;
-            --light-bg: #ffffff;
-            --light-secondary: #f5f5f5;
-            --light-tertiary: #e0e0e0;
-            --text-primary-dark: #ffffff;
-            --text-secondary-dark: #cccccc;
-            --text-primary-light: #333333;
-            --text-secondary-light: #666666;
+            --purple:     #9c27b0;
+            --purple-lo:  rgba(156,39,176,0.12);
+            --purple-mid: rgba(156,39,176,0.28);
+            --green:      #00d26a;
+            --blue:       #2196f3;
+            --orange:     #ff6b35;
+            --red:        #ff3b3b;
+            --bg:         #0b0b0d;
+            --bg2:        #111115;
+            --bg3:        #18181e;
+            --card:       rgba(20,20,28,0.97);
+            --border:     rgba(255,255,255,0.07);
+            --border2:    rgba(156,39,176,0.2);
+            --text:       #f0f0f5;
+            --muted:      rgba(255,255,255,0.38);
+            --bar:        58px;
+            --radius:     14px;
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-primary-dark);
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            transition: all 0.3s ease;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body.light-mode {
-            background-color: var(--light-bg);
-            color: var(--text-primary-light);
+        /* ── TOP BAR ───────────────────────────────────────── */
+        #topBar {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: var(--bar);
+            background: rgba(8,8,12,0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border2);
+            display: flex; align-items: center;
+            padding: 0 16px; gap: 10px; z-index: 1000;
         }
 
-        /* Header */
-        .header {
-            background-color: var(--dark-secondary);
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+        .bar-logo {
+            display: flex; align-items: center; gap: 9px;
+            flex-shrink: 0; text-decoration: none;
         }
-
-        body.light-mode .header {
-            background-color: var(--light-secondary);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            background-color: transparent;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
+        .bar-logo img {
+            width: 34px; height: 34px; border-radius: 50%;
             object-fit: contain;
-            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(156,39,176,0.45);
+        }
+        .bar-logo-text {
+            font-size: 0.92rem; font-weight: 800;
+            color: var(--purple); letter-spacing: 0.3px;
+            white-space: nowrap;
         }
 
-        .logo-placeholder {
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
+        .bar-sep {
+            width: 1px; height: 22px;
+            background: rgba(255,255,255,0.1); flex-shrink: 0;
         }
 
-        .title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-purple);
+        #topName {
+            flex: 1; font-size: 0.82rem; font-weight: 600;
+            color: rgba(255,255,255,0.55);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-size: 12px;
+        .top-btn {
+            height: 34px; padding: 0 16px; border-radius: 17px;
+            font-size: 0.76rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; display: inline-flex; align-items: center;
+            text-decoration: none; white-space: nowrap; flex-shrink: 0;
+            letter-spacing: 0.2px;
         }
 
-        .nav-links a {
-            color: #4da6ff;
-            text-decoration: none;
+        #backBtn {
+            border: 1.5px solid rgba(156,39,176,0.45);
+            background: var(--purple-lo); color: var(--purple);
+        }
+        #backBtn:hover { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+        #passesBtn {
+            border: 1.5px solid rgba(33,150,243,0.45);
+            background: rgba(33,150,243,0.08); color: var(--blue);
+        }
+        #passesBtn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+        /* ── HERO ──────────────────────────────────────────── */
+        #hero {
+            margin-top: var(--bar);
+            padding: 28px 20px 0;
+            display: flex; align-items: flex-end; gap: 20px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(156,39,176,0.06) 0%, transparent 60%);
+            min-height: 170px;
+            position: relative; overflow: hidden;
         }
 
-        .nav-links a:hover {
-            text-decoration: underline;
+        #hero::before {
+            content: '';
+            position: absolute; top: -40px; right: -60px;
+            width: 300px; height: 300px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(156,39,176,0.07) 0%, transparent 70%);
+            pointer-events: none;
         }
 
-        .theme-toggle {
-            background: none;
-            border: 2px solid var(--primary-purple);
-            color: var(--primary-purple);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
+        #heroImgWrap {
+            width: 86px; height: 86px; border-radius: 12px;
+            background: var(--bg3);
+            border: 1px solid var(--border2);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        #heroImgWrap .sat-icon-svg {
+            width: 38px; height: 38px; opacity: 0.55;
+        }
+
+        #heroImg {
+            width: 100%; height: 100%; object-fit: cover; display: none;
+        }
+
+        #heroText { padding-bottom: 20px; flex: 1; min-width: 0; }
+
+        #heroType {
+            font-size: 0.6rem; font-weight: 800; color: var(--purple);
+            text-transform: uppercase; letter-spacing: 1.4px; margin-bottom: 6px;
+        }
+
+        #heroName {
+            font-size: 1.7rem; font-weight: 900; color: #fff;
+            line-height: 1.1; margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+#heroDesc {
+            font-size: 0.79rem; color: var(--muted); line-height: 1.6;
+            max-width: 660px;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            line-clamp: 5;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+        }
+#heroDesc.expanded {
+            display: block;
+            -webkit-line-clamp: unset;
+            line-clamp: unset;
         }
 
-        .theme-toggle:hover {
-            background-color: var(--primary-purple);
-            color: white;
+        #heroMeta {
+            display: flex; align-items: center; gap: 10px; margin-top: 8px;
+            flex-wrap: wrap;
         }
 
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
+        .hero-tag {
+            font-size: 0.62rem; font-weight: 700;
+            color: rgba(156,39,176,0.7);
+            background: rgba(156,39,176,0.08);
+            border: 1px solid rgba(156,39,176,0.18);
+            padding: 2px 9px; border-radius: 8px;
+            letter-spacing: 0.5px; text-transform: uppercase;
         }
 
-        .back-button {
-            background-color: var(--primary-purple);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-bottom: 2rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .back-button:hover {
-            background-color: #7b1fa2;
-            transform: translateY(-2px);
-        }
-
-        .satellite-card {
-            background-color: var(--dark-secondary);
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            margin-bottom: 2rem;
-        }
-
-        body.light-mode .satellite-card {
-            background-color: var(--light-secondary);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .satellite-header {
+        /* ── LIVE STRIP ─────────────────────────────────────── */
+        #liveStrip {
             display: flex;
-            align-items: flex-start;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            background: rgba(10,10,14,0.95);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto; scrollbar-width: none;
         }
+        #liveStrip::-webkit-scrollbar { display: none; }
 
-        .satellite-image {
-            width: 200px;
-            height: 200px;
-            border-radius: 10px;
-            object-fit: cover;
-            background-color: var(--dark-tertiary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            flex-shrink: 0;
-        }
-
-        body.light-mode .satellite-image {
-            background-color: var(--light-tertiary);
-        }
-
-        .satellite-info {
-            flex: 1;
-        }
-
-        .satellite-name {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-purple);
-            margin-bottom: 1rem;
-        }
-
-        .satellite-description {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: var(--text-secondary-dark);
-            margin-bottom: 2rem;
-        }
-
-        body.light-mode .satellite-description {
-            color: var(--text-secondary-light);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .info-item {
-            background-color: var(--dark-tertiary);
-            padding: 1.5rem;
-            border-radius: 10px;
-            border-left: 4px solid var(--primary-purple);
-        }
-
-        body.light-mode .info-item {
-            background-color: var(--light-tertiary);
-        }
-
-        .info-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary-dark);
-            margin-bottom: 0.5rem;
+        #liveDot {
+            display: flex; align-items: center; gap: 6px;
+            padding: 0 16px; font-size: 0.58rem; font-weight: 800;
+            color: var(--green); letter-spacing: 1px;
+            border-right: 1px solid var(--border); flex-shrink: 0;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+        }
+        .dot-pulse {
+            width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.3; transform: scale(0.6); }
         }
 
-        body.light-mode .info-label {
-            color: var(--text-secondary-light);
+        .live-cell {
+            flex: 1; min-width: 90px;
+            padding: 10px 12px; text-align: center;
+            border-right: 1px solid var(--border);
+        }
+        .live-cell:last-child { border-right: none; }
+        .live-lbl {
+            font-size: 0.56rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.9px; margin-bottom: 3px;
+        }
+        .live-val {
+            font-size: 0.9rem; font-weight: 800; color: var(--purple);
+            font-variant-numeric: tabular-nums; white-space: nowrap;
         }
 
-        .info-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-primary-dark);
+        /* ── CONTENT ────────────────────────────────────────── */
+        #content {
+            max-width: 1100px; margin: 0 auto;
+            padding: 20px 16px 80px;
         }
 
-        body.light-mode .info-value {
-            color: var(--text-primary-light);
+        .section-gap { margin-bottom: 14px; }
+
+        /* ── GRID ── */
+        .dual-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 14px; margin-bottom: 14px;
+        }
+        @media (max-width: 720px) { .dual-grid { grid-template-columns: 1fr; } }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 18px;
         }
 
-        .loading {
-            text-align: center;
-            padding: 4rem 2rem;
+        .card-label {
+            font-size: 0.58rem; font-weight: 800; color: var(--purple);
+            text-transform: uppercase; letter-spacing: 1.2px;
+            margin-bottom: 14px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card-label::after {
+            content: ''; flex: 1; height: 1px;
+            background: rgba(156,39,176,0.15);
         }
 
+        /* ── MAP ── */
+        #miniMap {
+            height: 240px; border-radius: 10px; overflow: hidden;
+            background: #080810;
+        }
+
+        /* ── INFO ROWS ── */
+        .info-row {
+            display: flex; justify-content: space-between;
+            align-items: flex-start; gap: 12px;
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .row-k {
+            font-size: 0.68rem; color: var(--muted); flex-shrink: 0;
+            padding-top: 1px; white-space: nowrap;
+        }
+        .row-v {
+            font-size: 0.8rem; font-weight: 600;
+            color: rgba(255,255,255,0.82); text-align: right;
+            word-break: break-word;
+        }
+        .row-v.purple { color: var(--purple); }
+        .row-v.muted  { color: var(--muted); font-weight: 400; }
+
+        /* ── ORBITAL GRID ── */
+        .orbit-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        @media (max-width: 480px) { .orbit-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        .orbit-cell {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px; padding: 14px 8px; text-align: center;
+            transition: border-color 0.2s;
+        }
+        .orbit-cell:hover { border-color: rgba(156,39,176,0.3); }
+        .orbit-val {
+            font-size: 1.2rem; font-weight: 900; color: var(--purple);
+            line-height: 1; margin-bottom: 5px;
+            font-variant-numeric: tabular-nums;
+        }
+        .orbit-key {
+            font-size: 0.58rem; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+
+        /* ── CONSTELLATION NOTICE ── */
+        #constellNotice {
+            display: none;
+            background: rgba(156,39,176,0.06);
+            border: 1px solid var(--border2);
+            border-radius: 10px; padding: 14px 16px;
+            font-size: 0.79rem; color: var(--muted);
+            margin-bottom: 14px; line-height: 1.6;
+        }
+
+        /* ── FOOTER CREDITS ── */
+        #dataBadge {
+            display: none; text-align: center; margin-top: 20px;
+            font-size: 0.62rem; color: rgba(255,255,255,0.18);
+            line-height: 1.8;
+        }
+        #dataBadge a { color: rgba(77,166,255,0.35); text-decoration: none; }
+        #dataBadge a:hover { color: #4da6ff; }
+
+        /* ── LOADING ── */
+        #loadingOverlay {
+            position: fixed; inset: 0; z-index: 2000; background: var(--bg);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 16px;
+        }
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--dark-tertiary);
-            border-left: 4px solid var(--primary-purple);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            width: 32px; height: 32px;
+            border: 3px solid rgba(156,39,176,0.12);
+            border-left: 3px solid var(--purple);
+            border-radius: 50%; animation: spin 0.85s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loadingText {
+            font-size: 0.8rem; color: var(--muted); letter-spacing: 0.3px;
+        }
+        #loadingLogo {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+        }
+        #loadingLogo img {
+            width: 36px; height: 36px; border-radius: 50%;
+            box-shadow: 0 0 14px rgba(156,39,176,0.5);
+        }
+        #loadingLogo span {
+            font-size: 1rem; font-weight: 800; color: var(--purple);
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+        /* ── NOT FOUND ── */
+        #notFoundMsg {
+            display: none; text-align: center;
+            padding: 80px 20px; margin-top: var(--bar);
+        }
+        #notFoundMsg .nf-icon {
+            width: 56px; height: 56px; margin: 0 auto 18px;
+            opacity: 0.3;
+        }
+        #notFoundMsg h2 {
+            font-size: 1.1rem; font-weight: 700;
+            color: rgba(255,255,255,0.4); margin-bottom: 8px;
+        }
+        #notFoundMsg p {
+            font-size: 0.8rem; color: var(--muted); margin-bottom: 20px;
+        }
+        #notFoundMsg a {
+            display: inline-block; color: var(--purple);
+            font-size: 0.82rem; text-decoration: none;
+            border: 1px solid var(--border2);
+            padding: 8px 18px; border-radius: 20px;
+            background: var(--purple-lo);
         }
 
-        .error {
-            text-align: center;
-            padding: 4rem 2rem;
-            color: #ff6b6b;
+        /* ── RESPONSIVE ── */
+        @media (max-width: 560px) {
+            #heroImgWrap { width: 66px; height: 66px; }
+            #heroName { font-size: 1.3rem; }
+            .bar-logo-text { display: none; }
+            .bar-sep { display: none; }
+            .live-cell { min-width: 74px; padding: 8px; }
+            .live-val { font-size: 0.8rem; }
+            #hero { padding: 18px 14px 0; gap: 14px; }
+            .card { padding: 14px; }
         }
 
-        .error-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
+        @media (max-width: 400px) {
+    #passesBtn { display: none; }
+}
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-
-            .nav-links {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .container {
-                padding: 1rem;
-            }
-
-            .satellite-header {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .satellite-image {
-                width: 150px;
-                height: 150px;
-            }
-
-            .satellite-name {
-                font-size: 2rem;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+@media (max-width: 560px) {
+    .live-val { font-size: 0.72rem; }
+    .live-lbl { font-size: 0.5rem; }
+    .live-cell { min-width: 64px; padding: 7px 6px; }
+    #liveDot { padding: 0 10px; font-size: 0.52rem; }
+}
     </style>
 </head>
-
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="logo-section">
-            <div class="logo">
-                <img src="images/logo.png" alt="SatFleet Live Logo"
-                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
-            </div>
-            <h1 class="title">SatFleet Live</h1>
-        </div>
 
-        <div class="nav-links">
-            <div>© 2026 SatFleetLive</div>
-            <div>
-                <span>Source:</span> <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> | <a href="https://www.wikidata.org" target="_blank">Wikidata</a>
-                | <a href="mailto:jaime.automatiza@gmail.com">Contact</a>
-                | <a href="privacy-policy.html" target="_blank">Privacy Policy</a>
-            </div>
-        </div>
-
-        <button class="theme-toggle" onclick="toggleTheme()"> Theme</button>
+<!-- Loading -->
+<div id="loadingOverlay">
+    <div id="loadingLogo">
+        <img src="images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+        <span>SatFleet Live</span>
     </div>
+    <div class="spinner"></div>
+    <div id="loadingText">Loading satellite data…</div>
+</div>
 
-    <!-- Main Content -->
-    <div class="container">
-        <button class="back-button" onclick="goBack()">
-            ← Back to Map
-        </button>
+<!-- Top bar -->
+<div id="topBar">
+    <a class="bar-logo" href="index.html">
+        <img src="images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+        <span class="bar-logo-text">SatFleet Live</span>
+    </a>
+    <div class="bar-sep"></div>
+    <div id="topName">—</div>
+    <a id="backBtn" class="top-btn" href="index.html">Back to Map</a>
+    <button id="passesBtn" class="top-btn" onclick="goToPasses()">Next Passes</button>
+</div>
 
-        <div id="loadingState" class="loading">
-            <div class="spinner"></div>
-            <p>Loading satellite information...</p>
-        </div>
-
-        <div id="errorState" class="error" style="display: none;">
-            <div class="error-icon">⚠️</div>
-            <h2>Satellite Not Found</h2>
-            <p>The requested satellite information could not be found.</p>
-        </div>
-
-        <div id="satelliteContent" style="display: none;">
-            <div class="satellite-card">
-                <div class="satellite-header">
-                    <div class="satellite-image" id="satelliteImage">
-                        🛰️
-                    </div>
-                    <div class="satellite-info">
-                        <h1 class="satellite-name" id="satelliteName">Loading...</h1>
-                        <p class="satellite-description" id="satelliteDescription">Loading satellite information...</p>
-                    </div>
-                </div>
-
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">Launch Date</div>
-                        <div class="info-value" id="launchDate">Loading...</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Launch Site</div>
-                        <div class="info-value" id="launchSite">Loading...</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Operational Lifetime</div>
-                        <div class="info-value" id="lifetime">Loading...</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">NORAD ID</div>
-                        <div class="info-value" id="noradId">Loading...</div>
-                    </div>
-                </div>
-            </div>
+<!-- Hero -->
+<div id="hero">
+    <div id="heroImgWrap">
+        <!-- Default SVG icon (no emoji) -->
+        <svg class="sat-icon-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="18" y="20" width="12" height="8" rx="2" stroke="#9c27b0" stroke-width="1.8" fill="none"/>
+            <line x1="4" y1="24" x2="18" y2="24" stroke="#9c27b0" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="30" y1="24" x2="44" y2="24" stroke="#9c27b0" stroke-width="1.8" stroke-linecap="round"/>
+            <rect x="2" y="21" width="6" height="6" rx="1" stroke="#9c27b0" stroke-width="1.5" fill="none"/>
+            <rect x="40" y="21" width="6" height="6" rx="1" stroke="#9c27b0" stroke-width="1.5" fill="none"/>
+            <circle cx="24" cy="24" r="2" fill="#9c27b0" opacity="0.7"/>
+        </svg>
+        <img id="heroImg" src="" alt="">
+    </div>
+    <div id="heroText">
+        <div id="heroType">Satellite</div>
+        <div id="heroName">—</div>
+        <div id="heroDesc"></div>
+        <div id="heroMeta">
+            <span class="hero-tag" id="heroNoradTag"></span>
         </div>
     </div>
+</div>
 
-    <script>
-        // Theme management
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+<!-- Live strip -->
+<div id="liveStrip">
+    <div id="liveDot"><div class="dot-pulse"></div>Live</div>
+    <div class="live-cell"><div class="live-lbl">Altitude</div><div class="live-val" id="liveAlt">—</div></div>
+    <div class="live-cell"><div class="live-lbl">Velocity</div><div class="live-val" id="liveVel">—</div></div>
+    <div class="live-cell"><div class="live-lbl">Latitude</div><div class="live-val" id="liveLat">—</div></div>
+    <div class="live-cell"><div class="live-lbl">Longitude</div><div class="live-val" id="liveLng">—</div></div>
+</div>
+
+<!-- Content -->
+<div id="content">
+
+    <!-- Not found -->
+    <div id="notFoundMsg">
+        <svg class="nf-icon" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="28" cy="28" r="26" stroke="white" stroke-width="2"/>
+            <line x1="14" y1="14" x2="42" y2="42" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h2>Satellite not found</h2>
+        <p>No data was found for this NORAD ID.</p>
+        <a href="index.html">Back to map</a>
+    </div>
+
+    <!-- Main content -->
+    <div id="mainContent" style="display:none;">
+
+        <div id="constellNotice"></div>
+
+        <!-- Map + Info -->
+        <div class="dual-grid">
+            <div class="card">
+                <div class="card-label">Live Position</div>
+                <div id="miniMap"></div>
+            </div>
+            <div class="card">
+                <div class="card-label">Satellite Info</div>
+                <div id="infoRows">
+                    <div class="info-row"><span class="row-k">NORAD ID</span><span class="row-v purple" id="infoNorad">—</span></div>
+                    <div class="info-row"><span class="row-k">Launch Date</span><span class="row-v" id="infoLaunch">—</span></div>
+                    <div class="info-row"><span class="row-k">Operator</span><span class="row-v" id="infoOperator">—</span></div>
+                    <div class="info-row"><span class="row-k">Manufacturer</span><span class="row-v" id="infoManuf">—</span></div>
+                    <div class="info-row"><span class="row-k">Country</span><span class="row-v" id="infoCountry">—</span></div>
+                    <div class="info-row"><span class="row-k">Mass</span><span class="row-v" id="infoMass">—</span></div>
+                    <div class="info-row"><span class="row-k">Launch Vehicle</span><span class="row-v" id="infoVehicle">—</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orbital parameters -->
+        <div class="card section-gap">
+            <div class="card-label">Orbital Parameters</div>
+            <div class="orbit-grid">
+                <div class="orbit-cell"><div class="orbit-val" id="paramInc">—</div><div class="orbit-key">Inclination</div></div>
+                <div class="orbit-cell"><div class="orbit-val" id="paramPeriod">—</div><div class="orbit-key">Period</div></div>
+                <div class="orbit-cell"><div class="orbit-val" id="paramApogee">—</div><div class="orbit-key">Apogee</div></div>
+                <div class="orbit-cell"><div class="orbit-val" id="paramPerigee">—</div><div class="orbit-key">Perigee</div></div>
+                <div class="orbit-cell"><div class="orbit-val" id="paramEcc">—</div><div class="orbit-key">Eccentricity</div></div>
+                <div class="orbit-cell"><div class="orbit-val" id="paramRevs">—</div><div class="orbit-key">Rev / day</div></div>
+            </div>
+        </div>
+
+        <!-- Data credits -->
+        <div id="dataBadge">
+            Orbital data from <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a>
+            &nbsp;&middot;&nbsp;
+            Satellite info from <a href="https://www.wikidata.org" id="wikiLink" target="_blank" rel="noopener">Wikidata</a>
+            &nbsp;&middot;&nbsp;
+            <a href="https://satfleetlive.com" rel="noopener">SatFleet Live</a>
+        </div>
+
+    </div>
+</div>
+
+<script src="js/leaflet.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════════
+// SATELLITE DETAIL
+// ═══════════════════════════════════════════════════════════════
+
+const RAW_ID     = new URLSearchParams(location.search).get('id') || '';
+const IS_NUMERIC = /^\d+$/.test(RAW_ID);
+let satrec       = null;
+let miniMap      = null;
+let satMarker    = null;
+let liveTimer    = null;
+
+// ── Navigate to next-passes ───────────────────────────────────
+function goToPasses() {
+    if (IS_NUMERIC) sessionStorage.setItem('selectedSatelliteNoradId', RAW_ID);
+    window.location.href = 'next-passes.html';
+}
+
+// ── Satellite type label ──────────────────────────────────────
+function getSatType(name) {
+    const n = (name || '').toLowerCase();
+    if (n.includes('iss') || n.includes('space station') || n.includes('zarya') || n.includes('tiangong')) return 'Space Station';
+    if (n.includes('hubble') || n.includes('telescope')) return 'Space Telescope';
+    if (n.includes('starlink')) return 'Starlink Constellation';
+    if (n.includes('oneweb'))   return 'OneWeb Constellation';
+    if (n.includes('gps') || n.includes('navstar') || n.includes('galileo') || n.includes('glonass') || n.includes('beidou')) return 'Navigation Satellite';
+    if (n.includes('noaa') || n.includes('goes') || n.includes('metop') || n.includes('weather')) return 'Weather Satellite';
+    if (n.includes('intelsat') || n.includes('eutelsat') || n.includes('ses-') || n.includes('iridium') || n.includes('globalstar')) return 'Communications Satellite';
+    if (n.includes('landsat') || n.includes('sentinel') || n.includes('worldview')) return 'Earth Observation Satellite';
+    if (n.includes('yaogan') || n.includes('cosmos') || n.includes('nrol') || n.includes('usa-')) return 'Military Satellite';
+    return 'Satellite';
+}
+
+// ── Orbital parameters from satrec ───────────────────────────
+function calcOrbitalParams(sr) {
+    const mu     = 398600.4418;
+    const n_s    = sr.no / 60;
+    const a      = Math.pow(mu / (n_s * n_s), 1 / 3);
+    const ecc    = sr.ecco;
+    const inc    = sr.inclo * (180 / Math.PI);
+    const period = (2 * Math.PI / sr.no);
+    const apogee  = Math.max(0, a * (1 + ecc) - 6371);
+    const perigee = Math.max(0, a * (1 - ecc) - 6371);
+    const revDay  = 1440 / period;
+    return { inc, period, apogee, perigee, ecc, revDay };
+}
+
+// ── Live updates ──────────────────────────────────────────────
+function updateLive() {
+    if (!satrec) return;
+    const now = new Date();
+    let pv;
+    try { pv = satellite.propagate(satrec, now); } catch(e) { return; }
+    if (!pv || !pv.position) return;
+
+    const gmst = satellite.gstime(now);
+    const geo  = satellite.eciToGeodetic(pv.position, gmst);
+    const lat  = satellite.degreesLat(geo.latitude);
+    const lng  = satellite.degreesLong(geo.longitude);
+    const alt  = geo.height;
+    const vel  = Math.sqrt(pv.velocity.x**2 + pv.velocity.y**2 + pv.velocity.z**2) * 3600;
+
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    document.getElementById('liveAlt').textContent = Math.round(alt).toLocaleString() + ' km';
+    document.getElementById('liveVel').textContent = Math.round(vel).toLocaleString() + ' km/h';
+    document.getElementById('liveLat').textContent = lat.toFixed(3) + '\u00b0';
+    document.getElementById('liveLng').textContent = lng.toFixed(3) + '\u00b0';
+
+    if (satMarker) satMarker.setLatLng([lat, lng]);
+}
+
+// ── Mini Leaflet map ──────────────────────────────────────────
+function initMiniMap(lat, lng) {
+    miniMap = L.map('miniMap', {
+        zoomControl: false, attributionControl: false,
+        dragging: true, scrollWheelZoom: false
+    }).setView([lat, lng], 2);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        subdomains: 'abcd', maxZoom: 10
+    }).addTo(miniMap);
+
+    const satIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:10px;height:10px;border-radius:50%;background:#9c27b0;border:2px solid #fff;box-shadow:0 0 10px rgba(156,39,176,0.9);"></div>',
+        iconSize: [10,10], iconAnchor: [5,5]
+    });
+    satMarker = L.marker([lat, lng], { icon: satIcon }).addTo(miniMap);
+
+    if (!satrec) return;
+    const pts = [];
+    const now = new Date();
+    for (let i = 0; i <= 95; i++) {
+        const t = new Date(now.getTime() + i * 60 * 1000);
+        try {
+            const pv = satellite.propagate(satrec, t);
+            if (!pv || !pv.position) continue;
+            const gmst = satellite.gstime(t);
+            const geo  = satellite.eciToGeodetic(pv.position, gmst);
+            const la   = satellite.degreesLat(geo.latitude);
+            const lo   = satellite.degreesLong(geo.longitude);
+            if (!isNaN(la) && !isNaN(lo)) pts.push([la, lo]);
+        } catch(e) {}
+    }
+    if (pts.length > 2) {
+        L.polyline(pts, { color: '#9c27b0', weight: 1.5, opacity: 0.5, dashArray: '4,8' }).addTo(miniMap);
+    }
+}
+
+// ── Set element text safely ───────────────────────────────────
+function set(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (val) {
+        el.textContent = val;
+        el.classList.remove('muted');
+    } else {
+        el.textContent = '—';
+        el.classList.add('muted');
+    }
+}
+
+// ── Inject JSON-LD for SEO ─────────────────────────────────────
+function injectJsonLd(data) {
+    const schema = {
+        '@context': 'https://schema.org',
+        '@type': 'Thing',
+        'name': data.name,
+        'description': data.description || 'Live orbital tracking data for ' + data.name,
+        'url': 'https://satfleetlive.com/satellite-detail.html?id=' + RAW_ID,
+        'image': 'https://satfleetlive.com/images/logo.png',
+        'identifier': {
+            '@type': 'PropertyValue',
+            'name': 'NORAD Catalog Number',
+            'value': RAW_ID
+        },
+        'isPartOf': {
+            '@type': 'WebSite',
+            'name': 'SatFleet Live',
+            'url': 'https://satfleetlive.com'
+        }
+    };
+    if (data.operator) schema['accountablePerson'] = { '@type': 'Organization', 'name': data.operator };
+    if (data.country)  schema['locationCreated']   = { '@type': 'Country', 'name': data.country };
+    if (data.launchDate) schema['dateCreated'] = data.launchDate;
+    document.getElementById('jsonLd').textContent = JSON.stringify(schema);
+}
+
+// ── Update meta tags for SEO ───────────────────────────────────
+function updateMeta(name, description, noradId) {
+    document.title = name + ' – SatFleet Live';
+    const url = 'https://satfleetlive.com/satellite-detail.html?id=' + RAW_ID;
+    const desc = description || 'Live position, speed and orbital data for ' + name + ' (NORAD ' + noradId + ') – SatFleet Live real-time satellite tracking.';
+
+    document.querySelector('meta[name="description"]').setAttribute('content', desc);
+    document.querySelector('link[rel="canonical"]').setAttribute('href', url);
+
+    const setOg = (prop, val) => {
+        let el = document.querySelector('meta[property="' + prop + '"]');
+        if (!el) { el = document.createElement('meta'); el.setAttribute('property', prop); document.head.appendChild(el); }
+        el.setAttribute('content', val);
+    };
+    const setTw = (name, val) => {
+        let el = document.querySelector('meta[name="' + name + '"]');
+        if (!el) { el = document.createElement('meta'); el.setAttribute('name', name); document.head.appendChild(el); }
+        el.setAttribute('content', val);
+    };
+
+    setOg('og:title', name + ' – SatFleet Live');
+    setOg('og:description', desc);
+    setOg('og:url', url);
+    setTw('twitter:title', name + ' – SatFleet Live');
+    setTw('twitter:description', desc);
+}
+
+// ── MAIN ──────────────────────────────────────────────────────
+async function init() {
+    if (!RAW_ID || !IS_NUMERIC) {
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('notFoundMsg').style.display   = 'block';
+        document.getElementById('hero').style.display          = 'none';
+        document.getElementById('liveStrip').style.display     = 'none';
+        return;
+    }
+
+    document.getElementById('loadingText').textContent = 'Fetching orbital data…';
+
+    try {
+        // Fetch TLE + Wikidata in parallel
+        // The worker caches Wikidata in KV for 24 hours, so even 100k daily users
+        // generate at most one Wikidata request per satellite per day.
+        // Reintentos automáticos para el TLE (CelesTrak a veces tarda)
+        async function fetchTleWithRetry(noradId) {
+            const res = await fetch('https://worker.satfleetlive.com/api/tle/' + noradId);
+            if (!res.ok) throw new Error('JSON not found');
+            const data = await res.json();
+            if (!data || data.length === 0) throw new Error('Satellite not found');
+            return data[0];
         }
 
-        // Load saved theme
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.body.classList.add('light-mode');
-            }
+        const [tleText, info] = await Promise.all([
+            fetchTleWithRetry(RAW_ID),
+            fetch('https://worker.satfleetlive.com/api/satellite/' + RAW_ID)
+                .then(r => r.ok ? r.json() : {})
+                .catch(() => ({})),
+        ]);
+
+        // Parse JSON GP
+        const obj = tleText; // ahora es el objeto JSON directamente
+        satrec = satellite.json2satrec(obj);
+        const tleName = obj.OBJECT_NAME;
+        const satName = (info.name && info.name !== tleName) ? info.name : tleName;
+        const satType = getSatType(satName);
+        // Descripciones locales de respaldo para satélites famosos
+        const KNOWN_SATS = {
+            '25544': { desc: 'The International Space Station (ISS) is a multinational collaborative project and the largest human-made structure in low Earth orbit. Orbiting at ~400 km altitude at 7.66 km/s, it completes 15.5 orbits per day. It has been continuously inhabited since November 2000, hosting over 270 people from 20 countries. The station serves as a microgravity and space environment research laboratory where crew members conduct experiments in biology, human biology, physics, astronomy, meteorology and other fields.', type: 'Space Station' },
+            '20580': { desc: 'The Hubble Space Telescope (HST) is a space telescope that was launched into low Earth orbit in 1990 and remains in operation. With a 2.4-metre mirror, Hubble has been one of NASA\'s most successful and long-lasting science missions, producing over 1.5 million observations and contributing to over 20,000 scientific papers. It has helped determine the rate of expansion of the universe, the age of the universe and the existence of dark energy.', type: 'Space Telescope' },
+            '48274': { desc: 'China\'s Tiangong Space Station is a large modular space station in low Earth orbit operated by the China National Space Administration (CNSA). Construction began in 2021 and the station reached full configuration in 2022 with the Mengtian and Wentian laboratory modules. It supports a rotating crew of three taikonauts and is designed for a lifespan of at least 15 years.', type: 'Space Station' },
+            '43657': { desc: 'NOAA-20 (JPSS-1) is the first of four next-generation operational environmental satellites in the Joint Polar Satellite System (JPSS) constellation. It provides global coverage every 12 hours and gathers data for weather forecasting, climate monitoring and environmental applications including sea ice and ozone monitoring.', type: 'Weather Satellite' },
+        };
+
+        const knownData = KNOWN_SATS[RAW_ID];
+        const desc = info.description || knownData?.desc || '';
+        if (knownData?.type && !info.description) {
+            // override type label if we have local knowledge
         }
 
-        // Go back to main map
-        function goBack() {
-            window.location.href = 'index.html';
+        // ── Hero ──
+        document.getElementById('topName').textContent    = satName;
+        document.getElementById('heroName').textContent   = satName;
+        document.getElementById('heroType').textContent   = satType;
+        document.getElementById('heroNoradTag').textContent = 'NORAD ' + RAW_ID;
+        const descEl = document.getElementById('heroDesc');
+        if (desc) {
+            descEl.textContent = desc;
+            descEl.title = 'Tap to expand';
+            descEl.addEventListener('click', () => descEl.classList.toggle('expanded'));
+        } else {
+            descEl.textContent = 'No description available for this satellite. Orbital parameters and live tracking data are shown below.';
+            descEl.style.opacity = '0.4';
         }
 
-        // Get URL parameters
-        function getUrlParameter(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
+        if (info.image) {
+            const img = document.getElementById('heroImg');
+            img.src = info.image;
+            img.style.display = 'block';
+            img.onload = () => {
+                const wrap = document.getElementById('heroImgWrap');
+                wrap.innerHTML = '';
+                wrap.appendChild(img);
+            };
         }
 
-        // Load satellite information
-        async function loadSatelliteInfo() {
-            const noradId = getUrlParameter('id');
-            
-            if (!noradId) {
-                showError();
-                return;
-            }
+        // ── Info rows ──
+        set('infoNorad',    RAW_ID);
+        set('infoLaunch',   info.launchDate);
+        set('infoOperator', info.operator);
+        set('infoManuf',    info.manufacturer);
+        set('infoCountry',  info.country);
+        set('infoMass',     info.mass);
+        set('infoVehicle',  info.launchVehicle);
 
-            try {
-                const response = await fetch('tle/sat_info.json');
-                const satelliteData = await response.json();
-                
-                const satellite = satelliteData[noradId];
-                
-                if (!satellite) {
-                    showError();
-                    return;
-                }
+        // ── Orbital params ──
+        const p = calcOrbitalParams(satrec);
+        document.getElementById('paramInc').textContent     = p.inc.toFixed(2) + '\u00b0';
+        document.getElementById('paramPeriod').textContent  = Math.round(p.period) + ' min';
+        document.getElementById('paramApogee').textContent  = Math.round(p.apogee).toLocaleString() + ' km';
+        document.getElementById('paramPerigee').textContent = Math.round(p.perigee).toLocaleString() + ' km';
+        document.getElementById('paramEcc').textContent     = p.ecc.toFixed(5);
+        document.getElementById('paramRevs').textContent    = p.revDay.toFixed(2);
 
-                displaySatelliteInfo(satellite, noradId);
-            } catch (error) {
-                console.error('Error loading satellite data:', error);
-                showError();
-            }
+        // ── Data credits ──
+        document.getElementById('dataBadge').style.display = 'block';
+        
+        if (info.wikipediaUrl) {
+            // Si trajimos los datos de Wikipedia, damos el crédito ahí
+            document.getElementById('wikiLink').href = info.wikipediaUrl;
+            document.getElementById('wikiLink').textContent = 'Wikipedia';
+        } else if (info.wikidataUrl) {
+            // Si Wikipedia falló o no tiene artículo, dejamos Wikidata
+            document.getElementById('wikiLink').href = info.wikidataUrl;
+            document.getElementById('wikiLink').textContent = 'Wikidata';
         }
 
-        // Display satellite information
-        function displaySatelliteInfo(satellite, noradId) {
-            document.getElementById('satelliteName').textContent = satellite.name;
-            document.getElementById('satelliteDescription').textContent = satellite.description || 'No description available.';
-            document.getElementById('launchDate').textContent = satellite.launch_date || 'Unknown';
-            document.getElementById('launchSite').textContent = satellite.launch_site || 'Unknown';
-            document.getElementById('lifetime').textContent = satellite.lifetime || 'Unknown';
-            document.getElementById('noradId').textContent = noradId;
-
-            // Handle satellite image
-            const imageElement = document.getElementById('satelliteImage');
-            if (satellite.image) {
-                imageElement.innerHTML = `<img src="${satellite.image}" alt="${satellite.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px;" onerror="this.parentElement.innerHTML='<img src=\\'images/logo.png\\' alt=\\'SatFleet Live Logo\\' style=\\'width: 100%; height: 100%; object-fit: contain; border-radius: 10px;\\'>'">`;
-            } else {
-                imageElement.innerHTML = '<img src="images/logo.png" alt="SatFleet Live Logo" style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px;">';
-            }
-
-            // Update page title
-            document.title = `${satellite.name} - SatFleet Live`;
-
-            // Hide loading and show content
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('satelliteContent').style.display = 'block';
-        }
-
-        // Show error state
-        function showError() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('errorState').style.display = 'block';
-        }
-
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTheme();
-            loadSatelliteInfo();
+        // ── SEO ──
+        updateMeta(satName, desc || null, RAW_ID);
+        injectJsonLd({
+            name: satName, description: desc,
+            operator: info.operator, country: info.country,
+            launchDate: info.launchDate
         });
-    </script>
-</body>
 
+        // ── Initial position ──
+        let initLat = 0, initLng = 0;
+        try {
+            const pv0 = satellite.propagate(satrec, new Date());
+            if (pv0 && pv0.position) {
+                const gmst = satellite.gstime(new Date());
+                const geo  = satellite.eciToGeodetic(pv0.position, gmst);
+                initLat = satellite.degreesLat(geo.latitude);
+                initLng = satellite.degreesLong(geo.longitude);
+            }
+        } catch(e) {}
+
+        // ── Show ──
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('mainContent').style.display   = 'block';
+
+        setTimeout(() => {
+            initMiniMap(initLat, initLng);
+            miniMap.invalidateSize();
+        }, 80);
+
+        updateLive();
+        liveTimer = setInterval(updateLive, 1000);
+
+    } catch(err) {
+        console.error('Satellite detail error:', err);
+        document.getElementById('loadingOverlay').style.display = 'none';
+        document.getElementById('notFoundMsg').style.display   = 'block';
+        document.getElementById('hero').style.display          = 'none';
+        document.getElementById('liveStrip').style.display     = 'none';
+    }
+}
+
+window.addEventListener('beforeunload', () => { if (liveTimer) clearInterval(liveTimer); });
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
 </html>
