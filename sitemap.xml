@@ -126,4 +126,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
 </url>
+<url>
+    <loc>https://satfleetlive.com/blogs/what-is-satfleet-live/</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+  <loc>https://satfleetlive.com/blogs/how-to-use-ar-to-spot-satellites/</loc>
+  <lastmod>2026-04-01</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
 </urlset>

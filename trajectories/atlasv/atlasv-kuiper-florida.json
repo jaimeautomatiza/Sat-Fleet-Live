@@ -1,0 +1,647 @@
+{
+  "profileId": "atlasv-kuiper-slc41-florida-v1",
+  "version": 1,
+  "vehicle": "Atlas V 551",
+  "missionFamily": "Atlas V 551 – SLC-41 Cape Canaveral, Amazon Kuiper LEO",
+  "description": "Perfil de trayectoria para ULA Atlas V 551 desde SLC-41 (Cape Canaveral Space Force Station, Florida) cargando satélites Amazon Project Kuiper a LEO. Configuración 551: 5 SRBs + Common Core Booster RD-180 + Centaur superior. Los 5 SRBs se separan juntos (~t=101s); solo se traza el SRB 1 como representativo. Ninguna pieza se recupera — todos los componentes caen balísticamente al Atlántico.",
+  "launchSite": {
+    "name": "SLC-41",
+    "locationName": "Cape Canaveral Space Force Station, Florida, USA",
+    "lat": 28.583471,
+    "lon": -80.582837,
+    "confidence": "calibrated — derivado del origen CSV CCB t=0.01"
+  },
+  "matchingHints": {
+    "launchServiceProvider": [
+      "ULA",
+      "United Launch Alliance"
+    ],
+    "rocketFamily": [
+      "Atlas",
+      "Atlas V"
+    ],
+    "rocketNameContains": [
+      "Atlas V"
+    ],
+    "missionTypeContains": [
+      "Communications",
+      "Amazon",
+      "Kuiper",
+      "LEO"
+    ],
+    "orbitAbbrevIn": [
+      "LEO"
+    ],
+    "padLocationContains": [
+      "SLC-41",
+      "Cape Canaveral",
+      "Florida"
+    ]
+  },
+  "targetOrbit": {
+    "type": "Low Earth Orbit",
+    "orbitAbbrev": "LEO",
+    "inclinationDeg": 51.9,
+    "apoapsisKm": 483,
+    "periapsisKm": 480,
+    "confidence": "derivado de telemetría — Centaur SECO-1 a 482.6 km"
+  },
+  "guidance": {
+    "verticalRiseSeconds": 15,
+    "pitchStartSeconds": 15,
+    "azimuthDeg": 45,
+    "curveStrength": 0.55,
+    "downrangeBias": 0.5,
+    "confidence": "estimado para orbita LEO desde SLC-41"
+  },
+  "events": [
+    {
+      "id": "liftoff",
+      "t": 0,
+      "label": "Liftoff"
+    },
+    {
+      "id": "max_q",
+      "t": 90,
+      "label": "Max-Q"
+    },
+    {
+      "id": "srb_sep",
+      "t": 120,
+      "label": "SRB Jettison"
+    },
+    {
+      "id": "meco",
+      "t": 270,
+      "label": "MECO"
+    },
+    {
+      "id": "stage_sep",
+      "t": 270,
+      "label": "Stage Sep"
+    },
+    {
+      "id": "ses1",
+      "t": 270,
+      "label": "SES-1"
+    },
+    {
+      "id": "seco1",
+      "t": 770,
+      "label": "SECO-1"
+    }
+  ],
+  "recovery": {
+    "mode": "expendable",
+    "target": "Atlantic Ocean",
+    "landingZoneType": "ocean",
+    "estimatedDownrangeKm": 3400,
+    "confidence": "derivado de telemetria CCB (t=1000s, aprox 3400 km downrange al NE)",
+    "notes": "Atlas V 551 es completamente desechable. El CCB (RD-180) y el Centaur superior caen balisticamente al Atlantico Norte. Los 5 SRBs AJ-60A se separan en grupo a ~t=101s y ameran en el Atlantico a ~640 km del pad. Ninguna pieza es recuperada."
+  },
+  "anchorPoints": [
+    {
+      "t": 0,
+      "latOffsetDeg": 0.0,
+      "lonOffsetDeg": 0.0,
+      "altKm": 0.0,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 30,
+      "latOffsetDeg": 0.005,
+      "lonOffsetDeg": 0.006,
+      "altKm": 4.352,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 60,
+      "latOffsetDeg": 0.039,
+      "lonOffsetDeg": 0.044,
+      "altKm": 17.108,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 90,
+      "latOffsetDeg": 0.142,
+      "lonOffsetDeg": 0.16,
+      "altKm": 38.527,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 120,
+      "latOffsetDeg": 0.322,
+      "lonOffsetDeg": 0.365,
+      "altKm": 63.898,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 150,
+      "latOffsetDeg": 0.58,
+      "lonOffsetDeg": 0.659,
+      "altKm": 89.295,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 180,
+      "latOffsetDeg": 0.943,
+      "lonOffsetDeg": 1.078,
+      "altKm": 115.418,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 210,
+      "latOffsetDeg": 1.441,
+      "lonOffsetDeg": 1.661,
+      "altKm": 143.356,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 240,
+      "latOffsetDeg": 2.082,
+      "lonOffsetDeg": 2.423,
+      "altKm": 173.804,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 270,
+      "latOffsetDeg": 2.931,
+      "lonOffsetDeg": 3.45,
+      "altKm": 211.763,
+      "segment": "ascent_stage1",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 270,
+      "latOffsetDeg": 2.931,
+      "lonOffsetDeg": 3.45,
+      "altKm": 211.763,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 300,
+      "latOffsetDeg": 3.83,
+      "lonOffsetDeg": 4.568,
+      "altKm": 249.453,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 330,
+      "latOffsetDeg": 4.707,
+      "lonOffsetDeg": 5.698,
+      "altKm": 282.792,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 360,
+      "latOffsetDeg": 5.563,
+      "lonOffsetDeg": 6.84,
+      "altKm": 311.802,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 390,
+      "latOffsetDeg": 6.399,
+      "lonOffsetDeg": 7.998,
+      "altKm": 336.505,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 420,
+      "latOffsetDeg": 7.215,
+      "lonOffsetDeg": 9.174,
+      "altKm": 356.918,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 450,
+      "latOffsetDeg": 8.013,
+      "lonOffsetDeg": 10.368,
+      "altKm": 373.057,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 480,
+      "latOffsetDeg": 8.793,
+      "lonOffsetDeg": 11.584,
+      "altKm": 384.932,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 510,
+      "latOffsetDeg": 9.555,
+      "lonOffsetDeg": 12.824,
+      "altKm": 392.552,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 540,
+      "latOffsetDeg": 10.299,
+      "lonOffsetDeg": 14.09,
+      "altKm": 395.922,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 549,
+      "latOffsetDeg": 10.519,
+      "lonOffsetDeg": 14.476,
+      "altKm": 396.105,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 570,
+      "latOffsetDeg": 11.027,
+      "lonOffsetDeg": 15.385,
+      "altKm": 395.044,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 600,
+      "latOffsetDeg": 11.737,
+      "lonOffsetDeg": 16.711,
+      "altKm": 389.918,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 630,
+      "latOffsetDeg": 12.431,
+      "lonOffsetDeg": 18.07,
+      "altKm": 380.539,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 660,
+      "latOffsetDeg": 13.107,
+      "lonOffsetDeg": 19.465,
+      "altKm": 366.901,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 690,
+      "latOffsetDeg": 13.766,
+      "lonOffsetDeg": 20.9,
+      "altKm": 348.992,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 720,
+      "latOffsetDeg": 14.406,
+      "lonOffsetDeg": 22.376,
+      "altKm": 326.801,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 750,
+      "latOffsetDeg": 15.029,
+      "lonOffsetDeg": 23.897,
+      "altKm": 300.309,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 780,
+      "latOffsetDeg": 15.632,
+      "lonOffsetDeg": 25.467,
+      "altKm": 269.498,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 810,
+      "latOffsetDeg": 16.216,
+      "lonOffsetDeg": 27.088,
+      "altKm": 234.344,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 840,
+      "latOffsetDeg": 16.778,
+      "lonOffsetDeg": 28.765,
+      "altKm": 194.821,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 870,
+      "latOffsetDeg": 17.318,
+      "lonOffsetDeg": 30.5,
+      "altKm": 150.899,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 900,
+      "latOffsetDeg": 17.834,
+      "lonOffsetDeg": 32.298,
+      "altKm": 102.546,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 930,
+      "latOffsetDeg": 18.325,
+      "lonOffsetDeg": 34.16,
+      "altKm": 49.803,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 960,
+      "latOffsetDeg": 18.646,
+      "lonOffsetDeg": 35.48,
+      "altKm": 10.523,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 990,
+      "latOffsetDeg": 18.679,
+      "lonOffsetDeg": 35.623,
+      "altKm": 3.209,
+      "segment": "center_core_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 1005,
+      "latOffsetDeg": 18.690,
+      "lonOffsetDeg": 35.640,
+      "altKm": 0.0,
+      "segment": "center_core_entry",
+      "confidence": "estimated"
+    },
+    {
+      "t": 120,
+      "latOffsetDeg": 0.348,
+      "lonOffsetDeg": 0.395,
+      "altKm": 67.655,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 150,
+      "latOffsetDeg": 0.574,
+      "lonOffsetDeg": 0.653,
+      "altKm": 91.54,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 180,
+      "latOffsetDeg": 0.798,
+      "lonOffsetDeg": 0.911,
+      "altKm": 107.154,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 210,
+      "latOffsetDeg": 1.02,
+      "lonOffsetDeg": 1.17,
+      "altKm": 114.548,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 222,
+      "latOffsetDeg": 1.108,
+      "lonOffsetDeg": 1.273,
+      "altKm": 115.191,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 240,
+      "latOffsetDeg": 1.241,
+      "lonOffsetDeg": 1.429,
+      "altKm": 113.692,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 270,
+      "latOffsetDeg": 1.461,
+      "lonOffsetDeg": 1.691,
+      "altKm": 104.577,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 300,
+      "latOffsetDeg": 1.681,
+      "lonOffsetDeg": 1.956,
+      "altKm": 87.241,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 330,
+      "latOffsetDeg": 1.901,
+      "lonOffsetDeg": 2.225,
+      "altKm": 61.626,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 360,
+      "latOffsetDeg": 2.122,
+      "lonOffsetDeg": 2.499,
+      "altKm": 27.696,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 382,
+      "latOffsetDeg": 2.272,
+      "lonOffsetDeg": 2.688,
+      "altKm": 0.587,
+      "segment": "side_booster_entry",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 270,
+      "latOffsetDeg": 2.931,
+      "lonOffsetDeg": 3.45,
+      "altKm": 211.775,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 300,
+      "latOffsetDeg": 3.834,
+      "lonOffsetDeg": 4.572,
+      "altKm": 249.679,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 330,
+      "latOffsetDeg": 4.726,
+      "lonOffsetDeg": 5.721,
+      "altKm": 284.058,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 360,
+      "latOffsetDeg": 5.61,
+      "lonOffsetDeg": 6.9,
+      "altKm": 315.106,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 390,
+      "latOffsetDeg": 6.486,
+      "lonOffsetDeg": 8.111,
+      "altKm": 342.967,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 420,
+      "latOffsetDeg": 7.354,
+      "lonOffsetDeg": 9.357,
+      "altKm": 367.784,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 450,
+      "latOffsetDeg": 8.214,
+      "lonOffsetDeg": 10.642,
+      "altKm": 389.702,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 480,
+      "latOffsetDeg": 9.066,
+      "lonOffsetDeg": 11.968,
+      "altKm": 408.865,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 510,
+      "latOffsetDeg": 9.911,
+      "lonOffsetDeg": 13.338,
+      "altKm": 425.419,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 540,
+      "latOffsetDeg": 10.746,
+      "lonOffsetDeg": 14.756,
+      "altKm": 439.513,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 570,
+      "latOffsetDeg": 11.573,
+      "lonOffsetDeg": 16.225,
+      "altKm": 451.297,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 600,
+      "latOffsetDeg": 12.39,
+      "lonOffsetDeg": 17.748,
+      "altKm": 460.926,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 630,
+      "latOffsetDeg": 13.196,
+      "lonOffsetDeg": 19.329,
+      "altKm": 468.556,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 660,
+      "latOffsetDeg": 13.991,
+      "lonOffsetDeg": 20.972,
+      "altKm": 474.35,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 690,
+      "latOffsetDeg": 14.773,
+      "lonOffsetDeg": 22.679,
+      "altKm": 478.474,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 720,
+      "latOffsetDeg": 15.541,
+      "lonOffsetDeg": 24.456,
+      "altKm": 481.098,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 750,
+      "latOffsetDeg": 16.293,
+      "lonOffsetDeg": 26.306,
+      "altKm": 482.401,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    },
+    {
+      "t": 770,
+      "latOffsetDeg": 16.784,
+      "lonOffsetDeg": 27.581,
+      "altKm": 482.625,
+      "segment": "stage2_insertion",
+      "confidence": "calibrated"
+    }
+  ],
+  "notes": [
+    "Telemetria derivada de la mision Amazon LEO LA-06 (Atlas V 551, SLC-41, Cape Canaveral).",
+    "Origen de coordenadas: punto t=0.01 del CSV 'Common Core Booster' -> lat=28.5835N, lon=-80.5828E (SLC-41).",
+    "COMPONENTES TRAZADOS (3 piezas + Centaur):",
+    "  ascent_stage1      — Subida conjunta t=0..270s (linea naranja).",
+    "  center_core_entry  — CCB balistico tras MECO: apogeo t=549s a 396.1 km. Datos terminan a t=1000s con alt=1.19 km; amerizaje real ocurre poco despues (linea gris discontinua).",
+    "  side_booster_entry — SRB 1 representativo. Separacion real en t=101s; primer anchor t=120. Apogeo t=222s, 115.2 km. Ultimo dato t=382s, alt=0.587 km (linea verde solida).",
+    "  stage2_insertion   — Centaur desde SES-1 (t=270s) hasta SECO-1 (t=770s, alt=482.625 km) (linea morada).",
+    "EVENTOS:",
+    "  srb_sep  asignado a t=120 (separacion real t=101s, primer anchor 30s posterior).",
+    "  meco/stage_sep/ses1 asignados a t=270 (divergencia CCB vs Centaur comienza en t=280-290s; t=270 es el ultimo anchor donde diff<0.025 km).",
+    "  NOTA: srb_sep no esta en EVENT_IDS del renderizador — agregar al array si se quiere punto visual en el mapa.",
+    "SRBs 2-5 ignorados por instruccion (trayectorias practicamente identicas al SRB1).",
+    "Para misiones Kuiper desde Vandenberg o en inclinaciones diferentes, crear un perfil separado con el pad correcto."
+  ]
+}
