@@ -1,0 +1,208 @@
+{
+  "profileId": "gto-canaveral-asds-v1",
+  "version": 1,
+  "vehicle": "Falcon 9 Block 5",
+  "missionFamily": "GTO Commercial – ASDS Recovery",
+  "description": "Misión comercial GTO desde Cape Canaveral SLC-40. Trayectoria al este sobre el Atlántico. La primera etapa aterriza en ASDS (droneship) a ~660 km downrange (t=499s). La segunda etapa ejecuta una primera quema hasta parking orbit (~163.6 km, SECO-1 t=383s), planeo orbital de ~97 segundos y reencendido GTO (SES-2 t=480s) hasta SECO-2 (t=1000s, ~198 km). Anchorpoints derivados de telemetría real de Eutelsat-36D.",
+  "launchSite": {
+    "name": "SLC-40",
+    "locationName": "Cape Canaveral Space Force Station, Florida, USA",
+    "lat": 28.608,
+    "lon": -80.604,
+    "confidence": "confirmed"
+  },
+  "matchingHints": {
+    "launchServiceProvider": ["SpaceX"],
+    "rocketFamily": ["Falcon 9"],
+    "rocketNameContains": ["Falcon 9"],
+    "missionTypeContains": ["Communications", "Commercial Satellite", "Telecommunications", "Eutelsat", "Intelsat", "SES", "Arabsat", "Inmarsat", "Broadband", "ViaSat", "Viasat", "Hughes", "OneWeb", "Telesat"],
+    "orbitAbbrevIn": ["GTO", "GTO*", "SSO-GTO"],
+    "padLocationContains": ["Cape Canaveral", "Florida", "SLC-40", "Kennedy"]
+  },
+  "targetOrbit": {
+    "type": "Geostationary Transfer Orbit",
+    "orbitAbbrev": "GTO",
+    "inclinationDeg": 27.0,
+    "apoapsisKm": 35786,
+    "periapsisKm": 185,
+    "confidence": "calibrated"
+  },
+  "guidance": {
+    "verticalRiseSeconds": 10,
+    "pitchStartSeconds": 10,
+    "azimuthDeg": 90,
+    "curveStrength": 0.72,
+    "downrangeBias": 0.78,
+    "confidence": "calibrated"
+  },
+  "events": [
+    {
+      "id": "liftoff",
+      "label": "Liftoff",
+      "t": 0,
+      "altKm": 0.0,
+      "confidence": "confirmed",
+      "notes": "Ignición de los 9 motores Merlin 1D desde SLC-40."
+    },
+    {
+      "id": "max_q",
+      "label": "Max-Q",
+      "t": 60,
+      "altKm": 8.0,
+      "confidence": "calibrated",
+      "notes": "Paso por presión dinámica máxima. En misiones GTO el Max-Q real ocurre ~t=72-78s; se asigna al anchorPoint t=60 (el más cercano existente)."
+    },
+    {
+      "id": "meco",
+      "label": "MECO",
+      "t": 150,
+      "altKm": 62.6,
+      "confidence": "calibrated",
+      "notes": "Main Engine Cut-Off de la primera etapa. Separación de etapas a los ~2.5 minutos."
+    },
+    {
+      "id": "stage_sep",
+      "label": "Stage Separation",
+      "t": 150,
+      "altKm": 62.6,
+      "confidence": "calibrated",
+      "notes": "Separación de etapas. El booster inicia su trayectoria de retorno hacia el ASDS."
+    },
+    {
+      "id": "ses1",
+      "label": "SES-1",
+      "t": 150,
+      "altKm": 62.6,
+      "confidence": "calibrated",
+      "notes": "Primera ignición del Merlin Vacuum de la segunda etapa para inserción en órbita de estacionamiento."
+    },
+    {
+      "id": "fairing_sep",
+      "label": "Fairing Separation",
+      "t": 210,
+      "altKm": 109.8,
+      "confidence": "calibrated",
+      "notes": "Separación de las dos mitades del fairing payload a ~110 km de altitud."
+    },
+    {
+      "id": "entry_burn_start",
+      "label": "Entry Burn",
+      "t": 360,
+      "altKm": 73.9,
+      "confidence": "estimated",
+      "notes": "El booster enciende los motores centrales para la quema de entrada atmosférica y reducción de velocidad."
+    },
+    {
+      "id": "seco1",
+      "label": "SECO-1",
+      "t": 383,
+      "altKm": 163.6,
+      "confidence": "calibrated",
+      "notes": "Primer corte del Merlin Vacuum. La segunda etapa alcanza la órbita de estacionamiento (parking orbit) con apsis ~163.6 km. Inicio del coast phase orbital."
+    },
+    {
+      "id": "landing",
+      "label": "ASDS Landing",
+      "t": 499,
+      "altKm": 0.0,
+      "confidence": "calibrated",
+      "notes": "Aterrizaje del booster en ASDS posicionada ~660 km al este del pad, sobre el Atlántico."
+    },
+    {
+      "id": "ses2",
+      "label": "SES-2 (Relight GTO)",
+      "t": 480,
+      "altKm": 158.4,
+      "confidence": "calibrated",
+      "notes": "Segunda ignición del Merlin Vacuum para la quema de transferencia GTO. La altitud está en su mínimo orbital (~158.4 km) antes de que el reencendido eleve la trayectoria hacia el apogeo GEO."
+    },
+    {
+      "id": "seco2",
+      "label": "SECO-2",
+      "t": 1000,
+      "altKm": 198.2,
+      "confidence": "calibrated",
+      "notes": "Segundo y último corte del Merlin Vacuum. La segunda etapa ha completado la quema de transferencia GTO. El apogeo real (~35 786 km) se alcanzará horas después por inercia orbital."
+    },
+    {
+      "id": "deploy",
+      "label": "Payload Deploy",
+      "t": 1000,
+      "altKm": 198.2,
+      "confidence": "calibrated",
+      "notes": "Despliegue del satélite de comunicaciones. El CSV de telemetría termina en t=1000s, que se usa como punto de deploy. El apogeo GTO real no está representado en estos datos."
+    }
+  ],
+  "recovery": {
+    "mode": "ASDS",
+    "target": "Just Read the Instructions",
+    "landingZoneType": "drone_ship",
+    "estimatedDownrangeKm": 660,
+    "confidence": "calibrated",
+    "notes": "Las misiones GTO consumen demasiado propelente para RTLS. El ASDS se posiciona ~660 km al este del pad en el Atlántico. Las coordenadas de aterrizaje (latOff=-0.438, lonOff=6.325) equivalen a ~28.17°N, -74.28°E, posición consistente con el Atlántico Norte occidental."
+  },
+  "anchorPoints": [
+    { "t": 0,    "latOffsetDeg": 0.0,    "lonOffsetDeg": 0.0,    "altKm": 0.0,   "segment": "ascent_stage1",   "confidence": "calibrated" },
+    { "t": 30,   "latOffsetDeg": 0.0,    "lonOffsetDeg": 0.002,  "altKm": 1.8,   "segment": "ascent_stage1",   "confidence": "calibrated" },
+    { "t": 60,   "latOffsetDeg": -0.001, "lonOffsetDeg": 0.034,  "altKm": 8.0,   "segment": "ascent_stage1",   "confidence": "calibrated" },
+    { "t": 90,   "latOffsetDeg": -0.005, "lonOffsetDeg": 0.137,  "altKm": 19.0,  "segment": "ascent_stage1",   "confidence": "calibrated" },
+    { "t": 120,  "latOffsetDeg": -0.015, "lonOffsetDeg": 0.397,  "altKm": 37.1,  "segment": "ascent_stage1",   "confidence": "calibrated" },
+    { "t": 150,  "latOffsetDeg": -0.036, "lonOffsetDeg": 0.891,  "altKm": 62.6,  "segment": "ascent_stage1",   "confidence": "calibrated" },
+    { "t": 150,  "latOffsetDeg": -0.036, "lonOffsetDeg": 0.892,  "altKm": 62.6,  "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 180,  "latOffsetDeg": -0.066, "lonOffsetDeg": 1.519,  "altKm": 87.4,  "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 180,  "latOffsetDeg": -0.067, "lonOffsetDeg": 1.531,  "altKm": 88.2,  "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 210,  "latOffsetDeg": -0.101, "lonOffsetDeg": 2.141,  "altKm": 104.5, "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 210,  "latOffsetDeg": -0.106, "lonOffsetDeg": 2.228,  "altKm": 109.8, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 240,  "latOffsetDeg": -0.139, "lonOffsetDeg": 2.757,  "altKm": 113.8, "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 240,  "latOffsetDeg": -0.154, "lonOffsetDeg": 2.995,  "altKm": 127.6, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 261,  "latOffsetDeg": -0.168, "lonOffsetDeg": 3.187,  "altKm": 115.7, "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 270,  "latOffsetDeg": -0.181, "lonOffsetDeg": 3.372,  "altKm": 115.3, "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 270,  "latOffsetDeg": -0.214, "lonOffsetDeg": 3.844,  "altKm": 141.8, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 300,  "latOffsetDeg": -0.226, "lonOffsetDeg": 3.986,  "altKm": 109.2, "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 300,  "latOffsetDeg": -0.290, "lonOffsetDeg": 4.789,  "altKm": 152.3, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 330,  "latOffsetDeg": -0.276, "lonOffsetDeg": 4.602,  "altKm": 95.4,  "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 330,  "latOffsetDeg": -0.384, "lonOffsetDeg": 5.842,  "altKm": 159.2, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 360,  "latOffsetDeg": -0.330, "lonOffsetDeg": 5.221,  "altKm": 73.9,  "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 360,  "latOffsetDeg": -0.501, "lonOffsetDeg": 7.019,  "altKm": 162.9, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 383,  "latOffsetDeg": -0.610, "lonOffsetDeg": 8.018,  "altKm": 163.6, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 383,  "latOffsetDeg": -0.610, "lonOffsetDeg": 8.018,  "altKm": 163.6, "segment": "coast_arc",        "confidence": "calibrated" },
+    { "t": 390,  "latOffsetDeg": -0.379, "lonOffsetDeg": 5.738,  "altKm": 49.7,  "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 420,  "latOffsetDeg": -0.405, "lonOffsetDeg": 6.001,  "altKm": 30.7,  "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 450,  "latOffsetDeg": -0.427, "lonOffsetDeg": 6.219,  "altKm": 9.6,   "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 480,  "latOffsetDeg": -0.436, "lonOffsetDeg": 6.309,  "altKm": 2.0,   "segment": "booster_entry",    "confidence": "calibrated" },
+    { "t": 480,  "latOffsetDeg": -1.362, "lonOffsetDeg": 13.487, "altKm": 158.4, "segment": "coast_arc",        "confidence": "calibrated" },
+    { "t": 499,  "latOffsetDeg": -0.438, "lonOffsetDeg": 6.325,  "altKm": 0.0,   "segment": "booster_landing",  "confidence": "calibrated" },
+    { "t": 510,  "latOffsetDeg": -1.729, "lonOffsetDeg": 15.640, "altKm": 159.7, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 540,  "latOffsetDeg": -2.134, "lonOffsetDeg": 17.786, "altKm": 161.2, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 570,  "latOffsetDeg": -2.574, "lonOffsetDeg": 19.913, "altKm": 162.8, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 600,  "latOffsetDeg": -3.048, "lonOffsetDeg": 22.022, "altKm": 164.6, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 630,  "latOffsetDeg": -3.557, "lonOffsetDeg": 24.112, "altKm": 166.4, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 660,  "latOffsetDeg": -4.097, "lonOffsetDeg": 26.182, "altKm": 168.4, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 690,  "latOffsetDeg": -4.669, "lonOffsetDeg": 28.231, "altKm": 170.5, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 720,  "latOffsetDeg": -5.270, "lonOffsetDeg": 30.259, "altKm": 172.7, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 750,  "latOffsetDeg": -5.901, "lonOffsetDeg": 32.266, "altKm": 175.0, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 780,  "latOffsetDeg": -6.559, "lonOffsetDeg": 34.252, "altKm": 177.4, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 810,  "latOffsetDeg": -7.244, "lonOffsetDeg": 36.216, "altKm": 180.0, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 840,  "latOffsetDeg": -7.954, "lonOffsetDeg": 38.159, "altKm": 182.6, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 870,  "latOffsetDeg": -8.687, "lonOffsetDeg": 40.080, "altKm": 185.3, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 900,  "latOffsetDeg": -9.444, "lonOffsetDeg": 41.981, "altKm": 188.1, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 930,  "latOffsetDeg": -10.221,"lonOffsetDeg": 43.862, "altKm": 191.0, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 960,  "latOffsetDeg": -11.019,"lonOffsetDeg": 45.723, "altKm": 194.0, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 990,  "latOffsetDeg": -11.836,"lonOffsetDeg": 47.564, "altKm": 197.1, "segment": "gto_burn",         "confidence": "calibrated" },
+    { "t": 1000, "latOffsetDeg": -12.113,"lonOffsetDeg": 48.173, "altKm": 198.2, "segment": "gto_insertion",    "confidence": "calibrated" }
+  ],
+  "notes": [
+    "anchorPoints derivados de telemetría real de Eutelsat-36D (Falcon 9 Block 5, SLC-40).",
+    "El origen (latOffsetDeg=0, lonOffsetDeg=0) corresponde al punto t=0 del CSV: lat=28.608, lng=-80.604 (SLC-40).",
+    "lonOffsetDeg positivo en todos los puntos: el cohete gira al este desde el primer segundo (azimuth ~90°), geometría típica de misiones GTO desde Florida.",
+    "SECO-1 a t=383s (alt=163.6km): pico de altitud de la primera quema; fin de la etapa stage2_insertion.",
+    "Coast arc de 97 segundos (t=383 a t=480): planeo orbital. La altitud desciende de 163.6 km a 158.4 km por mecánica orbital natural (el vehículo está cerca del apoapsis de la parking orbit y luego desciende hacia el periapsis donde re-enciende).",
+    "SES-2 a t=480s: inicio del reencendido GTO en el punto de mínima altitud orbital (~158.4 km).",
+    "SECO-2 / Deploy a t=1000s (alt=198.2km): fin de los datos CSV. En una misión GTO real, el apogeo de ~35 786 km se alcanza ~5 horas después por inercia orbital. Los datos de telemetría disponibles solo cubren los primeros 1000 segundos.",
+    "El segmento gto_burn muestra una altitud que sube de 158.4 km a 198.2 km durante los últimos ~520 segundos: esto corresponde a la quema de transferencia que en la realidad elevaría el apogeo a 35 786 km, pero los datos solo capturan el tramo inicial del arco balístico.",
+    "Booster aterriza en ASDS a t=499s, con coordenadas absolutas ~28.17°N, -74.28°E (Atlántico Norte, ~660 km al este del pad). Consistente con misiones GTO típicas de SpaceX.",
+    "El apogeo del booster (t=261s, alt=115.7km) es menor que en misiones RTLS porque el propelente adicional se usa para la velocidad de inserción GTO en lugar de la quema de regreso.",
+    "Para que drawRocketTrajectory dibuje correctamente el coast arc, se incluye t=383 como punto de inicio (coast_arc) con las mismas coordenadas que el SECO-1 (stage2_insertion).",
+    "Max-Q asignado a t=60 (anchorPoint más cercano al Max-Q real ~t=72-78s, alt ~12 km). Regla de oro aplicada: no se inventan segundos sin coordenadas."
+  ]
+}

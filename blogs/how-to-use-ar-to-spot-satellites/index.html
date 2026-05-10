@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+
+    <!-- PRIMARY SEO -->
+    <title>How to Use AR to Spot Satellites With Your Phone | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Point your phone at the sky and see satellites in real time with augmented reality. Step-by-step guide to using AR Sky View on SatFleet Live — no telescope, no experience needed.">
+    <meta name="keywords" content="AR satellite tracker, augmented reality satellites, point phone at sky satellites, satellite AR app, see satellites with phone, AR sky view, satellite finder phone, real-time satellite AR, SatFleet AR">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/how-to-use-ar-to-spot-satellites/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="How to Use AR to Spot Satellites With Your Phone | SatFleet Live">
+    <meta property="og:description" content="Point your phone at the sky and see exactly which satellites are flying overhead — in real time, with augmented reality. Full step-by-step guide.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/how-to-use-ar-to-spot-satellites/">
+    <meta property="og:image" content="/images/logo.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Use AR to Spot Satellites With Your Phone | SatFleet Live">
+    <meta name="twitter:description" content="Point your phone at the sky. See the ISS, Starlink trains, GPS satellites and more — overlaid in real time with augmented reality.">
+    <meta name="twitter:image" content="/images/logo.png">
+
+    <!-- Schema.org BlogPosting -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "How to Use AR to Spot Satellites With Your Phone",
+      "description": "Point your phone at the sky and see satellites in real time with augmented reality. Step-by-step guide to using AR Sky View on SatFleet Live — no telescope, no experience needed.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": { "@type": "Organization", "name": "SatFleet Live", "url": "https://satfleetlive.com" },
+      "datePublished": "2026-04-01",
+      "dateModified": "2026-04-01",
+      "url": "https://satfleetlive.com/blogs/how-to-use-ar-to-spot-satellites/",
+      "mainEntityOfPage": "https://satfleetlive.com/blogs/how-to-use-ar-to-spot-satellites/",
+      "keywords": "AR satellite tracker, augmented reality satellites, satellite AR phone, SatFleet AR Sky View"
+    }
+    </script>
+
+    <!-- FAQPage Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I open the AR satellite viewer on SatFleet Live?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Open SatFleet Live in your mobile browser, then tap the '🔭 AR Sky' button in the main map interface. The AR Sky View will open and immediately begin loading satellite data for your location. No app download is required — it runs entirely in the browser."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does the AR satellite tracker need my location?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Your GPS coordinates are essential for calculating the exact elevation and azimuth of every satellite relative to your position on Earth. A satellite that appears at 45° elevation directly north from Madrid is at a completely different position in the sky for someone in London. Without your location, the AR overlay cannot be accurate."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is compass mode vs camera mode in the AR satellite viewer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Compass mode shows a simulated dark sky canvas with satellite positions plotted over a virtual horizon — ideal for planning observations or use when you cannot grant camera permission. Camera mode activates your phone's rear camera so that satellite dots are overlaid directly on the live video feed of the actual sky, letting you point at a specific spot and see exactly what is there."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why are the satellites appearing in the wrong place in AR?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "This is almost always a compass calibration issue. Phone magnetometers can become temporarily misaligned, especially near metal objects, electronics, or indoors. To fix it, hold your phone and move it in a figure-8 pattern three or four times — this recalibrates the magnetometer and the AR overlay will snap into position."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many satellites can I see with the AR viewer at once?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The AR Sky View loads the full TLE satellite catalogue — over 14,000 tracked objects. In 'All' filter mode you will typically see dozens to hundreds of satellite dots above your horizon at any moment, since many are below the actual visual horizon but still computed. Using the 'Only Visible (night)' filter reduces the display to satellites that are both above your horizon AND in sunlight, which is the realistic set you could actually see with your eyes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the AR satellite viewer work indoors?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The compass and satellite position calculations work indoors, but accuracy degrades significantly — buildings, metal structures, and electronics all interfere with phone magnetometers. Camera mode is not useful indoors. The tool is designed for outdoor use under open sky."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --orange: #ff6b35;
+            --orange-dim: rgba(255, 107, 53, 0.12);
+            --orange-border: rgba(255, 107, 53, 0.3);
+            --purple: #9c27b0;
+            --blue: #2196f3;
+            --green: #00d26a;
+            --dark-bg: #0a0a12;
+            --dark-secondary: #12121e;
+            --dark-card: #161624;
+            --dark-tertiary: #20203a;
+            --text-primary: #f0f0ff;
+            --text-secondary: #8888aa;
+            --text-muted: #44445a;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        a { color: var(--blue); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── HEADER ── */
+        .header {
+            background: rgba(10, 10, 18, 0.97);
+            backdrop-filter: blur(14px);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,107,53,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-section { display: flex; align-items: center; gap: 0.9rem; text-decoration: none; }
+        .logo { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 12px rgba(255,107,53,0.3); }
+        .logo img { width: 38px; height: 38px; object-fit: contain; }
+        .logo-placeholder { width: 38px; height: 38px; background: var(--purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.1rem; font-weight: 800; }
+        .site-title { font-size: 1.3rem; font-weight: 700; color: var(--purple); letter-spacing: -0.01em; }
+        .header-nav { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 1.5px solid rgba(156,39,176,0.5); color: var(--purple); padding: 0.45rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; text-decoration: none; display: inline-block; white-space: nowrap; }
+        .nav-btn:hover { background: var(--purple); color: #fff; text-decoration: none; }
+        .nav-btn.blue { border-color: rgba(33,150,243,0.5); color: var(--blue); }
+        .nav-btn.blue:hover { background: var(--blue); color: #fff; }
+
+        /* ── HERO ── */
+        .article-hero {
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 50%, rgba(255,107,53,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 30%, rgba(33,150,243,0.07) 0%, transparent 55%),
+                linear-gradient(180deg, #050510 0%, #0a0a12 100%);
+            border-bottom: 2px solid rgba(255,107,53,0.35);
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Floating phone glow */
+        .hero-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 320px; height: 320px;
+            background: radial-gradient(ellipse, rgba(255,107,53,0.08) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        /* Animated satellite dots drifting in hero */
+        .hero-dots { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        .hero-sat {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: heroSatDrift linear infinite;
+        }
+        .hero-sat:nth-child(1)  { width:5px;height:5px;background:#00d26a;top:22%;box-shadow:0 0 8px 2px rgba(0,210,106,0.6);animation-duration:18s;animation-delay:0s; }
+        .hero-sat:nth-child(2)  { width:3px;height:3px;background:#fff;top:22%;animation-duration:18s;animation-delay:1.1s; }
+        .hero-sat:nth-child(3)  { width:3px;height:3px;background:#fff;top:22%;animation-duration:18s;animation-delay:2.2s; }
+        .hero-sat:nth-child(4)  { width:3px;height:3px;background:#fff;top:22%;animation-duration:18s;animation-delay:3.3s; }
+        .hero-sat:nth-child(5)  { width:6px;height:6px;background:#ff6b35;top:52%;box-shadow:0 0 10px 2px rgba(255,107,53,0.7);animation-duration:22s;animation-delay:4s; }
+        .hero-sat:nth-child(6)  { width:4px;height:4px;background:#4285f4;top:68%;box-shadow:0 0 7px 1px rgba(66,133,244,0.6);animation-duration:14s;animation-delay:1.5s; }
+        .hero-sat:nth-child(7)  { width:3px;height:3px;background:rgba(255,255,255,0.5);top:35%;animation-duration:26s;animation-delay:7s; }
+        .hero-sat:nth-child(8)  { width:3px;height:3px;background:rgba(255,255,255,0.4);top:78%;animation-duration:11s;animation-delay:2s; }
+        @keyframes heroSatDrift {
+            0%   { left:-2%; opacity:0; }
+            5%   { opacity:1; }
+            93%  { opacity:1; }
+            100% { left:103%; opacity:0; }
+        }
+
+        .hero-eyebrow { display:inline-flex;align-items:center;gap:.5rem;background:var(--orange-dim);border:1px solid var(--orange-border);color:var(--orange);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:.3rem .9rem;border-radius:20px;margin-bottom:1.2rem; }
+        .breadcrumb { font-size:.85rem;color:var(--text-muted);margin-bottom:1rem;position:relative;z-index:1; }
+        .breadcrumb a { color:var(--blue); }
+
+        .article-hero h1 {
+            font-size: clamp(1.8rem, 4.5vw, 2.7rem);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.18;
+            max-width: 800px;
+            margin: 0 auto 1rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+        .article-hero h1 em { font-style:normal; color:var(--orange); }
+        .article-meta { display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;font-size:.83rem;color:var(--text-muted);margin-top:1rem;position:relative;z-index:1; }
+
+        /* ── LAYOUT ── */
+        .blog-container { max-width:860px;margin:0 auto;padding:2.5rem 1.5rem 4rem; }
+
+        /* ── TOC ── */
+        .toc { background:var(--dark-card);border-left:4px solid var(--orange);border-radius:0 10px 10px 0;padding:1.25rem 1.5rem;margin-bottom:2.5rem; }
+        .toc-title { font-size:.88rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem; }
+        .toc ol { margin-left:1.2rem; }
+        .toc li { margin-bottom:.4rem; }
+        .toc a { color:var(--blue);font-size:.93rem; }
+
+        /* ── ARTICLE BODY ── */
+        .article-body p { color:var(--text-secondary);line-height:1.85;margin-bottom:1.25rem;font-size:1.02rem; }
+        .article-body strong { color:var(--text-primary); }
+        .article-body a { color:var(--blue); }
+        .article-body h2 { font-size:1.5rem;font-weight:700;color:#fff;margin:2.75rem 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--orange);scroll-margin-top:80px;letter-spacing:-0.01em; }
+        .article-body h3 { font-size:1.08rem;font-weight:600;color:var(--orange);margin:1.75rem 0 .65rem; }
+
+        /* ── HIGHLIGHT BOXES ── */
+        .highlight-box {
+            background: linear-gradient(135deg, var(--orange-dim), rgba(33,150,243,0.05));
+            border: 1px solid var(--orange-border);
+            border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0;
+        }
+        .highlight-box p { margin-bottom:0!important;color:#ffe8d8!important; }
+        .highlight-label { font-size:.75rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;display:block; }
+
+        .highlight-box.blue { background:linear-gradient(135deg,rgba(33,150,243,0.08),rgba(0,206,209,0.04));border-color:rgba(33,150,243,0.3); }
+        .highlight-box.blue p { color:#b8daff!important; }
+        .highlight-box.blue .highlight-label { color:var(--blue); }
+
+        .highlight-box.green { background:linear-gradient(135deg,rgba(0,210,106,0.08),rgba(0,206,209,0.04));border-color:rgba(0,210,106,0.3); }
+        .highlight-box.green p { color:#b8ffe0!important; }
+        .highlight-box.green .highlight-label { color:var(--green); }
+
+        .highlight-box.purple { background:linear-gradient(135deg,rgba(156,39,176,0.1),rgba(33,150,243,0.04));border-color:rgba(156,39,176,0.3); }
+        .highlight-box.purple p { color:#e8c8f8!important; }
+        .highlight-box.purple .highlight-label { color:var(--purple); }
+
+        /* ── PHONE MOCKUP ── */
+        .phone-mockup-wrap { display:flex;justify-content:center;margin:2rem 0; }
+        .phone-mockup {
+            width:220px;
+            background:#0d0d16;
+            border:2px solid rgba(255,107,53,0.4);
+            border-radius:28px;
+            padding:12px;
+            position:relative;
+            box-shadow:0 0 40px rgba(255,107,53,0.15), 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .phone-notch { width:60px;height:10px;background:#1a1a28;border-radius:0 0 10px 10px;margin:0 auto 8px; }
+        .phone-screen {
+            background: radial-gradient(ellipse at 50% 30%, #0a1520 0%, #050810 100%);
+            border-radius:18px;
+            height:320px;
+            position:relative;
+            overflow:hidden;
+            border:1px solid rgba(255,255,255,0.06);
+        }
+        /* Simulated AR dots on phone screen */
+        .phone-sat-dot {
+            position:absolute;
+            border-radius:50%;
+            animation:phoneSatPulse 3s ease-in-out infinite;
+        }
+        @keyframes phoneSatPulse { 0%,100%{opacity:0.7;transform:scale(1);} 50%{opacity:1;transform:scale(1.3);} }
+
+        .phone-crosshair {
+            position:absolute;
+            width:20px;height:20px;
+            top:50%;left:50%;
+            transform:translate(-50%,-50%);
+        }
+        .phone-crosshair::before, .phone-crosshair::after {
+            content:'';position:absolute;background:rgba(255,107,53,0.7);
+        }
+        .phone-crosshair::before { width:100%;height:1.5px;top:50%;left:0;transform:translateY(-50%); }
+        .phone-crosshair::after  { width:1.5px;height:100%;left:50%;top:0;transform:translateX(-50%); }
+
+        .phone-horizon { position:absolute;left:0;right:0;top:55%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,53,0.4),transparent); }
+        .phone-elev-label { position:absolute;left:8px;top:30%;font-size:8px;color:rgba(255,107,53,0.6); }
+        .phone-elev-label-2 { position:absolute;left:8px;top:20%;font-size:8px;color:rgba(255,255,255,0.25); }
+
+        .phone-status {
+            position:absolute;
+            bottom:0;left:0;right:0;
+            background:rgba(10,10,20,0.9);
+            padding:8px;
+            display:flex;justify-content:space-around;
+        }
+        .ps-item { text-align:center; }
+        .ps-label { font-size:7px;color:rgba(255,255,255,0.35);text-transform:uppercase;display:block; }
+        .ps-val   { font-size:9px;font-weight:700;color:var(--orange);display:block; }
+
+        .phone-popup {
+            position:absolute;
+            right:8px;top:12px;
+            background:rgba(15,15,25,0.95);
+            border:1px solid rgba(255,107,53,0.4);
+            border-radius:8px;
+            padding:8px 10px;
+            width:110px;
+        }
+        .pp-name { font-size:8px;font-weight:700;color:var(--orange);margin-bottom:5px;line-height:1.3; }
+        .pp-row  { display:flex;justify-content:space-between;margin-bottom:3px; }
+        .pp-lbl  { font-size:7px;color:rgba(255,255,255,0.4); }
+        .pp-val  { font-size:7px;color:#fff;font-weight:600; }
+
+        .phone-mode-pill {
+            position:absolute;top:10px;left:50%;transform:translateX(-50%);
+            background:rgba(10,10,20,0.85);
+            border:1px solid rgba(255,107,53,0.35);
+            border-radius:10px;
+            padding:3px 10px;
+            font-size:8px;font-weight:700;color:var(--orange);
+            white-space:nowrap;
+        }
+        .phone-bottom-bar { margin-top:8px;text-align:center;font-size:8px;color:rgba(255,255,255,0.15);font-family:monospace; }
+
+        /* ── STEP LIST ── */
+        .step-list { counter-reset:step;list-style:none;padding:0;margin:1.25rem 0 1.75rem; }
+        .step-list li { counter-increment:step;display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem;background:var(--dark-card);border-radius:10px;padding:1rem 1.25rem;border:1px solid var(--dark-tertiary); }
+        .step-list li::before { content:counter(step);background:var(--orange);color:#fff;font-weight:800;font-size:.85rem;min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px; }
+        .step-list li span { color:var(--text-secondary);line-height:1.7;font-size:.98rem; }
+        .step-list li strong { color:var(--text-primary);display:block;margin-bottom:.2rem; }
+
+        /* ── DATA CARDS ── */
+        .data-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:1rem;margin:1.5rem 0 2rem; }
+        .data-card { background:var(--dark-card);border:1px solid var(--dark-tertiary);border-radius:12px;padding:1.2rem 1rem;text-align:center;border-top:3px solid var(--orange);transition:transform 0.2s; }
+        .data-card:hover { transform:translateY(-2px); }
+        .data-card-icon { font-size:1.5rem;margin-bottom:.5rem;display:block; }
+        .data-card-value { font-size:1.25rem;font-weight:800;color:var(--orange);display:block;letter-spacing:-0.02em;margin-bottom:.3rem;line-height:1.1; }
+        .data-card-label { font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em; }
+        .data-card-sub { font-size:.8rem;color:var(--text-secondary);margin-top:.4rem;display:block;line-height:1.4; }
+        .data-card.blue { border-top-color:var(--blue); } .data-card.blue .data-card-value { color:var(--blue); }
+        .data-card.green { border-top-color:var(--green); } .data-card.green .data-card-value { color:var(--green); }
+        .data-card.purple { border-top-color:var(--purple); } .data-card.purple .data-card-value { color:var(--purple); }
+
+        /* ── FILTER LEGEND ── */
+        .filter-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:.6rem;margin:1.25rem 0 1.75rem; }
+        .filter-pill { display:flex;align-items:center;gap:.6rem;background:var(--dark-card);border-radius:10px;padding:.7rem 1rem;border:1px solid var(--dark-tertiary); }
+        .filter-dot { width:10px;height:10px;border-radius:50%;flex-shrink:0; }
+        .filter-name { font-size:.85rem;font-weight:600;color:var(--text-primary); }
+        .filter-desc { font-size:.75rem;color:var(--text-muted);display:block;margin-top:1px; }
+
+        /* ── SPEC TABLE ── */
+        .spec-table { width:100%;border-collapse:collapse;margin:1.25rem 0 1.75rem;font-size:.92rem; }
+        .spec-table thead tr { background:rgba(255,107,53,0.1); }
+        .spec-table th { padding:.8rem 1rem;text-align:left;font-weight:600;color:var(--text-primary);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em; }
+        .spec-table td { padding:.65rem 1rem;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);vertical-align:middle; }
+        .spec-table tbody tr:hover { background:rgba(255,107,53,0.04); }
+        .spec-table td:first-child { color:var(--text-primary);font-weight:600; }
+        .badge { display:inline-block;font-size:.7rem;font-weight:700;padding:.15rem .5rem;border-radius:8px;white-space:nowrap;vertical-align:middle;margin-left:.4rem; }
+        .badge-green { background:rgba(0,210,106,0.15);color:var(--green);border:1px solid rgba(0,210,106,0.3); }
+        .badge-orange { background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange-border); }
+        .badge-blue { background:rgba(33,150,243,0.12);color:var(--blue);border:1px solid rgba(33,150,243,0.3); }
+
+        /* ── LIVE CTA ── */
+        .live-cta { display:flex;align-items:center;gap:1.25rem;background:linear-gradient(135deg,var(--orange-dim),rgba(156,39,176,0.05));border:1.5px solid var(--orange-border);border-radius:14px;padding:1.25rem 1.5rem;margin:1.75rem 0;text-decoration:none;transition:all 0.3s;cursor:pointer; }
+        .live-cta:hover { border-color:var(--orange);background:linear-gradient(135deg,rgba(255,107,53,0.18),rgba(156,39,176,0.08));transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.18);text-decoration:none; }
+        .cta-icon { font-size:2rem;flex-shrink:0; }
+        .cta-body { flex:1; }
+        .cta-title { font-size:1rem;font-weight:700;color:var(--orange);margin-bottom:.3rem;display:block; }
+        .cta-sub { font-size:.84rem;color:var(--text-secondary);line-height:1.5; }
+        .cta-arrow { font-size:1.3rem;color:var(--orange);flex-shrink:0;transition:transform 0.2s; }
+        .live-cta:hover .cta-arrow { transform:translateX(4px); }
+
+        /* ── FAQ ── */
+        .faq-item { background:var(--dark-card);border-radius:10px;margin-bottom:.85rem;overflow:hidden;border:1px solid var(--dark-tertiary); }
+        .faq-question { width:100%;background:none;border:none;color:#fff;font-size:1rem;font-weight:600;text-align:left;padding:1.1rem 1.25rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:background .2s;font-family:inherit; }
+        .faq-question:hover { background:var(--orange-dim); }
+        .faq-arrow { color:var(--orange);font-size:1rem;transition:transform .3s;flex-shrink:0; }
+        .faq-question.open .faq-arrow { transform:rotate(180deg); }
+        .faq-answer { display:none;padding:0 1.25rem 1.1rem;color:var(--text-secondary);line-height:1.75;font-size:.97rem;border-top:1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display:block; }
+        .faq-answer a { color:var(--blue); }
+
+        /* ── RELATED ── */
+        .related-articles { margin:2.5rem 0 1.5rem; }
+        .related-title { font-size:.88rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem; }
+        .related-grid { display:flex;flex-direction:column;gap:.6rem; }
+        .related-card { background:var(--dark-card);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;text-decoration:none;border:1px solid var(--dark-tertiary);transition:border-color .25s,background .25s; }
+        .related-card:hover { border-color:var(--orange);background:var(--orange-dim);text-decoration:none; }
+        .related-icon { font-size:1.7rem;flex-shrink:0; }
+        .related-text strong { display:block;color:#fff;font-size:.95rem;margin-bottom:.2rem; }
+        .related-text span { color:var(--text-secondary);font-size:.85rem; }
+
+        /* ── CTA BANNER ── */
+        .cta-banner { background:linear-gradient(135deg,var(--orange-dim),rgba(33,150,243,0.06));border:1px solid var(--orange-border);border-radius:14px;padding:2.25rem 2rem;text-align:center;margin:3rem 0 2rem; }
+        .cta-banner h2 { font-size:1.4rem;color:#fff;margin-bottom:.75rem;border:none!important;padding:0!important; }
+        .cta-banner p { color:var(--text-secondary);margin-bottom:1.25rem; }
+        .cta-buttons { display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap; }
+        .cta-btn { display:inline-block;background:var(--orange);color:#fff;padding:.75rem 1.75rem;border-radius:30px;text-decoration:none;font-weight:700;font-size:.95rem;transition:all .25s;border:2px solid var(--orange); }
+        .cta-btn:hover { background:transparent;color:var(--orange);text-decoration:none; }
+        .cta-btn.blue { background:var(--blue);border-color:var(--blue); }
+        .cta-btn.blue:hover { background:transparent;color:var(--blue); }
+        .cta-btn.outline { background:transparent;color:var(--text-secondary);border-color:var(--dark-tertiary); }
+        .cta-btn.outline:hover { border-color:var(--orange);color:var(--orange); }
+
+        /* ── FOOTER ── */
+        .footer { background:var(--dark-secondary);padding:1.5rem 1rem;text-align:center;font-size:.75rem;color:var(--text-muted);border-top:1px solid var(--dark-tertiary); }
+        .footer a { color:var(--blue); }
+        .footer a:hover { text-decoration:underline; }
+        .footer-row { margin-bottom:.4rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width:640px) {
+            .article-hero { padding:2.5rem 1rem 2rem; }
+            .article-hero h1 { font-size:1.65rem; }
+            .header { padding:.75rem 1rem; }
+            .blog-container { padding:1.75rem 1rem 3rem; }
+            .data-grid { grid-template-columns:repeat(2,1fr); }
+            .spec-table { font-size:.8rem; }
+            .spec-table th,.spec-table td { padding:.55rem .65rem; }
+            .filter-grid { grid-template-columns:repeat(2,1fr); }
+            .cta-buttons { flex-direction:column;align-items:center; }
+            .phone-mockup { width:180px; }
+            .phone-screen { height:260px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/images/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav" aria-label="Main navigation">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue">📡 Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero" role="banner">
+        <div class="hero-dots" aria-hidden="true">
+            <div class="hero-sat"></div><div class="hero-sat"></div>
+            <div class="hero-sat"></div><div class="hero-sat"></div>
+            <div class="hero-sat"></div><div class="hero-sat"></div>
+            <div class="hero-sat"></div><div class="hero-sat"></div>
+        </div>
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="hero-eyebrow">🔭 AR Sky View — Beta</div>
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; How to Use AR to Spot Satellites
+        </p>
+        <h1>Point Your Phone at the Sky.<br><em>See Every Satellite.</em></h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 April 2026</span>
+            <span>⏱️ 7 min read</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <!-- TOC -->
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#what-is-ar-sky">What Is AR Sky View?</a></li>
+                <li><a href="#how-it-works">How It Works: Compass + GPS + TLE Data</a></li>
+                <li><a href="#getting-started">Getting Started: Step-by-Step Setup</a></li>
+                <li><a href="#compass-vs-camera">Compass Mode vs Camera Mode</a></li>
+                <li><a href="#filters">Filters: Choose What You See</a></li>
+                <li><a href="#reading-the-screen">Reading the Screen: Status Bar, Crosshair & Popups</a></li>
+                <li><a href="#calibration">Calibration: Fixing a Misaligned Compass</a></li>
+                <li><a href="#best-use-cases">Best Use Cases for the AR Viewer</a></li>
+                <li><a href="#tips">Tips for the Best Experience</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                Somewhere above you right now, hundreds of satellites are silently crossing the sky. The ISS is racing past at 28,000 km/h. A Starlink train from last week's launch is still bright enough to see with the naked eye. A GPS satellite you rely on every day floats in medium Earth orbit. And until now, knowing <em>exactly</em> which direction to look — which patch of sky, which elevation angle — required an app, a website, and a lot of mental arithmetic.
+            </p>
+            <p>
+                <strong>AR Sky View</strong> on SatFleet Live changes that entirely. Open it on your phone, point it at the sky, and every satellite above your horizon appears as a labelled dot in real time — overlaid on your camera feed or plotted against a virtual star field. Tap any dot to instantly get its name, altitude, velocity, and position. This guide explains exactly how to use it, what to look for, and how to get the most out of every feature.
+            </p>
+
+            <!-- PHONE MOCKUP -->
+            <div class="phone-mockup-wrap" aria-label="Illustration of the AR Sky View interface on a phone">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <!-- Mode pill -->
+                        <div class="phone-mode-pill">CAMERA MODE</div>
+                        <!-- Elevation lines -->
+                        <div style="position:absolute;left:0;right:0;top:25%;height:1px;background:rgba(255,255,255,0.08);"></div>
+                        <div style="position:absolute;left:6px;top:23%;font-size:7px;color:rgba(255,255,255,0.2);">60°</div>
+                        <div style="position:absolute;left:0;right:0;top:40%;height:1px;background:rgba(255,255,255,0.08);"></div>
+                        <div style="position:absolute;left:6px;top:38%;font-size:7px;color:rgba(255,255,255,0.2);">30°</div>
+                        <div class="phone-horizon"></div>
+                        <div style="position:absolute;left:6px;top:53%;font-size:7px;color:rgba(255,107,53,0.55);">0°</div>
+                        <!-- Crosshair -->
+                        <div class="phone-crosshair"></div>
+                        <!-- Satellite dots -->
+                        <div class="phone-sat-dot" style="width:9px;height:9px;background:#fff;box-shadow:0 0 8px 2px rgba(255,255,255,0.6);top:18%;left:35%;animation-delay:0s;"></div>
+                        <div class="phone-sat-dot" style="width:7px;height:7px;background:#00d26a;box-shadow:0 0 8px 2px rgba(0,210,106,0.6);top:28%;left:60%;animation-delay:1s;"></div>
+                        <div class="phone-sat-dot" style="width:7px;height:7px;background:#4285f4;box-shadow:0 0 7px 1px rgba(66,133,244,0.6);top:42%;left:20%;animation-delay:0.5s;"></div>
+                        <div class="phone-sat-dot" style="width:6px;height:6px;background:#ff6b35;box-shadow:0 0 7px 2px rgba(255,107,53,0.6);top:35%;left:75%;animation-delay:1.5s;"></div>
+                        <div class="phone-sat-dot" style="width:5px;height:5px;background:#ffd700;box-shadow:0 0 6px 1px rgba(255,215,0,0.5);top:20%;left:80%;animation-delay:2s;"></div>
+                        <div class="phone-sat-dot" style="width:5px;height:5px;background:#ff0000;top:48%;left:55%;animation-delay:0.7s;"></div>
+                        <!-- Popup -->
+                        <div class="phone-popup">
+                            <div class="pp-name">ISS (ZARYA)</div>
+                            <div class="pp-row"><span class="pp-lbl">Altitude</span><span class="pp-val">421 km</span></div>
+                            <div class="pp-row"><span class="pp-lbl">Velocity</span><span class="pp-val">27,576 km/h</span></div>
+                            <div class="pp-row"><span class="pp-lbl">Elevation</span><span class="pp-val">62.4°</span></div>
+                            <div class="pp-row"><span class="pp-lbl">Azimuth</span><span class="pp-val">218.1°</span></div>
+                        </div>
+                        <!-- Status bar -->
+                        <div class="phone-status">
+                            <div class="ps-item"><span class="ps-label">Visible</span><span class="ps-val">147</span></div>
+                            <div class="ps-item"><span class="ps-label">Heading</span><span class="ps-val">214°</span></div>
+                            <div class="ps-item"><span class="ps-label">Tilt</span><span class="ps-val">48°</span></div>
+                            <div class="ps-item"><span class="ps-label">Location</span><span class="ps-val">GPS</span></div>
+                        </div>
+                    </div>
+                    <div class="phone-bottom-bar">■ ● ▲</div>
+                </div>
+            </div>
+
+            <!-- SECTION 1 -->
+            <h2 id="what-is-ar-sky">What Is AR Sky View?</h2>
+
+            <p>
+                AR Sky View is an <strong>augmented reality satellite finder</strong> built directly into SatFleet Live — no separate app download, no account, no cost. It runs entirely in your mobile browser and combines three data streams in real time: your phone's GPS position, its compass and gyroscope sensors, and a full live database of over 14,000 tracked satellite objects.
+            </p>
+            <p>
+                The result is a sky map that is physically anchored to your exact location and orientation. When you tilt your phone upward and rotate it north, you see the satellites that are currently north and above you. When you swing around to face south and lower the phone toward the horizon, the display updates instantly to show what is there. Every dot represents a real satellite in its real computed position.
+            </p>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <span class="data-card-icon">🛰️</span>
+                    <span class="data-card-value">14,000+</span>
+                    <span class="data-card-label">Tracked objects</span>
+                    <span class="data-card-sub">Full NORAD catalogue — active satellites, rocket bodies, debris</span>
+                </div>
+                <div class="data-card blue">
+                    <span class="data-card-icon">📍</span>
+                    <span class="data-card-value">Real-time</span>
+                    <span class="data-card-label">Position updates</span>
+                    <span class="data-card-sub">Recalculates every 0.5 seconds using live TLE propagation</span>
+                </div>
+                <div class="data-card green">
+                    <span class="data-card-icon">🔄</span>
+                    <span class="data-card-value">No install</span>
+                    <span class="data-card-label">Browser-based</span>
+                    <span class="data-card-sub">Works on any modern mobile browser — iOS Safari, Chrome for Android</span>
+                </div>
+                <div class="data-card purple">
+                    <span class="data-card-icon">🎛️</span>
+                    <span class="data-card-value">11 filters</span>
+                    <span class="data-card-label">Satellite categories</span>
+                    <span class="data-card-sub">GPS, ISS, Starlink, Military, Weather, Comm, Geodetic, Tech and more</span>
+                </div>
+            </div>
+
+            <!-- SECTION 2 -->
+            <h2 id="how-it-works">How It Works: Compass + GPS + TLE Data</h2>
+
+            <p>
+                Understanding the three components that power AR Sky View helps you get better results — and diagnose issues when something looks off.
+            </p>
+
+            <h3>GPS: your position on Earth</h3>
+            <p>
+                The AR viewer asks for your location as soon as it opens. This is essential: whether a satellite appears at 45° elevation directly north of you or 12° elevation in the southeast depends entirely on your exact coordinates. The viewer uses GPS when available, falling back to a stored cached position or a sensible default. A confirmed GPS fix shows <strong>GPS</strong> in the status bar at the bottom; a cached or estimated position shows <strong>EST</strong>.
+            </p>
+
+            <h3>Compass and gyroscope: where your phone is pointing</h3>
+            <p>
+                Your phone's <strong>magnetometer</strong> (compass) tells the viewer which compass bearing you are facing — north, south, east, west, or any direction in between. The <strong>gyroscope and accelerometer</strong> measure how steeply you are tilting the phone: horizontal boca arriba for ground, vertical for the horizon, tilted back for the sky above. Together these two sensors define the exact "window" of the sky your phone is currently pointing at. The AR overlay then shows only the satellites within that window.
+            </p>
+
+            <h3>TLE data: satellite positions computed on the fly</h3>
+            <p>
+                Satellite positions are computed from <strong>Two-Line Element sets (TLEs)</strong> — compact orbital mechanics data published by NORAD and updated several times per day. The viewer fetches the latest TLE catalogue from SatFleet Live's API at startup, then uses a built-in SGP4 propagator (the same algorithm used by professional tracking software) to calculate each satellite's exact latitude, longitude, and altitude for the current moment. This calculation runs every 500 milliseconds, keeping the display current as satellites move and as you move your phone.
+            </p>
+
+            <div class="highlight-box blue">
+                <span class="highlight-label">🔢 The maths behind the dot</span>
+                <p>For every satellite, the viewer computes an <strong>azimuth</strong> (compass direction from you to the satellite, 0–360°) and an <strong>elevation</strong> (angle above your horizon, 0–90°). These are then projected onto your phone screen: azimuth maps to left/right based on your compass heading, elevation maps to up/down based on your phone tilt. The dot appears where the projection lands.</p>
+            </div>
+
+            <!-- SECTION 3 -->
+            <h2 id="getting-started">Getting Started: Step-by-Step Setup</h2>
+
+            <p>
+                AR Sky View is designed to work within 30 seconds of opening it. Here is the exact process:
+            </p>
+
+            <ol class="step-list">
+                <li>
+                    <span>
+                        <strong>Open SatFleet Live on your phone's browser</strong>
+                        Navigate to <a href="/">satfleetlive.com</a> in Safari (iOS) or Chrome (Android). The AR feature is designed for mobile — on a desktop it will work in compass mode but lacks the orientation sensors that make it useful.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Tap the 🔭 AR Sky button on the live map</strong>
+                        This opens the AR Sky View page. A loading spinner appears while the satellite catalogue downloads from the server. On a typical mobile connection this takes 3–8 seconds.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Allow location access when prompted</strong>
+                        The browser will ask for permission to access your GPS. Tap <em>Allow</em>. Without a location fix, satellite positions will default to a pre-stored coordinate and will not be accurate for your sky. The status bar at the bottom shows <strong>GPS</strong> once a real fix is obtained.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Allow motion sensor access if prompted (iOS only)</strong>
+                        On iPhones running iOS 13 or later, Safari requires explicit permission to access the DeviceOrientation API — the sensor data used to read your compass heading and tilt. A permission dialog may appear; tap <em>Allow</em>. Without this, the AR overlay will not respond when you move the phone.
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <strong>Go outside and point your phone at the sky</strong>
+                        Hold the phone vertically in portrait orientation, face the rear camera toward the sky, and slowly rotate. The satellite dots update as you move. The status bar shows your live heading and tilt angle. You are live.
+                    </span>
+                </li>
+            </ol>
+
+            <div class="highlight-box">
+                <span class="highlight-label">⚡ First time on iOS?</span>
+                <p>If the satellite dots do not respond when you move the phone, the motion sensor permission was likely denied or not requested. In Safari, go to <strong>Settings → Safari → Motion &amp; Orientation Access</strong> and ensure it is enabled. Then reload the AR Sky page — the permission prompt will appear again.</p>
+            </div>
+
+            <!-- SECTION 4 -->
+            <h2 id="compass-vs-camera">Compass Mode vs Camera Mode</h2>
+
+            <p>
+                AR Sky View offers two display modes. Both show the same satellite data; the difference is what appears behind the dots.
+            </p>
+
+            <div style="overflow-x:auto;">
+                <table class="spec-table">
+                    <thead>
+                        <tr><th>Feature</th><th>Compass Mode</th><th>Camera Mode</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Background</td><td>Simulated dark sky canvas</td><td>Live rear camera feed</td></tr>
+                        <tr><td>Best for</td><td>Planning, daytime use, low-permission environments</td><td>Night-time observation, pointing at visible passes</td></tr>
+                        <tr><td>Camera permission required</td><td>No <span class="badge badge-green">Default</span></td><td>Yes</td></tr>
+                        <tr><td>Battery use</td><td>Lower</td><td>Higher (camera active)</td></tr>
+                        <tr><td>Shows real stars</td><td>No (simulated sky)</td><td>Yes (real camera image)</td></tr>
+                        <tr><td>Works indoors</td><td>Partially (compass degrades)</td><td>Not useful</td></tr>
+                        <tr><td>Activate by</td><td>Default on load</td><td>Tap <strong>Camera</strong> button top right</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>When to use Camera Mode</h3>
+            <p>
+                Camera mode is the most visually satisfying way to use AR Sky View at night. With a satellite pass in progress — say, the ISS or a Starlink train — switch to camera mode, point at the relevant part of the sky, and tap the dot that corresponds to the object you are watching. The satellite's data panel appears in the corner while you watch it cross the actual sky behind your phone's display. It is the closest thing to professional sky-tracking software that fits in your pocket.
+            </p>
+
+            <h3>When to use Compass Mode</h3>
+            <p>
+                Compass mode is ideal during daylight hours, when the camera shows nothing useful but the satellite positions are still perfectly valid — you can plan your observation for that evening, check which satellites will be overhead, and note what time each major object will peak. It is also the more battery-friendly option for extended sessions.
+            </p>
+
+            <!-- SECTION 5 -->
+            <h2 id="filters">Filters: Choose What You See</h2>
+
+            <p>
+                With 14,000+ objects in the catalogue, an unfiltered display can become visually overwhelming — particularly in Camera Mode where density can make individual identification difficult. The <strong>Filters</strong> button at the bottom of the screen opens a panel with 11 distinct filter options:
+            </p>
+
+            <div class="filter-grid">
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#4285f4;"></div>
+                    <div><div class="filter-name">GPS / Navigation</div><span class="filter-desc">GNSS constellations: GPS, Galileo, GLONASS, BeiDou</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#ffffff;"></div>
+                    <div><div class="filter-name">Space Station</div><span class="filter-desc">ISS, Tiangong CSS, crew vehicles, cargo ships</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#00d26a;"></div>
+                    <div><div class="filter-name">Starlink / Internet</div><span class="filter-desc">SpaceX Starlink, OneWeb, Amazon Kuiper</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#ff6b35;"></div>
+                    <div><div class="filter-name">Communications</div><span class="filter-desc">Intelsat, SES, Iridium, Inmarsat, Globalstar</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#ff0000;"></div>
+                    <div><div class="filter-name">Military</div><span class="filter-desc">Defence, reconnaissance, AEHF, WGS, SBIRS</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#ffd700;"></div>
+                    <div><div class="filter-name">Weather</div><span class="filter-desc">NOAA, GOES, MetOp, Himawari, Fengyun</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#00ced1;"></div>
+                    <div><div class="filter-name">Geodetic</div><span class="filter-desc">Landsat, Sentinel, GRACE, LAGEOS, radar imaging</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#9400d3;"></div>
+                    <div><div class="filter-name">Technology</div><span class="filter-desc">CubeSats, experiments, demo missions, PROBA series</span></div>
+                </div>
+                <div class="filter-pill">
+                    <div class="filter-dot" style="background:#ff69b4;"></div>
+                    <div><div class="filter-name">Other</div><span class="filter-desc">Everything that does not fit a named category</span></div>
+                </div>
+                <div class="filter-pill" style="border-color:rgba(255,107,53,0.4);background:rgba(255,107,53,0.06);">
+                    <div class="filter-dot" style="background:var(--orange);"></div>
+                    <div><div class="filter-name" style="color:var(--orange);">All (day)</div><span class="filter-desc">Every tracked object regardless of visibility</span></div>
+                </div>
+                <div class="filter-pill" style="border-color:rgba(0,210,106,0.35);background:rgba(0,210,106,0.05);">
+                    <div class="filter-dot" style="background:#00d26a;"></div>
+                    <div><div class="filter-name" style="color:#00d26a;">Only Visible (night)</div><span class="filter-desc">Objects in sunlight above your dark horizon right now</span></div>
+                </div>
+            </div>
+
+            <div class="highlight-box green">
+                <span class="highlight-label">🌙 The "Only Visible (night)" filter explained</span>
+                <p>This is the most useful filter for practical observation. It applies two checks simultaneously: the satellite must be <strong>above your horizon</strong> and <strong>in sunlight</strong> (not in Earth's shadow). It also excludes passes during daytime when you are not in darkness. The result is the exact set of satellites your naked eye could theoretically see at this moment — no guesswork, no reference tables needed.</p>
+            </div>
+
+            <p>
+                Multiple category filters can be active at the same time — for example, GPS + Space Station + Weather to compare the orbital altitudes of very different mission types. Only the <strong>All</strong> and <strong>Only Visible</strong> options are mutually exclusive with the rest.
+            </p>
+
+            <!-- SECTION 6 -->
+            <h2 id="reading-the-screen">Reading the Screen: Status Bar, Crosshair & Popups</h2>
+
+            <h3>The status bar</h3>
+            <p>
+                The translucent bar at the bottom of the screen shows four live values:
+            </p>
+            <ul style="list-style:none;padding:0;margin:0 0 1.25rem;">
+                <li style="padding:.6rem 0;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);">🛰️ &nbsp;<strong style="color:var(--text-primary);">Visible</strong> — the number of satellites currently above your horizon matching the active filter. In "All" mode this can be 200+; in "Only Visible (night)" on a clear dark evening it is typically 10–40.</li>
+                <li style="padding:.6rem 0;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);">🧭 &nbsp;<strong style="color:var(--text-primary);">Heading</strong> — your current compass bearing in degrees (0 = North, 90 = East, 180 = South, 270 = West). This is what the AR viewer "thinks" you are facing.</li>
+                <li style="padding:.6rem 0;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);">📐 &nbsp;<strong style="color:var(--text-primary);">Tilt</strong> — the elevation angle your phone is pointing at. 0° = horizontal toward the horizon. 90° = straight up at the zenith. Negative values mean the phone is angled downward.</li>
+                <li style="padding:.6rem 0;color:var(--text-secondary);">📍 &nbsp;<strong style="color:var(--text-primary);">Location</strong> — shows GPS (live fix), EST (estimated or cached), or OK (loaded from storage). A GPS fix gives the most accurate satellite positions.</li>
+            </ul>
+
+            <h3>The crosshair</h3>
+            <p>
+                The small crosshair at the centre of the screen marks the exact direction your phone is currently pointing. Any satellite dot that you bring into the crosshair is the object at precisely your current heading and tilt angle. This is useful for confirming that a dot you see in the real sky matches the one on screen.
+            </p>
+
+            <h3>Elevation rings and cardinal labels</h3>
+            <p>
+                Horizontal dashed lines across the canvas mark <strong>0° (horizon)</strong>, <strong>30°</strong>, <strong>60°</strong>, and <strong>90° (zenith)</strong> elevation. The 0° line is shown in orange; higher elevations in white. Cardinal direction labels — <strong>N</strong> (red), <strong>E</strong>, <strong>S</strong>, <strong>W</strong> — float across the canvas as you rotate, giving you constant compass context.
+            </p>
+
+            <h3>Tapping a satellite: the info popup</h3>
+            <p>
+                Tap any satellite dot and a popup panel appears in the top-right corner showing:
+            </p>
+            <ul style="list-style:none;padding:0;margin:0 0 1.25rem;">
+                <li style="padding:.5rem 0;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);">📛 &nbsp;<strong style="color:var(--text-primary);">Name</strong> — the official NORAD catalogue name (e.g. "ISS (ZARYA)", "STARLINK-7123", "GPS BIIR-5")</li>
+                <li style="padding:.5rem 0;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);">🏔️ &nbsp;<strong style="color:var(--text-primary);">Altitude</strong> — current orbital altitude in kilometres above Earth's surface</li>
+                <li style="padding:.5rem 0;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);">⚡ &nbsp;<strong style="color:var(--text-primary);">Velocity</strong> — orbital speed in km/h</li>
+                <li style="padding:.5rem 0;border-bottom:1px solid var(--dark-tertiary);color:var(--text-secondary);">⬆️ &nbsp;<strong style="color:var(--text-primary);">Elevation</strong> — how many degrees above your horizon it currently is</li>
+                <li style="padding:.5rem 0;color:var(--text-secondary);">🧭 &nbsp;<strong style="color:var(--text-primary);">Azimuth</strong> — the compass direction from you to the satellite right now</li>
+            </ul>
+            <p>
+                Once a satellite is selected, its <strong>predicted orbit track</strong> appears as a dashed line across the canvas — showing where it will be over the next 90 minutes of flight, updated dynamically as the satellite moves.
+            </p>
+
+            <!-- SECTION 7 -->
+            <h2 id="calibration">Calibration: Fixing a Misaligned Compass</h2>
+
+            <p>
+                The most common issue with any AR sky tool — not just SatFleet Live — is <strong>compass offset</strong>: the satellites appear to be shifted a few degrees (or more) from where they actually are. This is almost never a bug in the software. It is a property of phone magnetometers, which are sensitive to nearby magnetic interference and can drift over time.
+            </p>
+
+            <h3>How to calibrate in 10 seconds</h3>
+            <p>
+                Hold your phone firmly and move it in a smooth <strong>figure-8 pattern</strong> — the same movement you would make when drawing the number 8 in the air in front of you. Do this 3–4 times. The magnetometer internally recalibrates, and the AR overlay will noticeably snap into better alignment. The AR Sky page shows a calibration hint at the bottom of the screen if it detects compass data has not yet been received.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">🧭 Sources of compass interference</span>
+                <p>Metal furniture, cars, speakers, laptop computers, and even some phone cases with magnets can temporarily deflect the magnetometer reading. If calibration does not fix a persistent offset, move 3–5 metres away from any metal objects or electronics and try again. Outdoors in open space almost always gives the best compass accuracy.</p>
+            </div>
+
+            <h3>Verifying accuracy: the ISS test</h3>
+            <p>
+                The easiest way to confirm the AR overlay is accurate is to wait for an ISS pass, open the <a href="/next-passes.html">Next Passes</a> tool to get the exact azimuth at peak, then point your phone at that bearing and check whether the ISS dot is on the crosshair. If it is within a degree or two, your compass is well calibrated. If it is significantly off in the same direction consistently, a figure-8 calibration sequence should close the gap.
+            </p>
+
+            <!-- SECTION 8 -->
+            <h2 id="best-use-cases">Best Use Cases for the AR Viewer</h2>
+
+            <h3>1. Identifying a bright object you just saw</h3>
+            <p>
+                You spot a bright moving light crossing the sky and wonder what it is. Open AR Sky View, switch to Camera Mode, point your phone at the object, and tap the nearest dot. The popup identifies it within seconds — name, altitude, type, and exact position. For a bright ISS pass this works reliably within the first 20 seconds of opening the viewer.
+            </p>
+
+            <h3>2. Watching a Starlink train pass overhead</h3>
+            <p>
+                Use the <a href="/next-passes.html">Next Passes</a> tool to find a Starlink train, note the start direction, then open AR Sky View and apply the Starlink filter. As the train approaches, the dots appear at the predicted horizon point and march across your screen in sequence — each one matching a visible satellite in the actual sky when you are in Camera Mode. It is the most immersive way to experience a train pass.
+            </p>
+
+            <h3>3. Exploring satellite density in different directions</h3>
+            <p>
+                Slowly sweep your phone across the entire sky in All mode and watch how satellite density varies. Directions near the equatorial plane tend to have denser populations of LEO objects. Geostationary satellites cluster in a narrow arc above the equator at constant azimuths. The GPS constellation forms a distinctive geometric shell at 20,200 km altitude — their dots barely move relative to the ground over short periods.
+            </p>
+
+            <h3>4. Planning an observation session</h3>
+            <p>
+                During daylight hours, use Compass Mode to preview the sky for that evening. Check whether any bright satellites will be passing near particular stars or constellations you want to photograph alongside. Note the heading and elevation of the ISS peak so you know exactly where to look without any setup when darkness falls.
+            </p>
+
+            <!-- SECTION 9 -->
+            <h2 id="tips">Tips for the Best Experience</h2>
+
+            <div class="data-grid">
+                <div class="data-card">
+                    <span class="data-card-icon">🌑</span>
+                    <span class="data-card-label">Dim your screen</span>
+                    <span class="data-card-sub">In Camera Mode at night, reduce screen brightness to its lowest comfortable level — the camera sensor will capture fainter stars in the feed.</span>
+                </div>
+                <div class="data-card blue">
+                    <span class="data-card-icon">🌅</span>
+                    <span class="data-card-label">Use at twilight</span>
+                    <span class="data-card-sub">The 60 minutes after sunset is the ideal window — dark enough to see satellites, light enough for the camera to show the real sky without noise.</span>
+                </div>
+                <div class="data-card green">
+                    <span class="data-card-icon">🔍</span>
+                    <span class="data-card-label">Filter before watching</span>
+                    <span class="data-card-sub">Set your filter before you go outside. Switching between filters indoors where your magnetometer performs consistently is easier than outdoors in the dark.</span>
+                </div>
+                <div class="data-card purple">
+                    <span class="data-card-icon">📱</span>
+                    <span class="data-card-label">Lock screen rotation</span>
+                    <span class="data-card-sub">Enable portrait lock before opening the viewer. Accidental rotation to landscape can momentarily confuse the orientation calculation until it settles.</span>
+                </div>
+                <div class="data-card">
+                    <span class="data-card-icon">⚡</span>
+                    <span class="data-card-label">Pre-load offline</span>
+                    <span class="data-card-sub">The TLE catalogue is cached locally on first load. If you anticipate poor signal, open AR Sky before leaving a WiFi area to ensure the satellite data is already downloaded.</span>
+                </div>
+                <div class="data-card blue">
+                    <span class="data-card-icon">🎯</span>
+                    <span class="data-card-label">Use crosshair deliberately</span>
+                    <span class="data-card-sub">Bring the crosshair onto a satellite dot and hold still for 2–3 seconds, then check the real sky in that exact direction. The match is usually striking.</span>
+                </div>
+            </div>
+
+            <a href="/ar-sky.html" class="live-cta" aria-label="Open AR Sky View">
+                <div class="cta-icon">🔭</div>
+                <div class="cta-body">
+                    <span class="cta-title">Open AR Sky View Now (Beta)</span>
+                    <span class="cta-sub">Point your phone at the sky and see which satellites are passing over you right now. Works in your mobile browser — no download required.</span>
+                </div>
+                <div class="cta-arrow">→</div>
+            </a>
+
+            <!-- FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How do I open the AR satellite viewer on SatFleet Live?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Open <a href="/">satfleetlive.com</a> in your mobile browser, then tap the <strong>🔭 AR Sky</strong> button in the main map interface. The AR Sky View page will open and immediately begin loading satellite data for your location. No app download is required — it runs entirely in your mobile browser. Allow location access and motion sensor access when prompted.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Why does the AR satellite tracker need my location?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Your GPS coordinates are essential for calculating the exact elevation and azimuth of every satellite relative to your position on Earth. The same satellite can appear at 68° elevation due north from one city and at 22° elevation due east from another city 500 km away — the entire sky map is unique to your location. Without your coordinates, the AR overlay can still display satellite positions, but they will only be accurate for the default location stored in the app.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What is the difference between Compass Mode and Camera Mode?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Compass mode (the default) shows satellite positions plotted against a simulated dark sky canvas — useful for daytime planning and when you cannot grant camera access. Camera mode activates your phone's rear camera so satellite dots are overlaid directly on the live video of the actual sky. Tap the <strong>Camera</strong> button in the top right to toggle between them. Camera mode requires camera permission and uses more battery.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Why are the satellites appearing in the wrong place?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    This is almost always a <strong>compass calibration issue</strong>. Phone magnetometers can drift, especially near metal objects, vehicles, or electronics. To fix it, hold your phone and move it in a smooth <strong>figure-8 pattern</strong> three or four times — this recalibrates the internal magnetometer. The satellite overlay should noticeably improve alignment. Also ensure you are outside and away from large metal structures.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How many satellites will I see in the AR viewer at once?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    In <strong>All mode</strong>, the viewer shows every tracked object above your horizon — this can be several hundred dots at once, which can look dense. Switch to <strong>Only Visible (night)</strong> to see only satellites that are above your horizon AND in sunlight at this moment — typically 10–40 on a clear dark evening. Use the category filters (Starlink, ISS, GPS, etc.) to focus on a specific population.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Does the AR viewer work on an iPhone?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes, fully. Open the AR Sky View in Safari on any iPhone running iOS 13 or later. Safari on iOS 13+ requires a user permission grant for the DeviceOrientation API (the motion sensors used to read your heading and tilt). A permission dialog will appear on first use — tap <em>Allow</em>. If you accidentally denied it, go to <strong>Settings → Safari → Motion &amp; Orientation Access</strong> and enable it, then reload the page.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    What do the different coloured dots mean?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Each colour represents a satellite category: <strong>white</strong> = Space Station / crew vehicles, <strong>green</strong> = Starlink / internet broadband, <strong>blue</strong> = GPS / navigation, <strong>orange</strong> = Communications, <strong>red</strong> = Military, <strong>yellow/gold</strong> = Weather, <strong>cyan</strong> = Geodetic / Earth observation, <strong>purple</strong> = Technology / experimental, <strong>pink</strong> = Other. The colour legend is shown in the Filters panel.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can I use AR Sky View without an internet connection?
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer">
+                    Yes, partially. On your first visit the TLE satellite catalogue is cached locally in your browser. On subsequent visits without a connection, the viewer will load from this cached data — the satellites will still be displayed and computed correctly, though positions will gradually become less accurate as TLEs age (TLEs are typically good to within a few kilometres for 1–3 days). For the most accurate positions, a connection that allows the app to fetch the latest catalogue is recommended.
+                </div>
+            </div>
+
+            <!-- RELATED -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Guides</div>
+                <div class="related-grid">
+                    <a href="/blogs/how-to-spot-a-starlink-train/" class="related-card">
+                        <span class="related-icon">🟢</span>
+                        <div class="related-text">
+                            <strong>How to Spot a Starlink Train Tonight</strong>
+                            <span>Predict the next pass, find the right window, and watch the chain of lights cross your sky.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/iss-pass-tonight/" class="related-card">
+                        <span class="related-icon">⭐</span>
+                        <div class="related-text">
+                            <strong>ISS Pass Tonight — When & Where to See It</strong>
+                            <span>Exact pass time, direction, and elevation for the Space Station from your location.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/why-are-satellites-so-bright/" class="related-card">
+                        <span class="related-icon">✨</span>
+                        <div class="related-text">
+                            <strong>Why Are Satellites So Bright?</strong>
+                            <span>Understanding flares, Starlink trains, and why some satellites outshine Venus.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/best-time-to-see-satellites-tonight/" class="related-card">
+                        <span class="related-icon">🌅</span>
+                        <div class="related-text">
+                            <strong>Best Time to See Satellites Tonight</strong>
+                            <span>The 90-minute twilight window explained — when to look and why it works.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/what-is-a-tle/" class="related-card">
+                        <span class="related-icon">🔢</span>
+                        <div class="related-text">
+                            <strong>What is a TLE and How to Read It</strong>
+                            <span>The orbital data format that powers everything you see in AR Sky View.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/3d-satellite-tracking/" class="related-card">
+                        <span class="related-icon">🌐</span>
+                        <div class="related-text">
+                            <strong>3D Satellite Tracking in Real Time</strong>
+                            <span>Explore every orbit on an interactive 3D globe — the perfect complement to AR Sky View.</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        </article>
+
+        <!-- CTA BANNER -->
+        <div class="cta-banner">
+            <h2>Try AR Sky View right now</h2>
+            <p>Open it on your phone, point it at the sky, and see which satellites are flying over you at this exact moment — no telescope, no experience needed.</p>
+            <div class="cta-buttons">
+                <a href="/ar-sky.html" class="cta-btn">🔭 Open AR Sky View</a>
+                <a href="/next-passes.html" class="cta-btn blue">📡 Next Passes</a>
+                <a href="/" class="cta-btn outline">🌍 Live Map</a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a> ·
+            <a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a> ·
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> ·
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => {
+                b.classList.remove('open');
+                b.setAttribute('aria-expanded', 'false');
+            });
+            if (!isOpen) {
+                answer.classList.add('visible');
+                btn.classList.add('open');
+                btn.setAttribute('aria-expanded', 'true');
+            }
+        }
+    </script>
+
+</body>
+</html>

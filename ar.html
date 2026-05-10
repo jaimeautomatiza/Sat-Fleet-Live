@@ -583,14 +583,13 @@ async function loadSatellites() {
     try {
         const res = await fetch('https://worker.satfleetlive.com/api/tle');
         if (!res.ok) throw new Error('fetch failed');
-        const text = await res.text();
-        allSatellites = parseTLE(text);
+        const data = await res.json();
+        allSatellites = parseTLE(data);
         console.log(`AR: ${allSatellites.length} satellites loaded`);
     } catch(e) {
-        // Try localStorage backup
-        const backup = localStorage.getItem('backupTLE');
+        const backup = localStorage.getItem('backupGP');
         if (backup) {
-            allSatellites = parseTLE(backup);
+            allSatellites = parseTLE(JSON.parse(backup));
             console.log('AR: loaded from backup');
         } else {
             showOverlay('error');
@@ -598,7 +597,6 @@ async function loadSatellites() {
         }
     }
     hideOverlay();
-    // Sincronizar botones con los filtros por defecto
     document.querySelectorAll('.ar-filter-btn').forEach(b => {
         b.classList.toggle('active', arFilters.has(b.dataset.type));
     });
@@ -607,18 +605,13 @@ async function loadSatellites() {
     startLoop();
 }
 
-function parseTLE(text) {
+function parseTLE(gpData) {
     const sats = [];
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    for (let i = 0; i < lines.length; i += 3) {
-        const name = lines[i];
-        const l1   = lines[i+1];
-        const l2   = lines[i+2];
-        if (!name || name.startsWith('#')) { i -= 2; continue; }
-        if (!l1 || !l2) continue;
+    for (const obj of gpData) {
         try {
-            const satrec = satellite.twoline2satrec(l1, l2);
-            const noradId = l1.substring(2, 7).trim();
+            const satrec = satellite.json2satrec(obj);
+            const name = obj.OBJECT_NAME;
+            const noradId = obj.NORAD_CAT_ID.toString();
             sats.push({ name, noradId, satrec });
         } catch(e) {}
     }

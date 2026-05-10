@@ -1,0 +1,150 @@
+{
+  "profileId": "electron-mahia-lc1-v1",
+  "version": 1,
+  "vehicle": "Electron",
+  "missionFamily": "Electron – LC-1 Mahia Peninsula, New Zealand",
+  "description": "Perfil de trayectoria para Rocket Lab Electron desde LC-1 (Mahia Peninsula, Nueva Zelanda). Misión expendable con splashdown oceánico del primer escenario en el Pacífico Sur. Sin recuperación propulsada. Los offsets de anchorPoints se derivan de telemetría real de la misión 'That's Not A Knife' (DART AE). IMPORTANTE: ver sección 'notes' al final del archivo.",
+  "launchSite": {
+    "name": "LC-1A",
+    "locationName": "Mahia Peninsula, New Zealand",
+    "lat": -39.2626,
+    "lon": 177.8636,
+    "confidence": "reference — ver notes"
+  },
+  "matchingHints": {
+    "launchServiceProvider": ["Rocket Lab"],
+    "rocketFamily": ["Electron"],
+    "rocketNameContains": ["Electron"],
+    "missionTypeContains": ["Communications", "Earth Observation", "Technology", "Science", "Rideshare"],
+    "orbitAbbrevIn": ["LEO", "SSO", "PO"],
+    "padLocationContains": ["Mahia", "New Zealand", "LC-1", "LC-1A", "LC-1B"]
+  },
+  "targetOrbit": {
+    "type": "Low Earth Orbit",
+    "orbitAbbrev": "LEO",
+    "inclinationDeg": 97.5,
+    "apoapsisKm": 205,
+    "periapsisKm": 200,
+    "confidence": "derived from telemetry (SECO alt ~205 km)"
+  },
+  "guidance": {
+    "verticalRiseSeconds": 10,
+    "pitchStartSeconds": 10,
+    "azimuthDeg": 180,
+    "curveStrength": 0.55,
+    "downrangeBias": 0.50,
+    "confidence": "estimated for Mahia SSO"
+  },
+  "events": [
+    {
+      "id": "liftoff",
+      "t": 0,
+      "label": "Liftoff"
+    },
+    {
+      "id": "max_q",
+      "t": 60,
+      "label": "Max-Q"
+    },
+    {
+      "id": "meco",
+      "t": 150,
+      "label": "MECO"
+    },
+    {
+      "id": "stage_sep",
+      "t": 150,
+      "label": "Stage Sep"
+    },
+    {
+      "id": "ses1",
+      "t": 150,
+      "label": "SES-1"
+    },
+    {
+      "id": "battery_hotswap",
+      "t": 210,
+      "label": "Battery Hotswap"
+    },
+    {
+      "id": "seco1",
+      "t": 309,
+      "label": "SECO-1"
+    },
+    {
+      "id": "deploy",
+      "t": 309,
+      "label": "Payload Deploy"
+    }
+  ],
+  "recovery": {
+    "mode": "splashdown",
+    "target": "Pacific Ocean",
+    "landingZoneType": "ocean",
+    "estimatedDownrangeKm": 640,
+    "confidence": "derived from telemetry",
+    "notes": "El primer escenario del Electron NO dispone de motores de aterrizaje. Cae balísticamente y amara en el océano (Pacific Ocean SE de Mahia para lanzamientos SSO). En misiones de recuperación experimental, Rocket Lab usa paracaídas y un helicóptero — esto no altera la trayectoria dibujada."
+  },
+  "anchorPoints": [
+    { "t": 0,   "latOffsetDeg":  0.00000, "lonOffsetDeg":  0.00000, "altKm":   0.000, "segment": "ascent_stage1",  "confidence": "calibrated" },
+    { "t": 30,  "latOffsetDeg":  0.00000, "lonOffsetDeg":  0.00000, "altKm":   2.073, "segment": "ascent_stage1",  "confidence": "calibrated" },
+    { "t": 60,  "latOffsetDeg": -0.00225, "lonOffsetDeg":  0.00687, "altKm":   9.919, "segment": "ascent_stage1",  "confidence": "calibrated" },
+    { "t": 90,  "latOffsetDeg": -0.02396, "lonOffsetDeg":  0.07396, "altKm":  26.850, "segment": "ascent_stage1",  "confidence": "calibrated" },
+    { "t": 120, "latOffsetDeg": -0.09722, "lonOffsetDeg":  0.29918, "altKm":  56.980, "segment": "ascent_stage1",  "confidence": "calibrated" },
+    { "t": 150, "latOffsetDeg": -0.24750, "lonOffsetDeg":  0.75673, "altKm":  96.364, "segment": "ascent_stage1",  "confidence": "calibrated" },
+
+    { "t": 150, "latOffsetDeg": -0.24750, "lonOffsetDeg":  0.75673, "altKm":  96.364, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 180, "latOffsetDeg": -0.43842, "lonOffsetDeg":  1.32469, "altKm": 134.065, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 210, "latOffsetDeg": -0.62807, "lonOffsetDeg":  1.87275, "altKm": 163.250, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 240, "latOffsetDeg": -0.81990, "lonOffsetDeg":  2.41206, "altKm": 184.668, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 270, "latOffsetDeg": -1.01425, "lonOffsetDeg":  2.94428, "altKm": 198.370, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 300, "latOffsetDeg": -1.21152, "lonOffsetDeg":  3.47141, "altKm": 204.385, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 309, "latOffsetDeg": -1.27132, "lonOffsetDeg":  3.62875, "altKm": 204.693, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 330, "latOffsetDeg": -1.41209, "lonOffsetDeg":  3.99477, "altKm": 202.727, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 360, "latOffsetDeg": -1.61639, "lonOffsetDeg":  4.51585, "altKm": 193.392, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 390, "latOffsetDeg": -1.82491, "lonOffsetDeg":  5.03612, "altKm": 176.359, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 420, "latOffsetDeg": -2.03813, "lonOffsetDeg":  5.55728, "altKm": 151.590, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 450, "latOffsetDeg": -2.25663, "lonOffsetDeg":  6.08020, "altKm": 119.028, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 480, "latOffsetDeg": -2.48102, "lonOffsetDeg":  6.60704, "altKm":  78.599, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 510, "latOffsetDeg": -2.70898, "lonOffsetDeg":  7.13234, "altKm":  30.854, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 540, "latOffsetDeg": -2.80495, "lonOffsetDeg":  7.35060, "altKm":   7.715, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 570, "latOffsetDeg": -2.81357, "lonOffsetDeg":  7.37014, "altKm":   2.082, "segment": "booster_entry",  "confidence": "calibrated" },
+    { "t": 583, "latOffsetDeg": -2.81441, "lonOffsetDeg":  7.37206, "altKm":   0.134, "segment": "booster_entry",  "confidence": "calibrated" },
+
+    { "t": 150, "latOffsetDeg": -0.24754, "lonOffsetDeg":  0.75685, "altKm":  96.368, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 180, "latOffsetDeg": -0.43877, "lonOffsetDeg":  1.32574, "altKm": 134.109, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 210, "latOffsetDeg": -0.62872, "lonOffsetDeg":  1.87468, "altKm": 163.334, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 240, "latOffsetDeg": -0.82086, "lonOffsetDeg":  2.41486, "altKm": 184.795, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 270, "latOffsetDeg": -1.01554, "lonOffsetDeg":  2.94792, "altKm": 198.541, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 300, "latOffsetDeg": -1.21312, "lonOffsetDeg":  3.47587, "altKm": 204.603, "segment": "stage2_insertion", "confidence": "calibrated" },
+    { "t": 309, "latOffsetDeg": -1.27302, "lonOffsetDeg":  3.63344, "altKm": 204.925, "segment": "stage2_insertion", "confidence": "calibrated" }
+  ],
+  "notes": [
+    "⚠️  DISCREPANCIA DE SITIO DE LANZAMIENTO — LEER ANTES DE USAR:",
+    "El CSV 'That's Not A Knife (DART AE)' tiene su punto t=0 en lat=37.833°N, lon=-75.488°W,",
+    "que corresponde exactamente a Wallops Island, Virginia (LC-2), NO a Mahia, Nueva Zelanda.",
+    "La misión 'That's Not A Knife' puede haber sido lanzada desde Wallops, o el CSV puede contener",
+    "datos de una misión diferente. Verifica el origen si necesitas precisión geográfica absoluta.",
+    "",
+    "¿Qué significa esto para tu simulador? Dos opciones:",
+    "  OPCIÓN A (recomendada si el origen importa): usa este perfil tal cual para misiones Electron",
+    "  desde LC-2 Wallops. Cambia launchSite.lat/lon a 37.8405 / -75.4883 y los padLocationContains",
+    "  a ['Wallops', 'Virginia', 'LC-2']. Renombra el archivo a electron-wallops-lc2.json.",
+    "  OPCIÓN B (perfectamente válida para Mahia): el perfil ya tiene launchSite apuntando a Mahia.",
+    "  Los offsets seguirán la misma geometría relativa — el cohete caerá en el Pacífico Sur al",
+    "  sudeste de Nueva Zelanda, que es visualmente plausible para una órbita SSO desde LC-1.",
+    "",
+    "Eventos derivados de telemetría real ('That's Not A Knife' / DART AE):",
+    "  Max-Q asignado a t=60s (anchor más cercano al ~t=70s real del Electron).",
+    "  MECO asignado a t=150s: el ratio dalt/dt del S1 alcanza máximo en t=146s y decrece desde t=147s.",
+    "  Battery hotswap asignado a t=210s (anchor existente entre SES-1 y SECO; Electron usa",
+    "  electric turbopumps con baterías de iones de litio que se conmutan durante el vuelo del S2).",
+    "  SECO-1 a t=309s: altitud máxima del S2 = 204.925 km (confirmado por CSV).",
+    "  S1 apogeo a t=309s: altitud máxima del S1 = 204.693 km (concurrente con SECO, típico en Electron).",
+    "  S1 splashdown a t=583s: última muestra con altitud positiva (0.134 km). El impacto real",
+    "  ocurre entre t=583 y t=584 (a t=584 la altitud es -0.008 km, bajo el nivel del mar).",
+    "",
+    "El S2 no realiza una segunda quema orbital en esta misión (perfil suborbital/de parking bajo);",
+    "la trayectoria de inserción termina en SECO-1 y no hay coast_arc ni gto_burn."
+  ]
+}

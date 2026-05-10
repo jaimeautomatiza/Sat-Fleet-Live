@@ -56,25 +56,73 @@
   <!-- Español -->
   <div id="es" class="lang-content active">
     <h1>Política de Privacidad - SatFleet Live</h1>
-    <p><strong>Última actualización:</strong> 18 de Marzo de 2026</p>
+    <p><strong>Última actualización:</strong> 6 de Mayo de 2026</p>
 
     <p>Esta política de privacidad aplica tanto a la aplicación <strong>SatFleet Live</strong> como al sitio web <strong>satfleetlive.com</strong>, ya que ambos comparten el mismo contenido y funcionamiento.</p>
 
     <h2>Recopilación de información</h2>
-    <p>SatFleet Live no recopila, almacena ni comparte información personal de los usuarios.</p>
+<p>SatFleet Live recopila y procesa los siguientes datos personales para prestar el servicio:</p>
+<ul>
+  <li><strong>Dirección de correo electrónico y contraseña</strong> (si el usuario crea una cuenta): necesarios para la autenticación mediante Firebase Authentication (Google).</li>
+  <li><strong>Datos de cuenta de Google</strong> (nombre y email): si el usuario elige iniciar sesión con Google.</li>
+  <li><strong>Identificador de usuario único (UID)</strong>: generado por Firebase, utilizado para vincular la cuenta con el estado de suscripción Premium.</li>
+  <li><strong>Información de suscripción y pago</strong>: procesada por Stripe (pagos web) o Google Play Billing (pagos en la app Android), y gestionada por RevenueCat. No almacenamos datos de tarjetas de crédito en nuestros servidores.</li>
+  <li><strong>Ubicación geográfica aproximada</strong>: solicitada opcionalmente para calcular los pases de satélites visibles desde tu posición. Solo se utiliza en el momento del cálculo y se almacena localmente en tu dispositivo. No se envía a nuestros servidores.</li>
+  <li><strong>Token de notificaciones push (Player ID)</strong>: si el usuario activa las alertas de pases de satélites, se genera un identificador de dispositivo anónimo a través de OneSignal para enviar notificaciones programadas.</li>
+  <li><strong>Dirección IP</strong>: procesada temporalmente por Cloudflare (nuestra infraestructura de servidor) para la prestación del servicio y protección frente a abusos. No la almacenamos de forma permanente.</li>
+</ul>
 
     <h2>Uso de datos</h2>
-    <ul>
-      <li>La aplicación y el sitio web utilizan conexión a Internet únicamente para mostrar el contenido de <strong>satfleetlive.com</strong>.</li>
-      <li>Las notificaciones que pueda generar la app son locales y no requieren datos personales.</li>
+<p>Los datos recopilados se utilizan exclusivamente para:</p>
+<ul>
+  <li>Autenticar al usuario y mantener su sesión activa.</li>
+  <li>Gestionar el estado de su suscripción Premium a través de RevenueCat.</li>
+  <li>Calcular los pases de satélites visibles desde la ubicación del usuario.</li>
+  <li>Enviar notificaciones push programadas sobre pases de satélites, si el usuario las activa explícitamente. Este servicio es prestado por <strong>OneSignal</strong>, que almacena el token de notificación del dispositivo en sus servidores. Puedes consultar la política de privacidad de OneSignal en <a href="https://onesignal.com/privacy_policy" target="_blank">onesignal.com/privacy_policy</a>.</li>
+  <li>Mejorar el servicio mediante estadísticas anónimas de uso (Google Analytics), solo si el usuario da su consentimiento explícito.</li>
       <li>La función <strong>AR Sky View (Beta)</strong> puede acceder a la cámara del dispositivo únicamente para mostrar la vista de realidad aumentada en tiempo real. En ningún momento se graba, almacena ni comparte el contenido de la cámara.</li>
 <li>El uso de la cámara es completamente opcional. Si el usuario no activa la función AR, no se accede a la cámara en ningún momento.</li>
 <li>No se accede a contactos, micrófono ni otros datos sensibles del dispositivo.</li>
 
     </ul>
 
-    <h2>Cookies</h2>
-    <p>El sitio web <strong>satfleetlive.com</strong> puede utilizar cookies propias o de terceros (por ejemplo, Google Analytics) únicamente con fines estadísticos y de mejora del servicio.</p>
+    <h2>Terceros que procesan datos (Encargados del tratamiento)</h2>
+<p>SatFleet Live utiliza los siguientes servicios de terceros que pueden procesar datos personales:</p>
+<ul>
+  <li><strong>Firebase Authentication</strong> (Google LLC) — Autenticación de usuarios. <a href="https://firebase.google.com/support/privacy" target="_blank">Política de privacidad</a></li>
+  <li><strong>RevenueCat</strong> — Gestión de suscripciones y pagos. <a href="https://www.revenuecat.com/privacy" target="_blank">Política de privacidad</a></li>
+  <li><strong>Stripe</strong> — Procesamiento de pagos web. <a href="https://stripe.com/es/privacy" target="_blank">Política de privacidad</a></li>
+  <li><strong>Google Play Billing</strong> (Google LLC) — Procesamiento de pagos en Android. <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
+  <li><strong>OneSignal</strong> — Notificaciones push. <a href="https://onesignal.com/privacy_policy" target="_blank">Política de privacidad</a></li>
+  <li><strong>Cloudflare</strong> — Infraestructura de red y seguridad. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Política de privacidad</a></li>
+  <li><strong>Google Analytics</strong> — Estadísticas de uso (solo con consentimiento del usuario). <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
+</ul>
+
+<h2>Base legal del tratamiento (RGPD)</h2>
+<p>El tratamiento de sus datos personales se realiza bajo las siguientes bases legales:</p>
+<ul>
+  <li><strong>Ejecución de un contrato</strong> (Art. 6.1.b RGPD): para gestionar su cuenta, su suscripción y prestar el servicio solicitado.</li>
+  <li><strong>Consentimiento</strong> (Art. 6.1.a RGPD): para el envío de notificaciones push y el uso de cookies analíticas. Puede retirar su consentimiento en cualquier momento.</li>
+  <li><strong>Interés legítimo</strong> (Art. 6.1.f RGPD): para la seguridad del servicio y la protección frente a abusos (rate limiting, Cloudflare).</li>
+</ul>
+
+<h2>Conservación de los datos</h2>
+<p>Los datos de cuenta se conservan mientras el usuario mantenga su cuenta activa. Al eliminar la cuenta, los datos de autenticación son borrados de Firebase de forma inmediata. Los datos de suscripción en RevenueCat pueden conservarse durante el período exigido por la normativa fiscal aplicable. Los tokens de notificación se eliminan automáticamente cuando el usuario desactiva las alertas.</p>
+
+<h2>Derechos del usuario (RGPD)</h2>
+<p>Si reside en el Espacio Económico Europeo, tiene derecho a:</p>
+<ul>
+  <li><strong>Acceso</strong>: solicitar una copia de sus datos personales.</li>
+  <li><strong>Rectificación</strong>: corregir datos inexactos.</li>
+  <li><strong>Supresión</strong>: eliminar su cuenta y datos desde la sección "Account" de la app o contactando con nosotros.</li>
+  <li><strong>Portabilidad</strong>: recibir sus datos en formato estructurado.</li>
+  <li><strong>Oposición y limitación</strong>: oponerse a determinados tratamientos.</li>
+  <li><strong>Reclamación</strong>: presentar una reclamación ante la <a href="https://www.aepd.es" target="_blank">Agencia Española de Protección de Datos (AEPD)</a>.</li>
+</ul>
+<p>Para ejercer cualquiera de estos derechos, contáctenos en <a href="mailto:jaime.automatiza@gmail.com">jaime.automatiza@gmail.com</a>.</p>
+
+<h2>Cookies</h2>
+    <p>El sitio web <strong>satfleetlive.com</strong> utiliza cookies de terceros (Google Analytics) únicamente con fines estadísticos y de mejora del servicio. Estas cookies solo se activan si el usuario da su consentimiento explícito a través del banner que aparece al visitar la web por primera vez.</p>
 
     <h2>Enlaces externos</h2>
     <p>SatFleet Live puede incluir enlaces a sitios externos. No somos responsables de las prácticas de privacidad o el contenido de dichos sitios.</p>
@@ -87,24 +135,72 @@
   <!-- English -->
   <div id="en" class="lang-content">
     <h1>Privacy Policy - SatFleet Live</h1>
-    <p><strong>Last updated:</strong> March 18, 2026</p>
+    <p><strong>Last updated:</strong> May 6, 2026</p>
 
     <p>This privacy policy applies to both the <strong>SatFleet Live</strong> application and the <strong>satfleetlive.com</strong> website, as they share the same content and functionality.</p>
 
     <h2>Information Collection</h2>
-    <p>SatFleet Live does not collect, store, or share any personal information from users.</p>
+<p>SatFleet Live collects and processes the following personal data to provide the service:</p>
+<ul>
+  <li><strong>Email address and password</strong> (if the user creates an account): required for authentication via Firebase Authentication (Google).</li>
+  <li><strong>Google account data</strong> (name and email): if the user chooses to sign in with Google.</li>
+  <li><strong>Unique user identifier (UID)</strong>: generated by Firebase, used to link the account with Premium subscription status.</li>
+  <li><strong>Subscription and payment data</strong>: processed by Stripe (web payments) or Google Play Billing (Android in-app payments), and managed by RevenueCat. We do not store credit card details on our servers.</li>
+  <li><strong>Approximate geographic location</strong>: optionally requested to calculate satellite passes visible from your position. It is only used at the time of calculation and stored locally on your device. It is not sent to our servers.</li>
+  <li><strong>Push notification token (Player ID)</strong>: if the user enables satellite pass alerts, an anonymous device identifier is generated via OneSignal to send scheduled notifications.</li>
+  <li><strong>IP address</strong>: temporarily processed by Cloudflare (our server infrastructure) to provide the service and protect against abuse. We do not store it permanently.</li>
+</ul>
 
     <h2>Use of Data</h2>
-    <ul>
-      <li>The app and the website use an Internet connection only to display content from <strong>satfleetlive.com</strong>.</li>
-      <li>Any notifications generated by the app are local and do not require personal data.</li>
+<p>Collected data is used exclusively for:</p>
+<ul>
+  <li>Authenticating the user and maintaining an active session.</li>
+  <li>Managing Premium subscription status through RevenueCat.</li>
+  <li>Calculating satellite passes visible from the user's location.</li>
+  <li>Sending scheduled push notifications about satellite passes, if explicitly enabled by the user. This service is provided by <strong>OneSignal</strong>, which stores the device notification token on their servers. See OneSignal's privacy policy at <a href="https://onesignal.com/privacy_policy" target="_blank">onesignal.com/privacy_policy</a>.</li>
+  <li>Improving the service through anonymous usage statistics (Google Analytics), only with the user's explicit consent.</li>
       <li>The <strong>AR Sky View (Beta)</strong> feature may access the device camera solely to display the augmented reality view in real time. The camera feed is never recorded, stored, or shared.</li>
 <li>Camera access is entirely optional. If the user does not activate the AR feature, the camera is never accessed.</li>
 <li>No access is made to contacts, microphone, or other sensitive device data.</li>
     </ul>
 
-    <h2>Cookies</h2>
-    <p>The website <strong>satfleetlive.com</strong> may use first-party or third-party cookies (for example, Google Analytics) only for statistical purposes and service improvement.</p>
+    <h2>Third-Party Data Processors</h2>
+<p>SatFleet Live uses the following third-party services that may process personal data:</p>
+<ul>
+  <li><strong>Firebase Authentication</strong> (Google LLC) — User authentication. <a href="https://firebase.google.com/support/privacy" target="_blank">Privacy policy</a></li>
+  <li><strong>RevenueCat</strong> — Subscription and payment management. <a href="https://www.revenuecat.com/privacy" target="_blank">Privacy policy</a></li>
+  <li><strong>Stripe</strong> — Web payment processing. <a href="https://stripe.com/privacy" target="_blank">Privacy policy</a></li>
+  <li><strong>Google Play Billing</strong> (Google LLC) — Android in-app payment processing. <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
+  <li><strong>OneSignal</strong> — Push notifications. <a href="https://onesignal.com/privacy_policy" target="_blank">Privacy policy</a></li>
+  <li><strong>Cloudflare</strong> — Network infrastructure and security. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Privacy policy</a></li>
+  <li><strong>Google Analytics</strong> — Usage statistics (only with user consent). <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
+</ul>
+
+<h2>Legal Basis for Processing (GDPR)</h2>
+<p>Processing of personal data is carried out under the following legal bases:</p>
+<ul>
+  <li><strong>Performance of a contract</strong> (Art. 6.1.b GDPR): to manage your account, subscription, and deliver the requested service.</li>
+  <li><strong>Consent</strong> (Art. 6.1.a GDPR): for push notifications and analytical cookies. You may withdraw consent at any time.</li>
+  <li><strong>Legitimate interest</strong> (Art. 6.1.f GDPR): for service security and abuse prevention (rate limiting, Cloudflare).</li>
+</ul>
+
+<h2>Data Retention</h2>
+<p>Account data is retained while the user's account remains active. Upon account deletion, authentication data is immediately removed from Firebase. Subscription data in RevenueCat may be retained for the period required by applicable tax regulations. Notification tokens are automatically deleted when the user disables alerts.</p>
+
+<h2>Your Rights (GDPR)</h2>
+<p>If you reside in the European Economic Area, you have the right to:</p>
+<ul>
+  <li><strong>Access</strong>: request a copy of your personal data.</li>
+  <li><strong>Rectification</strong>: correct inaccurate data.</li>
+  <li><strong>Erasure</strong>: delete your account and data from the "Account" section of the app or by contacting us.</li>
+  <li><strong>Portability</strong>: receive your data in a structured format.</li>
+  <li><strong>Objection and restriction</strong>: object to certain types of processing.</li>
+  <li><strong>Complaint</strong>: lodge a complaint with the <a href="https://www.aepd.es" target="_blank">Spanish Data Protection Agency (AEPD)</a>.</li>
+</ul>
+<p>To exercise any of these rights, contact us at <a href="mailto:jaime.automatiza@gmail.com">jaime.automatiza@gmail.com</a>.</p>
+
+<h2>Cookies</h2>
+<p>The website <strong>satfleetlive.com</strong> uses third-party cookies (Google Analytics) only for statistical purposes and service improvement. These cookies are only activated if the user gives explicit consent through the banner displayed upon first visiting the website.</p>
 
     <h2>External Links</h2>
     <p>SatFleet Live may include links to external websites. We are not responsible for the privacy practices or content of those websites.</p>

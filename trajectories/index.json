@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "id": "starlink-53deg-florida-v1",
+      "vehicle": "Falcon 9 Block 5",
+      "family": "Falcon 9",
+      "provider": "SpaceX",
+      "path": "./trajectories/falcon9/starlink-53deg-florida.json",
+      "enabled": true
+    },
+    {
+      "id": "crew-iss-v1",
+      "vehicle": "Falcon 9 Block 5",
+      "family": "Falcon 9",
+      "provider": "SpaceX",
+      "path": "./trajectories/falcon9/crew-iss.json",
+      "enabled": true
+    },
+    {
+      "id": "gto-canaveral-asds-v1",
+      "vehicle": "Falcon 9 Block 5",
+      "family": "Falcon 9",
+      "provider": "SpaceX",
+      "path": "./trajectories/falcon9/gto-canaveral-asds-v1.json",
+      "enabled": true
+    },
+    {
+      "id": "sso-vandenberg-v1",
+      "vehicle": "Falcon 9 Block 5",
+      "family": "Falcon 9",
+      "provider": "SpaceX",
+      "path": "./trajectories/falcon9/sso-vandenberg.json",
+      "enabled": true
+    },
+    {
+      "id": "falcon-heavy-gto-v1",
+      "vehicle": "Falcon Heavy",
+      "family": "Falcon Heavy",
+      "provider": "SpaceX",
+      "path": "./trajectories/falconheavy/falcon-heavy-gto-v1.json",
+      "enabled": true
+    },
+    {
+      "id": "electron-mahia-lc1-v1",
+      "vehicle": "Electron",
+      "family": "Electron",
+      "provider": "Rocket Lab",
+      "path": "./trajectories/electron/electron-mahia.json",
+      "enabled": true
+    },
+    {
+      "id": "atlasv-kuiper-slc41-florida-v1",
+      "vehicle": "Atlas V 551",
+      "family": "Atlas V",
+      "provider": "ULA",
+      "path": "./trajectories/atlasv/atlasv-kuiper-florida.json",
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account — SatFleet Live</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --purple: #9c27b0;
+            --purple-light: #c084fc;
+            --purple-dark: #7b1fa2;
+            --green: #00d26a;
+            --red: #ef4444;
+            --bg: #0a0a0f;
+            --bg2: #0f0f17;
+            --bg3: #16161f;
+            --border: rgba(156,39,176,0.15);
+            --border-subtle: rgba(255,255,255,0.06);
+            --text: #f0f0f5;
+            --text2: rgba(240,240,245,0.55);
+            --text3: rgba(240,240,245,0.28);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -300px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(156,39,176,0.08) 0%, transparent 68%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── TOP BAR ── */
+        #topBar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(8,8,14,0.96);
+            backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(156,39,176,0.12);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 100;
+        }
+
+        .bar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .bar-logo img {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(156,39,176,0.35);
+        }
+
+        .bar-logo-text {
+            font-size: 0.95rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #d580ff 0%, #9c27b0 55%, #7b1fa2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .bar-back {
+            margin-left: auto;
+            padding: 6px 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 7px;
+            background: transparent;
+            color: var(--text2);
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bar-back:hover {
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            border-color: rgba(255,255,255,0.14);
+        }
+
+        /* ── MAIN ── */
+        main {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding: 96px 20px 60px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        /* ════════════════
+           LOADING
+        ════════════════ */
+        #loadingState {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            color: var(--text3);
+            font-size: 0.82rem;
+            padding-top: 60px;
+        }
+
+        .spinner-sm {
+            width: 32px;
+            height: 32px;
+            border: 1.5px solid rgba(156,39,176,0.12);
+            border-left: 1.5px solid var(--purple);
+            border-top: 1.5px solid rgba(192,132,252,0.4);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ════════════════
+           STATE: LOGGED OUT
+        ════════════════ */
+        #stateLoggedOut {
+            width: 100%;
+            max-width: 400px;
+            animation: fadeUp 0.35s ease;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 36px 32px 32px;
+            box-shadow:
+                0 40px 80px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(255,255,255,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(156,39,176,0.6) 40%, rgba(192,132,252,0.5) 60%, transparent 100%);
+        }
+
+        .auth-logo-area {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-logo-area img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            box-shadow: 0 0 18px rgba(156,39,176,0.4);
+            margin-bottom: 14px;
+        }
+
+        .auth-logo-area h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            margin-bottom: 5px;
+        }
+
+        .auth-logo-area p {
+            font-size: 0.8rem;
+            color: var(--text2);
+            line-height: 1.5;
+        }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 9px;
+            padding: 3px;
+            margin-bottom: 24px;
+            gap: 3px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 7px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 7px;
+            cursor: pointer;
+            color: var(--text3);
+            transition: all 0.18s;
+            border: none;
+            background: none;
+            font-family: inherit;
+            letter-spacing: 0.01em;
+        }
+
+        .auth-tab.active {
+            background: rgba(156,39,176,0.18);
+            color: var(--purple-light);
+            border: 1px solid rgba(156,39,176,0.3);
+        }
+
+        /* Form fields */
+        .form-group {
+            margin-bottom: 13px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 13px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 9px;
+            color: var(--text);
+            font-size: 0.88rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.18s;
+        }
+
+        .form-group input:focus {
+            border-color: rgba(156,39,176,0.5);
+            background: rgba(156,39,176,0.05);
+            box-shadow: 0 0 0 3px rgba(156,39,176,0.1);
+        }
+
+        .form-group input::placeholder { color: var(--text3); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 11px;
+            background: linear-gradient(135deg, #a333bc, var(--purple-dark));
+            border: none;
+            border-radius: 9px;
+            color: #fff;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: inherit;
+            box-shadow: 0 3px 14px rgba(156,39,176,0.3);
+            margin-top: 6px;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(156,39,176,0.45);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            color: var(--text3);
+            font-size: 0.72rem;
+            letter-spacing: 0.05em;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 9px;
+            color: var(--text2);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: all 0.18s;
+            font-family: inherit;
+        }
+
+        .btn-google:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.16);
+            color: var(--text);
+        }
+
+        .btn-google svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+        .auth-error {
+            display: none;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.22);
+            border-radius: 8px;
+            padding: 9px 13px;
+            font-size: 0.78rem;
+            color: #f87171;
+            margin-top: 12px;
+            line-height: 1.45;
+        }
+        .auth-error.visible { display: block; }
+
+        /* ════════════════
+           STATE: LOGGED IN
+        ════════════════ */
+        #stateLoggedIn {
+            width: 100%;
+            max-width: 640px;
+            animation: fadeUp 0.35s ease;
+        }
+
+        /* User card */
+        .user-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 26px 28px 22px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(156,39,176,0.6) 40%, rgba(192,132,252,0.5) 60%, transparent 100%);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(156,39,176,0.4), rgba(123,31,162,0.6));
+            border: 1px solid rgba(156,39,176,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            color: var(--purple-light);
+        }
+
+        .user-info h2 {
+            font-size: 0.97rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+            letter-spacing: -0.01em;
+        }
+
+        .user-email {
+            font-size: 0.78rem;
+            color: var(--text3);
+            margin-bottom: 7px;
+        }
+
+        .plan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.67rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .plan-badge.free {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text3);
+        }
+
+        .plan-badge.premium {
+            background: rgba(156,39,176,0.14);
+            border: 1px solid rgba(156,39,176,0.35);
+            color: var(--purple-light);
+        }
+
+        /* Upgrade CTA */
+        .upgrade-btn {
+            width: 100%;
+            padding: 13px 18px;
+            background: linear-gradient(135deg, rgba(156,39,176,0.2) 0%, rgba(123,31,162,0.15) 100%);
+            border: 1px solid rgba(156,39,176,0.4);
+            border-radius: 11px;
+            color: var(--purple-light);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            letter-spacing: -0.01em;
+        }
+
+        .upgrade-btn:hover {
+            background: linear-gradient(135deg, rgba(156,39,176,0.3) 0%, rgba(123,31,162,0.22) 100%);
+            border-color: rgba(156,39,176,0.6);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(156,39,176,0.2);
+        }
+
+        .upgrade-btn .upgrade-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upgrade-btn .upgrade-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(156,39,176,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .upgrade-btn .upgrade-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--purple-light);
+        }
+
+        .upgrade-btn .upgrade-label {
+            text-align: left;
+        }
+
+        .upgrade-btn .upgrade-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--purple-light);
+            line-height: 1.2;
+        }
+
+        .upgrade-btn .upgrade-sub {
+            font-size: 0.72rem;
+            font-weight: 400;
+            color: rgba(192,132,252,0.6);
+            margin-top: 1px;
+        }
+
+        .upgrade-btn .upgrade-price {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--purple-light);
+            white-space: nowrap;
+        }
+
+        /* Premium active */
+        .premium-active {
+            background: rgba(0,210,106,0.06);
+            border: 1px solid rgba(0,210,106,0.18);
+            border-radius: 11px;
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .premium-active-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(0,210,106,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .premium-active-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--green);
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .premium-active-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--green);
+            margin-bottom: 2px;
+        }
+
+        .premium-active-sub {
+            font-size: 0.74rem;
+            color: rgba(0,210,106,0.5);
+        }
+
+        .logout-btn {
+            width: 100%;
+            margin-top: 14px;
+            padding: 9px;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 9px;
+            color: var(--text3);
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.18s;
+            letter-spacing: 0.01em;
+        }
+
+        .logout-btn:hover {
+            border-color: rgba(239,68,68,0.3);
+            color: #f87171;
+            background: rgba(239,68,68,0.05);
+        }
+
+        /* ════════════════
+           COMPARISON TABLE
+        ════════════════ */
+        .comparison-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .comparison-title {
+            padding: 20px 24px 16px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .comparison-header {
+            display: grid;
+            grid-template-columns: 1fr 110px 110px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .col-label {
+            padding: 12px 24px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .col-free-h {
+            padding: 12px 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text2);
+            text-align: center;
+            border-left: 1px solid var(--border-subtle);
+        }
+
+        .col-premium-h {
+            padding: 12px 0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--purple-light);
+            text-align: center;
+            border-left: 1px solid var(--border-subtle);
+            background: rgba(156,39,176,0.05);
+        }
+
+        .section-label {
+            padding: 9px 24px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1.1px;
+            background: rgba(255,255,255,0.015);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .comp-row {
+            display: grid;
+            grid-template-columns: 1fr 110px 110px;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.12s;
+        }
+
+        .comp-row:last-child { border-bottom: none; }
+        .comp-row:hover { background: rgba(255,255,255,0.012); }
+
+        .comp-row .feat {
+            padding: 11px 24px;
+            font-size: 0.81rem;
+            color: var(--text2);
+            display: flex;
+            align-items: center;
+            line-height: 1.35;
+        }
+
+        .comp-row .feat.highlight {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .comp-row .cell {
+            padding: 11px 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid var(--border-subtle);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .comp-row .cell.premium-col {
+            background: rgba(156,39,176,0.03);
+        }
+
+        /* Check / Cross SVG icons */
+        .icon-check {
+            width: 16px;
+            height: 16px;
+            stroke: var(--green);
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-cross {
+            width: 14px;
+            height: 14px;
+            stroke: rgba(255,255,255,0.2);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .icon-lock {
+            width: 13px;
+            height: 13px;
+            stroke: var(--purple-light);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.7;
+        }
+
+        .cell-partial {
+            font-size: 0.73rem;
+            font-weight: 600;
+            color: var(--text2);
+        }
+
+        .cell-partial-premium {
+            font-size: 0.73rem;
+            font-weight: 600;
+            color: var(--purple-light);
+        }
+
+        /* Mobile */
+        @media (max-width: 520px) {
+            main { padding: 80px 12px 50px; }
+            .auth-card { padding: 28px 20px 24px; }
+            .user-card { padding: 20px 18px 18px; }
+            .comparison-header { grid-template-columns: 1fr 90px 90px; }
+            .comp-row { grid-template-columns: 1fr 90px 90px; }
+            .comp-row .feat { padding: 10px 14px; font-size: 0.77rem; }
+            .col-label { padding: 11px 14px; }
+            .section-label { padding: 8px 14px; }
+            .comparison-title { padding: 16px 18px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topBar">
+    <a class="bar-logo" href="index.html">
+        <img src="images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+        <span class="bar-logo-text">SatFleet Live</span>
+    </a>
+    <a class="bar-back" href="index.html">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7.5 2L3.5 6l4 4"/>
+        </svg>
+        Back to map
+    </a>
+</div>
+
+<main>
+
+    <!-- LOADING -->
+    <div id="loadingState">
+        <div class="spinner-sm"></div>
+        <span>Loading...</span>
+    </div>
+
+    <!-- STATE 1: NOT LOGGED IN -->
+    <div id="stateLoggedOut" style="display:none;">
+        <div class="auth-card">
+            <div class="auth-logo-area">
+                <img src="images/logo.png" alt="SatFleet" onerror="this.style.display='none'">
+                <h1>Sign in to SatFleet</h1>
+                <p>Access your account and manage your Premium plan</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Create Account</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="formLogin">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button class="btn-primary" onclick="login()">Sign In</button>
+
+                <div class="divider">or</div>
+
+                <button class="btn-google" onclick="loginWithGoogle()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Continue with Google
+                </button>
+                <div class="auth-error" id="loginError"></div>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="formRegister" style="display:none;">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="registerPassword2" placeholder="Repeat password" autocomplete="new-password">
+                </div>
+                <button class="btn-primary" onclick="register()">Create Account</button>
+
+                <div class="divider">or</div>
+
+                <button class="btn-google" onclick="loginWithGoogle()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Sign up with Google
+                </button>
+                <div class="auth-error" id="registerError"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATE 2: LOGGED IN -->
+    <div id="stateLoggedIn" style="display:none;">
+
+        <div class="user-card">
+            <div class="user-header">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div class="user-info">
+                    <h2 id="userDisplayName">User</h2>
+                    <div class="user-email" id="userEmail">—</div>
+                    <div class="plan-badge free" id="planBadge">Free Plan</div>
+                </div>
+            </div>
+
+            <!-- Upgrade CTA (free users) -->
+            <div id="upgradeSection">
+                <button class="upgrade-btn" onclick="upgradePremium()">
+                    <div class="upgrade-left">
+                        <div class="upgrade-icon">
+                            <svg viewBox="0 0 16 16"><path d="M8 1l2.3 4.6L16 6.5l-4 3.9.9 5.6L8 13.4l-4.9 2.6.9-5.6L0 6.5l5.7-.9z"/></svg>
+                        </div>
+                        <div class="upgrade-label">
+                            <div class="upgrade-title">Upgrade to Premium</div>
+                            <div class="upgrade-sub">Unlock all features</div>
+                        </div>
+                    </div>
+                    <div class="upgrade-price">€2.99 / mo</div>
+                </button>
+            </div>
+
+            <!-- Premium active -->
+            <div id="premiumActiveSection" style="display:none;">
+                <div class="premium-active">
+                    <div class="premium-active-icon">
+                        <svg viewBox="0 0 16 16">
+                            <polyline points="2,8 6,12 14,4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="premium-active-title">Premium Active</div>
+                        <div class="premium-active-sub">All features unlocked — thank you for your support</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="logout-btn" onclick="logout()">Sign out</button>
+            <button class="logout-btn" onclick="showDeleteModal()" style="margin-top:6px;border-color:rgba(239,68,68,0.15);color:rgba(239,68,68,0.4);">Delete account</button>
+        </div>
+
+        <!-- Comparison table -->
+        <div class="comparison-card">
+
+            <div class="comparison-title">Plan comparison</div>
+
+            <div class="comparison-header">
+                <div class="col-label">Feature</div>
+                <div class="col-free-h">Free</div>
+                <div class="col-premium-h">Premium</div>
+            </div>
+
+            <!-- Map -->
+            <div class="section-label">Main Map</div>
+
+            <div class="comp-row">
+                <div class="feat">Full 2D satellite map</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat">Full 3D globe (Cesium)</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat">AR Sky View</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat">Satellite search</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat">Rocket pad markers</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat highlight">Only Visible filter</div>
+                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat highlight">Simulate Flight / Preview Trajectory</div>
+                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+
+            <!-- Next Passes -->
+            <div class="section-label">Next Passes</div>
+
+            <div class="comp-row">
+                <div class="feat">ISS, Starlink &amp; GPS passes</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat">Forecast window</div>
+                <div class="cell"><span class="cell-partial">1 day</span></div>
+                <div class="cell premium-col"><span class="cell-partial-premium">Up to 7 days</span></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat">Passes shown</div>
+                <div class="cell"><span class="cell-partial">5 passes</span></div>
+                <div class="cell premium-col"><span class="cell-partial-premium">Unlimited</span></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat highlight">Full satellite catalog</div>
+                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat highlight">Pass trajectory mini-maps</div>
+                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat highlight">Push notifications</div>
+                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+
+            <!-- Launches -->
+            <div class="section-label">Launches</div>
+
+            <div class="comp-row">
+                <div class="feat">First 3 launches (full info)</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat">View on Map</div>
+                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+            <div class="comp-row">
+                <div class="feat highlight">All upcoming launches</div>
+                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
+                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+<!-- Delete account modal -->
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;">
+    <div style="background:#0f0f17;border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,0.6);">
+        <div style="font-size:0.95rem;font-weight:700;color:#f87171;margin-bottom:8px;">Delete account</div>
+        <div id="deleteModalText" style="font-size:0.8rem;color:rgba(240,240,245,0.5);line-height:1.55;margin-bottom:20px;">This will permanently delete your account</div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="hideDeleteModal()" style="flex:1;padding:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:rgba(240,240,245,0.55);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">Cancel</button>
+            <button onclick="deleteAccount()" style="flex:1;padding:9px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:8px;color:#f87171;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.22)'" onmouseout="this.style.background='rgba(239,68,68,0.12)'">Yes, delete</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+// Detectamos si el usuario viene de completar el pago
+const _justUpgraded = new URLSearchParams(location.search).get('upgraded') === '1';
+if (_justUpgraded) {
+    history.replaceState({}, '', 'account.html');
+    // Borramos el caché de premium para que index.html
+    // no siga leyendo el "Free" guardado antes del pago
+    localStorage.removeItem('satfleet_premium_check_ts');
+    localStorage.removeItem('satfleet_is_premium');
+}
+
+// Importamos las librerías oficiales de Firebase (Versión 10)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { 
+    getAuth, 
+    onAuthStateChanged, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    GoogleAuthProvider, 
+    signInWithPopup,
+    signInWithCredential,
+    signOut 
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+// 🔴 TU CONFIGURACIÓN REAL DE FIREBASE 🔴
+const firebaseConfig = {
+  apiKey: "AIzaSyCqQcTt6gK_220ZMbDIK9jSuOhCVLTZn4I",
+  authDomain: "satfleet-live.firebaseapp.com",
+  projectId: "satfleet-live",
+  storageBucket: "satfleet-live.firebasestorage.app",
+  messagingSenderId: "369952976257",
+  appId: "1:369952976257:web:c7ba2050865524fca80c80"
+};
+
+// Inicializamos Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// ── Handler: Android nos devuelve el token de Google ──
+window.onGoogleSignInResult = function(idToken) {
+    const credential = GoogleAuthProvider.credential(idToken);
+    signInWithCredential(auth, credential).catch((error) => {
+        showError('loginError', error.message);
+    });
+};
+window.onGoogleSignInError = function(errorMessage) {
+    showError('loginError', errorMessage);
+};
+
+let currentUser = null;
+let isPremium = false;
+let subscriptionStore = null; // NUEVO: Aquí guardaremos si es 'stripe' o 'play_store'
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // Consulta RevenueCat y devuelve el store ('stripe'/'play_store')
+        // o null si el usuario no es Premium
+        async function _checkRC() {
+            try {
+                const token = await user.getIdToken();
+                const res = await fetch('https://worker.satfleetlive.com/api/check-premium', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data.premium ? (data.store || 'stripe') : null;
+            } catch(e) {
+                return null;
+            }
+        }
+
+        try {
+            // Si viene del pago esperamos hasta 60 s para que llegue
+            // el webhook de RevenueCat (puede tardar unos segundos)
+            const maxAttempts = _justUpgraded ? 12 : 1;
+
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const store = await _checkRC();
+                if (store) {
+                    isPremium = true;
+                    subscriptionStore = store;
+                    break;
+                }
+                isPremium = false;
+                subscriptionStore = null;
+                // Si no es el último intento, esperamos 5 s antes de volver a preguntar
+                if (attempt < maxAttempts - 1) {
+                    await new Promise(r => setTimeout(r, 5000));
+                }
+            }
+
+            // Mostrar mensaje según resultado (solo si viene del pago)
+            if (_justUpgraded) {
+                const msg = isPremium
+                    ? '🎉 Premium is now active! All features are unlocked.'
+                    : 'Payment received! Premium access may take a few more minutes to activate — please refresh the page.';
+                setTimeout(() => alert(msg), 300);
+            }
+
+        } catch(error) {
+            console.error('Error checking Premium in RevenueCat:', error);
+            isPremium = false;
+            subscriptionStore = null;
+            if (_justUpgraded) {
+                setTimeout(() => alert('Payment received! Please refresh in a minute to see your Premium status.'), 300);
+            }
+        }
+
+        onUserLoggedIn(user);
+    } else {
+        onUserLoggedOut();
+    }
+});
+
+// ── FUNCIONES DE LA INTERFAZ ──
+function onUserLoggedIn(user) {
+    currentUser = user;
+    
+    // Sacar nombre o usar la primera parte del email
+    const displayName = user.displayName || user.email.split('@')[0];
+    const initial = displayName[0].toUpperCase();
+    
+    document.getElementById('userAvatar').textContent = initial;
+    document.getElementById('userDisplayName').textContent = displayName;
+    document.getElementById('userEmail').textContent = user.email || '';
+
+    // Lógica visual del Premium (Adaptada a tu nuevo diseño)
+    if (isPremium) {
+        document.getElementById('planBadge').textContent = 'Premium';
+        document.getElementById('planBadge').className   = 'plan-badge premium';
+        document.getElementById('upgradeSection').style.display       = 'none';
+        document.getElementById('premiumActiveSection').style.display = 'block';
+        
+        // ── BOTÓN DE GESTIONAR SUSCRIPCIÓN (Solo para Premium) ──
+        let manageBtn = document.getElementById('manageSubBtn');
+        if (!manageBtn) {
+            manageBtn = document.createElement('button');
+            manageBtn.id = 'manageSubBtn';
+            manageBtn.className = 'logout-btn'; 
+            manageBtn.style.marginTop = '6px';
+            manageBtn.textContent = 'Manage Subscription';
+            
+            manageBtn.onclick = () => {
+                // CASO A: Pagó por Google Play
+                if (subscriptionStore === 'play_store') {
+                    if (typeof window.Android !== 'undefined' && window.Android.openPlayStoreSubscription) {
+                        window.Android.openPlayStoreSubscription();
+                    } else {
+                        window.open('https://play.google.com/store/account/subscriptions', '_blank');
+                    }
+                } 
+                // ✅ CASO B: Pagó por Stripe (Con el parche del Auditor)
+                else {
+                    const stripePortalUrl = "https://billing.stripe.com/p/login/dRm00ibzM9yXc2ObbVcs800";
+                    const fullUrl = `${stripePortalUrl}?prefilled_email=${encodeURIComponent(user.email)}`;
+                    
+                    if (typeof window.Android !== 'undefined') {
+                        // Forzamos la carga en la misma ventana para que el WebView lo detecte
+                        window.location.href = fullUrl;
+                    } else {
+                        // En PC seguimos abriendo pestaña nueva
+                        window.open(fullUrl, '_blank');
+                    }
+                }
+            };
+            
+            // Lo insertamos justo antes del botón de "Sign out"
+            const logoutBtn = document.querySelector('.logout-btn');
+            logoutBtn.parentNode.insertBefore(manageBtn, logoutBtn);
+        }
+        // ────────────────────────────────────────────────────────
+
+    } else {
+        document.getElementById('planBadge').textContent = 'Free Plan';
+        document.getElementById('planBadge').className   = 'plan-badge free';
+        document.getElementById('upgradeSection').style.display       = 'block';
+        document.getElementById('premiumActiveSection').style.display = 'none';
+    }
+
+    document.getElementById('loadingState').style.display   = 'none';
+    document.getElementById('stateLoggedOut').style.display = 'none';
+    document.getElementById('stateLoggedIn').style.display  = 'block';
+
+    localStorage.setItem('satfleet_user_email', user.email || '');
+    localStorage.setItem('satfleet_is_premium', isPremium ? '1' : '0');
+    localStorage.setItem('satfleet_user_uid', user.uid); // Guardamos el UID para RC
+    localStorage.setItem('satfleet_premium_check_ts', Date.now().toString()); // Hora de la última comprobación
+    // Guardar el token de Firebase para que otras páginas puedan autenticarse
+user.getIdToken(true)
+    .then(token => localStorage.setItem('satfleet_fb_token', token))
+    .catch(() => {});
+// Renovar el token cada 50 minutos (caduca cada hora)
+if (window._tokenRefreshInterval) clearInterval(window._tokenRefreshInterval);
+window._tokenRefreshInterval = setInterval(() => {
+    if (auth.currentUser) {
+        auth.currentUser.getIdToken(true)
+            .then(token => localStorage.setItem('satfleet_fb_token', token))
+            .catch(() => {});
+    }
+}, 50 * 60 * 1000);
+}
+
+function onUserLoggedOut() {
+    currentUser = null;
+    isPremium   = false;
+    document.getElementById('loadingState').style.display   = 'none';
+    document.getElementById('stateLoggedOut').style.display = 'block';
+    document.getElementById('stateLoggedIn').style.display  = 'none';
+    
+    // Borramos TODOS los rastros
+    localStorage.removeItem('satfleet_user_email');
+    localStorage.removeItem('satfleet_is_premium');
+    localStorage.removeItem('satfleet_user_uid');
+    localStorage.removeItem('satfleet_premium_check_ts');
+    localStorage.removeItem('satfleet_fb_token');
+if (window._tokenRefreshInterval) {
+    clearInterval(window._tokenRefreshInterval);
+    window._tokenRefreshInterval = null;
+}
+}
+
+function switchTab(tab) {
+    document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    document.getElementById('formLogin').style.display    = tab === 'login'    ? 'block' : 'none';
+    document.getElementById('formRegister').style.display = tab === 'register' ? 'block' : 'none';
+    clearErrors();
+}
+
+function clearErrors() {
+    document.getElementById('loginError').classList.remove('visible');
+    document.getElementById('registerError').classList.remove('visible');
+}
+
+function showError(id, msg) {
+    const el = document.getElementById(id);
+    let mensajeLimpio = msg.replace('Firebase:', '').trim();
+    el.textContent = mensajeLimpio;
+    el.classList.add('visible');
+}
+
+// ── FUNCIONES DE FIREBASE (Conexión Real) ──
+function login() {
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    clearErrors();
+
+    if (!email || !password) { showError('loginError', 'Please enter your email and password.'); return; }
+
+    signInWithEmailAndPassword(auth, email, password)
+        .catch((error) => showError('loginError', error.message));
+}
+
+function register() {
+    const email  = document.getElementById('registerEmail').value.trim();
+    const pass1  = document.getElementById('registerPassword').value;
+    const pass2  = document.getElementById('registerPassword2').value;
+    clearErrors();
+
+    if (!email || !pass1) { showError('registerError', 'Please fill in all fields.'); return; }
+    if (pass1.length < 6) { showError('registerError', 'Password must be at least 6 characters.'); return; }
+    if (pass1 !== pass2)  { showError('registerError', 'Passwords do not match.'); return; }
+
+    createUserWithEmailAndPassword(auth, email, pass1)
+        .catch((error) => showError('registerError', error.message));
+}
+
+function loginWithGoogle() {
+    clearErrors();
+    signInWithPopup(auth, provider).catch((error) => showError('loginError', error.message));
+}
+
+function logout() {
+    signOut(auth).catch((error) => console.log(error));
+}
+
+async function upgradePremium() {
+    if (!currentUser || !currentUser.uid) {
+        alert('Please log in first to upgrade.');
+        return;
+    }
+
+    // Android: sigue usando el flujo nativo de Google Play
+    if (typeof window.Android !== 'undefined' && window.Android.startPremiumPurchase) {
+        window.Android.startPremiumPurchase(currentUser.uid);
+        return;
+    }
+
+    // Web: pedimos una sesión dinámica al Worker (con metadata correcta para RevenueCat)
+    try {
+        const token = await currentUser.getIdToken();
+
+        const res = await fetch('https://worker.satfleetlive.com/api/stripe/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ email: currentUser.email || '' }),
+        });
+
+        const data = await res.json();
+
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            alert('Error creating payment session. Please try again.');
+            console.error('Stripe checkout error:', data);
+        }
+    } catch(err) {
+        alert('Connection error. Please try again.');
+        console.error(err);
+    }
+}
+
+// Eventos de teclado
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const formLogin    = document.getElementById('formLogin');
+    const formRegister = document.getElementById('formRegister');
+    if (formLogin && formLogin.style.display !== 'none') login();
+    else if (formRegister && formRegister.style.display !== 'none') register();
+});
+
+function showDeleteModal() {
+    const m = document.getElementById('deleteModal');
+    m.style.display = 'flex';
+}
+
+function hideDeleteModal() {
+    const m = document.getElementById('deleteModal');
+    m.style.display = 'none';
+}
+
+async function deleteAccount() {
+    if (!auth.currentUser) return;
+
+    // 1. ANTES de borrar, comprobamos las variables globales que guardamos al iniciar sesión
+    if (isPremium) {
+        if (subscriptionStore === 'play_store') {
+            
+            // Google Play: Abrir Play Store para que cancelen ellos antes de borrar
+            if (typeof window.Android !== 'undefined' && window.Android.openPlayStoreSubscription) {
+                window.Android.openPlayStoreSubscription(); // App Android
+            } else {
+                window.open('https://play.google.com/store/account/subscriptions', '_blank'); // PC Web
+            }
+            
+            // Google Play: No podemos cancelarlo por ellos, hay que avisarles muy claro
+            const confirmed = confirm(
+                '⚠️ ATTENTION: You have an active Google Play subscription.\n\n' +
+                'Deleting your account will NOT cancel your billing automatically. ' +
+                'Please cancel it manually in the Google Play Store subscriptions menu before continuing.\n\n' +
+                'Continue with account deletion anyway?'
+            );
+            if (!confirmed) {
+                hideDeleteModal();
+                return;
+            }
+        } else {
+            // Stripe (o cualquier otro): Bloqueamos el borrado y les mandamos a cancelar
+            alert(
+                '⛔ You have an active Premium subscription!\n\n' +
+                'To prevent unwanted future charges, you MUST cancel your subscription first before deleting your account.'
+            );
+            hideDeleteModal();
+            const stripePortalUrl = "https://billing.stripe.com/p/login/dRm00ibzM9yXc2ObbVcs800";
+            window.open(`${stripePortalUrl}?prefilled_email=${encodeURIComponent(auth.currentUser.email)}`, '_blank');
+            return; // BLOQUEAMOS el borrado hasta que vuelva sin ser Premium
+        }
+    }
+
+    // Cambiamos el texto del modal para que sepa que está cargando
+    const modalText = document.getElementById('deleteModalText');
+    if (modalText) modalText.textContent = "Deleting account and data... Please wait.";
+
+    // 2. Si no es Premium (o si aceptó el aviso de Google Play), borramos la cuenta
+    try {
+        await auth.currentUser.delete();
+        hideDeleteModal();
+        // Firebase dispara onAuthStateChanged → onUserLoggedOut automáticamente
+    } catch (error) {
+        hideDeleteModal();
+        // Si Firebase pide reautenticación reciente, informar al usuario
+        if (error.code === 'auth/requires-recent-login') {
+            alert('For security, please sign out and sign in again before deleting your account.');
+        } else {
+            alert('Could not delete account: ' + error.message);
+        }
+    }
+}
+
+// Exponer funciones al scope global para los onclick del HTML
+window.switchTab = switchTab;
+window.login = login;
+window.register = register;
+window.loginWithGoogle = loginWithGoogle;
+window.logout = logout;
+window.upgradePremium = upgradePremium;
+window.showDeleteModal = showDeleteModal;
+window.hideDeleteModal = hideDeleteModal;
+window.deleteAccount = deleteAccount;
+</script>
+</body>
+</html>

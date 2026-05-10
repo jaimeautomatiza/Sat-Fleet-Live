@@ -1,0 +1,158 @@
+{
+  "profileId": "sso-vandenberg-v1",
+  "version": 1,
+  "vehicle": "Falcon 9 Block 5",
+  "missionFamily": "SSO / Polar – Vandenberg",
+  "description": "Misión SSO desde Vandenberg con trayectoria hacia el sur sobre el Pacífico. Inclinación retrógrada ~97–98°. El booster aterriza en ASDS al sur en el Pacífico. Geometría completamente diferente a los lanzamientos de Florida.",
+  "launchSite": {
+    "name": "SLC-4E",
+    "locationName": "Vandenberg Space Force Base, California, USA",
+    "lat": 34.632,
+    "lon": -120.611,
+    "confidence": "confirmed"
+  },
+  "matchingHints": {
+    "launchServiceProvider": ["SpaceX"],
+    "rocketFamily": ["Falcon 9"],
+    "rocketNameContains": ["Falcon 9"],
+    "missionTypeContains": ["Earth Science", "Reconnaissance", "Weather", "Technology"],
+    "orbitAbbrevIn": ["SSO", "PO"],
+    "padLocationContains": ["Vandenberg", "California"]
+  },
+  "targetOrbit": {
+    "type": "Sun-Synchronous Orbit",
+    "orbitAbbrev": "SSO",
+    "inclinationDeg": 97.4,
+    "apoapsisKm": 530,
+    "periapsisKm": 520,
+    "confidence": "calibrated"
+  },
+  "guidance": {
+    "verticalRiseSeconds": 12,
+    "pitchStartSeconds": 12,
+    "azimuthDeg": 194,
+    "curveStrength": 0.69,
+    "downrangeBias": 0.60,
+    "confidence": "calibrated"
+  },
+  "events": [
+    {
+      "id": "liftoff",
+      "t": 0,
+      "label": "Liftoff"
+    },
+    {
+      "id": "max_q",
+      "t": 90,
+      "label": "Max-Q"
+    },
+    {
+      "id": "meco",
+      "t": 149,
+      "label": "MECO"
+    },
+    {
+      "id": "stage_sep",
+      "t": 150,
+      "label": "Stage Sep"
+    },
+    {
+      "id": "ses1",
+      "t": 150,
+      "label": "SES-1"
+    },
+    {
+      "id": "fairing_sep",
+      "t": 180,
+      "label": "Fairing Sep"
+    },
+    {
+      "id": "entry_burn_start",
+      "t": 390,
+      "label": "Entry Burn"
+    },
+    {
+      "id": "landing",
+      "t": 523,
+      "label": "Landing"
+    },
+    {
+      "id": "seco1",
+      "t": 540,
+      "label": "SECO-1"
+    },
+    {
+      "id": "deploy",
+      "t": 900,
+      "label": "Payload Deploy"
+    }
+  ],
+  "recovery": {
+    "mode": "ASDS",
+    "target": "Of Course I Still Love You",
+    "landingZoneType": "drone_ship",
+    "estimatedDownrangeKm": 650,
+    "confidence": "calibrated",
+    "notes": "El ASDS se posiciona al sur en el Pacífico. En este perfil nominal no se contempla RTLS; la recuperación típica se realiza en drone ship por la geometría de la trayectoria hacia el sur. El nombre del drone ship puede variar según logística de SpaceX."
+  },
+  "anchorPoints": [
+  { "t": 0,    "latOffsetDeg": 0.0,    "lonOffsetDeg": 0.0,    "altKm": 0.0,   "segment": "ascent_stage1",   "confidence": "calibrated" },
+  { "t": 30,   "latOffsetDeg": -0.001, "lonOffsetDeg": 0.001,  "altKm": 1.9,   "segment": "ascent_stage1",   "confidence": "calibrated" },
+  { "t": 60,   "latOffsetDeg": -0.019, "lonOffsetDeg": -0.003, "altKm": 8.5,   "segment": "ascent_stage1",   "confidence": "calibrated" },
+  { "t": 90,   "latOffsetDeg": -0.094, "lonOffsetDeg": -0.02,  "altKm": 19.2,  "segment": "ascent_stage1",   "confidence": "calibrated" },
+  { "t": 120,  "latOffsetDeg": -0.291, "lonOffsetDeg": -0.063, "altKm": 35.9,  "segment": "ascent_stage1",   "confidence": "calibrated" },
+  { "t": 149,  "latOffsetDeg": -0.647, "lonOffsetDeg": -0.141, "altKm": 60.0,  "segment": "ascent_stage1",   "confidence": "calibrated" },
+  { "t": 150,  "latOffsetDeg": -0.663, "lonOffsetDeg": -0.145, "altKm": 61.0,  "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 180,  "latOffsetDeg": -1.168, "lonOffsetDeg": -0.256, "altKm": 90.3,  "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 180,  "latOffsetDeg": -1.175, "lonOffsetDeg": -0.258, "altKm": 90.8,  "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 210,  "latOffsetDeg": -1.675, "lonOffsetDeg": -0.368, "altKm": 111.8, "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 210,  "latOffsetDeg": -1.734, "lonOffsetDeg": -0.381, "altKm": 116.6, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 240,  "latOffsetDeg": -2.176, "lonOffsetDeg": -0.481, "altKm": 125.1, "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 240,  "latOffsetDeg": -2.346, "lonOffsetDeg": -0.516, "altKm": 138.6, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 270,  "latOffsetDeg": -2.677, "lonOffsetDeg": -0.593, "altKm": 130.5, "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 270,  "latOffsetDeg": -3.019, "lonOffsetDeg": -0.665, "altKm": 157.1, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 275,  "latOffsetDeg": -2.76,  "lonOffsetDeg": -0.612, "altKm": 130.6, "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 300,  "latOffsetDeg": -3.177, "lonOffsetDeg": -0.706, "altKm": 127.9, "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 300,  "latOffsetDeg": -3.764, "lonOffsetDeg": -0.829, "altKm": 172.3, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 330,  "latOffsetDeg": -3.678, "lonOffsetDeg": -0.819, "altKm": 117.2, "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 330,  "latOffsetDeg": -4.588, "lonOffsetDeg": -1.008, "altKm": 184.5, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 360,  "latOffsetDeg": -4.181, "lonOffsetDeg": -0.932, "altKm": 98.6,  "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 360,  "latOffsetDeg": -5.504, "lonOffsetDeg": -1.206, "altKm": 193.8, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 390,  "latOffsetDeg": -4.687, "lonOffsetDeg": -1.045, "altKm": 71.9,  "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 390,  "latOffsetDeg": -6.526, "lonOffsetDeg": -1.423, "altKm": 200.4, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 420,  "latOffsetDeg": -5.154, "lonOffsetDeg": -1.148, "altKm": 40.2,  "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 420,  "latOffsetDeg": -7.673, "lonOffsetDeg": -1.664, "altKm": 204.6, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 450,  "latOffsetDeg": -5.444, "lonOffsetDeg": -1.211, "altKm": 14.3,  "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 450,  "latOffsetDeg": -8.969, "lonOffsetDeg": -1.931, "altKm": 206.3, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 480,  "latOffsetDeg": -5.573, "lonOffsetDeg": -1.239, "altKm": 4.1,   "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 480,  "latOffsetDeg": -10.449,"lonOffsetDeg": -2.23,  "altKm": 206.1, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 510,  "latOffsetDeg": -5.624, "lonOffsetDeg": -1.25,  "altKm": 0.8,   "segment": "booster_entry",    "confidence": "calibrated" },
+  { "t": 510,  "latOffsetDeg": -12.161,"lonOffsetDeg": -2.569, "altKm": 205.2, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 523,  "latOffsetDeg": -5.628, "lonOffsetDeg": -1.251, "altKm": 0.0,   "segment": "booster_landing",  "confidence": "calibrated" },
+  { "t": 540,  "latOffsetDeg": -14.126,"lonOffsetDeg": -2.95,  "altKm": 205.5, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 570,  "latOffsetDeg": -16.157,"lonOffsetDeg": -3.336, "altKm": 206.4, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 600,  "latOffsetDeg": -18.187,"lonOffsetDeg": -3.716, "altKm": 207.3, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 630,  "latOffsetDeg": -20.218,"lonOffsetDeg": -4.09,  "altKm": 208.3, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 660,  "latOffsetDeg": -22.248,"lonOffsetDeg": -4.46,  "altKm": 209.4, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 690,  "latOffsetDeg": -24.279,"lonOffsetDeg": -4.826, "altKm": 210.5, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 720,  "latOffsetDeg": -26.308,"lonOffsetDeg": -5.189, "altKm": 211.7, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 750,  "latOffsetDeg": -28.338,"lonOffsetDeg": -5.55,  "altKm": 212.9, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 780,  "latOffsetDeg": -30.367,"lonOffsetDeg": -5.908, "altKm": 214.2, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 810,  "latOffsetDeg": -32.395,"lonOffsetDeg": -6.265, "altKm": 215.6, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 840,  "latOffsetDeg": -34.423,"lonOffsetDeg": -6.622, "altKm": 216.9, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 870,  "latOffsetDeg": -36.449,"lonOffsetDeg": -6.978, "altKm": 218.4, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 900,  "latOffsetDeg": -38.475,"lonOffsetDeg": -7.335, "altKm": 219.8, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 930,  "latOffsetDeg": -40.5,  "lonOffsetDeg": -7.692, "altKm": 221.4, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 960,  "latOffsetDeg": -42.523,"lonOffsetDeg": -8.052, "altKm": 222.9, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 990,  "latOffsetDeg": -44.545,"lonOffsetDeg": -8.413, "altKm": 224.5, "segment": "stage2_insertion", "confidence": "calibrated" },
+  { "t": 1000, "latOffsetDeg": -45.219,"lonOffsetDeg": -8.534, "altKm": 225.1, "segment": "stage2_insertion", "confidence": "calibrated" }
+],
+  "notes": [
+    "latOffsetDeg negativo en todos los puntos: el cohete se dirige al sur desde el primer segundo.",
+    "lonOffsetDeg negativo (oeste) porque el azimuth es ~194°, ligeramente al suroeste del sur.",
+    "En este perfil nominal no se contempla RTLS: la trayectoria polar hacia el sur no permite un retorno seguro al pad sin sobrevolar zonas habitadas. El ASDS en el Pacífico es la opción de recuperación de este perfil.",
+    "La inclinación SSO real varía entre ~97° y ~98.6° según la altitud objetivo. 97.4° es un valor representativo para ~525 km.",
+    "Para renderizar correctamente en 3D, la trayectoria debe orientarse hacia el sur en el globo, a diferencia de los perfiles de Florida que van al noreste.",
+    "El azimuth de ~194° es consistente con la geometría de lanzamientos SSO documentados desde Vandenberg."
+  ]
+}
