@@ -1274,7 +1274,13 @@ function register() {
 
 function loginWithGoogle() {
     clearErrors();
-    signInWithPopup(auth, provider).catch((error) => showError('loginError', error.message));
+    if (typeof window.Android !== 'undefined' && window.Android.startGoogleSignIn) {
+        // Android: selector nativo de cuentas Google → sin email/contraseña manual
+        window.Android.startGoogleSignIn();
+    } else {
+        // Web/PC: popup normal de Google
+        signInWithPopup(auth, provider).catch((error) => showError('loginError', error.message));
+    }
 }
 
 function logout() {
