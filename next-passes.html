@@ -2620,5 +2620,29 @@ function renderMiniMap(mapId, passIndex) {
             btn.textContent = 'Calculate Passes';
         });
     </script>
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, onIdTokenChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqQcTt6gK_220ZMbDIK9jSuOhCVLTZn4I",
+    authDomain: "satfleet-live.firebaseapp.com",
+    projectId: "satfleet-live",
+    storageBucket: "satfleet-live.firebasestorage.app",
+    messagingSenderId: "369952976257",
+    appId: "1:369952976257:web:c7ba2050865524fca80c80"
+  };
+
+  const _tokenApp = initializeApp(firebaseConfig, "tokenRefresh");
+  const _tokenAuth = getAuth(_tokenApp);
+
+  onIdTokenChanged(_tokenAuth, (user) => {
+    if (user) {
+      user.getIdToken().then((token) => {
+        localStorage.setItem('satfleet_fb_token', token);
+      }).catch(() => {});
+    }
+  });
+</script>
 </body>
 </html>
