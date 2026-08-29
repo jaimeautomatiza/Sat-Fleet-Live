@@ -36,6 +36,32 @@ const KV_KEY_META     = 'launches_meta_v3';  // { lastFetch, throttleInfo, ttlUs
 const CACHE_KEY_TLE   = 'https://internal.satfleetlive/cache/tle-v3';
 
 // ═══════════════════════════════════════════════════════════════
+// ORBITADORES LUNARES/PLANETARIOS — JPL Horizons
+// ═══════════════════════════════════════════════════════════════
+
+const HORIZONS_BASE       = 'https://ssd.jpl.nasa.gov/api/horizons.api';
+const KV_KEY_MOON_ORBITERS = 'moon_orbiters_v1';
+const KV_KEY_MARS_ORBITERS = 'mars_orbiters_v1';
+const MOON_ORBITERS_TTL    = 6 * 3600;
+const MARS_ORBITERS_TTL    = 6 * 3600;
+
+const MOON_ORBITER_TARGETS = [
+  { id: 'lro',    name: 'LRO (NASA)',           command: '-85',  center: '500@301', bodyRadiusKm: 1737.4 },
+  { id: 'ch2',    name: 'Chandrayaan-2 (ISRO)', command: '-152', center: '500@301', bodyRadiusKm: 1737.4 },
+  { id: 'danuri', name: 'Danuri (KARI)',        command: '-155', center: '500@301', bodyRadiusKm: 1737.4 },
+];
+
+// Solo orbitadores con vectores REALES en Horizons. MAVEN, ExoMars TGO y
+// Tianwen-1 no los tienen (comprobado) — se quedan fuera hasta que existan.
+const MARS_ORBITER_TARGETS = [
+  { id: 'mro',     name: 'MRO (NASA)',          command: '-74', center: '500@499', bodyRadiusKm: 3389.5 },
+  { id: 'odyssey', name: 'Mars Odyssey (NASA)', command: '-53', center: '500@499', bodyRadiusKm: 3389.5 },
+  { id: 'mex',     name: 'Mars Express (ESA)',  command: '-41', center: '500@499', bodyRadiusKm: 3389.5 },
+  { id: 'hope',    name: 'Hope / EMM (UAE)',    command: '-62', center: '500@499', bodyRadiusKm: 3389.5 },
+  { id: 'sun',     name: 'Sun',                 command: '10',  center: '500@499', bodyRadiusKm: 3389.5 },
+];
+
+// ═══════════════════════════════════════════════════════════════
 // RATE LIMITING (in-memory, por isolate)
 // ═══════════════════════════════════════════════════════════════
 
@@ -1015,6 +1041,197 @@ async function handleStripeCheckout(request, env) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// HANDLER: /api/moon-orbiters
+// ═══════════════════════════════════════════════════════════════
+
+const HORIZONS_MONTHS = { Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12' };
+
+function parseHorizonsDate(str) {
+  const m = str.match(/(\d{4})-(\w{3})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return null;
+  const [, year, monAbbr, day, hh, mm, ss] = m;
+  const month = HORIZONS_MONTHS[monAbbr];
+  if (!month) return null;
+  return `${year}-${month}-${day}T${hh}:${mm}:${ss}Z`;
+}
+
+// Convierte el texto crudo de Horizons (formato VECTORS) en puntos {time, lat, lng, alt}
+function parseHorizonsVectors(resultText, bodyRadiusKm) {
+  if (!resultText) return [];
+  const soeIdx = resultText.indexOf('$$SOE');
+  const eoeIdx = resultText.indexOf('$$EOE');
+  if (soeIdx === -1 || eoeIdx === -1) return [];
+
+  const lines = resultText.substring(soeIdx + 5, eoeIdx).split('\n').map(l => l.trim()).filter(Boolean);
+  const points = [];
+
+  for (let i = 0; i < lines.length; i += 3) {
+    const dateLine = lines[i];
+    const xyzLine  = lines[i + 1];
+    if (!dateLine || !xyzLine) continue;
+
+    const dateMatch = dateLine.match(/A\.D\.\s+(\d{4}-\w{3}-\d{2}\s+[\d:.]+)\s+TDB/);
+    const xMatch = xyzLine.match(/X\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
+    const yMatch = xyzLine.match(/Y\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
+    const zMatch = xyzLine.match(/Z\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
+    if (!dateMatch || !xMatch || !yMatch || !zMatch) continue;
+
+    const time = parseHorizonsDate(dateMatch[1]);
+    const x = parseFloat(xMatch[1]);
+    const y = parseFloat(yMatch[1]);
+    const z = parseFloat(zMatch[1]);
+    const r = Math.sqrt(x*x + y*y + z*z);
+
+    points.push({
+      time,
+      lat: Math.asin(z / r) * 180 / Math.PI,
+      lng: Math.atan2(y, x) * 180 / Math.PI,
+      alt: r - bodyRadiusKm, // km sobre la superficie
+    });
+  }
+  return points;
+}
+
+function buildHorizonsUrl(target, startTime, stopTime) {
+  const q = [
+    `format=json`,
+    `COMMAND='${target.command}'`,
+    `OBJ_DATA='NO'`,
+    `MAKE_EPHEM='YES'`,
+    `EPHEM_TYPE='VECTORS'`,
+    `CENTER='${target.center}'`,
+    `REF_PLANE='B'`,
+    `START_TIME='${startTime}'`,
+    `STOP_TIME='${stopTime}'`,
+    `STEP_SIZE='15%20m'`,
+    `VEC_TABLE='2'`,
+    `OUT_UNITS='KM-S'`,
+  ].join('&');
+  return `${HORIZONS_BASE}?${q}`;
+}
+
+async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
+  try {
+    const cached = await env.LAUNCHES_KV.get(kvKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.fetchedAt < ttl * 1000) {
+        return new Response(JSON.stringify({ orbiters: parsed.orbiters, _meta: { source: 'kv_cache', fetchedAt: new Date(parsed.fetchedAt).toISOString() } }), {
+          status: 200,
+          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'X-Cache': 'HIT' }),
+        });
+      }
+    }
+  } catch(e) { console.error('Orbiters KV read error:', e.message); }
+
+  const now = new Date();
+  const startTime = now.toISOString().slice(0, 10);
+  const stopTime  = new Date(now.getTime() + 48 * 3600 * 1000).toISOString().slice(0, 10);
+
+  const orbiters = {};
+  let anySuccess = false;
+
+  for (const target of targets) {
+    try {
+      const res = await fetch(buildHorizonsUrl(target, startTime, stopTime), { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const points = parseHorizonsVectors(data.result, target.bodyRadiusKm);
+      if (points.length) {
+        orbiters[target.id] = { name: target.name, points };
+        anySuccess = true;
+      }
+    } catch (err) {
+      console.error(`Horizons fetch failed for ${target.id}:`, err.message);
+    }
+  }
+
+  if (!anySuccess) {
+    try {
+      const stale = await env.LAUNCHES_KV.get(kvKey);
+      if (stale) {
+        const parsed = JSON.parse(stale);
+        return new Response(JSON.stringify({ orbiters: parsed.orbiters, _meta: { source: 'stale_cache' } }), {
+          status: 200,
+          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'X-Cache': 'STALE' }),
+        });
+      }
+    } catch(e) {}
+    return new Response(JSON.stringify({ error: 'Horizons unreachable', orbiters: {} }), {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const payload = { orbiters, fetchedAt: Date.now() };
+  ctx.waitUntil(env.LAUNCHES_KV.put(kvKey, JSON.stringify(payload), { expirationTtl: ttl + 3600 }));
+
+  return new Response(JSON.stringify({ orbiters, _meta: { source: 'fresh_fetch', fetchedAt: new Date(payload.fetchedAt).toISOString() } }), {
+    status: 200,
+    headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'X-Cache': 'MISS' }),
+  });
+}
+
+async function handleMoonOrbiters(ctx, env) {
+  return handleOrbiters(ctx, env, MOON_ORBITER_TARGETS, KV_KEY_MOON_ORBITERS, MOON_ORBITERS_TTL);
+}
+
+async function handleMarsOrbiters(ctx, env) {
+  return handleOrbiters(ctx, env, MARS_ORBITER_TARGETS, KV_KEY_MARS_ORBITERS, MARS_ORBITERS_TTL);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HANDLER: /api/rover-trail/:id — rastro real de los rovers de Marte
+// ═══════════════════════════════════════════════════════════════
+// Los datos ya vienen completos y actualizados desde tu propio repositorio
+// de GitHub (el mismo patrón que /api/tle) — aquí solo hacemos de
+// intermediario con caché, para que mars.html nunca llame a GitHub directo.
+
+const ROVER_TRAIL_BASE = 'https://jaimeautomatiza.github.io/tle-proxy/data';
+const ROVER_TRAIL_TTL  = 6 * 3600; // mismo ritmo que tu workflow de GitHub Actions
+const ROVER_IDS        = ['curiosity', 'perseverance'];
+
+async function handleRoverTrail(request, ctx, env) {
+  const roverId = new URL(request.url).pathname.split('/').pop();
+  if (!ROVER_IDS.includes(roverId)) {
+    return new Response(JSON.stringify({ error: 'Unknown rover' }), {
+      status: 404,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const cache = caches.default;
+  const cacheKey = `https://internal.satfleetlive/cache/rover-trail-${roverId}`;
+  const hit = await cache.match(cacheKey);
+  if (hit) return wrapCached(hit);
+
+  try {
+    const upstream = await fetch(`${ROVER_TRAIL_BASE}/${roverId}-trail.json`, {
+      headers: { 'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com)', 'Accept': 'application/json' },
+    });
+    if (!upstream.ok) throw new Error(`HTTP ${upstream.status}`);
+
+    const body = await upstream.text();
+    const resp = new Response(body, {
+      status: 200,
+      headers: makeHeaders({
+        'Content-Type':  'application/json; charset=utf-8',
+        'Cache-Control': `s-maxage=${ROVER_TRAIL_TTL}, max-age=${ROVER_TRAIL_TTL}`,
+      }),
+    });
+    ctx.waitUntil(cache.put(cacheKey, resp.clone()));
+    return resp;
+  } catch (err) {
+    return new Response(JSON.stringify({ error: 'Rover trail unreachable: ' + err.message, points: [] }), {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // ROUTER PRINCIPAL
 // ═══════════════════════════════════════════════════════════════
 
@@ -1087,6 +1304,9 @@ export default {
     if (pathname.startsWith('/api/tle/'))        return handleTleSingle(request, env);
     if (pathname.startsWith('/api/satellite/'))  return handleSatelliteInfo(request, env);
     if (pathname.startsWith('/api/launches/upcoming')) return handleLaunches(ctx, env);
+    if (pathname === '/api/moon-orbiters') return handleMoonOrbiters(ctx, env);
+    if (pathname === '/api/mars-orbiters') return handleMarsOrbiters(ctx, env);
+    if (pathname.startsWith('/api/rover-trail/')) return handleRoverTrail(request, ctx, env);
 
     return new Response(JSON.stringify({ error: 'Not Found', path: pathname }), {
       status: 404,

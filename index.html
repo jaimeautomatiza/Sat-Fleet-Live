@@ -1432,7 +1432,8 @@ body.light-mode .rocket-filter-chip {
             #visibilityToggle,
             #visibilityControls,
             #launchesBtn,
-            #accountBtn { display: none !important; }
+            #accountBtn,
+            #exploreBtn { display: none !important; }
 
             /* Buscador: flexible pero con límites razonables */
             #barSearch {
@@ -1690,6 +1691,51 @@ body.light-mode .rocket-filter-chip {
         /* El mapWrapper deja espacio para el footer */
         #mapWrapper {
             bottom: 22px;
+        }
+
+                #exploreBtn {
+            display:inline-flex; align-items:center; gap:6px;
+        }
+        #exploreBtn .explore-icon { width:15px; height:15px; filter:invert(1); opacity:0.75; }
+        #exploreBtn:hover, #exploreBtn.open { background:rgba(255,255,255,0.14); color:#fff; }
+
+        #exploreFloatBtn {
+            display:none; position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
+            background:rgba(15,15,15,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border:1px solid rgba(255,255,255,0.10); border-radius:20px; padding:6px 14px;
+            z-index:850; align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
+        }
+        #exploreFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
+        #exploreFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
+        #exploreFloatBtn.open, #exploreFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
+        #exploreFloatBtn.open img, #exploreFloatBtn.open span { opacity:1; }
+
+        @media (max-width: 768px) {
+            #exploreFloatBtn { display:flex; }
+        }
+
+        #exploreMenu {
+            position:fixed; background:rgba(10,10,16,0.98); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+            border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:8px;
+            z-index:1100; min-width:160px; box-shadow:0 20px 50px rgba(0,0,0,0.6);
+            opacity:0; pointer-events:none; transition:opacity 0.18s ease, transform 0.18s ease;
+            top:calc(var(--bar-height) + 8px); right:16px; transform:translateY(-8px);
+        }
+        #exploreMenu.open { opacity:1; pointer-events:all; transform:translateY(0); }
+
+        .explore-item {
+            display:flex; align-items:center; gap:9px; width:100%; padding:9px 12px; border:none; background:none;
+            color:rgba(255,255,255,0.8); font-size:0.82rem; font-weight:600; cursor:pointer; border-radius:9px;
+            transition:all 0.15s; text-align:left; font-family:inherit;
+        }
+        .explore-item:hover { background:rgba(255,255,255,0.09); color:#fff; }
+        .explore-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; display:inline-block; }
+
+        @media (max-width: 768px) {
+            #exploreMenu {
+                top:auto; right:auto; bottom:56px; left:50%; transform:translateX(-50%) translateY(8px);
+            }
+            #exploreMenu.open { transform:translateX(-50%) translateY(0); }
         }
 
         /* ===== MÓVIL: botón ⋯ menú overflow ===== */
@@ -2386,10 +2432,8 @@ body.light-mode .rocket-filter-chip {
         <div class="mobile-section">
             <div class="mobile-section-title">Options</div>
             <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button class="mobile-filter-btn" onclick="toggleTheme()">Theme</button>
                 <button class="mobile-filter-btn" onclick="window.location.href='next-passes.html'">Next Passes</button>
                 <button class="mobile-filter-btn" onclick="window.location.href='/blogs/'">Guides</button>
-                <button class="mobile-filter-btn" id="mobileViewBtn" onclick="toggleView()">3D</button>
             </div>
         </div>
 
@@ -2462,13 +2506,16 @@ body.light-mode .rocket-filter-chip {
     </button>
     <button class="overflow-item green" id="overflowVisibility" onclick="toggleVisibility(); closeOverflowMenu()">Only Visible</button>
     <div class="overflow-divider"></div>
-    <button class="overflow-item blue" id="overflowViewBtn" onclick="toggleView(); closeOverflowMenu()">3D</button>
-    <button class="overflow-item gold" onclick="window.location.href='/blogs/'">Guides</button>
-    <button class="overflow-item blue" onclick="window.location.href='next-passes.html'">Next Passes</button>
-    <button class="overflow-item" onclick="window.location.href='launches.html'" style="color:#ff6b35;">Launches</button>
+    <button class="overflow-item gold" onclick="window.location.href='/blogs/'">
+        <img src="images/book.svg" style="width:16px;height:16px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
+    </button>
+    <button class="overflow-item blue" onclick="window.location.href='next-passes.html'">
+        <img src="images/telescope.svg" style="width:16px;height:16px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
+    </button>
+    <button class="overflow-item" onclick="window.location.href='launches.html'" style="color:#ff6b35;">
+        <img src="images/rocket.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
+    </button>
     <button class="overflow-item" id="overflowArBtn" onclick="window.location.href='ar.html'; closeOverflowMenu()" style="color:#ff6b35;">AR Sky (Beta)</button>
-    <div class="overflow-divider"></div>
-    <button class="overflow-item" onclick="toggleTheme(); closeOverflowMenu()">Theme</button>
     <div class="overflow-divider"></div>
     <a class="overflow-item gold" href="account.html" style="font-weight:600;"><img src="images/account.svg" style="width: 18px; height: 18px; filter: invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt="Account"> Account / Premium</a>
 </div>
@@ -2537,13 +2584,21 @@ body.light-mode .rocket-filter-chip {
         Layers
     </button>
     <button class="bar-btn" id="visibilityToggle" onclick="toggleVisibility()">Only Visible</button>
-    <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">Guides</button>
-    <button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">Next Passes</button>
-    <button class="bar-btn" id="launchesBtn" onclick="window.location.href='launches.html'">Launches</button>
-    <button class="bar-btn" id="toggleViewBtn" onclick="toggleView()">3D</button>
+    <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">
+        <img src="images/book.svg" style="width:14px;height:14px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
+    </button>
+    <button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">
+        <img src="images/telescope.svg" style="width:14px;height:14px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
+    </button>
+    <button class="bar-btn" id="launchesBtn" onclick="window.location.href='launches.html'">
+        <img src="images/rocket.svg" style="width:14px;height:14px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
+    </button>
     <button class="bar-btn" id="arBtn" onclick="window.location.href='ar.html'" style="display:none;">AR (Beta)</button>
-    <button class="bar-btn" id="themeBtn" onclick="toggleTheme()">Theme</button>
     <button class="bar-btn" id="accountBtn" onclick="window.location.href='account.html'"><img src="images/account.svg" style="width:14px;height:14px;"> Account</button>
+    <button class="bar-btn" id="exploreBtn" onclick="toggleExploreMenu()">
+        <img src="images/planet-switcher.svg" class="explore-icon" alt="">
+        Explore
+    </button>
 
     <!-- Elevation controls (visible solo cuando Only Visible activo) -->
     <div class="visibility-filter-controls" id="visibilityControls">
@@ -2560,6 +2615,20 @@ body.light-mode .rocket-filter-chip {
     </div>
     <button id="overflowBtn" onclick="toggleOverflowMenu()">⋯</button>
     <button id="mobilePanelBtn" onclick="toggleMobilePanel()">+</button>
+</div>
+
+<div id="exploreFloatBtn" onclick="toggleExploreMenu()">
+    <img src="images/planet-switcher.svg" alt="">
+    <span>Explore</span>
+</div>
+
+<div id="exploreMenu">
+    <button class="explore-item" onclick="window.location.href='moon.html'">
+        <span class="explore-dot" style="background:#b0bec5;"></span> Moon
+    </button>
+    <button class="explore-item" onclick="window.location.href='mars.html'">
+        <span class="explore-dot" style="background:#ff6b35;"></span> Mars
+    </button>
 </div>
     <!-- Leaflet JS -->
     <script src="js/leaflet.js"></script>
@@ -4983,6 +5052,35 @@ function startInterpolation() {
 
         function closeOverflowMenu() {
             document.getElementById('overflowMenu').classList.remove('open');
+        }
+
+                function toggleExploreMenu() {
+            const menu = document.getElementById('exploreMenu');
+            const isOpen = menu.classList.toggle('open');
+            const barBtn = document.getElementById('exploreBtn');
+            const floatBtn = document.getElementById('exploreFloatBtn');
+            if (barBtn) barBtn.classList.toggle('open', isOpen);
+            if (floatBtn) floatBtn.classList.toggle('open', isOpen);
+            if (isOpen) {
+                setTimeout(() => {
+                    document.addEventListener('touchstart', closeExploreOnOutside, { once: true });
+                    document.addEventListener('mousedown', closeExploreOnOutside, { once: true });
+                }, 10);
+            }
+        }
+        function closeExploreMenu() {
+            document.getElementById('exploreMenu').classList.remove('open');
+            const barBtn = document.getElementById('exploreBtn');
+            const floatBtn = document.getElementById('exploreFloatBtn');
+            if (barBtn) barBtn.classList.remove('open');
+            if (floatBtn) floatBtn.classList.remove('open');
+        }
+        function closeExploreOnOutside(e) {
+            const menu = document.getElementById('exploreMenu');
+            const barBtn = document.getElementById('exploreBtn');
+            const floatBtn = document.getElementById('exploreFloatBtn');
+            const clickedTrigger = (barBtn && barBtn.contains(e.target)) || (floatBtn && floatBtn.contains(e.target));
+            if (!menu.contains(e.target) && !clickedTrigger) closeExploreMenu();
         }
 
         function closeOverflowOnOutside(e) {

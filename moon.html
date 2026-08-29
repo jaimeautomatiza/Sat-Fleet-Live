@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SatFleet Live - Moon</title>
+
+<!-- Google Fonts: Inter (misma que el resto de la web) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- CesiumJS: misma versión que usa index.html -->
+<link rel="preconnect" href="https://cesium.com">
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+        --primary-purple: #9c27b0;
+        --dark-bg: #1a1a1a;
+        --bar-height: 60px;
+    }
+
+    html, body {
+        width:100%; height:100%; overflow:hidden;
+        background:var(--dark-bg);
+        font-family:'Inter','Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;
+        color:#fff;
+    }
+
+    body.light-mode { background:#f5f5f5; color:#222; }
+
+    #cesiumContainer {
+        position:fixed;
+        top:var(--bar-height); left:0; right:0; bottom:0;
+    }
+
+    .cesium-widget-credits { display:none !important; }
+
+    /* ===== BARRA SUPERIOR — misma estructura que index.html ===== */
+    #bottomBar {
+        position:fixed; top:0; left:0; right:0;
+        height:var(--bar-height);
+        background:rgba(8,8,14,0.97);
+        backdrop-filter:blur(24px) saturate(200%);
+        -webkit-backdrop-filter:blur(24px) saturate(200%);
+        border-bottom:1px solid rgba(156,39,176,0.15);
+        box-shadow:0 1px 0 rgba(156,39,176,0.2), 0 8px 32px rgba(0,0,0,0.5);
+        display:flex; align-items:center; padding:0 16px; gap:8px;
+        z-index:1000;
+    }
+
+    body.light-mode #bottomBar {
+        background:rgba(255,255,255,0.96);
+        border-bottom-color:rgba(156,39,176,0.15);
+    }
+
+    .bar-logo { display:flex; align-items:center; gap:10px; flex-shrink:0; margin-right:6px; }
+    .bar-logo img { width:38px; height:38px; border-radius:50%; object-fit:contain; box-shadow:0 0 10px rgba(156,39,176,0.4); }
+    .bar-logo-text {
+        font-size:1.05rem; font-weight:800;
+        background:linear-gradient(135deg,#d580ff 0%,#9c27b0 55%,#7b1fa2 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        white-space:nowrap; letter-spacing:0.2px;
+    }
+
+    #moonBadge {
+        font-size:0.62rem; font-weight:700; color:#9c27b0;
+        background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4);
+        padding:2px 8px; border-radius:20px; letter-spacing:0.5px; margin-left:2px; flex-shrink:0;
+    }
+
+    .bar-sep { width:1px; height:26px; background:rgba(255,255,255,0.12); flex-shrink:0; margin:0 2px; }
+    body.light-mode .bar-sep { background:rgba(0,0,0,0.12); }
+
+    .bar-spacer { flex:1; }
+
+    #moonSearch {
+        flex:1; min-width:0; max-width:none; height:34px;
+        padding:0 14px; border:1px solid rgba(255,255,255,0.1); border-radius:8px;
+        background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem; font-family:inherit;
+        outline:none; transition:border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    #moonSearch:focus {
+        border-color:rgba(156,39,176,0.6); background:rgba(156,39,176,0.06);
+        box-shadow:0 0 0 3px rgba(156,39,176,0.12);
+    }
+    #moonSearch::placeholder { color:rgba(255,255,255,0.3); font-size:0.75rem; }
+    body.light-mode #moonSearch { background:rgba(0,0,0,0.04); color:#222; border-color:rgba(0,0,0,0.1); }
+
+    .bar-btn {
+        height:34px; padding:0 14px; border-radius:8px;
+        border:1px solid rgba(255,255,255,0.1);
+        background:rgba(255,255,255,0.04);
+        color:rgba(255,255,255,0.7);
+        font-size:0.78rem; font-weight:500; cursor:pointer; white-space:nowrap; flex-shrink:0;
+        transition:all 0.15s ease; letter-spacing:0.1px;
+        font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+    }
+    body.light-mode .bar-btn { border-color:rgba(0,0,0,0.12); background:rgba(0,0,0,0.03); color:rgba(0,0,0,0.6); }
+    .bar-btn:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.2); color:#fff; transform:translateY(-1px); }
+    body.light-mode .bar-btn:hover { background:rgba(0,0,0,0.07); color:#000; }
+
+    #guidesBtn { border-color:rgba(255,215,0,0.5); color:#ffd700; background:rgba(255,215,0,0.07); }
+    #guidesBtn:hover { background:#ffd700; color:#111; border-color:#ffd700; }
+
+    #launchesBtn { border-color:rgba(255,107,53,0.5); color:#ff6b35; background:rgba(255,107,53,0.07); }
+    #launchesBtn:hover { background:#ff6b35; color:#fff; border-color:#ff6b35; }
+
+    #nextPassesBtn { border-color:rgba(33,150,243,0.5); color:#2196f3; background:rgba(33,150,243,0.07); }
+    #nextPassesBtn:hover { background:#2196f3; color:#fff; border-color:#2196f3; }
+
+    #accountBtn { border-color:rgba(255,215,0,0.5); color:#ffd700; background:rgba(255,215,0,0.07); }
+    #accountBtn:hover { background:#ffd700; color:#111; border-color:#ffd700; }
+    #accountBtn img { filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%); width:14px; height:14px; }
+    #accountBtn:hover img { filter:brightness(0); }
+
+    #exploreBtn {
+        border-color:rgba(255,255,255,0.15); color:rgba(255,255,255,0.75); font-weight:700;
+        display:inline-flex; align-items:center; gap:6px;
+    }
+    #exploreBtn:hover, #exploreBtn.open { background:rgba(255,255,255,0.14); color:#fff; }
+    #exploreBtn .explore-icon { width:15px; height:15px; filter:invert(1); opacity:0.75; }
+
+    #exploreFloatBtn {
+        display:none; position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
+        background:rgba(15,15,15,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+        border:1px solid rgba(255,255,255,0.10); border-radius:20px; padding:6px 14px;
+        z-index:850; align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
+    }
+    #exploreFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
+    #exploreFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
+    #exploreFloatBtn.open, #exploreFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
+    #exploreFloatBtn.open img, #exploreFloatBtn.open span { opacity:1; }
+
+    @media (max-width: 768px) {
+        #exploreFloatBtn { display:flex; }
+    }
+
+    #exploreMenu {
+        position:fixed; background:rgba(10,10,16,0.98); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+        border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:8px;
+        z-index:1100; min-width:160px; box-shadow:0 20px 50px rgba(0,0,0,0.6);
+        opacity:0; pointer-events:none; transition:opacity 0.18s ease, transform 0.18s ease;
+        top:calc(var(--bar-height) + 8px); right:16px; transform:translateY(-8px);
+    }
+    #exploreMenu.open { opacity:1; pointer-events:all; transform:translateY(0); }
+
+    .explore-item {
+        display:flex; align-items:center; gap:9px; width:100%; padding:9px 12px; border:none; background:none;
+        color:rgba(255,255,255,0.8); font-size:0.82rem; font-weight:600; cursor:pointer; border-radius:9px;
+        transition:all 0.15s; text-align:left; font-family:inherit;
+    }
+    .explore-item:hover { background:rgba(255,255,255,0.09); color:#fff; }
+    .explore-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; display:inline-block; }
+
+    @media (max-width: 768px) {
+        #exploreMenu {
+            top:auto; right:auto; bottom:56px; left:50%; transform:translateX(-50%) translateY(8px);
+        }
+        #exploreMenu.open { transform:translateX(-50%) translateY(0); }
+    }
+
+    #moonFiltersBtn {
+        border-color:rgba(156,39,176,0.7); color:var(--primary-purple);
+        background:linear-gradient(135deg, rgba(156,39,176,0.15) 0%, rgba(156,39,176,0.05) 100%);
+        font-weight:700; display:inline-flex; align-items:center; gap:6px;
+    }
+    #moonFiltersBtn:hover, #moonFiltersBtn.open { background:var(--primary-purple); color:#fff; border-color:var(--primary-purple); }
+    #moonFiltersBtn .layer-icon {
+        width:14px; height:14px;
+        filter:invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%);
+    }
+    #moonFiltersBtn:hover .layer-icon, #moonFiltersBtn.open .layer-icon { filter:brightness(0) invert(1); }
+
+    #moonFiltersPanel {
+        position:fixed; top:calc(var(--bar-height) + 8px); left:50%; transform:translateX(-50%) translateY(-8px);
+        background:rgba(10,10,16,0.98); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+        border:1px solid rgba(156,39,176,0.18); border-radius:14px; padding:14px 16px;
+        z-index:1100; min-width:260px; box-shadow:0 20px 50px rgba(0,0,0,0.6);
+        opacity:0; pointer-events:none; transition:opacity 0.18s ease, transform 0.18s ease;
+    }
+    #moonFiltersPanel.open { opacity:1; pointer-events:all; transform:translateX(-50%) translateY(0); }
+
+    .filters-panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .filters-panel-title { font-size:0.7rem; font-weight:700; color:var(--primary-purple); text-transform:uppercase; letter-spacing:1px; }
+    .filters-panel-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.1rem; cursor:pointer; width:22px; height:22px; border-radius:50%; }
+    .filters-panel-close:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .filters-grid { display:flex; gap:8px; flex-wrap:wrap; }
+    .filter-chip {
+        padding:7px 14px; border:1.5px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.04);
+        color:rgba(255,255,255,0.5); border-radius:18px; cursor:pointer; font-size:0.78rem; font-weight:600;
+        font-family:inherit; transition:all 0.15s ease;
+    }
+    .filter-chip.active {
+        border-color:var(--primary-purple); background:rgba(156,39,176,0.18); color:#c084fc;
+        box-shadow:0 0 10px rgba(156,39,176,0.25);
+    }
+
+    /* Botón overflow móvil */
+    #overflowBtn {
+        display:none; height:34px; width:34px; border-radius:50%;
+        border:1.5px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.06);
+        color:rgba(255,255,255,0.8); font-size:1.1rem; font-weight:700; cursor:pointer;
+        flex-shrink:0; align-items:center; justify-content:center; transition:all 0.2s;
+    }
+    body.light-mode #overflowBtn { border-color:rgba(0,0,0,0.18); background:rgba(0,0,0,0.05); color:rgba(0,0,0,0.65); }
+    #overflowBtn:hover { background:rgba(255,255,255,0.14); color:#fff; }
+
+    #overflowMenu {
+        position:fixed; top:calc(var(--bar-height) + 6px); right:10px;
+        background:rgba(18,18,18,0.97); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+        border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:8px;
+        z-index:1200; min-width:180px; box-shadow:0 4px 24px rgba(0,0,0,0.5);
+        opacity:0; pointer-events:none; transform:translateY(-6px);
+        transition:opacity 0.18s ease, transform 0.18s ease;
+    }
+    body.light-mode #overflowMenu { background:rgba(252,252,252,0.98); border-color:rgba(0,0,0,0.1); }
+    #overflowMenu.open { opacity:1; pointer-events:all; transform:translateY(0); }
+
+    .overflow-item {
+        display:flex; align-items:center; width:100%; padding:9px 14px; border:none; background:none;
+        color:rgba(255,255,255,0.75); font-size:0.84rem; font-weight:500; cursor:pointer; border-radius:9px;
+        transition:all 0.15s; text-align:left; gap:8px; white-space:nowrap; text-decoration:none;
+        font-family:inherit;
+    }
+    body.light-mode .overflow-item { color:rgba(0,0,0,0.65); }
+    .overflow-item:hover { background:rgba(255,255,255,0.09); color:#fff; }
+    body.light-mode .overflow-item:hover { background:rgba(0,0,0,0.06); color:#000; }
+    .overflow-item.gold { color:#ffd700; }
+    .overflow-item.orange { color:#ff6b35; }
+    .overflow-item.blue { color:#4285f4; font-weight:700; }
+    .overflow-item.purple { color:var(--primary-purple); }
+    .overflow-divider { height:1px; background:rgba(255,255,255,0.07); margin:4px 8px; }
+    body.light-mode .overflow-divider { background:rgba(0,0,0,0.08); }
+
+    @media (max-width: 768px) {
+        :root { --bar-height: 52px; }
+        #bottomBar { padding:0 10px; gap:6px; }
+        .bar-logo-text { display:none; }
+        .bar-logo img { width:32px; height:32px; }
+        #guidesBtn, #launchesBtn, #nextPassesBtn, #accountBtn, #exploreBtn { display:none !important; }
+        #moonSearch { max-width: none; }
+        #overflowBtn { flex-shrink: 0; }
+        #overflowBtn { display:flex; }
+    }
+
+    /* ===== Loading ===== */
+    #loading {
+        position:fixed; inset:0;
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:14px; background:var(--dark-bg); z-index:2000; transition:opacity 0.4s ease;
+    }
+    .spinner {
+        width:34px; height:34px; border:3px solid rgba(156,39,176,0.2);
+        border-top-color:#9c27b0; border-radius:50%; animation:spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    #loading p { font-size:0.78rem; color:rgba(255,255,255,0.5); font-weight:500; }
+
+    #nasaCredit {
+        position:fixed; bottom:10px; left:12px;
+        font-size:0.62rem; color:rgba(255,255,255,0.35); z-index:50;
+    }
+
+    .legend {
+        position:fixed; top:calc(var(--bar-height) + 12px); left:16px;
+        background:rgba(22,22,22,0.88); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:12px 14px; z-index:800;
+        min-width:170px;
+    }
+    .legend-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .legend-title { font-size:0.72rem; font-weight:700; color:var(--primary-purple); text-transform:uppercase; letter-spacing:0.7px; }
+    .legend-close { background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.95rem; cursor:pointer; width:20px; height:20px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition:all 0.2s; padding:0; line-height:1; }
+    .legend-close:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .legend.collapsed .legend-item, .legend.collapsed .legend-header .legend-title { display:none; }
+    .legend.collapsed { padding:8px 10px; min-width:unset; }
+    .legend.collapsed .legend-header { margin-bottom:0; }
+    .legend-reopen { display:none; font-size:0.7rem; color:var(--primary-purple); cursor:pointer; white-space:nowrap; }
+    .legend.collapsed .legend-reopen { display:inline; }
+    .legend.collapsed .legend-close { display:none; }
+    .legend-item { display:flex; align-items:center; gap:7px; margin-bottom:5px; font-size:0.75rem; color:rgba(255,255,255,0.7); }
+    .legend-color { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+    #moonPovBtn {
+        display:none; position:fixed; bottom:24px; right:16px; width:48px; height:48px;
+        border-radius:50%; background:rgba(15,15,15,0.6); backdrop-filter:blur(10px);
+        -webkit-backdrop-filter:blur(10px); border:1.5px solid rgba(255,255,255,0.12);
+        cursor:pointer; z-index:850; align-items:center; justify-content:center;
+        transition:all 0.2s ease;
+    }
+    #moonPovBtn img { width:26px; height:26px; filter:invert(1); opacity:0.3; transition:all 0.2s; }
+    #moonPovBtn.active {
+        background:rgba(156,39,176,0.2); border-color:var(--primary-purple);
+        box-shadow:0 0 20px rgba(156,39,176,0.6);
+    }
+
+    #siteInfoPanel {
+        position:fixed; top:calc(var(--bar-height) + 12px); right:16px; width:260px;
+        background:rgba(10,10,16,0.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+        border:1px solid rgba(156,39,176,0.25); border-radius:14px; padding:16px;
+        z-index:900; display:none; box-shadow:0 20px 50px rgba(0,0,0,0.6);
+    }
+    #siteInfoPanel.active { display:block; }
+    #siteInfoPanel .site-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px; }
+    #siteInfoPanel .site-name { font-size:0.95rem; font-weight:700; color:#e0aaff; line-height:1.3; }
+    #siteInfoPanel .site-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.1rem; cursor:pointer; line-height:1; padding:0; flex-shrink:0; }
+    #siteInfoPanel .site-close:hover { color:#fff; }
+    #siteInfoPanel .site-meta { font-size:0.7rem; color:rgba(255,255,255,0.45); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
+    #siteInfoPanel .site-desc { font-size:0.8rem; color:rgba(255,255,255,0.8); line-height:1.5; }
+
+    @media (max-width: 768px) {
+        #siteInfoPanel { width:calc(100vw - 32px); right:16px; }
+    }
+</style>
+</head>
+<body>
+
+<div id="cesiumContainer"></div>
+
+<!-- Barra superior -->
+<div id="bottomBar">
+    <div class="bar-logo">
+        <img src="images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+        <span class="bar-logo-text">SatFleet Live</span>
+    </div>
+    <span id="moonBadge">MOON</span>
+
+    <input type="text" id="moonSearch" placeholder="Search site or orbiter..." onkeyup="searchMoonObjects()">
+
+    <button class="bar-btn" id="moonFiltersBtn" onclick="toggleMoonFiltersPanel()">
+        <img src="images/layer.svg" class="layer-icon" alt="">
+        Layers
+    </button>
+    <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">
+        <img src="images/book.svg" style="width:14px;height:14px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
+    </button>
+    <button class="bar-btn" id="launchesBtn" onclick="window.location.href='launches.html'">
+        <img src="images/rocket.svg" style="width:14px;height:14px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
+    </button>
+    <button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">
+        <img src="images/telescope.svg" style="width:14px;height:14px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
+    </button>
+    <div class="bar-sep"></div>
+    <button class="bar-btn" id="accountBtn" onclick="window.location.href='account.html'"><img src="images/account.svg" alt=""> Account</button>
+    <div class="bar-sep"></div>
+    <button class="bar-btn" id="exploreBtn" onclick="toggleExploreMenu()">
+        <img src="images/planet-switcher.svg" class="explore-icon" alt="">
+        Explore
+    </button>
+
+    <button id="overflowBtn" onclick="toggleOverflowMenu()">⋯</button>
+</div>
+
+<div id="exploreFloatBtn" onclick="toggleExploreMenu()">
+    <img src="images/planet-switcher.svg" alt="">
+    <span>Explore</span>
+</div>
+
+<div id="exploreMenu">
+    <button class="explore-item" onclick="window.location.href='mars.html'">
+        <span class="explore-dot" style="background:#ff6b35;"></span> Mars
+    </button>
+    <button class="explore-item" onclick="window.location.href='index.html'">
+        <span class="explore-dot" style="background:#4285f4;"></span> Earth
+    </button>
+</div>
+
+<!-- Menú overflow (móvil) -->
+<div id="overflowMenu">
+    <button class="overflow-item gold" onclick="window.location.href='/blogs/'">
+        <img src="images/book.svg" style="width:16px;height:16px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
+    </button>
+    <button class="overflow-item orange" onclick="window.location.href='launches.html'">
+        <img src="images/rocket.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
+    </button>
+    <button class="overflow-item" style="color:#2196f3;" onclick="window.location.href='next-passes.html'">
+        <img src="images/telescope.svg" style="width:16px;height:16px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
+    </button>
+    <div class="overflow-divider"></div>
+    <a class="overflow-item gold" href="account.html" style="font-weight:600;">
+        <img src="images/account.svg" style="width:18px;height:18px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Account / Premium
+    </a>
+</div>
+
+<div id="loading">
+    <div class="spinner"></div>
+    <p>Loading lunar surface...</p>
+</div>
+
+<div id="nasaCredit">Image: NASA/GSFC/Arizona State University (Moon Trek — LRO WAC)</div>
+
+<div id="moonPovBtn" onclick="toggleMoonPov()" title="360° POV Mode">
+    <img src="images/360-degrees.svg" alt="POV">
+</div>
+
+<div class="legend collapsed" id="legendPanel">
+    <div class="legend-header">
+        <div class="legend-title">Layers</div>
+        <span class="legend-reopen" onclick="openLegend()">▶ Legend</span>
+        <button class="legend-close" onclick="closeLegend()" title="Collapse">−</button>
+    </div>
+    <div class="legend-item" style="font-size:0.72rem; font-weight:700; color:var(--primary-purple); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:2px;">Landing Sites</div>
+    <div class="legend-item"><div class="legend-color" style="background:#2196f3;"></div><span>Crewed (Apollo)</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffd700;"></div><span>Robotic probe</span></div>
+    <div class="legend-item"><img src="images/missions/rover.webp" style="width:18px;height:18px;object-fit:contain;"><span>Robotic rover (drove on surface)</span></div>
+    <div class="legend-item" style="width:100%; height:1px; background:rgba(255,255,255,0.12); margin:6px 0; padding:0;"></div>
+    <div class="legend-item" style="font-size:0.72rem; font-weight:700; color:var(--primary-purple); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:2px;">Orbiters</div>
+    <div class="legend-item"><div class="legend-color" style="background:#00e5ff;"></div><span>LRO (NASA)</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff9100;"></div><span>Chandrayaan-2 (ISRO)</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#76ff03;"></div><span>Danuri (KARI)</span></div>
+</div>
+
+<div id="moonFiltersPanel">
+    <div class="filters-panel-header">
+        <span class="filters-panel-title">Layers</span>
+        <button class="filters-panel-close" onclick="closeMoonFiltersPanel()">×</button>
+    </div>
+    <div class="filters-grid">
+        <button class="filter-chip active" id="layerSitesBtn" onclick="toggleSitesLayer()">Landing Sites</button>
+        <button class="filter-chip active" id="layerOrbitersBtn" onclick="toggleOrbitersLayer()">Orbiters</button>
+    </div>
+</div>
+
+<div id="siteInfoPanel">
+    <div class="site-header">
+        <div class="site-name" id="siteInfoName">—</div>
+        <button class="site-close" onclick="closeSiteInfo()">×</button>
+    </div>
+    <div class="site-meta" id="siteInfoMeta">—</div>
+    <div class="site-desc" id="siteInfoDesc">—</div>
+</div>
+
+<script>
+
+// ==================== MENÚ OVERFLOW MÓVIL ====================
+function toggleOverflowMenu() {
+    const menu = document.getElementById('overflowMenu');
+    const isOpen = menu.classList.toggle('open');
+    if (isOpen) {
+        setTimeout(() => {
+            document.addEventListener('touchstart', closeOverflowOnOutside, { once:true });
+            document.addEventListener('mousedown', closeOverflowOnOutside, { once:true });
+        }, 10);
+    }
+}
+function closeOverflowMenu() { document.getElementById('overflowMenu').classList.remove('open'); }
+function closeOverflowOnOutside(e) {
+    const menu = document.getElementById('overflowMenu');
+    const btn  = document.getElementById('overflowBtn');
+    if (!menu.contains(e.target) && e.target !== btn) closeOverflowMenu();
+}
+
+// ==================== SELECTOR DE CUERPO (Explore) ====================
+function toggleExploreMenu() {
+    const menu = document.getElementById('exploreMenu');
+    const isOpen = menu.classList.toggle('open');
+    const barBtn = document.getElementById('exploreBtn');
+    const floatBtn = document.getElementById('exploreFloatBtn');
+    if (barBtn) barBtn.classList.toggle('open', isOpen);
+    if (floatBtn) floatBtn.classList.toggle('open', isOpen);
+    if (isOpen) {
+        setTimeout(() => {
+            document.addEventListener('touchstart', closeExploreOnOutside, { once:true });
+            document.addEventListener('mousedown', closeExploreOnOutside, { once:true });
+        }, 10);
+    }
+}
+function closeExploreMenu() {
+    document.getElementById('exploreMenu').classList.remove('open');
+    const barBtn = document.getElementById('exploreBtn');
+    const floatBtn = document.getElementById('exploreFloatBtn');
+    if (barBtn) barBtn.classList.remove('open');
+    if (floatBtn) floatBtn.classList.remove('open');
+}
+function closeExploreOnOutside(e) {
+    const menu = document.getElementById('exploreMenu');
+    const barBtn = document.getElementById('exploreBtn');
+    const floatBtn = document.getElementById('exploreFloatBtn');
+    const clickedTrigger = (barBtn && barBtn.contains(e.target)) || (floatBtn && floatBtn.contains(e.target));
+    if (!menu.contains(e.target) && !clickedTrigger) closeExploreMenu();
+}
+
+// ==================== CONFIGURACIÓN LUNA ====================
+const MOON_RADIUS = 1737400.0;
+
+Cesium.Ion.defaultAccessToken = undefined;
+
+const moonEllipsoid  = new Cesium.Ellipsoid(MOON_RADIUS, MOON_RADIUS, MOON_RADIUS);
+const moonProjection = new Cesium.GeographicProjection(moonEllipsoid);
+const moonGlobe      = new Cesium.Globe(moonEllipsoid);
+moonGlobe.baseColor  = Cesium.Color.fromCssColorString('#6e6a63');
+
+const viewer = new Cesium.Viewer('cesiumContainer', {
+    mapProjection: moonProjection,
+    globe: moonGlobe,
+    imageryProvider: false,
+    baseLayerPicker: false,
+    animation: false,
+    fullscreenButton: false,
+    geocoder: false,
+    homeButton: false,
+    infoBox: false,
+    sceneModePicker: false,
+    selectionIndicator: false,
+    timeline: false,
+    navigationHelpButton: false,
+    navigationInstructionsInitiallyVisible: false,
+    skyBox: false,
+    skyAtmosphere: false,
+    scene3DOnly: true,
+    requestRenderMode: true,
+    maximumRenderTimeChange: Infinity
+});
+
+viewer.imageryLayers.removeAll();
+viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0d0d0d');
+// Fix de nitidez: sin esto el canvas se dibuja a menor resolución que la pantalla física
+// en dispositivos Android/retina, y todo (globo e iconos) se ve granulado. Mismo fix que index.html.
+viewer.resolutionScale = Math.min(window.devicePixelRatio || 1.0, 2.0);
+viewer.scene.globe.maximumScreenSpaceError = 4;
+viewer.scene.globe.showGroundAtmosphere = false; // correcto dejarlo así: la Luna no tiene atmósfera
+viewer.scene.skyAtmosphere = undefined;           // igual, sin atmósfera real que simular
+viewer.scene.fog.enabled = false;
+viewer.scene.moon = undefined;
+
+// Como esta página va sobrada de rendimiento (visto en la conversación: solo
+// unas pocas decenas de objetos, nada que ver con miles de satélites en la Tierra),
+// quitamos requestRenderMode aquí. Así el globo se redibuja solo, sin depender de
+// que algo "pida" el render — elimina de raíz cualquier duda de "¿se habrá actualizado?".
+viewer.scene.requestRenderMode = false;
+
+// Terreno explícito con TU elipsoide lunar (antes usaba el de la Tierra por defecto,
+// aunque no se notara visualmente, podía interferir en cómo se calculan las
+// normales de la superficie para la iluminación)
+viewer.scene.globe.terrainProvider = new Cesium.EllipsoidTerrainProvider({ ellipsoid: moonEllipsoid });
+
+// Luz basada en la FASE LUNAR (sin llamar a ninguna API): como la Luna siempre
+// enseña la misma cara a la Tierra, la fase por sí sola nos dice dónde está el
+// Sol ahora mismo. Luna Llena → el Sol ilumina el centro de la cara vista (0°).
+// Luna Nueva → ilumina el centro de la cara oculta (180°). Cálculo puramente
+// de fecha, sin servidor.
+function getMoonPhaseAge(date) {
+    const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14, 0); // luna nueva de referencia
+    const synodicMonth = 29.530588853; // días que dura un ciclo lunar completo
+    let age = ((date.getTime() - knownNewMoon) / 86400000) % synodicMonth;
+    if (age < 0) age += synodicMonth;
+    return age; // 0 = luna nueva, ~14.77 = luna llena
+}
+
+function updateMoonLighting() {
+    const age = getMoonPhaseAge(new Date());
+    let subsolarLng = 180 - (age / 29.530588853) * 360;
+    subsolarLng = ((subsolarLng + 180) % 360 + 360) % 360 - 180; // normalizar a -180..180
+
+    const towardSun = Cesium.Cartesian3.normalize(
+        Cesium.Cartesian3.fromDegrees(subsolarLng, 0, 0, moonEllipsoid),
+        new Cesium.Cartesian3()
+    );
+    const lightDirection = Cesium.Cartesian3.negate(towardSun, new Cesium.Cartesian3());
+
+    viewer.scene.light = new Cesium.DirectionalLight({
+        direction: lightDirection,
+        intensity: 2.0
+    });
+}
+updateMoonLighting();
+setInterval(updateMoonLighting, 15 * 60 * 1000); // recalcula cada 15 min — de sobra para un movimiento tan lento
+viewer.scene.globe.enableLighting = true;
+viewer.scene.globe.dynamicAtmosphereLighting = false; // no aplica sin atmósfera
+viewer.scene.globe.lightingFadeOutDistance = 0;
+viewer.scene.globe.lightingFadeInDistance = 0;
+
+let moonTileErrors = 0;
+
+const moonImagery = new Cesium.WebMapTileServiceImageryProvider({
+    url: 'https://trek.nasa.gov/tiles/Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02/1.0.0/default/default028mm/{TileMatrix}/{TileRow}/{TileCol}.jpg',
+    layer: 'LRO_WAC_Mosaic_Global_303ppd_v02',
+    style: 'default',
+    format: 'image/jpeg',
+    tileMatrixSetID: 'default028mm',
+    maximumLevel: 7,
+    ellipsoid: moonEllipsoid,
+    tilingScheme: new Cesium.GeographicTilingScheme({ ellipsoid: moonEllipsoid }),
+    credit: new Cesium.Credit('NASA/GSFC/Arizona State University', false)
+});
+
+moonImagery.errorEvent.addEventListener(function(err) {
+    moonTileErrors++;
+    if (moonTileErrors === 1) {
+        console.warn('[SatFleet Moon] Algún tile de Moon Trek no cargó.', err);
+    }
+});
+
+viewer.imageryLayers.addImageryProvider(moonImagery);
+
+viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(0, 0, MOON_RADIUS * 3.5, moonEllipsoid)
+});
+
+// ==================== CAPA 3: SITIOS HISTÓRICOS DE ALUNIZAJE ====================
+// Coordenadas verificadas: NASA NSSDC, LROC (Lunar Reconnaissance Orbiter Camera) y
+// Wikipedia para las revisiones más recientes de misiones soviéticas y chinas.
+const LUNAR_SITES = [
+    // ---- APOLLO (tripuladas, EEUU) ----
+    { name: 'Apollo 11', category: 'crewed', agency: 'NASA', year: 1969, location: 'Mare Tranquillitatis', lat: 0.674, lng: 23.473,
+      desc: "First crewed Moon landing. Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon." },
+    { name: 'Apollo 12', category: 'crewed', agency: 'NASA', year: 1969, location: 'Oceanus Procellarum', lat: -3.013, lng: -23.422,
+      desc: "Landed within walking distance of the robotic Surveyor 3 probe; astronauts retrieved parts of it for study." },
+    { name: 'Apollo 14', category: 'crewed', agency: 'NASA', year: 1971, location: 'Fra Mauro', lat: -3.646, lng: -17.472,
+      desc: "Commanded by Alan Shepard, the first American in space. Famous for a golf ball hit on the lunar surface." },
+    { name: 'Apollo 15', category: 'crewed', agency: 'NASA', year: 1971, location: 'Hadley–Apennine', lat: 26.132, lng: 3.633,
+      desc: "First mission to carry the Lunar Roving Vehicle, greatly extending the astronauts' range of exploration." },
+    { name: 'Apollo 16', category: 'crewed', agency: 'NASA', year: 1972, location: 'Descartes Highlands', lat: -8.973, lng: 15.501,
+      desc: "First mission to explore the lunar highlands rather than a mare (sea) region." },
+    { name: 'Apollo 17', category: 'crewed', agency: 'NASA', year: 1972, location: 'Taurus–Littrow', lat: 20.191, lng: 30.772,
+      desc: "Most recent crewed Moon landing. Geologist Harrison Schmitt was the only professional scientist to walk on the Moon." },
+
+    // ---- LUNA (soviéticas, robóticas) ----
+    { name: 'Luna 2', category: 'robotic', agency: 'USSR', year: 1959, location: 'Palus Putredinis', lat: 29.10, lng: 0.00,
+      desc: "First human-made object to reach the surface of another celestial body — a deliberate impact, not a soft landing." },
+    { name: 'Luna 9', category: 'robotic', agency: 'USSR', year: 1966, location: 'Oceanus Procellarum', lat: 7.08, lng: -64.37,
+      desc: "First successful soft landing on the Moon, proving a spacecraft could safely rest on the surface." },
+    { name: 'Luna 13', category: 'robotic', agency: 'USSR', year: 1966, location: 'Oceanus Procellarum', lat: 18.87, lng: -62.05,
+      desc: "Second successful Soviet soft landing; returned panoramic images of the surface." },
+    { name: 'Luna 16', category: 'robotic', agency: 'USSR', year: 1970, location: 'Mare Fecunditatis', lat: -0.514, lng: 56.364,
+      desc: "First robotic mission to collect lunar soil and return it to Earth." },
+    { name: 'Luna 17', category: 'robotic', agency: 'USSR', year: 1970, location: 'Mare Imbrium', lat: 38.28, lng: -35.00, rover: true,
+      desc: "Delivered Lunokhod 1, the first remote-controlled rover to operate on another world." },
+    { name: 'Luna 20', category: 'robotic', agency: 'USSR', year: 1972, location: 'Terra Apollonius highlands', lat: 3.786, lng: 56.624,
+      desc: "Second successful Soviet robotic sample-return mission." },
+    { name: 'Luna 21', category: 'robotic', agency: 'USSR', year: 1973, location: 'Le Monnier crater', lat: 25.85, lng: 30.45, rover: true,
+      desc: "Delivered Lunokhod 2, which covered about 42 km — a distance record for lunar or planetary rovers that stood for decades." },
+    { name: 'Luna 24', category: 'robotic', agency: 'USSR', year: 1976, location: 'Mare Crisium', lat: 12.715, lng: 62.210,
+      desc: "Final Soviet lunar mission and the last robotic lunar sample return until China's Chang'e 5 in 2020." },
+
+    // ---- SURVEYOR (EEUU, robóticas) ----
+    { name: 'Surveyor 1', category: 'robotic', agency: 'NASA', year: 1966, location: 'Oceanus Procellarum', lat: -2.45, lng: -43.21,
+      desc: "First successful U.S. soft landing on the Moon." },
+    { name: 'Surveyor 3', category: 'robotic', agency: 'NASA', year: 1967, location: 'Oceanus Procellarum', lat: -2.94, lng: -23.34,
+      desc: "Later visited by the Apollo 12 astronauts, who retrieved parts of the spacecraft to study long-term exposure to the lunar environment." },
+    { name: 'Surveyor 5', category: 'robotic', agency: 'NASA', year: 1967, location: 'Mare Tranquillitatis', lat: 1.41, lng: 23.18,
+      desc: "First spacecraft to analyze the chemical composition of lunar soil." },
+    { name: 'Surveyor 6', category: 'robotic', agency: 'NASA', year: 1967, location: 'Sinus Medii', lat: 0.46, lng: -1.37,
+      desc: "First spacecraft to lift off and relocate a short distance on the lunar surface." },
+    { name: 'Surveyor 7', category: 'robotic', agency: 'NASA', year: 1968, location: 'near Tycho crater', lat: -41.01, lng: -11.41,
+      desc: "Final Surveyor mission; landed near the prominent, geologically young Tycho crater." },
+
+    // ---- CHANG'E (China, robóticas) ----
+    { name: "Chang'e 3", category: 'robotic', agency: 'CNSA', year: 2013, location: 'Mare Imbrium', lat: 44.12, lng: -19.51, rover: true,
+      desc: "Delivered the Yutu rover — the first soft landing on the Moon since Luna 24 in 1976." },
+    { name: "Chang'e 4", category: 'robotic', agency: 'CNSA', year: 2019, location: "Von Kármán crater (Statio Tianhe)", lat: -45.4446, lng: 177.5991, rover: true,
+      desc: "First-ever landing on the Moon's far side. Its Yutu-2 rover became the longest-operating lunar rover in history." },
+    { name: "Chang'e 5", category: 'robotic', agency: 'CNSA', year: 2020, location: 'Oceanus Procellarum, near Mons Rümker', lat: 43.06, lng: -51.92,
+      desc: "Returned the first fresh lunar samples to Earth since Luna 24 in 1976." },
+    { name: "Chang'e 6", category: 'robotic', agency: 'CNSA', year: 2024, location: 'Apollo basin, far side', lat: -41.6385, lng: -153.9852,
+      desc: "First-ever sample return from the Moon's far side." },
+];
+
+const SITE_COLORS = { crewed: '#2196f3', robotic: '#ffd700' };
+
+const MOON_ROVER_ICON = 'images/missions/rover.webp';
+const MOON_ROVER_ICON_HEIGHT = window.innerWidth > 768 ? 70 : 60;
+
+let siteEntities = [];
+
+function addLunarPointSite(site, color) {
+    const entity = viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 0, moonEllipsoid),
+        point: {
+            pixelSize: site.category === 'crewed' ? 11 : 8,
+            color: color,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 1.5,
+            scaleByDistance: new Cesium.NearFarScalar(100000, 1.4, 8000000, 0.6),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
+        },
+        label: {
+            text: site.name,
+            font: '11px sans-serif',
+            fillColor: color,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -10),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2500000)
+        }
+    });
+    entity._siteData = site;
+    siteEntities.push(entity);
+}
+
+function addLunarRoverSite(site, color, w, h) {
+    const entity = viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 0, moonEllipsoid),
+        billboard: {
+            image: MOON_ROVER_ICON,
+            width: w,
+            height: h,
+            verticalOrigin: Cesium.VerticalOrigin.CENTER,
+            scaleByDistance: new Cesium.NearFarScalar(100000, 1.4, 8000000, 0.6),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
+        },
+        label: {
+            text: site.name,
+            font: '11px sans-serif',
+            fillColor: color,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.TOP,
+            pixelOffset: new Cesium.Cartesian2(0, h / 2 + 4),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2500000)
+        }
+    });
+    entity._siteData = site;
+    siteEntities.push(entity);
+}
+
+function loadLunarSites() {
+    // Icono de rover leído una sola vez, reutilizado para los 4 sitios que lo llevaron
+    const probe = new Image();
+    probe.onload = function() {
+        const ratio = probe.naturalWidth / probe.naturalHeight;
+        renderLunarSites(MOON_ROVER_ICON_HEIGHT * ratio, MOON_ROVER_ICON_HEIGHT);
+    };
+    probe.onerror = function() {
+        renderLunarSites(MOON_ROVER_ICON_HEIGHT, MOON_ROVER_ICON_HEIGHT);
+    };
+    probe.src = MOON_ROVER_ICON;
+}
+
+function renderLunarSites(roverW, roverH) {
+    LUNAR_SITES.forEach(site => {
+        const color = Cesium.Color.fromCssColorString(SITE_COLORS[site.category]);
+        if (site.rover) {
+            addLunarRoverSite(site, color, roverW, roverH);
+        } else {
+            addLunarPointSite(site, color);
+        }
+    });
+}
+
+loadLunarSites();
+
+let currentSelectedSite = null;
+let currentSelectedOrbiter = null;
+
+function showSiteInfo(site) {
+    currentSelectedSite = site;
+    currentSelectedOrbiter = null;
+    clearOrbiterPath();
+    updateMoonPovBtnVisibility();
+
+    document.getElementById('siteInfoName').textContent = site.name;
+    document.getElementById('siteInfoMeta').textContent = site.agency + ' · ' + site.year + ' · ' + site.location;
+    document.getElementById('siteInfoDesc').textContent = site.desc;
+    document.getElementById('siteInfoPanel').classList.add('active');
+
+    if (isMoonPovActive) {
+        isMoonPovActive = false;
+        stopMoonPovControls();
+        if (_moonPovFrame) { cancelAnimationFrame(_moonPovFrame); _moonPovFrame = null; }
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        if (_moonPovRestartTimeout) { clearTimeout(_moonPovRestartTimeout); _moonPovRestartTimeout = null; }
+        _moonPovRestartTimeout = setTimeout(() => { _moonPovRestartTimeout = null; toggleMoonPov(); }, 100);
+    } else {
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 120000, moonEllipsoid),
+            duration: 1.5
+        });
+    }
+}
+
+function showOrbiterInfo(orbiterData) {
+    currentSelectedSite = null;
+    currentSelectedOrbiter = orbiterData;
+    drawOrbiterPath(orbiterData);
+    updateMoonPovBtnVisibility();
+
+    const cart = interpOrbiterCartesian(orbiterData.points, Date.now());
+    const p = cart ? cartesianToLatLngAlt(cart) : null;
+
+    document.getElementById('siteInfoName').textContent = orbiterData.name;
+    document.getElementById('siteInfoMeta').textContent = 'NASA · Lunar orbiter · Live';
+
+    if (p) {
+        document.getElementById('siteInfoDesc').textContent =
+            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°, at ~' + Math.round(p.alt) + ' km altitude. ' +
+            'Position calculated from NASA/JPL Horizons ephemeris data.';
+    } else {
+        document.getElementById('siteInfoDesc').textContent = 'Position data unavailable right now.';
+    }
+    document.getElementById('siteInfoPanel').classList.add('active');
+
+    if (isMoonPovActive) {
+        isMoonPovActive = false;
+        stopMoonPovControls();
+        if (_moonPovFrame) { cancelAnimationFrame(_moonPovFrame); _moonPovFrame = null; }
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        if (_moonPovRestartTimeout) { clearTimeout(_moonPovRestartTimeout); _moonPovRestartTimeout = null; }
+        _moonPovRestartTimeout = setTimeout(() => { _moonPovRestartTimeout = null; toggleMoonPov(); }, 100);
+    } else if (p) {
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(p.lng, p.lat, Math.max(p.alt, 0) * 1000 + 300000, moonEllipsoid),
+            duration: 1.5
+        });
+    }
+}
+
+function closeSiteInfo() {
+    document.getElementById('siteInfoPanel').classList.remove('active');
+
+    // Igual que en index.html: si el POV está activo, lo dejamos funcionar
+    if (!isMoonPovActive) {
+        clearOrbiterPath();
+        if (currentSelectedSite || currentSelectedOrbiter) {
+            viewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(0, 0, MOON_RADIUS * 3.5, moonEllipsoid),
+                duration: 1.5
+            });
+        }
+        currentSelectedSite = null;
+        currentSelectedOrbiter = null;
+        const btn = document.getElementById('moonPovBtn');
+        if (btn) btn.style.display = 'none';
+    }
+}
+
+function closeLegend() { document.getElementById('legendPanel').classList.add('collapsed'); }
+function openLegend() { document.getElementById('legendPanel').classList.remove('collapsed'); }
+
+let showLandingSites = true;
+let showOrbitersLayer = true;
+
+function toggleSitesLayer() {
+    showLandingSites = !showLandingSites;
+    document.getElementById('layerSitesBtn').classList.toggle('active', showLandingSites);
+    siteEntities.forEach(e => e.show = showLandingSites);
+    if (!showLandingSites && currentSelectedSite) closeSiteInfo();
+}
+
+function toggleOrbitersLayer() {
+    showOrbitersLayer = !showOrbitersLayer;
+    document.getElementById('layerOrbitersBtn').classList.toggle('active', showOrbitersLayer);
+    orbiterEntities.forEach(e => e.show = showOrbitersLayer);
+    if (!showOrbitersLayer && currentSelectedOrbiter) closeSiteInfo();
+}
+
+function toggleMoonFiltersPanel() {
+    const isOpen = document.getElementById('moonFiltersPanel').classList.toggle('open');
+    document.getElementById('moonFiltersBtn').classList.toggle('open', isOpen);
+}
+function closeMoonFiltersPanel() {
+    document.getElementById('moonFiltersPanel').classList.remove('open');
+    document.getElementById('moonFiltersBtn').classList.remove('open');
+}
+
+function searchMoonObjects() {
+    const q = (document.getElementById('moonSearch') || { value: '' }).value.toLowerCase().trim();
+    if (!q) return;
+
+    // 1. Sitios históricos
+    const site = LUNAR_SITES.find(s => s.name.toLowerCase().includes(q));
+    if (site) { showSiteInfo(site); return; }
+
+    // 2. Orbitadores activos
+    const found = Object.entries(moonOrbitersData).find(([id, o]) => o.name.toLowerCase().includes(q));
+    if (found) {
+        const [id, orbiter] = found;
+        showOrbiterInfo({ id, name: orbiter.name, points: orbiter.points });
+        return;
+    }
+
+    console.log('No se encontró ningún objeto lunar con ese nombre:', q);
+}
+
+viewer.screenSpaceEventHandler.setInputAction(function(click) {
+    const picked = viewer.scene.pick(click.position);
+    if (Cesium.defined(picked) && picked.id) {
+        if (picked.id._siteData)    { showSiteInfo(picked.id._siteData);    return; }
+        if (picked.id._orbiterData) { showOrbiterInfo(picked.id._orbiterData); return; }
+    }
+    if (isMoonPovActive) toggleMoonPov();
+    closeSiteInfo();
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+// ==================== CAPA 2: ORBITADORES REALES (JPL Horizons) ====================
+// Interpola linealmente entre los puntos horarios que da el Worker, así el
+// movimiento se ve fluido en vez de saltar de hora en hora.
+
+const ORBITER_COLORS = { lro: '#00e5ff', ch2: '#ff9100', danuri: '#76ff03' };
+const ORBITER_DEFAULT_COLOR = '#00e5ff';
+function getOrbiterColor(id) { return Cesium.Color.fromCssColorString(ORBITER_COLORS[id] || ORBITER_DEFAULT_COLOR); }
+let moonOrbitersData = {};
+let orbiterEntities = [];
+let currentOrbiterPathEntity = null; // Solo UNA línea a la vez, igual que currentOrbit3D en index.html
+
+// Interpola en coordenadas 3D (X/Y/Z), no en lat/lng — así no hay distorsión
+// al cruzar cerca de los polos (algo que sí les pasa a los orbitadores lunares,
+// que van en órbita polar). Solo convertimos a lat/lng al final, para mostrar texto.
+// Catmull-Rom en 3D (X/Y/Z) — igual que catmullRomSpline() en index.html para los
+// cohetes, pero en coordenadas cartesianas en vez de lat/lng, así no hay lío en los polos.
+function catmullRomComponent(a, b, c, d, t) {
+    const t2 = t * t, t3 = t2 * t;
+    return 0.5 * (2*b + (-a + c)*t + (2*a - 5*b + 4*c - d)*t2 + (-a + 3*b - 3*c + d)*t3);
+}
+
+function interpOrbiterCartesian(points, nowMs) {
+    if (!points || !points.length) return undefined;
+    const toCart = p => Cesium.Cartesian3.fromDegrees(p.lng, p.lat, Math.max(p.alt, 0) * 1000, moonEllipsoid);
+
+    if (points.length < 2) return toCart(points[0]);
+
+    for (let i = 0; i < points.length - 1; i++) {
+        const t0 = Date.parse(points[i].time);
+        const t1 = Date.parse(points[i + 1].time);
+        if (nowMs >= t0 && nowMs <= t1) {
+            const t  = (nowMs - t0) / (t1 - t0);
+            const p0 = toCart(points[Math.max(0, i - 1)]);
+            const p1 = toCart(points[i]);
+            const p2 = toCart(points[i + 1]);
+            const p3 = toCart(points[Math.min(points.length - 1, i + 2)]);
+            return new Cesium.Cartesian3(
+                catmullRomComponent(p0.x, p1.x, p2.x, p3.x, t),
+                catmullRomComponent(p0.y, p1.y, p2.y, p3.y, t),
+                catmullRomComponent(p0.z, p1.z, p2.z, p3.z, t)
+            );
+        }
+    }
+    return toCart(nowMs < Date.parse(points[0].time) ? points[0] : points[points.length - 1]);
+}
+
+function cartesianToLatLngAlt(cart) {
+    const carto = Cesium.Cartographic.fromCartesian(cart, moonEllipsoid);
+    return {
+        lat: Cesium.Math.toDegrees(carto.latitude),
+        lng: Cesium.Math.toDegrees(carto.longitude),
+        alt: carto.height / 1000
+    };
+}
+
+function computeOrbiterPathPositions(points, aheadMs, stepMs) {
+    const positions = [];
+    const start = Date.now();
+    for (let t = start; t <= start + aheadMs; t += stepMs) {
+        const c = interpOrbiterCartesian(points, t);
+        if (c) positions.push(c);
+    }
+    return positions;
+}
+
+// Dibuja la línea SOLO del orbitador seleccionado — igual que drawOrbit3D() en index.html
+function drawOrbiterPath(orbiterData) {
+    clearOrbiterPath();
+    const points = orbiterData.points;
+    const color = getOrbiterColor(orbiterData.id);
+
+    const pathPositions = new Cesium.CallbackProperty(function() {
+        return computeOrbiterPathPositions(points, 2.5 * 3600 * 1000, 3 * 60 * 1000);
+    }, false);
+
+    currentOrbiterPathEntity = viewer.entities.add({
+        polyline: {
+            positions: pathPositions,
+            width: 4,
+            material: new Cesium.PolylineGlowMaterialProperty({ glowPower: 0.22, color: color }),
+            arcType: Cesium.ArcType.NONE
+        }
+    });
+}
+
+function clearOrbiterPath() {
+    if (currentOrbiterPathEntity) {
+        viewer.entities.remove(currentOrbiterPathEntity);
+        currentOrbiterPathEntity = null;
+    }
+}
+
+// ==================== POV 360° (mismo mecanismo que index.html) ====================
+let isMoonPovActive = false;
+let isMoonPovAnimating = false;
+let povUserHeading = 0;
+let povUserPitch = -0.6;
+let povUserRange = 5000;
+let _moonPovFrame = null;
+let _moonPovCleanup = null;
+let _moonPovRestartTimeout = null;
+
+function getMoonPovTarget() {
+    if (currentSelectedOrbiter) {
+        const cart = interpOrbiterCartesian(currentSelectedOrbiter.points, Date.now());
+        if (!cart) return null;
+        const p = cartesianToLatLngAlt(cart);
+        return { lat: p.lat, lng: p.lng, altM: Math.max(p.alt, 0) * 1000, isOrbiter: true };
+    }
+    if (currentSelectedSite) {
+        return { lat: currentSelectedSite.lat, lng: currentSelectedSite.lng, altM: 0, isOrbiter: false };
+    }
+    return null;
+}
+
+function updateMoonPovBtnVisibility() {
+    const btn = document.getElementById('moonPovBtn');
+    if (btn) btn.style.display = (currentSelectedSite || currentSelectedOrbiter) ? 'flex' : 'none';
+}
+
+function startMoonPovControls(isOrbiter) {
+    viewer.scene.screenSpaceCameraController.enableRotate = false;
+    viewer.scene.screenSpaceCameraController.enableTilt = false;
+    viewer.scene.screenSpaceCameraController.enableTranslate = false;
+    viewer.scene.screenSpaceCameraController.enableZoom = false;
+
+    const container = document.getElementById('cesiumContainer');
+    if (_moonPovCleanup) { _moonPovCleanup(); _moonPovCleanup = null; }
+
+    let btnDown = false;
+    let prevPinchDist = null;
+    const pointers = new Map();
+    const minRange = isOrbiter ? 20000 : 50;
+    const maxRange = isOrbiter ? 3000000 : 2000000;
+
+    const onDown = (e) => {
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size === 1) btnDown = true;
+    };
+    const onUp = (e) => {
+        pointers.delete(e.pointerId);
+        if (pointers.size === 0) { btnDown = false; prevPinchDist = null; }
+    };
+    const onMove = (e) => {
+        if (!isMoonPovActive) return;
+        const prev = pointers.get(e.pointerId);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size === 1 && btnDown && prev) {
+            const dx = e.clientX - prev.x, dy = e.clientY - prev.y;
+            povUserHeading -= dx * 0.005;
+            povUserPitch = Math.max(-Math.PI * 0.49, Math.min(Math.PI * 0.49, povUserPitch - dy * 0.005));
+        } else if (pointers.size === 2) {
+            const pts = [...pointers.values()];
+            const dx2 = pts[0].x - pts[1].x, dy2 = pts[0].y - pts[1].y;
+            const dist = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+            if (prevPinchDist !== null) {
+                const delta = prevPinchDist - dist;
+                povUserRange = Math.max(minRange, Math.min(maxRange, povUserRange + delta * povUserRange * 0.003));
+            }
+            prevPinchDist = dist;
+        }
+    };
+    const onWheel = (e) => {
+        if (!isMoonPovActive) return;
+        e.preventDefault(); e.stopPropagation();
+        povUserRange = Math.max(minRange, Math.min(maxRange, povUserRange + e.deltaY * povUserRange * 0.001));
+    };
+
+    document.addEventListener('pointerdown', onDown, true);
+    document.addEventListener('pointerup', onUp, true);
+    document.addEventListener('pointermove', onMove, true);
+    document.addEventListener('pointercancel', onUp, true);
+    container.addEventListener('wheel', onWheel, { passive: false, capture: true });
+
+    _moonPovCleanup = function() {
+        document.removeEventListener('pointerdown', onDown, true);
+        document.removeEventListener('pointerup', onUp, true);
+        document.removeEventListener('pointermove', onMove, true);
+        document.removeEventListener('pointercancel', onUp, true);
+        container.removeEventListener('wheel', onWheel, { passive: false, capture: true });
+    };
+}
+
+function stopMoonPovControls() {
+    viewer.scene.screenSpaceCameraController.enableRotate = true;
+    viewer.scene.screenSpaceCameraController.enableTilt = true;
+    viewer.scene.screenSpaceCameraController.enableTranslate = true;
+    viewer.scene.screenSpaceCameraController.enableZoom = true;
+    if (_moonPovCleanup) { _moonPovCleanup(); _moonPovCleanup = null; }
+}
+
+function startMoonPovLoop() {
+    function loop() {
+        _moonPovFrame = requestAnimationFrame(loop);
+        if (!isMoonPovActive || isMoonPovAnimating) return;
+        const target = getMoonPovTarget();
+        if (!target) return;
+        const povPos = Cesium.Cartesian3.fromDegrees(target.lng, target.lat, target.altM, moonEllipsoid);
+        const transform = Cesium.Transforms.eastNorthUpToFixedFrame(povPos, moonEllipsoid);
+        viewer.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(povUserHeading, povUserPitch, povUserRange));
+    }
+    _moonPovFrame = requestAnimationFrame(loop);
+}
+
+function toggleMoonPov() {
+    if (!currentSelectedSite && !currentSelectedOrbiter) return;
+    isMoonPovActive = !isMoonPovActive;
+
+    const btn = document.getElementById('moonPovBtn');
+    if (btn) {
+        btn.classList.toggle('active', isMoonPovActive);
+        const img = btn.querySelector('img');
+        img.style.filter = isMoonPovActive
+            ? 'invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(150%) contrast(100%)'
+            : 'invert(1)';
+        img.style.opacity = isMoonPovActive ? '1' : '0.3';
+    }
+
+    if (isMoonPovActive) {
+        const target = getMoonPovTarget();
+        if (!target) { isMoonPovActive = false; return; }
+
+        povUserHeading = 0;
+        povUserPitch = -0.6;
+        povUserRange = target.isOrbiter ? Math.max(target.altM * 1.5, 50000) : 3000;
+
+        isMoonPovAnimating = true;
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(target.lng, target.lat, target.altM + povUserRange, moonEllipsoid),
+            duration: 1.5,
+            complete: function() {
+                isMoonPovAnimating = false;
+                if (!isMoonPovActive) return;
+                startMoonPovControls(target.isOrbiter);
+                startMoonPovLoop();
+            }
+        });
+    } else {
+        stopMoonPovControls();
+        if (_moonPovFrame) { cancelAnimationFrame(_moonPovFrame); _moonPovFrame = null; }
+        viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(0, 0, MOON_RADIUS * 3.5, moonEllipsoid),
+            duration: 1.5
+        });
+    }
+}
+
+function renderMoonOrbiters() {
+    orbiterEntities.forEach(e => viewer.entities.remove(e));
+    orbiterEntities = [];
+    clearOrbiterPath(); // si había una línea de una selección anterior, se limpia también
+
+    Object.entries(moonOrbitersData).forEach(([id, orbiter]) => {
+        const points = orbiter.points;
+        if (!points || !points.length) return;
+        const color = getOrbiterColor(id);
+
+        const positionProperty = new Cesium.CallbackProperty(function() {
+            return interpOrbiterCartesian(points, Date.now());
+        }, false);
+
+        const entity = viewer.entities.add({
+            position: positionProperty,
+            point: {
+                pixelSize: 9,
+                color: color,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 1.5,
+                scaleByDistance: new Cesium.NearFarScalar(100000, 1.4, 8000000, 0.6),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
+            },
+            label: {
+                text: orbiter.name,
+                font: '11px sans-serif',
+                fillColor: color,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -10),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 2500000)
+            }
+        });
+        entity._orbiterData = { id, name: orbiter.name, points };
+        orbiterEntities.push(entity);
+    });
+}
+
+async function loadMoonOrbiters() {
+    try {
+        const res = await fetch('https://worker.satfleetlive.com/api/moon-orbiters');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        moonOrbitersData = data.orbiters || {};
+        renderMoonOrbiters();
+    } catch (e) {
+        console.warn('[SatFleet Moon] No se pudo cargar el orbitador:', e.message);
+    }
+}
+
+loadMoonOrbiters();
+setInterval(loadMoonOrbiters, 30 * 60 * 1000); // refresco cliente cada 30 min (la caché del Worker dura 6h de sobra)
+
+function hideLoading() {
+    const el = document.getElementById('loading');
+    el.style.opacity = '0';
+    setTimeout(() => el.style.display = 'none', 400);
+}
+viewer.scene.globe.tileLoadProgressEvent.addEventListener(function(remaining) {
+    if (remaining === 0) hideLoading();
+});
+setTimeout(hideLoading, 5000);
+</script>
+
+</body>
+</html>
