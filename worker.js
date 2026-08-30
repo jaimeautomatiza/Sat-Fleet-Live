@@ -487,6 +487,13 @@ LIMIT 1`;
 const _premiumCache = new Map();
 const PREMIUM_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 
+// Caché corta para /api/check-premium — protege contra picos de tráfico Y
+// sirve de red de seguridad: si RevenueCat falla justo en ese momento, en
+// vez de decir "no eres premium" a lo bruto, devolvemos la última respuesta
+// buena que teníamos guardada de ese usuario.
+const _checkPremiumCache = new Map();
+const CHECK_PREMIUM_CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutos
+
 /**
  * Extrae el uid de Firebase de un JWT sin verificar la firma
  * (la verificación criptográfica completa no es necesaria aquí porque
@@ -1251,13 +1258,36 @@ export default {
     if (pathname === '/api/check-premium' && request.method === 'GET') {
     const uid = extractUidFromJWT(request.headers.get('Authorization'));
     if (!uid) return new Response(JSON.stringify({ premium: false, reason: 'auth_required' }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
+
+    // ?live=1 se salta el caché — lo usa account.html justo después de pagar,
+    // cuando necesita una respuesta 100% real, no una guardada de hace un rato.
+    const skipCache = new URL(request.url).searchParams.get('live') === '1';
+
+    // 1. Caché corta: si ya sabemos la respuesta de hace poco, la devolvemos
+    // al instante, sin gastar ni una llamada a RevenueCat.
+    const cpNow = Date.now();
+    const cachedEntry = _checkPremiumCache.get(uid);
+    if (!skipCache && cachedEntry && (cpNow - cachedEntry.cachedAt) < CHECK_PREMIUM_CACHE_TTL_MS) {
+      return new Response(JSON.stringify({ premium: cachedEntry.premium, store: cachedEntry.store }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
+    }
+
     const rcKey = env.REVENUECAT_API_KEY;
     if (!rcKey) return new Response(JSON.stringify({ premium: false }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
     try {
       const rcRes = await fetch(`https://api.revenuecat.com/v1/subscribers/${encodeURIComponent(uid)}`, {
         headers: { 'Authorization': `Bearer ${rcKey}`, 'Content-Type': 'application/json' }
       });
-      if (!rcRes.ok) return new Response(JSON.stringify({ premium: false }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
+
+      if (!rcRes.ok) {
+        // RevenueCat no contestó bien (saturado, 429...) — si teníamos una
+        // respuesta buena reciente de este usuario, la mantenemos en vez de
+        // bajarle a "no premium" por un fallo que no es suyo.
+        if (cachedEntry) {
+          return new Response(JSON.stringify({ premium: cachedEntry.premium, store: cachedEntry.store }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
+        }
+        return new Response(JSON.stringify({ premium: false }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
+      }
+
       const rcData = await rcRes.json();
       const ents = rcData?.subscriber?.entitlements || {};
       let isPremium = false, store = null;
@@ -1270,8 +1300,21 @@ export default {
           break;
         }
       }
+
+      // 2. Guardamos la respuesta buena en la libreta — sirve para la
+      // próxima petición Y como red de seguridad si RevenueCat falla luego.
+      _checkPremiumCache.set(uid, { premium: isPremium, store, cachedAt: cpNow });
+      if (_checkPremiumCache.size > 500) {
+        for (const [key, val] of _checkPremiumCache) {
+          if (cpNow - val.cachedAt > CHECK_PREMIUM_CACHE_TTL_MS) _checkPremiumCache.delete(key);
+        }
+      }
+
       return new Response(JSON.stringify({ premium: isPremium, store }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
     } catch(e) {
+      if (cachedEntry) {
+        return new Response(JSON.stringify({ premium: cachedEntry.premium, store: cachedEntry.store }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
+      }
       return new Response(JSON.stringify({ premium: false }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
     }
   }

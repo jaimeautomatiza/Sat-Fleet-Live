@@ -1062,10 +1062,11 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         // Consulta RevenueCat y devuelve el store ('stripe'/'play_store')
         // o null si el usuario no es Premium
-        async function _checkRC() {
+        async function _checkRC(skipCache) {
             try {
                 const token = await user.getIdToken();
-                const res = await fetch('https://worker.satfleetlive.com/api/check-premium', {
+                const url = 'https://worker.satfleetlive.com/api/check-premium' + (skipCache ? '?live=1' : '');
+                const res = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!res.ok) return null;
@@ -1082,7 +1083,7 @@ onAuthStateChanged(auth, async (user) => {
             const maxAttempts = _justUpgraded ? 12 : 1;
 
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                const store = await _checkRC();
+                const store = await _checkRC(_justUpgraded);
                 if (store) {
                     isPremium = true;
                     subscriptionStore = store;
