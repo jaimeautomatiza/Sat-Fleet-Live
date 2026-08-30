@@ -1083,7 +1083,7 @@ onAuthStateChanged(auth, async (user) => {
             const maxAttempts = _justUpgraded ? 12 : 1;
 
             for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                const store = await _checkRC(_justUpgraded);
+                const store = await _checkRC(true);
                 if (store) {
                     isPremium = true;
                     subscriptionStore = store;
