@@ -46,19 +46,21 @@ const MOON_ORBITERS_TTL    = 6 * 3600;
 const MARS_ORBITERS_TTL    = 6 * 3600;
 
 const MOON_ORBITER_TARGETS = [
-  { id: 'lro',    name: 'LRO (NASA)',           command: '-85',  center: '500@301', bodyRadiusKm: 1737.4 },
-  { id: 'ch2',    name: 'Chandrayaan-2 (ISRO)', command: '-152', center: '500@301', bodyRadiusKm: 1737.4 },
-  { id: 'danuri', name: 'Danuri (KARI)',        command: '-155', center: '500@301', bodyRadiusKm: 1737.4 },
+  { id: 'lro',    name: 'LRO (NASA)',           bodyCommand: '301', observerCommand: '-85',  bodyRadiusKm: 1737.4 },
+  { id: 'ch2',    name: 'Chandrayaan-2 (ISRO)', bodyCommand: '301', observerCommand: '-152', bodyRadiusKm: 1737.4 },
+  { id: 'danuri', name: 'Danuri (KARI)',        bodyCommand: '301', observerCommand: '-155', bodyRadiusKm: 1737.4 },
 ];
 
 // Solo orbitadores con vectores REALES en Horizons. MAVEN, ExoMars TGO y
 // Tianwen-1 no los tienen (comprobado) — se quedan fuera hasta que existan.
 const MARS_ORBITER_TARGETS = [
-  { id: 'mro',     name: 'MRO (NASA)',          command: '-74', center: '500@499', bodyRadiusKm: 3389.5 },
-  { id: 'odyssey', name: 'Mars Odyssey (NASA)', command: '-53', center: '500@499', bodyRadiusKm: 3389.5 },
-  { id: 'mex',     name: 'Mars Express (ESA)',  command: '-41', center: '500@499', bodyRadiusKm: 3389.5 },
-  { id: 'hope',    name: 'Hope / EMM (UAE)',    command: '-62', center: '500@499', bodyRadiusKm: 3389.5 },
-  { id: 'sun',     name: 'Sun',                 command: '10',  center: '500@499', bodyRadiusKm: 3389.5 },
+  { id: 'mro',     name: 'MRO (NASA)',          bodyCommand: '499', observerCommand: '-74', bodyRadiusKm: 3389.5 },
+  { id: 'odyssey', name: 'Mars Odyssey (NASA)', bodyCommand: '499', observerCommand: '-53', bodyRadiusKm: 3389.5 },
+  { id: 'mex',     name: 'Mars Express (ESA)',  bodyCommand: '499', observerCommand: '-41', bodyRadiusKm: 3389.5 },
+  { id: 'hope',    name: 'Hope / EMM (UAE)',    bodyCommand: '499', observerCommand: '-62', bodyRadiusKm: 3389.5 },
+  // Lunas naturales de Marte — mismo radio de Marte para calcular su altitud real
+  { id: 'phobos',  name: 'Phobos',              bodyCommand: '499', observerCommand: '401', bodyRadiusKm: 3389.5 },
+  { id: 'deimos',  name: 'Deimos',              bodyCommand: '499', observerCommand: '402', bodyRadiusKm: 3389.5 },
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -1045,18 +1047,16 @@ async function handleStripeCheckout(request, env) {
 // ═══════════════════════════════════════════════════════════════
 
 const HORIZONS_MONTHS = { Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12' };
+const AU_KM = 149597870.7; // 1 Unidad Astronómica en kilómetros
 
-function parseHorizonsDate(str) {
-  const m = str.match(/(\d{4})-(\w{3})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
-  if (!m) return null;
-  const [, year, monAbbr, day, hh, mm, ss] = m;
-  const month = HORIZONS_MONTHS[monAbbr];
-  if (!month) return null;
-  return `${year}-${month}-${day}T${hh}:${mm}:${ss}Z`;
-}
-
-// Convierte el texto crudo de Horizons (formato VECTORS) en puntos {time, lat, lng, alt}
-function parseHorizonsVectors(resultText, bodyRadiusKm) {
+// Convierte el texto crudo de Horizons (tabla OBSERVER, "sub-observer point")
+// en puntos {time, lat, lng, alt} — ESTE es el método que verificamos en vivo
+// contra tres hechos reales independientes: la rotación de Marte, el periodo
+// orbital del MRO, y su altitud real conocida. A diferencia del método viejo
+// (VECTORS + cálculo manual), este directamente le pregunta a la NASA "¿qué
+// punto de la superficie tiene la nave/el Sol justo encima ahora mismo?" —
+// sin que tengamos que interpretar nosotros ningún sistema de referencia.
+function parseSubObserverTable(resultText, bodyRadiusKm) {
   if (!resultText) return [];
   const soeIdx = resultText.indexOf('$$SOE');
   const eoeIdx = resultText.indexOf('$$EOE');
@@ -1065,47 +1065,39 @@ function parseHorizonsVectors(resultText, bodyRadiusKm) {
   const lines = resultText.substring(soeIdx + 5, eoeIdx).split('\n').map(l => l.trim()).filter(Boolean);
   const points = [];
 
-  for (let i = 0; i < lines.length; i += 3) {
-    const dateLine = lines[i];
-    const xyzLine  = lines[i + 1];
-    if (!dateLine || !xyzLine) continue;
+  for (const line of lines) {
+    // ' 2026-Aug-30 00:00     347.614180  55.577067  0.00002465608612   0.0142241'
+    const m = line.match(/^(\d{4})-(\w{3})-(\d{2})\s+(\d{2}):(\d{2})\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+(?:[eE][+-]?\d+)?)/);
+    if (!m) continue;
+    const [, year, monAbbr, day, hh, mm, westLngStr, latStr, deltaAuStr] = m;
+    const month = HORIZONS_MONTHS[monAbbr];
+    if (!month) continue;
 
-    const dateMatch = dateLine.match(/A\.D\.\s+(\d{4}-\w{3}-\d{2}\s+[\d:.]+)\s+TDB/);
-    const xMatch = xyzLine.match(/X\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
-    const yMatch = xyzLine.match(/Y\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
-    const zMatch = xyzLine.match(/Z\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
-    if (!dateMatch || !xMatch || !yMatch || !zMatch) continue;
+    const time = `${year}-${month}-${day}T${hh}:${mm}:00Z`;
+    const deltaKm = parseFloat(deltaAuStr) * AU_KM;
+    const alt = deltaKm - bodyRadiusKm;
 
-    const time = parseHorizonsDate(dateMatch[1]);
-    const x = parseFloat(xMatch[1]);
-    const y = parseFloat(yMatch[1]);
-    const z = parseFloat(zMatch[1]);
-    const r = Math.sqrt(x*x + y*y + z*z);
+    // La tabla da longitud Oeste-positiva; el resto de nuestro código usa Este-positiva.
+    let lng = -parseFloat(westLngStr);
+    lng = ((lng + 180) % 360 + 360) % 360 - 180;
 
-    points.push({
-      time,
-      lat: Math.asin(z / r) * 180 / Math.PI,
-      lng: Math.atan2(y, x) * 180 / Math.PI,
-      alt: r - bodyRadiusKm, // km sobre la superficie
-    });
+    points.push({ time, lat: parseFloat(latStr), lng, alt });
   }
   return points;
 }
 
-function buildHorizonsUrl(target, startTime, stopTime) {
+// target.bodyCommand = el cuerpo del que queremos un punto en su superficie (Marte=499, Luna=301...)
+// target.observerCommand = quién "mira" ese cuerpo (una nave, el Sol, o una luna natural)
+function buildSubObserverUrl(target, startTime, stopTime) {
   const q = [
     `format=json`,
-    `COMMAND='${target.command}'`,
+    `COMMAND='${target.bodyCommand}'`,
+    `CENTER='@${target.observerCommand}'`,
+    `QUANTITIES='14,20'`,
     `OBJ_DATA='NO'`,
-    `MAKE_EPHEM='YES'`,
-    `EPHEM_TYPE='VECTORS'`,
-    `CENTER='${target.center}'`,
-    `REF_PLANE='B'`,
     `START_TIME='${startTime}'`,
     `STOP_TIME='${stopTime}'`,
     `STEP_SIZE='15%20m'`,
-    `VEC_TABLE='2'`,
-    `OUT_UNITS='KM-S'`,
   ].join('&');
   return `${HORIZONS_BASE}?${q}`;
 }
@@ -1133,12 +1125,12 @@ async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
 
   for (const target of targets) {
     try {
-      const res = await fetch(buildHorizonsUrl(target, startTime, stopTime), { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(buildSubObserverUrl(target, startTime, stopTime), { headers: { 'Accept': 'application/json' } });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
-      const points = parseHorizonsVectors(data.result, target.bodyRadiusKm);
+      const points = parseSubObserverTable(data.result, target.bodyRadiusKm);
       if (points.length) {
         orbiters[target.id] = { name: target.name, points };
         anySuccess = true;

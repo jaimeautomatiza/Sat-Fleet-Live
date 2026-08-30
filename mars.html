@@ -399,12 +399,15 @@
     </div>
     <div class="legend-item" style="font-size:0.72rem; font-weight:700; color:var(--primary-purple); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:2px;">Active Rovers</div>
     <div class="legend-item"><img src="images/missions/rover.webp" style="width:18px;height:18px;object-fit:contain;"><span>Active rovers (+ trail driven)</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#9e9e9e;"></div><span>Historic landing sites</span></div>
     <div class="legend-item" style="width:100%; height:1px; background:rgba(255,255,255,0.12); margin:6px 0; padding:0;"></div>
     <div class="legend-item" style="font-size:0.72rem; font-weight:700; color:var(--primary-purple); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:2px;">Orbiters</div>
     <div class="legend-item"><div class="legend-color" style="background:#00e5ff;"></div><span>MRO (NASA)</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ffd700;"></div><span>Mars Odyssey (NASA)</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ff9100;"></div><span>Mars Express (ESA)</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#76ff03;"></div><span>Hope / EMM (UAE)</span></div>
+    <div class="legend-item"><img src="images/moons/phobos.webp" style="width:16px;height:16px;object-fit:contain;border-radius:50%;"><span>Phobos</span></div>
+    <div class="legend-item"><img src="images/moons/deimos.webp" style="width:16px;height:16px;object-fit:contain;border-radius:50%;"><span>Deimos</span></div>
 </div>
 
 <div id="marsFiltersPanel">
@@ -414,6 +417,7 @@
     </div>
     <div class="filters-grid">
         <button class="filter-chip active" id="layerSitesBtn" onclick="toggleSitesLayer()">Rovers</button>
+        <button class="filter-chip active" id="layerHistoricBtn" onclick="toggleHistoricLayer()">Historic Sites</button>
         <button class="filter-chip active" id="layerOrbitersBtn" onclick="toggleOrbitersLayer()">Orbiters</button>
     </div>
 </div>
@@ -636,7 +640,60 @@ function loadMarsSites() {
     probe.src = ROVER_ICON;
 }
 
+const MARS_HISTORIC_SITES = [
+    { name: 'Viking 1', agency: 'NASA', year: 1976, location: 'Chryse Planitia', lat: 22.48, lng: -49.97,
+      desc: "The first spacecraft to successfully land on Mars and send back images from the surface." },
+    { name: 'Viking 2', agency: 'NASA', year: 1976, location: 'Utopia Planitia', lat: 47.97, lng: 134.26,
+      desc: "Viking 1's twin lander, operating for over 3 years and detecting Mars' seasonal frost cycles." },
+    { name: 'Pathfinder', agency: 'NASA', year: 1997, location: 'Ares Vallis', lat: 19.33, lng: -33.55,
+      desc: "Delivered Sojourner, the first-ever rover to operate on Mars — a tiny 10.6 kg vehicle." },
+    { name: 'Spirit', agency: 'NASA', year: 2004, location: 'Gusev Crater', lat: -14.57, lng: 175.47,
+      desc: "One of NASA's twin Mars Exploration Rovers, exploring for over 6 years before getting stuck in soft soil." },
+    { name: 'Opportunity', agency: 'NASA', year: 2004, location: 'Meridiani Planum', lat: -1.95, lng: -5.53,
+      desc: "Spirit's twin rover — drove over 45 km, a Mars roving distance record, and operated for nearly 15 years." },
+    { name: 'Phoenix', agency: 'NASA', year: 2008, location: 'Vastitas Borealis', lat: 68.22, lng: -125.75,
+      desc: "Landed near the Martian north pole and confirmed the presence of water ice just below the surface." },
+    { name: 'InSight', agency: 'NASA', year: 2018, location: 'Elysium Planitia', lat: 4.5, lng: 135.62,
+      desc: "Studied Mars' deep interior, detecting over 1,300 marsquakes with its seismometer." },
+    { name: 'Zhurong', agency: 'CNSA', year: 2021, location: 'Utopia Planitia', lat: 25.1, lng: 109.9,
+      desc: "China's first Mars rover, part of the Tianwen-1 mission — went dormant in 2022 due to dust accumulation." }
+];
+
+const HISTORIC_SITE_COLOR = '#9e9e9e';
+let historicSiteEntities = [];
+
+function loadHistoricSites() {
+    MARS_HISTORIC_SITES.forEach(site => {
+        const color = Cesium.Color.fromCssColorString(HISTORIC_SITE_COLOR);
+        const entity = viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 0, marsEllipsoid),
+            point: {
+                pixelSize: 8,
+                color: color,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 1.5,
+                scaleByDistance: new Cesium.NearFarScalar(100000, 1.4, 8000000, 0.6),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
+            },
+            label: {
+                text: site.name,
+                font: '11px sans-serif',
+                fillColor: color,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -10),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 4500000)
+            }
+        });
+        entity._siteData = site;
+        historicSiteEntities.push(entity);
+    });
+}
+
 loadMarsSites();
+loadHistoricSites();
 
 // ==================== RASTRO REAL DE LOS ROVERS ====================
 // Datos servidos por el Worker (que a su vez los lee de tu GitHub) —
@@ -728,6 +785,34 @@ function showSiteInfo(site) {
     }
 }
 
+// Calculamos la velocidad nosotros mismos: cuánto se mueve la nave en 1
+// minuto, convertido a km/h. No hace falta pedirle esto a la NASA — ya
+// tenemos su posición exacta cada 15 min, así que solo hay que medir la
+// distancia recorrida entre dos instantes muy próximos.
+function estimateOrbiterSpeedKmh(points, nowMs) {
+    const dtMs = 60000; // 1 minuto de separación
+    const p1 = interpOrbiterCartesian(points, nowMs);
+    const p2raw = interpOrbiterCartesian(points, nowMs + dtMs);
+    if (!p1 || !p2raw) return null;
+
+    // Sin esto, mediríamos "a qué velocidad se arrastra el punto sobre la
+    // superficie que gira" (muy lento para Fobos/Deimos, por ejemplo) en vez
+    // de la velocidad orbital real — que es la que todo el mundo espera ver
+    // y con la que se compara (la que publica la propia NASA).
+    const rotationDuringDt = MARS_ROTATION_DEG_PER_DAY * (dtMs / 86400000);
+    const carto2 = Cesium.Cartographic.fromCartesian(p2raw, marsEllipsoid);
+    const p2 = Cesium.Cartesian3.fromDegrees(
+        Cesium.Math.toDegrees(carto2.longitude) + rotationDuringDt,
+        Cesium.Math.toDegrees(carto2.latitude),
+        carto2.height,
+        marsEllipsoid
+    );
+
+    const distMeters = Cesium.Cartesian3.distance(p1, p2);
+    const speedMs = distMeters / (dtMs / 1000);
+    return speedMs * 3.6; // metros/segundo → km/h
+}
+
 function showOrbiterInfo(orbiterData) {
     currentSelectedSite = null;
     currentSelectedOrbiter = orbiterData;
@@ -742,8 +827,10 @@ function showOrbiterInfo(orbiterData) {
     document.getElementById('siteInfoMeta').textContent = 'Mars orbiter · Live';
 
     if (p) {
+        const speed = estimateOrbiterSpeedKmh(orbiterData.points, Date.now());
+        const speedText = speed != null ? ' Traveling at ~' + Math.round(speed).toLocaleString() + ' km/h relative to the surface.' : '';
         document.getElementById('siteInfoDesc').textContent =
-            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°, at ~' + Math.round(p.alt) + ' km altitude. ' +
+            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°, at ~' + Math.round(p.alt) + ' km altitude.' + speedText + ' ' +
             'Position calculated from NASA/JPL Horizons ephemeris data.';
     } else {
         document.getElementById('siteInfoDesc').textContent = 'Position data unavailable right now.';
@@ -797,6 +884,15 @@ function toggleSitesLayer() {
     if (!showLandingSites && currentSelectedSite) closeSiteInfo();
 }
 
+let showHistoricSites = true;
+
+function toggleHistoricLayer() {
+    showHistoricSites = !showHistoricSites;
+    document.getElementById('layerHistoricBtn').classList.toggle('active', showHistoricSites);
+    historicSiteEntities.forEach(e => e.show = showHistoricSites);
+    if (!showHistoricSites && currentSelectedSite && MARS_HISTORIC_SITES.includes(currentSelectedSite)) closeSiteInfo();
+}
+
 function toggleOrbitersLayer() {
     showOrbitersLayer = !showOrbitersLayer;
     document.getElementById('layerOrbitersBtn').classList.toggle('active', showOrbitersLayer);
@@ -817,7 +913,7 @@ function searchMarsObjects() {
     const q = (document.getElementById('marsSearch') || { value: '' }).value.toLowerCase().trim();
     if (!q) return;
 
-    const site = MARS_SITES.find(s => s.name.toLowerCase().includes(q));
+    const site = MARS_SITES.concat(MARS_HISTORIC_SITES).find(s => s.name.toLowerCase().includes(q));
     if (site) { showSiteInfo(site); return; }
 
     const found = Object.entries(marsOrbitersData).find(([id, o]) => o.name.toLowerCase().includes(q));
@@ -844,6 +940,22 @@ viewer.screenSpaceEventHandler.setInputAction(function(click) {
 const ORBITER_COLORS = { mro: '#00e5ff', odyssey: '#ffd700', mex: '#ff9100', hope: '#76ff03' };
 const ORBITER_DEFAULT_COLOR = '#00e5ff';
 function getOrbiterColor(id) { return Cesium.Color.fromCssColorString(ORBITER_COLORS[id] || ORBITER_DEFAULT_COLOR); }
+
+// Fobos y Deimos se pintan con foto real en vez de punto de color
+const ORBITER_ICONS = { phobos: 'images/moons/phobos.webp', deimos: 'images/moons/deimos.webp' };
+const ORBITER_ICON_HEIGHT = window.innerWidth > 768 ? 56 : 48;
+let orbiterIconRatios = { phobos: 1, deimos: 1 }; // se corrige solo en cuanto cargan las imágenes reales
+
+function preloadOrbiterIcon(id, url) {
+    const probe = new Image();
+    probe.onload = function() {
+        orbiterIconRatios[id] = probe.naturalWidth / probe.naturalHeight;
+        renderMarsOrbiters(); // redibuja ya con la proporción correcta, sin esperar al próximo refresco
+    };
+    probe.src = url;
+}
+Object.entries(ORBITER_ICONS).forEach(([id, url]) => preloadOrbiterIcon(id, url));
+
 let marsOrbitersData = {};
 let orbiterEntities = [];
 let currentOrbiterPathEntity = null;
@@ -1090,47 +1202,90 @@ function renderMarsOrbiters() {
         if (id === 'sun') return; // el Sol no se pinta como orbitador, solo se usa para la luz
         const points = orbiter.points;
         if (!points || !points.length) return;
-        const color = getOrbiterColor(id);
 
         const positionProperty = new Cesium.CallbackProperty(function() {
             return interpOrbiterCartesian(points, Date.now());
         }, false);
 
-        const entity = viewer.entities.add({
-            position: positionProperty,
-            point: {
-                pixelSize: 9,
-                color: color,
-                outlineColor: Cesium.Color.BLACK,
-                outlineWidth: 1.5,
-                scaleByDistance: new Cesium.NearFarScalar(100000, 1.4, 8000000, 0.6),
-                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
-            },
-            label: {
-                text: orbiter.name,
-                font: '11px sans-serif',
-                fillColor: color,
-                outlineColor: Cesium.Color.BLACK,
-                outlineWidth: 2,
-                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                pixelOffset: new Cesium.Cartesian2(0, -10),
-                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 4500000)
-            }
-        });
+        const labelColor = ORBITER_ICONS[id] ? Cesium.Color.WHITE : getOrbiterColor(id);
+        const labelConfig = {
+            text: orbiter.name,
+            font: '11px sans-serif',
+            fillColor: labelColor,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            pixelOffset: new Cesium.Cartesian2(0, -10),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 4500000)
+        };
+
+        let entity;
+        if (ORBITER_ICONS[id]) {
+            const h = ORBITER_ICON_HEIGHT;
+            const w = h * (orbiterIconRatios[id] || 1);
+            entity = viewer.entities.add({
+                position: positionProperty,
+                billboard: {
+                    image: ORBITER_ICONS[id],
+                    width: w,
+                    height: h,
+                    verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                    scaleByDistance: new Cesium.NearFarScalar(50000, 1.4, 4000000, 0.6),
+                    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
+                },
+                label: labelConfig
+            });
+        } else {
+            entity = viewer.entities.add({
+                position: positionProperty,
+                point: {
+                    pixelSize: 9,
+                    color: getOrbiterColor(id),
+                    outlineColor: Cesium.Color.BLACK,
+                    outlineWidth: 1.5,
+                    scaleByDistance: new Cesium.NearFarScalar(100000, 1.4, 8000000, 0.6),
+                    distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, Number.MAX_VALUE)
+                },
+                label: labelConfig
+            });
+        }
         entity._orbiterData = { id, name: orbiter.name, points };
         orbiterEntities.push(entity);
     });
 }
 
+// Iluminación de Marte — igual que la Luna: se calcula sola, sin llamar a
+// ningún servidor. Marte gira 350.89198226°/día (dato oficial IAU, fijo desde
+// siempre) — con eso y la hora actual, sabemos hacia dónde mira el Sol.
+//
+// El punto de partida (no es un número inventado) sale de una consulta real
+// a Horizons que verificamos en vivo: a las 2026-08-30 00:00 UTC, el punto
+// exacto de Marte con el Sol encima estaba a 15.901351° W.
+const MARS_ROTATION_DEG_PER_DAY = 350.89198226;
+const MARS_CALIBRATION_EPOCH_MS = Date.parse('2026-08-30T00:00:00Z');
+const MARS_CALIBRATION_SUBSOLAR_WEST_LNG = 15.901351;
+
+function getMarsSubsolarLongitudeEast(nowMs) {
+    const daysSince = (nowMs - MARS_CALIBRATION_EPOCH_MS) / 86400000;
+    let westLng = MARS_CALIBRATION_SUBSOLAR_WEST_LNG + MARS_ROTATION_DEG_PER_DAY * daysSince;
+    westLng = ((westLng % 360) + 360) % 360;
+    let eastLng = -westLng;
+    eastLng = ((eastLng + 180) % 360 + 360) % 360 - 180;
+    return eastLng;
+}
+
 function updateMarsLighting() {
-    const sun = marsOrbitersData.sun;
-    if (!sun || !sun.points || !sun.points.length) return;
+    const subsolarLng = getMarsSubsolarLongitudeEast(Date.now());
+    // La declinación solar (norte/sur) cambia con las estaciones marcianas,
+    // muy despacio (año marciano = 687 días) — un valor fijo aproximado es
+    // más que suficiente para un efecto visual, no buscamos precisión científica aquí.
+    const subsolarLat = -7.3;
 
-    const cart = interpOrbiterCartesian(sun.points, Date.now());
-    if (!cart) return;
-
-    const towardSun = Cesium.Cartesian3.normalize(cart, new Cesium.Cartesian3());
+    const towardSun = Cesium.Cartesian3.normalize(
+        Cesium.Cartesian3.fromDegrees(subsolarLng, subsolarLat, 0, marsEllipsoid),
+        new Cesium.Cartesian3()
+    );
     const lightDirection = Cesium.Cartesian3.negate(towardSun, new Cesium.Cartesian3());
 
     viewer.scene.light = new Cesium.DirectionalLight({
@@ -1146,7 +1301,6 @@ async function loadMarsOrbiters() {
         const data = await res.json();
         marsOrbitersData = data.orbiters || {};
         renderMarsOrbiters();
-        updateMarsLighting();
     } catch (e) {
         console.warn('[SatFleet Mars] No se pudo cargar los orbitadores:', e.message);
     }
@@ -1154,7 +1308,8 @@ async function loadMarsOrbiters() {
 
 loadMarsOrbiters();
 setInterval(loadMarsOrbiters, 30 * 60 * 1000);
-setInterval(updateMarsLighting, 60 * 1000); // el Sol se mueve despacio, cada minuto es de sobra
+updateMarsLighting();
+setInterval(updateMarsLighting, 60 * 1000); // Marte gira despacio, cada minuto es de sobra
 
 function hideLoading() {
     const el = document.getElementById('loading');

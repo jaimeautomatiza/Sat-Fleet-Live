@@ -4093,7 +4093,7 @@ function updateCompass3DVisibility() {
         // Funciones Premium (detectar estado y mostrar modal)
         function isPremiumUser()    { return localStorage.getItem('satfleet_is_premium') === '1'; }
         // ── VIGILANTE SILENCIOSO DE REVENUECAT ──
-async function verifyPremiumSilently() {
+async function verifyPremiumSilently(force) {
     const uid = localStorage.getItem('satfleet_user_uid');
     const lastCheck = localStorage.getItem('satfleet_premium_check_ts');
     const isCurrentlyPremium = isPremiumUser();
@@ -4102,7 +4102,8 @@ async function verifyPremiumSilently() {
     if (!uid) return; // Si no hay usuario, no hacemos nada
     
     // Si han pasado menos de 60 minutos (3600000 ms), confiamos en el localStorage
-    if (lastCheck && (now - parseInt(lastCheck)) < 900000) return;
+    // — salvo que nos pidan "force", que es lo que hacemos justo cuando llega un token nuevo de verdad
+    if (!force && lastCheck && (now - parseInt(lastCheck)) < 900000) return;
     
     try {
         const fbToken = localStorage.getItem('satfleet_fb_token');
@@ -7390,6 +7391,13 @@ function stopSimulation(launch) {
     if (user) {
       user.getIdToken().then((token) => {
         localStorage.setItem('satfleet_fb_token', token);
+        // En cuanto tenemos un token fresco de verdad, reintentamos la
+        // comprobación de premium ya mismo — así no dependemos de que la
+        // comprobación de arriba haya llegado a tiempo antes de que este
+        // token estuviera listo.
+        if (typeof verifyPremiumSilently === 'function') {
+          verifyPremiumSilently(true);
+        }
       }).catch(() => {});
     }
   });

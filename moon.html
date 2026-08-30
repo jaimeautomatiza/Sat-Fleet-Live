@@ -776,6 +776,32 @@ function showSiteInfo(site) {
     }
 }
 
+// Calculamos la velocidad nosotros mismos: cuánto se mueve la nave en 1
+// minuto, convertido a km/h. No hace falta pedirle esto a la NASA — ya
+// tenemos su posición exacta cada 15 min, así que solo hay que medir la
+// distancia recorrida entre dos instantes muy próximos.
+const MOON_ROTATION_DEG_PER_DAY = 360 / 27.321661; // la Luna gira sincronizada con su órbita (~27,32 días)
+
+function estimateOrbiterSpeedKmh(points, nowMs) {
+    const dtMs = 60000; // 1 minuto de separación
+    const p1 = interpOrbiterCartesian(points, nowMs);
+    const p2raw = interpOrbiterCartesian(points, nowMs + dtMs);
+    if (!p1 || !p2raw) return null;
+
+    const rotationDuringDt = MOON_ROTATION_DEG_PER_DAY * (dtMs / 86400000);
+    const carto2 = Cesium.Cartographic.fromCartesian(p2raw, moonEllipsoid);
+    const p2 = Cesium.Cartesian3.fromDegrees(
+        Cesium.Math.toDegrees(carto2.longitude) + rotationDuringDt,
+        Cesium.Math.toDegrees(carto2.latitude),
+        carto2.height,
+        moonEllipsoid
+    );
+
+    const distMeters = Cesium.Cartesian3.distance(p1, p2);
+    const speedMs = distMeters / (dtMs / 1000);
+    return speedMs * 3.6; // metros/segundo → km/h
+}
+
 function showOrbiterInfo(orbiterData) {
     currentSelectedSite = null;
     currentSelectedOrbiter = orbiterData;
@@ -789,8 +815,10 @@ function showOrbiterInfo(orbiterData) {
     document.getElementById('siteInfoMeta').textContent = 'NASA · Lunar orbiter · Live';
 
     if (p) {
+        const speed = estimateOrbiterSpeedKmh(orbiterData.points, Date.now());
+        const speedText = speed != null ? ' Traveling at ~' + Math.round(speed).toLocaleString() + ' km/h relative to the surface.' : '';
         document.getElementById('siteInfoDesc').textContent =
-            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°, at ~' + Math.round(p.alt) + ' km altitude. ' +
+            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°, at ~' + Math.round(p.alt) + ' km altitude.' + speedText + ' ' +
             'Position calculated from NASA/JPL Horizons ephemeris data.';
     } else {
         document.getElementById('siteInfoDesc').textContent = 'Position data unavailable right now.';
