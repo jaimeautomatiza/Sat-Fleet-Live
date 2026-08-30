@@ -2634,7 +2634,7 @@ function renderMiniMap(mapId, passIndex) {
     appId: "1:369952976257:web:c7ba2050865524fca80c80"
   };
 
-  const _tokenApp = initializeApp(firebaseConfig, "tokenRefresh");
+  const _tokenApp = initializeApp(firebaseConfig);
   const _tokenAuth = getAuth(_tokenApp);
 
   onIdTokenChanged(_tokenAuth, (user) => {
