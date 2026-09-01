@@ -756,7 +756,11 @@ function showSiteInfo(site) {
     clearOrbiterPath();
     updateMoonPovBtnVisibility();
 
+    if (site.name === 'Apollo 11') {
+    document.getElementById('siteInfoName').innerHTML = '<a href="/moon/apollo-11/" style="color:inherit;text-decoration:underline;">' + site.name + '</a>';
+} else {
     document.getElementById('siteInfoName').textContent = site.name;
+}
     document.getElementById('siteInfoMeta').textContent = site.agency + ' · ' + site.year + ' · ' + site.location;
     document.getElementById('siteInfoDesc').textContent = site.desc;
     document.getElementById('siteInfoPanel').classList.add('active');
@@ -811,7 +815,11 @@ function showOrbiterInfo(orbiterData) {
     const cart = interpOrbiterCartesian(orbiterData.points, Date.now());
     const p = cart ? cartesianToLatLngAlt(cart) : null;
 
+    if (orbiterData.id === 'lro') {
+    document.getElementById('siteInfoName').innerHTML = '<a href="/moon/lro/" style="color:inherit;text-decoration:underline;">' + orbiterData.name + '</a>';
+} else {
     document.getElementById('siteInfoName').textContent = orbiterData.name;
+}
     document.getElementById('siteInfoMeta').textContent = 'NASA · Lunar orbiter · Live';
 
     if (p) {

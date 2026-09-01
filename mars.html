@@ -406,8 +406,8 @@
     <div class="legend-item"><div class="legend-color" style="background:#ffd700;"></div><span>Mars Odyssey (NASA)</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ff9100;"></div><span>Mars Express (ESA)</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#76ff03;"></div><span>Hope / EMM (UAE)</span></div>
-    <div class="legend-item"><img src="images/moons/phobos.webp" style="width:16px;height:16px;object-fit:contain;border-radius:50%;"><span>Phobos</span></div>
-    <div class="legend-item"><img src="images/moons/deimos.webp" style="width:16px;height:16px;object-fit:contain;border-radius:50%;"><span>Deimos</span></div>
+    <div class="legend-item"><img src="images/mars/moons/phobos.webp" style="width:16px;height:16px;object-fit:contain;border-radius:50%;"><span>Phobos</span></div>
+    <div class="legend-item"><img src="images/mars/moons/deimos.webp" style="width:16px;height:16px;object-fit:contain;border-radius:50%;"><span>Deimos</span></div>
 </div>
 
 <div id="marsFiltersPanel">
@@ -656,7 +656,9 @@ const MARS_HISTORIC_SITES = [
     { name: 'InSight', agency: 'NASA', year: 2018, location: 'Elysium Planitia', lat: 4.5, lng: 135.62,
       desc: "Studied Mars' deep interior, detecting over 1,300 marsquakes with its seismometer." },
     { name: 'Zhurong', agency: 'CNSA', year: 2021, location: 'Utopia Planitia', lat: 25.1, lng: 109.9,
-      desc: "China's first Mars rover, part of the Tianwen-1 mission — went dormant in 2022 due to dust accumulation." }
+      desc: "China's first Mars rover, part of the Tianwen-1 mission — went dormant in 2022 due to dust accumulation." },
+    { name: 'Ingenuity', agency: 'NASA', year: 2021, location: 'Valinor Hills, Neretva Vallis', lat: 18.4918, lng: 77.3272,
+      desc: "The first aircraft to achieve powered flight on another planet. Completed 72 flights before its mission ended in January 2024. Position approximated from Perseverance's real telemetry on sol 1068, when the rover photographed Ingenuity at this exact location." }
 ];
 
 const HISTORIC_SITE_COLOR = '#9e9e9e';
@@ -760,7 +762,17 @@ function showSiteInfo(site) {
     updateMarsPovBtnVisibility();
     drawRoverTrail(site.id);
 
+    if (site.id === 'perseverance') {
+    document.getElementById('siteInfoName').innerHTML = '<a href="/mars/perseverance/" style="color:inherit;text-decoration:underline;">' + site.name + '</a>';
+} else if (site.id === 'curiosity') {
+    document.getElementById('siteInfoName').innerHTML = '<a href="/mars/curiosity/" style="color:inherit;text-decoration:underline;">' + site.name + '</a>';
+} else {
+    if (site.name === 'Ingenuity') {
+    document.getElementById('siteInfoName').innerHTML = '<a href="/mars/ingenuity/" style="color:inherit;text-decoration:underline;">' + site.name + '</a>';
+} else {
     document.getElementById('siteInfoName').textContent = site.name;
+}
+}
     document.getElementById('siteInfoMeta').textContent = site.agency + ' · ' + site.year + ' · ' + site.location;
 
     let desc = site.desc;
@@ -942,7 +954,7 @@ const ORBITER_DEFAULT_COLOR = '#00e5ff';
 function getOrbiterColor(id) { return Cesium.Color.fromCssColorString(ORBITER_COLORS[id] || ORBITER_DEFAULT_COLOR); }
 
 // Fobos y Deimos se pintan con foto real en vez de punto de color
-const ORBITER_ICONS = { phobos: 'images/moons/phobos.webp', deimos: 'images/moons/deimos.webp' };
+const ORBITER_ICONS = { phobos: 'images/mars/moons/phobos.webp', deimos: 'images/mars/moons/deimos.webp' };
 const ORBITER_ICON_HEIGHT = window.innerWidth > 768 ? 56 : 48;
 let orbiterIconRatios = { phobos: 1, deimos: 1 }; // se corrige solo en cuanto cargan las imágenes reales
 
