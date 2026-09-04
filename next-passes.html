@@ -1019,7 +1019,7 @@ body.light-mode {
     <div style="font-size:0.82rem; color:rgba(230,225,240,0.55); line-height:1.65; margin-bottom:26px;" id="premiumModalDesc">This feature requires an active SatFleet Live Premium subscription.</div>
     <div style="display:flex; gap:10px;">
       <button onclick="closePremiumModal()" style="flex:1; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:11px; color:rgba(230,225,240,0.6); font-size:0.82rem; font-weight:600; cursor:pointer; font-family:inherit;">Not now</button>
-      <button onclick="window.location.href='account.html'" style="flex:1; padding:10px; background:linear-gradient(135deg,#a333bc,#7b1fa2); border:none; border-radius:11px; color:#fff; font-size:0.84rem; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(156,39,176,0.45);">Upgrade — €2.99/mo</button>
+      <button onclick="clickPremiumUpgrade()" style="flex:1; padding:10px; background:linear-gradient(135deg,#a333bc,#7b1fa2); border:none; border-radius:11px; color:#fff; font-size:0.84rem; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(156,39,176,0.45);">Upgrade — €2.99/mo</button>
     </div>
   </div>
 </div>
@@ -1098,6 +1098,15 @@ function showPremiumModal(desc) {
     const d = document.getElementById('premiumModalDesc');
     if (d && desc) d.textContent = desc;
     document.getElementById('premiumModal').style.display = 'flex';
+    if (typeof gtag === 'function') {
+        gtag('event', 'premium_modal_shown', { feature: desc ? desc.slice(0, 100) : 'unknown', page_path: window.location.pathname });
+    }
+}
+function clickPremiumUpgrade() {
+    if (typeof gtag === 'function') {
+        gtag('event', 'premium_upgrade_click', { page_path: window.location.pathname });
+    }
+    window.location.href = 'account.html';
 }
 // ═════════════════════════
 </script>

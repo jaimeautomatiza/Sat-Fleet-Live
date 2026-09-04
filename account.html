@@ -1103,6 +1103,9 @@ onAuthStateChanged(auth, async (user) => {
                     ? '🎉 Premium is now active! All features are unlocked.'
                     : 'Payment received! Premium access may take a few more minutes to activate — please refresh the page.';
                 setTimeout(() => alert(msg), 300);
+                if (typeof gtag === 'function') {
+                    gtag('event', isPremium ? 'premium_purchase_confirmed' : 'premium_purchase_pending', {});
+                }
             }
 
         } catch(error) {
@@ -1292,6 +1295,12 @@ async function upgradePremium() {
     if (!currentUser || !currentUser.uid) {
         alert('Please log in first to upgrade.');
         return;
+    }
+
+    if (typeof gtag === 'function') {
+        gtag('event', 'premium_purchase_started', {
+            method: (typeof window.Android !== 'undefined' && window.Android.startPremiumPurchase) ? 'android' : 'stripe'
+        });
     }
 
     // Android: sigue usando el flujo nativo de Google Play
