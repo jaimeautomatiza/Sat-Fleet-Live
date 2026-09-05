@@ -1253,6 +1253,7 @@ const DEEP_SPACE_TARGETS = [
   { id: 'neptune', name: 'Neptune', command: '899', isPlanet: true },
   { id: 'pluto', name: 'Pluto', command: '999', isPlanet: true },
   { id: 'ceres', name: 'Ceres', command: '2000001', isPlanet: true },
+  { id: 'moon', name: 'Moon', command: '301', isPlanet: true },
   // Naves de espacio profundo
   { id: 'voyager1', name: 'Voyager 1', command: '-31' },
   { id: 'voyager2', name: 'Voyager 2', command: '-32' },
