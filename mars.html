@@ -362,9 +362,16 @@
     <button class="explore-item" onclick="window.location.href='index.html'">
         <span class="explore-dot" style="background:#4285f4;"></span> Earth
     </button>
+    <button class="explore-item" onclick="window.location.href='deep-space.html'">
+        <span class="explore-dot" style="background:#b026ff;"></span> Deep Space
+    </button>
 </div>
 
 <div id="overflowMenu">
+    <button class="overflow-item purple" onclick="toggleMarsFiltersPanel(); closeOverflowMenu()">
+        <img src="images/layer.svg" style="width:14px;height:14px;filter:invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%);"> Layers
+    </button>
+    <div class="overflow-divider"></div>
     <button class="overflow-item gold" onclick="window.location.href='/blogs/'">
         <img src="images/book.svg" style="width:16px;height:16px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
     </button>

@@ -1231,6 +1231,159 @@ async function handleRoverTrail(request, ctx, env) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// HANDLER: /api/deep-space — naves más allá de la órbita terrestre
+// ═══════════════════════════════════════════════════════════════
+// Aquí SÍ usamos vectores X/Y/Z directos respecto al Sol — a diferencia de
+// los orbitadores de Marte/Luna, aquí no hay ninguna superficie que gire de
+// por medio, así que el método "viejo" (el que abandonamos para planetas)
+// es aquí la herramienta correcta, verificado en vivo con el Voyager 1.
+
+const KV_KEY_DEEP_SPACE = 'deep_space_v1';
+const DEEP_SPACE_TTL = 6 * 3600;
+
+const DEEP_SPACE_TARGETS = [
+  // Planetas — posición real y en vivo, no decorativa (mismo bucle, casi gratis)
+  { id: 'mercury', name: 'Mercury', command: '199', isPlanet: true },
+  { id: 'venus',   name: 'Venus',   command: '299', isPlanet: true },
+  { id: 'earth',   name: 'Earth',   command: '399', isPlanet: true },
+  { id: 'mars',    name: 'Mars',    command: '499', isPlanet: true },
+  { id: 'jupiter', name: 'Jupiter', command: '599', isPlanet: true },
+  { id: 'saturn',  name: 'Saturn',  command: '699', isPlanet: true },
+  { id: 'uranus',  name: 'Uranus',  command: '799', isPlanet: true },
+  { id: 'neptune', name: 'Neptune', command: '899', isPlanet: true },
+  { id: 'pluto', name: 'Pluto', command: '999', isPlanet: true },
+  { id: 'ceres', name: 'Ceres', command: '2000001', isPlanet: true },
+  // Naves de espacio profundo
+  { id: 'voyager1', name: 'Voyager 1', command: '-31' },
+  { id: 'voyager2', name: 'Voyager 2', command: '-32' },
+  { id: 'jwst',      name: 'James Webb Space Telescope', command: '-170' },
+  { id: 'parker',    name: 'Parker Solar Probe', command: '-96' },
+  { id: 'newhorizons', name: 'New Horizons', command: '-98' },
+  { id: 'juno',      name: 'Juno', command: '-61' },
+  { id: 'hera', name: 'Hera', command: '-91' },
+  { id: 'bepicolombo', name: 'BepiColombo', command: '-121' },
+  { id: 'europaclipper', name: 'Europa Clipper', command: '-159' },
+  { id: 'lucy', name: 'Lucy', command: '-49' },
+  { id: 'psyche', name: 'Psyche', command: '-255' },
+];
+
+function parseHeliocentricVectors(resultText) {
+  if (!resultText) return [];
+  const soeIdx = resultText.indexOf('$$SOE');
+  const eoeIdx = resultText.indexOf('$$EOE');
+  if (soeIdx === -1 || eoeIdx === -1) return [];
+
+  const lines = resultText.substring(soeIdx + 5, eoeIdx).split('\n').map(l => l.trim()).filter(Boolean);
+  const points = [];
+
+  for (let i = 0; i < lines.length; i += 2) {
+    const dateLine = lines[i];
+    const xyzLine  = lines[i + 1];
+    if (!dateLine || !xyzLine) continue;
+
+    const dateMatch = dateLine.match(/A\.D\.\s+(\d{4})-(\w{3})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})/);
+    const xMatch = xyzLine.match(/X\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
+    const yMatch = xyzLine.match(/Y\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
+    const zMatch = xyzLine.match(/Z\s*=\s*(-?\d+\.\d+E[+-]\d+)/);
+    if (!dateMatch || !xMatch || !yMatch || !zMatch) continue;
+
+    const [, year, monAbbr, day, hh, mm, ss] = dateMatch;
+    const month = HORIZONS_MONTHS[monAbbr];
+    if (!month) continue;
+
+    points.push({
+      time: `${year}-${month}-${day}T${hh}:${mm}:${ss}Z`,
+      x: parseFloat(xMatch[1]),
+      y: parseFloat(yMatch[1]),
+      z: parseFloat(zMatch[1]),
+    });
+  }
+  return points;
+}
+
+function buildHeliocentricUrl(target, startTime, stopTime) {
+  const q = [
+    `format=json`,
+    `COMMAND='${target.command}'`,
+    `OBJ_DATA='NO'`,
+    `MAKE_EPHEM='YES'`,
+    `EPHEM_TYPE='VECTORS'`,
+    `CENTER='500@10'`,
+    `REF_PLANE='ECLIPTIC'`,
+    `START_TIME='${startTime}'`,
+    `STOP_TIME='${stopTime}'`,
+    `STEP_SIZE='12%20h'`,
+    `VEC_TABLE='1'`,
+    `OUT_UNITS='KM-S'`,
+  ].join('&');
+  return `${HORIZONS_BASE}?${q}`;
+}
+
+async function handleDeepSpace(ctx, env) {
+  try {
+    const cached = await env.LAUNCHES_KV.get(KV_KEY_DEEP_SPACE);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.fetchedAt < DEEP_SPACE_TTL * 1000) {
+        return new Response(JSON.stringify({ objects: parsed.objects, _meta: { source: 'kv_cache' } }), {
+          status: 200,
+          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8' }),
+        });
+      }
+    }
+  } catch(e) { console.error('Deep space KV read error:', e.message); }
+
+  const now = new Date();
+  const startTime = now.toISOString().slice(0, 10);
+  const stopTime  = new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+
+  const objects = {};
+  let anySuccess = false;
+
+  for (const target of DEEP_SPACE_TARGETS) {
+    try {
+      const res = await fetch(buildHeliocentricUrl(target, startTime, stopTime), { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const points = parseHeliocentricVectors(data.result);
+      if (points.length) {
+        objects[target.id] = { name: target.name, isPlanet: !!target.isPlanet, points };
+        anySuccess = true;
+      }
+    } catch (err) {
+      console.error(`Horizons fetch failed for ${target.id}:`, err.message);
+    }
+  }
+
+  if (!anySuccess) {
+    try {
+      const stale = await env.LAUNCHES_KV.get(KV_KEY_DEEP_SPACE);
+      if (stale) {
+        const parsed = JSON.parse(stale);
+        return new Response(JSON.stringify({ objects: parsed.objects, _meta: { source: 'stale_cache' } }), {
+          status: 200,
+          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8' }),
+        });
+      }
+    } catch(e) {}
+    return new Response(JSON.stringify({ error: 'Horizons unreachable', objects: {} }), {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const payload = { objects, fetchedAt: Date.now() };
+  ctx.waitUntil(env.LAUNCHES_KV.put(KV_KEY_DEEP_SPACE, JSON.stringify(payload), { expirationTtl: DEEP_SPACE_TTL + 3600 }));
+
+  return new Response(JSON.stringify({ objects, _meta: { source: 'fresh_fetch' } }), {
+    status: 200,
+    headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8' }),
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
 // ROUTER PRINCIPAL
 // ═══════════════════════════════════════════════════════════════
 
@@ -1341,6 +1494,7 @@ export default {
     if (pathname.startsWith('/api/launches/upcoming')) return handleLaunches(ctx, env);
     if (pathname === '/api/moon-orbiters') return handleMoonOrbiters(ctx, env);
     if (pathname === '/api/mars-orbiters') return handleMarsOrbiters(ctx, env);
+    if (pathname === '/api/deep-space') return handleDeepSpace(ctx, env);
     if (pathname.startsWith('/api/rover-trail/')) return handleRoverTrail(request, ctx, env);
 
     return new Response(JSON.stringify({ error: 'Not Found', path: pathname }), {
