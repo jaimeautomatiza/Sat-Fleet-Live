@@ -264,8 +264,26 @@
     #siteInfoPanel .site-meta { font-size:0.7rem; color:rgba(255,255,255,0.45); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
     #siteInfoPanel .site-desc { font-size:0.8rem; color:rgba(255,255,255,0.8); line-height:1.5; margin-top:8px; }
     #siteInfoPanel .info-item { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .ref-selector { margin: 10px 0 8px; }
+    .ref-selector-label { font-size: 0.66rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
+    .ref-search-wrap { position: relative; }
+    .ref-search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; opacity: 0.4; filter: invert(1); pointer-events: none; }
+    .ref-search-input {
+        width: 100%; padding: 6px 8px 6px 26px; border-radius: 6px; box-sizing: border-box;
+        border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05);
+        color: #fff; font-size: 0.78rem; font-family: inherit; outline: none;
+    }
+    .ref-search-input:focus { border-color: #b026ff; }
+    .ref-search-results {
+        display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+        max-height: 160px; overflow-y: auto; background: rgba(15,15,20,0.98);
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; z-index: 50;
+    }
+    .ref-option { padding: 7px 10px; font-size: 0.78rem; color: rgba(255,255,255,0.8); cursor: pointer; }
+    .ref-option:hover { background: rgba(176,38,255,0.15); color: #fff; }
     #siteInfoPanel .info-label { font-size:0.68rem; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.7px; font-weight:500; margin-bottom:2px; }
     #siteInfoPanel .info-value { font-size:0.88rem; font-weight:600; color:rgba(255,255,255,0.9); font-variant-numeric:tabular-nums; }
+    #siteInfoPanel .info-subvalue { font-size:0.68rem; color:rgba(255,255,255,0.38); margin-top:2px; font-style:italic; }
 
     @media (max-width: 768px) {
         #siteInfoPanel {
@@ -394,15 +412,24 @@
     <div class="site-header">
         <div class="site-name" id="siteInfoName">—</div>
         <button class="site-collapse-btn" onclick="toggleSiteInfoCollapse()" title="Collapse">−</button>
-        <button class="site-close" onclick="closeSiteInfo()">×</button>
+        <button class="site-close" onclick="closeSiteInfo(true)">×</button>
     </div>
     <div class="site-meta" id="siteInfoMeta">—</div>
+    <div class="ref-selector" id="refSelectorRow">
+        <div class="ref-selector-label">relative to</div>
+        <div class="ref-search-wrap">
+            <img src="images/search.svg" class="ref-search-icon" alt="">
+            <input type="text" id="refSearchInput" class="ref-search-input" value="Sun" oninput="onReferenceSearchInput()" onfocus="onReferenceSearchInput()">
+            <div id="refSearchResults" class="ref-search-results"></div>
+        </div>
+    </div>
     <div class="info-item" id="siteInfoDistanceRow" style="display:none;">
-        <div class="info-label">Distance from Sun</div>
+        <div class="info-label" id="siteInfoDistanceLabel">Distance from Sun</div>
         <div class="info-value" id="siteInfoDistance">—</div>
+        <div class="info-subvalue" id="siteInfoLightTime">—</div>
     </div>
     <div class="info-item" id="siteInfoSpeedRow" style="display:none;">
-        <div class="info-label">Velocity (vs. Sun)</div>
+        <div class="info-label" id="siteInfoSpeedLabel">Velocity (vs. Sun)</div>
         <div class="info-value" id="siteInfoSpeed">—</div>
     </div>
     <div class="site-desc" id="siteInfoDesc">—</div>
@@ -519,7 +546,7 @@ camera.position.set(0, 45, 80);
 const INITIAL_CAMERA_POS = new THREE.Vector3(0, 45, 80);
 const INITIAL_TARGET = new THREE.Vector3(0, 0, 0);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(container.clientWidth, container.clientHeight);
 container.appendChild(renderer.domElement);
@@ -617,7 +644,7 @@ function bodyColorHex(id) {
 const bgStarSprites = {};
 function getBgStarSprite(id, hexColorString) {
     if (bgStarSprites[id]) return bgStarSprites[id];
-    const mat = new THREE.SpriteMaterial({ map: getColoredDotTexture(hexColorString), sizeAttenuation: false, depthTest: true });
+    const mat = new THREE.SpriteMaterial({ map: getColoredDotTexture(hexColorString), sizeAttenuation: false, depthTest: true, transparent: true, depthWrite: false });
     const sprite = new THREE.Sprite(mat);
     sprite.scale.set(0.008, 0.008, 1); // más discretas, para no competir con lo que tienes cerca
     sprite.userData = { id, isBgStar: true };
@@ -632,6 +659,7 @@ const REAL_RADII_KM = {
     sun: 695700, mercury: 2439.5, venus: 6052, earth: 6378, moon: 1737.5,
     mars: 3396, jupiter: 71492, saturn: 60268, uranus: 25559, neptune: 24764,
     pluto: 1185, ceres: 470,
+    phobos: 11.1, deimos: 6.2, io: 1821.6, europa: 1560.8, ganymede: 2634.1, callisto: 2410.3,
 };
 
 const DWARF_META = {
@@ -644,6 +672,12 @@ const DWARF_META = {
 // Tierra). Solo necesita su punto, con su propia foto.
 const MOON_META = {
     moon: { color: 0xbbbbbb, size: 0.22 },
+    phobos: { color: 0x9e8f80, size: 0.06 },
+    deimos: { color: 0xa89a8a, size: 0.05 },
+    io: { color: 0xe8d066, size: 0.16 },
+    europa: { color: 0xc9b89a, size: 0.15 },
+    ganymede: { color: 0x9a8a78, size: 0.18 },
+    callisto: { color: 0x6a6058, size: 0.17 },
 };
 const moonMeshes = {};
 let moonGlows = {};
@@ -697,8 +731,10 @@ function addOrbitRing(au, color, eccentricity, incDeg, nodeDeg, periDeg) {
 
 const orbitRings = [];
 const planetMeshes = {};
+window.planetMeshes = planetMeshes; // solo para depuración desde la consola F12
 let planetGlows = {};
 const spacecraftMeshes = {};
+window.spacecraftMeshes = spacecraftMeshes; // solo para depuración desde la consola F12
 const dwarfMeshes = {};
 let dwarfGlows = {};
 let dsObjectsData = {}; // datos crudos del Worker
@@ -821,7 +857,7 @@ const dotTexture = makeDotTexture();
 function makeSpacecraftMesh(id) {
     // Un sprite con sizeAttenuation:false se dibuja siempre al mismo tamaño
     // en pantalla, esté a 2 unidades o a 235 — así nunca desaparece por lejos.
-    const mat = new THREE.SpriteMaterial({ map: dotTexture, sizeAttenuation: false, depthTest: false });
+    const mat = new THREE.SpriteMaterial({ map: dotTexture, sizeAttenuation: false, depthTest: true, transparent: true, depthWrite: false });
     const sprite = new THREE.Sprite(mat);
     sprite.scale.set(0.018, 0.018, 1);
     sprite.userData = { id, isPlanet: false };
@@ -860,7 +896,7 @@ function makeLabelSprite(text, color) {
 
     const tex = new THREE.CanvasTexture(canvas);
     tex.needsUpdate = true;
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false, sizeAttenuation: false });
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: true, sizeAttenuation: false });
     const sprite = new THREE.Sprite(mat);
     const aspect = canvas.width / canvas.height;
     sprite.scale.set(0.035 * aspect, 0.035, 1); // tamaño fijo en pantalla, no en el espacio 3D
@@ -883,10 +919,115 @@ function estimateSpeedKmh(points, nowMs) {
     return distKm / (dtMs / 3600000);
 }
 
-function distanceFromSunAU(p) {
-    const r = Math.sqrt(p.x*p.x + p.y*p.y + p.z*p.z);
-    return r / AU_KM;
+let currentInfoObjId = null;
+let referenceBodyId = 'sun';
+
+// Posición real de CUALQUIER cuerpo (incluido el Sol, que no vive en
+// dsObjectsData porque su posición heliocéntrica es, por definición, (0,0,0)).
+function getRealPos(id, nowMs) {
+    if (id === 'sun') return { x: 0, y: 0, z: 0 };
+    const obj = dsObjectsData[id];
+    if (!obj) return null;
+    return interpHeliocentric(obj.points, nowMs);
 }
+
+function calcDistanceKm(selfId, refId, nowMs) {
+    const pSelf = getRealPos(selfId, nowMs), pRef = getRealPos(refId, nowMs);
+    if (!pSelf || !pRef) return null;
+    return Math.sqrt((pSelf.x - pRef.x) ** 2 + (pSelf.y - pRef.y) ** 2 + (pSelf.z - pRef.z) ** 2);
+}
+
+// Velocidad RELATIVA de verdad — cómo cambia la separación entre los dos,
+// no solo la velocidad absoluta de uno de ellos. Así, "Marte respecto a la
+// Tierra" tiene en cuenta que la Tierra también se mueve.
+function estimateRelativeSpeedKmh(selfId, refId, nowMs) {
+    const dtMs = 3600000;
+    const p1s = getRealPos(selfId, nowMs), p2s = getRealPos(selfId, nowMs + dtMs);
+    const p1r = getRealPos(refId, nowMs), p2r = getRealPos(refId, nowMs + dtMs);
+    if (!p1s || !p2s || !p1r || !p2r) return null;
+    const d1 = { x: p1s.x - p1r.x, y: p1s.y - p1r.y, z: p1s.z - p1r.z };
+    const d2 = { x: p2s.x - p2r.x, y: p2s.y - p2r.y, z: p2s.z - p2r.z };
+    const distKm = Math.sqrt((d2.x - d1.x) ** 2 + (d2.y - d1.y) ** 2 + (d2.z - d1.z) ** 2);
+    return distKm / (dtMs / 3600000);
+}
+
+// Bajo 1 millón de km, kilómetros directos; a partir de ahí, UA con el
+// equivalente en millones de km al lado, para que se entienda igual sin
+// conocer la unidad.
+function formatDistanceKm(km) {
+    if (km < 1000000) return Math.round(km).toLocaleString() + ' km';
+    const au = km / AU_KM;
+    const millionKm = km / 1000000;
+    return au.toFixed(2) + ' AU (≈ ' + millionKm.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' million km)';
+}
+
+const LIGHT_SPEED_KM_S = 299792.458;
+function formatLightTime(km) {
+    const totalSeconds = km / LIGHT_SPEED_KM_S;
+    if (totalSeconds < 60) return totalSeconds.toFixed(1) + ' light-seconds away';
+    const totalMinutes = totalSeconds / 60;
+    if (totalMinutes < 60) return totalMinutes.toFixed(1) + ' light-minutes away';
+    const totalHours = totalMinutes / 60;
+    if (totalHours < 24) return totalHours.toFixed(1) + ' light-hours away';
+    return (totalHours / 24).toFixed(1) + ' light-days away';
+}
+
+function refDisplayName(id) {
+    return id === 'sun' ? 'Sun' : (dsObjectsData[id]?.name || id);
+}
+
+function updateReferenceCalc() {
+    if (!currentInfoObjId) return;
+    const nowMs = Date.now();
+    const distRow = document.getElementById('siteInfoDistanceRow');
+    const speedRow = document.getElementById('siteInfoSpeedRow');
+    const refName = refDisplayName(referenceBodyId);
+
+    const distKm = calcDistanceKm(currentInfoObjId, referenceBodyId, nowMs);
+    if (distKm != null) {
+        document.getElementById('siteInfoDistance').textContent = formatDistanceKm(distKm);
+        document.getElementById('siteInfoDistanceLabel').textContent = 'Distance from ' + refName;
+        document.getElementById('siteInfoLightTime').textContent = formatLightTime(distKm);
+        distRow.style.display = '';
+    } else {
+        distRow.style.display = 'none';
+    }
+
+    const speed = estimateRelativeSpeedKmh(currentInfoObjId, referenceBodyId, nowMs);
+    if (speed != null) {
+        document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
+        document.getElementById('siteInfoSpeedLabel').textContent = 'Velocity (vs. ' + refName + ')';
+        speedRow.style.display = '';
+    } else {
+        speedRow.style.display = 'none';
+    }
+}
+
+function getAllReferenceOptions() {
+    const opts = [{ id: 'sun', name: 'Sun' }];
+    Object.entries(dsObjectsData).forEach(([id, obj]) => opts.push({ id, name: obj.name }));
+    return opts;
+}
+
+window.onReferenceSearchInput = function() {
+    const q = document.getElementById('refSearchInput').value.toLowerCase().trim();
+    const list = document.getElementById('refSearchResults');
+    const options = getAllReferenceOptions().filter(o => o.id !== currentInfoObjId && o.name.toLowerCase().includes(q));
+    list.innerHTML = options.map(o => '<div class="ref-option" onclick="selectReferenceBody(\'' + o.id + '\')">' + o.name + '</div>').join('');
+    list.style.display = options.length ? 'block' : 'none';
+};
+
+window.selectReferenceBody = function(id) {
+    referenceBodyId = id;
+    document.getElementById('refSearchInput').value = refDisplayName(id);
+    document.getElementById('refSearchResults').style.display = 'none';
+    updateReferenceCalc();
+};
+
+document.addEventListener('click', (e) => {
+    const wrap = document.querySelector('.ref-search-wrap');
+    if (wrap && !wrap.contains(e.target)) document.getElementById('refSearchResults').style.display = 'none';
+});
 
 window.interpHeliocentric = interpHeliocentric; // solo para depuración desde la consola F12
 function interpHeliocentric(points, nowMs) {
@@ -916,9 +1057,14 @@ const COMPANION_META = {
     moon: { parent: 'earth', radius: 1.6 },
     jwst: { parent: 'earth', radius: 1.35 },
     juno: { parent: 'jupiter', radius: 2.4 },
+    phobos: { parent: 'mars', radius: 0.9 },
+    deimos: { parent: 'mars', radius: 1.2 },
+    io: { parent: 'jupiter', radius: 2.2 },
+    europa: { parent: 'jupiter', radius: 2.6 },
+    ganymede: { parent: 'jupiter', radius: 3.0 },
+    callisto: { parent: 'jupiter', radius: 3.6 },
 };
 
-const NEAREST_NEIGHBOR_TARGET_UNITS = 8;  // el vecino más cercano se ve a esta distancia
 const RENDER_CAP = 300;                   // nadie se dibuja más lejos que esto, por practicidad
 const MIN_VISIBLE_RENDER_RADIUS = 0.01;   // por debajo de esto, es un punto, no una esfera
 const ABSOLUTE_CUTOFF_KM = 100 * AU_KM;   // más allá de esto, no se pinta nada — vacío real
@@ -936,34 +1082,30 @@ function updateRealScalePositions(selfId) {
     const selfMesh = isSpacecraft ? spacecraftMeshes[selfId] : (isMoon ? moonMeshes[selfId] : (isDwarf ? dwarfMeshes[selfId] : planetMeshes[selfId]));
     const anchor = new THREE.Vector3(500, 0, 0);
 
-    // La regla de escala sale del VECINO NATURAL MÁS CERCANO, nunca de ti
-    // mismo — así una Luna pequeña no distorsiona nada.
-    let nearestKm = Infinity;
-    Object.entries(dsObjectsData).forEach(([id, obj]) => {
-        if (id === selfId || !REAL_RADII_KM[id]) return;
-        const p = interpHeliocentric(obj.points, nowMs);
-        if (!p) return;
-        const dKm = Math.sqrt((p.x - selfReal.x) ** 2 + (p.y - selfReal.y) ** 2 + (p.z - selfReal.z) ** 2);
-        if (dKm < nearestKm) nearestKm = dKm;
-    });
-    if (!isFinite(nearestKm)) nearestKm = AU_KM;
-    const LOCAL_SCALE = nearestKm / NEAREST_NEIGHBOR_TARGET_UNITS;
+    // La regla de escala sale de TU PROPIO tamaño real — así siempre te ves
+    // bien, tengas o no algo cerca de verdad (Neptuno, por ejemplo, no tiene
+    // ninguna luna en nuestro sistema, así que necesita esto para no acabar
+    // siendo un punto microscópico e imposible de ver por mucho zoom).
+    const LOCAL_SCALE = isSpacecraft ? (AU_KM / 200) : (REAL_RADII_KM[selfId] / SELF_TARGET_RADIUS);
 
     // El protagonista: visible y a tamaño real si es un cuerpo natural;
     // oculto si es una nave (estás dentro, mirando hacia fuera, no te ves).
     if (selfMesh) {
         selfMesh.position.copy(anchor);
         if (isSpacecraft) {
-            selfMesh.visible = false;
+            selfMesh.visible = true; // ahora sí te ves a ti mismo, como referencia de dónde estás
         } else {
             const baseSize = isMoon ? MOON_META[selfId].size : (isDwarf ? DWARF_META[selfId].size : PLANET_META[selfId].size);
             selfMesh.scale.setScalar((REAL_RADII_KM[selfId] / LOCAL_SCALE) / baseSize);
             selfMesh.visible = true;
         }
         if (labelSprites[selfId]) {
-            labelSprites[selfId].visible = !isSpacecraft;
-            labelSprites[selfId].position.copy(anchor).add(new THREE.Vector3(0, (isSpacecraft ? 0 : selfMesh.scale.x * 1.4) + 0.3, 0));
+            labelSprites[selfId].visible = true;
+            labelSprites[selfId].position.copy(anchor).add(new THREE.Vector3(0, (isSpacecraft ? 0.15 : selfMesh.scale.x * 1.4) + 0.3, 0));
         }
+        // Nunca te quedas también como "estrella lejana" de ti mismo, resto
+        // de cuando otro protagonista te veía así hace un segundo.
+        if (bgStarSprites[selfId]) bgStarSprites[selfId].visible = false;
     }
 
     // Resto de cuerpos naturales — disco, punto, o nada, según le corresponda
@@ -1039,12 +1181,15 @@ function updateRealScalePositions(selfId) {
             sunMesh.scale.setScalar(renderRadius / 2.4);
             sunMesh.visible = true;
             getBgStarSprite('sun', bodyColorHex('sun')).visible = false;
+            if (labelSprites['sun']) labelSprites['sun'].position.copy(pos).add(new THREE.Vector3(0, sunMesh.scale.x * 1.7 + 0.3, 0));
         } else {
             sunMesh.visible = false;
             const star = getBgStarSprite('sun', bodyColorHex('sun'));
             star.position.copy(pos);
             star.visible = true;
+            if (labelSprites['sun']) labelSprites['sun'].position.copy(pos).add(new THREE.Vector3(0, 0.35, 0));
         }
+        if (labelSprites['sun']) labelSprites['sun'].visible = true;
     })();
 
     // Naves — siempre un punto, nunca "nada", mismo criterio de distancia
@@ -1062,6 +1207,30 @@ function updateRealScalePositions(selfId) {
         mesh.visible = showSpacecraft;
         if (labelSprites[id]) { labelSprites[id].visible = showSpacecraft; labelSprites[id].position.copy(pos).add(new THREE.Vector3(0, 1.1, 0)); }
     });
+
+    // Si el protagonista del 360 es una nave, pintamos su propio camino —
+    // saliendo de donde estás ahora mismo (el ancla), hacia donde va de
+    // verdad, con la misma proyección de dirección real que usamos para
+    // todo lo demás en este modo.
+    if (isSpacecraft) {
+        draw360Trajectory(selfObj, selfReal, LOCAL_SCALE, anchor);
+    } else {
+        clearObjectTrajectory();
+    }
+
+    // El anillo de Saturno es parte física real del planeta, no un halo
+    // decorativo — no debe apagarse con el resto de halos en 360.
+    const ring = planetGlows['saturn_ring'];
+    if (ring) {
+        const saturnMesh = (selfId === 'saturn') ? selfMesh : planetMeshes.saturn;
+        if (saturnMesh && saturnMesh.visible) {
+            ring.position.copy(saturnMesh.position);
+            ring.scale.setScalar(saturnMesh.scale.x);
+            ring.visible = showPlanets;
+        } else {
+            ring.visible = false;
+        }
+    }
 }
 
 function exitRealScaleMode() {
@@ -1069,6 +1238,7 @@ function exitRealScaleMode() {
     Object.entries(DWARF_META).forEach(([id]) => { if (dwarfMeshes[id]) { dwarfMeshes[id].scale.setScalar(1); dwarfMeshes[id].visible = showDwarfs; } });
     Object.entries(MOON_META).forEach(([id]) => { if (moonMeshes[id]) { moonMeshes[id].scale.setScalar(1); moonMeshes[id].visible = showMoons; } });
     if (sunMesh) { sunMesh.scale.setScalar(1); sunMesh.visible = true; sunMesh.position.set(0, 0, 0); }
+    if (labelSprites['sun']) labelSprites['sun'].position.set(0, 4.2, 0); // nadie más se acuerda de esta etiqueta al salir
     sunLight.position.set(0, 0, 0);
     Object.values(spacecraftMeshes).forEach(m => m.visible = showSpacecraft);
     Object.values(planetGlows).forEach(g => g.visible = showPlanets);
@@ -1101,6 +1271,27 @@ function updateObjectPositions() {
             vec = parentVec.clone().add(dirReal.multiplyScalar(companion.radius));
         } else {
             vec = toSceneVec3(p.x, p.y, p.z);
+            // Red de seguridad genérica: si una nave SIN posición fijada a
+            // mano cayera dentro de cualquier planeta al comprimir la
+            // escala (ej. una futura misión Tierra-Luna), la empujamos justo
+            // a su superficie — dirección 100% real, solo la distancia final
+            // es la mínima necesaria para que se vea, nunca al azar.
+            if (!obj.isPlanet) {
+                for (const planetId of Object.keys(PLANET_META)) {
+                    if (!realPos[planetId]) continue;
+                    const planetVec = toSceneVec3(realPos[planetId].x, realPos[planetId].y, realPos[planetId].z);
+                    const planetRadius = PLANET_META[planetId].size;
+                    if (vec.distanceTo(planetVec) < planetRadius * 1.3) {
+                        const dirReal = new THREE.Vector3(
+                            p.x - realPos[planetId].x,
+                            p.z - realPos[planetId].z,
+                            -(p.y - realPos[planetId].y)
+                        ).normalize();
+                        vec = planetVec.clone().add(dirReal.multiplyScalar(planetRadius * 1.3));
+                        break;
+                    }
+                }
+            }
         }
         const isDwarf = !!DWARF_META[id];
         const isMoon = !!MOON_META[id];
@@ -1110,7 +1301,10 @@ function updateObjectPositions() {
             const glowDict = isDwarf ? dwarfGlows : planetGlows;
             if (obj.isPlanet && glowDict[id]) glowDict[id].position.copy(vec);
         }
-        if (id === 'saturn' && planetGlows['saturn_ring']) planetGlows['saturn_ring'].position.copy(vec);
+        if (id === 'saturn' && planetGlows['saturn_ring']) {
+            planetGlows['saturn_ring'].position.copy(vec);
+            planetGlows['saturn_ring'].scale.setScalar(1); // siempre a tamaño normal en modo comprimido
+        }
 
         let sprite = labelSprites[id];
         if (!sprite) {
@@ -1119,7 +1313,21 @@ function updateObjectPositions() {
             scene.add(sprite);
             labelSprites[id] = sprite;
         }
-        sprite.position.copy(vec).add(new THREE.Vector3(0, (obj.isPlanet ? planetMeshOffset(id) : 1.1), 0));
+        if (companion && realPos[companion.parent]) {
+            // En vez de empujar hacia "arriba" a ciegas, seguimos empujando
+            // en la MISMA dirección real que ya separa al compañero de su
+            // padre — así la etiqueta siempre queda más lejos del padre
+            // todavía, nunca hacia él, sea cual sea el ángulo de hoy.
+            const dirReal = new THREE.Vector3(
+                p.x - realPos[companion.parent].x,
+                p.z - realPos[companion.parent].z,
+                -(p.y - realPos[companion.parent].y)
+            ).normalize();
+            sprite.position.copy(vec).add(dirReal.multiplyScalar(0.9));
+        } else {
+            const labelOffset = obj.isPlanet ? planetMeshOffset(id) : 1.1;
+            sprite.position.copy(vec).add(new THREE.Vector3(0, labelOffset, 0));
+        }
     });
 }
 function planetMeshOffset(id) { return (PLANET_META[id]?.size || 1) + 1.4; }
@@ -1154,6 +1362,7 @@ window.togglePlanetsLayer = function() {
     Object.values(planetMeshes).forEach(m => m.visible = showPlanets);
     Object.values(planetGlows).forEach(g => g.visible = showPlanets);
     Object.keys(PLANET_META).forEach(id => { if (labelSprites[id]) labelSprites[id].visible = showPlanets; });
+    if (realScaleActive && selectedObjectId) updateRealScalePositions(selectedObjectId);
 };
 window.toggleOrbitsLayer = function() {
     showOrbits = !showOrbits;
@@ -1165,6 +1374,7 @@ window.toggleSpacecraftLayer = function() {
     document.getElementById('layerSpacecraftBtn').classList.toggle('active', showSpacecraft);
     Object.values(spacecraftMeshes).forEach(m => m.visible = showSpacecraft);
     SPACECRAFT_IDS.forEach(id => { if (labelSprites[id]) labelSprites[id].visible = showSpacecraft; });
+    if (realScaleActive && selectedObjectId) updateRealScalePositions(selectedObjectId);
 };
 window.toggleDwarfLayer = function() {
     showDwarfs = !showDwarfs;
@@ -1172,12 +1382,14 @@ window.toggleDwarfLayer = function() {
     Object.values(dwarfMeshes).forEach(m => m.visible = showDwarfs);
     Object.values(dwarfGlows).forEach(g => g.visible = showDwarfs);
     Object.keys(DWARF_META).forEach(id => { if (labelSprites[id]) labelSprites[id].visible = showDwarfs; });
+    if (realScaleActive && selectedObjectId) updateRealScalePositions(selectedObjectId);
 };
 window.toggleMoonsLayer = function() {
     showMoons = !showMoons;
     document.getElementById('layerMoonsBtn').classList.toggle('active', showMoons);
     Object.values(moonMeshes).forEach(m => m.visible = showMoons);
     Object.keys(MOON_META).forEach(id => { if (labelSprites[id]) labelSprites[id].visible = showMoons; });
+    if (realScaleActive && selectedObjectId) updateRealScalePositions(selectedObjectId);
 };
 
 // ==================== SELECCIÓN Y PANEL DE INFO ====================
@@ -1199,6 +1411,12 @@ const OBJECT_FACTS = {
     pluto: "Reclassified as a dwarf planet in 2006. Visited by New Horizons in 2015, the only spacecraft to ever explore it up close.",
     ceres: "The largest object in the asteroid belt and the first dwarf planet ever discovered, back in 1801.",
     moon: "Earth's only natural satellite, and the fifth largest moon in the solar system. Toggle real distance scale to see it separate from Earth.",
+    phobos: "The larger and closer of Mars' two moons, orbiting so fast it rises and sets twice a day as seen from the Martian surface.",
+    deimos: "The smaller and more distant of Mars' two moons, likely a captured asteroid.",
+    io: "The most volcanically active body in the solar system, covered in hundreds of active volcanoes.",
+    europa: "Believed to hide a liquid water ocean beneath its icy crust — one of the most promising places to search for life beyond Earth.",
+    ganymede: "The largest moon in the solar system, even bigger than the planet Mercury.",
+    callisto: "One of the most heavily cratered objects in the solar system, its surface largely unchanged for billions of years.",
     europaclipper: "Launched in 2024, on its way to study Jupiter's icy moon Europa and its hidden subsurface ocean.",
     lucy: "On a 12-year journey to study the Trojan asteroids that share Jupiter's orbit, remnants from the solar system's earliest days.",
     psyche: "Heading to the metal-rich asteroid 16 Psyche, believed to be the exposed core of an early planet.",
@@ -1213,7 +1431,8 @@ function pickObjectAt(clientX, clientY) {
     const raycaster = new THREE.Raycaster();
     raycaster.params.Points.threshold = 1;
     raycaster.setFromCamera(mouse, camera);
-    const targets = [sunMesh, ...Object.values(planetMeshes), ...Object.values(dwarfMeshes), ...Object.values(moonMeshes), ...Object.values(spacecraftMeshes), ...Object.values(bgStarSprites)].filter(m => m.visible);
+    const labels = Object.entries(labelSprites).filter(([id, s]) => s.visible).map(([id, s]) => { s.userData = { id }; return s; });
+    const targets = [sunMesh, ...Object.values(planetMeshes), ...Object.values(dwarfMeshes), ...Object.values(moonMeshes), ...Object.values(spacecraftMeshes), ...Object.values(bgStarSprites), ...labels].filter(m => m.visible);
     const hits = raycaster.intersectObjects(targets, false);
     return hits.length ? hits[0].object.userData.id : null;
 }
@@ -1245,11 +1464,48 @@ function smoothTrajectory(rawPoints, samplesPerSegment = 8) {
     out.push(rawPoints[rawPoints.length - 1]);
     return out;
 }
+// Misma red de seguridad que usamos al posicionar naves — si un punto de la
+// trayectoria caería dentro de un planeta al comprimir la escala, lo
+// empujamos a su superficie real, sin inventar la dirección.
+function snapPointIfInsidePlanet(vec, realPoint) {
+    for (const planetId of Object.keys(PLANET_META)) {
+        const nowMs = Date.now();
+        const planetObj = dsObjectsData[planetId];
+        if (!planetObj) continue;
+        const pp = interpHeliocentric(planetObj.points, nowMs);
+        if (!pp) continue;
+        const planetVec = toSceneVec3(pp.x, pp.y, pp.z);
+        const planetRadius = PLANET_META[planetId].size;
+        if (vec.distanceTo(planetVec) < planetRadius * 1.3) {
+            const dirReal = new THREE.Vector3(
+                realPoint.x - pp.x, realPoint.z - pp.z, -(realPoint.y - pp.y)
+            ).normalize();
+            return planetVec.clone().add(dirReal.multiplyScalar(planetRadius * 1.3));
+        }
+    }
+    return vec;
+}
+
 function drawObjectTrajectory(obj) {
     clearObjectTrajectory();
     if (!obj.points || obj.points.length < 2) return;
     const rawScenePoints = obj.points.map(p => toSceneVec3(p.x, p.y, p.z));
     const smoothed = smoothTrajectory(rawScenePoints);
+    const geo = new THREE.BufferGeometry().setFromPoints(smoothed);
+    const mat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.55 });
+    currentTrajectoryLine = new THREE.Line(geo, mat);
+    scene.add(currentTrajectoryLine);
+}
+
+function draw360Trajectory(obj, selfReal, LOCAL_SCALE, anchor) {
+    clearObjectTrajectory();
+    if (!obj.points || obj.points.length < 2) return;
+    const scenePoints = obj.points.map(p => {
+        const delta = toSceneDelta(p.x - selfReal.x, p.y - selfReal.y, p.z - selfReal.z);
+        const dist = Math.min(delta.length() / LOCAL_SCALE, RENDER_CAP);
+        return anchor.clone().add(delta.normalize().multiplyScalar(dist));
+    });
+    const smoothed = smoothTrajectory(scenePoints);
     const geo = new THREE.BufferGeometry().setFromPoints(smoothed);
     const mat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.55 });
     currentTrajectoryLine = new THREE.Line(geo, mat);
@@ -1272,6 +1528,7 @@ function showObjectInfo(id) {
         document.getElementById('siteInfoMeta').textContent = 'Star · Center of the Solar System';
         document.getElementById('siteInfoDistanceRow').style.display = 'none';
         document.getElementById('siteInfoSpeedRow').style.display = 'none';
+        document.getElementById('refSelectorRow').style.display = 'none';
         document.getElementById('siteInfoDesc').textContent = 'The star at the center of our solar system, containing over 99.8% of its total mass.';
         document.getElementById('siteInfoPanel').classList.add('active');
         document.getElementById('dsPovBtn').style.display = 'none';
@@ -1288,23 +1545,12 @@ function showObjectInfo(id) {
         document.getElementById('siteInfoName').textContent = obj.name;
     }
     document.getElementById('siteInfoMeta').textContent = obj.isPlanet ? 'Planet · Live position' : 'Active mission · Live position (NASA/JPL Horizons)';
-    const nowPoint = interpHeliocentric(obj.points, Date.now());
-    const speed = estimateSpeedKmh(obj.points, Date.now());
-
-    const distRow = document.getElementById('siteInfoDistanceRow');
-    const speedRow = document.getElementById('siteInfoSpeedRow');
-    if (nowPoint) {
-        document.getElementById('siteInfoDistance').textContent = distanceFromSunAU(nowPoint).toFixed(2) + ' AU';
-        distRow.style.display = '';
-    } else {
-        distRow.style.display = 'none';
-    }
-    if (speed != null) {
-        document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
-        speedRow.style.display = '';
-    } else {
-        speedRow.style.display = 'none';
-    }
+    currentInfoObjId = id;
+    referenceBodyId = 'sun';
+    document.getElementById('refSearchInput').value = 'Sun';
+    document.getElementById('refSearchResults').style.display = 'none';
+    document.getElementById('refSelectorRow').style.display = '';
+    updateReferenceCalc();
     document.getElementById('siteInfoDesc').textContent = OBJECT_FACTS[id] || 'Live position calculated from NASA/JPL Horizons ephemeris data.';
     document.getElementById('siteInfoPanel').classList.add('active');
     document.getElementById('dsPovBtn').style.display = 'flex';
@@ -1314,15 +1560,27 @@ function showObjectInfo(id) {
     const mesh = isMoon ? moonMeshes[id] : (isDwarf ? dwarfMeshes[id] : (obj.isPlanet ? planetMeshes[id] : spacecraftMeshes[id]));
 
     if (realScaleActive) {
-        // Seguimos en 360 — recalculamos todo para el nuevo protagonista
-        updateRealScalePositions(id);
-        const newMesh = MOON_META[id] ? moonMeshes[id] : (DWARF_META[id] ? dwarfMeshes[id] : (PLANET_META[id] ? planetMeshes[id] : spacecraftMeshes[id]));
-        if (newMesh) animateControlsTarget(newMesh.position, 1200, Math.max(newMesh.scale.x * 3, 0.05));
+        animateSwitch360Self(id);
     } else if (mesh) {
         const sizeRef = isDwarf ? DWARF_META[id]?.size : PLANET_META[id]?.size;
         const closeDist = obj.isPlanet ? (sizeRef || 1) * 6 + 2 : 6;
         animateControlsTarget(mesh.position, 1200, closeDist);
     }
+}
+
+// Como el protagonista siempre vive en el mismo punto fijo (el "ancla"), lo
+// que se siente brusco al cambiar no es la cámara — es que todo lo demás se
+// reordena de golpe. Nos alejamos un poco, reordenamos "fuera de foco", y
+// nos acercamos al nuevo protagonista — sensación de "viaje", sin tener que
+// animar la posición de cada objeto uno a uno.
+function animateSwitch360Self(newId) {
+    const pullBackDist = Math.max(camera.position.distanceTo(controls.target) * 2.2, 15);
+    animateControlsTarget(controls.target.clone(), 450, pullBackDist);
+    setTimeout(() => {
+        updateRealScalePositions(newId);
+        const newMesh = MOON_META[newId] ? moonMeshes[newId] : (DWARF_META[newId] ? dwarfMeshes[newId] : (PLANET_META[newId] ? planetMeshes[newId] : spacecraftMeshes[newId]));
+        if (newMesh) animateControlsTarget(newMesh.position, 700, Math.max(newMesh.scale.x * 3, 0.05));
+    }, 460);
 }
 
 window.toggleDsPov = function() {
@@ -1331,7 +1589,7 @@ window.toggleDsPov = function() {
     document.getElementById('dsPovBtn').classList.toggle('active', realScaleActive);
 
     if (realScaleActive) {
-        controls.minDistance = 0.01;
+        controls.minDistance = 0.15;
         controls.maxDistance = 260; // por debajo de RENDER_CAP (300), para no llegar a ver el límite del truco
         orbitRings.forEach(r => r.visible = false);
         updateRealScalePositions(selectedObjectId);
@@ -1416,12 +1674,19 @@ window.toggleSiteInfoCollapse = function() {
     document.getElementById('siteInfoPanel').classList.toggle('collapsed');
 };
 
-window.closeSiteInfo = function() {
-    if (realScaleActive) {
-        // En 360, cerrar la ficha no te saca de la vista — solo la esconde.
-        // Sigues "dentro" del objeto hasta que apagues el 360 a propósito.
+window.closeSiteInfo = function(keepPovIfActive) {
+    if (keepPovIfActive && realScaleActive) {
+        // Solo la X hace esto: esconde la ficha, pero te deja "dentro" del 360.
         document.getElementById('siteInfoPanel').classList.remove('active');
         return;
+    }
+    if (realScaleActive) {
+        realScaleActive = false;
+        exitRealScaleMode();
+        controls.minDistance = 3;
+        controls.maxDistance = 1400;
+        orbitRings.forEach(r => r.visible = showOrbits);
+        updateObjectPositions();
     }
     clearObjectTrajectory();
     document.getElementById('siteInfoPanel').classList.remove('active');
@@ -1482,11 +1747,39 @@ function updateLabelVisibility() {
     });
 }
 
-const EARTH_ROTATION_RAD_PER_MS = (2 * Math.PI) / (23.934 * 3600 * 1000); // día sideral real
+// Ángulo de calibración — el único número que probablemente haya que
+// ajustar tras verlo en pantalla, igual que hicimos con Marte. Empezamos
+// en 0 y lo corregimos con un dato real conocido (tu propia hora ahora).
+let EARTH_ROTATION_CALIBRATION = 0;
+
+// A las 12:00 UTC, el mediodía solar cae en Greenwich (0°) — cada hora que
+// pasa, ese punto se desplaza 15° hacia el oeste. Es la misma lógica con la
+// que funcionan los husos horarios de toda la vida, sin inventar nada.
+function getSubsolarLongitudeRad(nowMs) {
+    const utcHours = (nowMs / 3600000) % 24;
+    let lngDeg = 180 - utcHours * 15;
+    lngDeg = ((lngDeg + 180) % 360 + 360) % 360 - 180;
+    return lngDeg * Math.PI / 180;
+}
+
+function updateEarthRotation(nowMs) {
+    if (!planetMeshes.earth || realScaleActive) return; // en 360 usamos el ángulo real por posición, no hace falta esto
+    const earthObj = dsObjectsData.earth;
+    if (!earthObj) return;
+    const earthReal = interpHeliocentric(earthObj.points, nowMs);
+    if (!earthReal) return;
+
+    // Dirección real Tierra -> Sol, en las coordenadas de la escena
+    const sunDir = toSceneDelta(0 - earthReal.x, 0 - earthReal.y, 0 - earthReal.z).normalize();
+    const sunAngleInScene = Math.atan2(sunDir.z, sunDir.x);
+
+    const subsolarLng = getSubsolarLongitudeRad(nowMs);
+    planetMeshes.earth.rotation.y = sunAngleInScene - subsolarLng + EARTH_ROTATION_CALIBRATION;
+}
 
 function animate() {
     requestAnimationFrame(animate);
-    if (planetMeshes.earth) planetMeshes.earth.rotation.y += EARTH_ROTATION_RAD_PER_MS * 16.7; // ~16.7ms por fotograma a 60fps
+    updateEarthRotation(Date.now());
     controls.update();
     updateLabelVisibility();
     renderer.render(scene, camera);

@@ -1254,6 +1254,12 @@ const DEEP_SPACE_TARGETS = [
   { id: 'pluto', name: 'Pluto', command: '999', isPlanet: true },
   { id: 'ceres', name: 'Ceres', command: '2000001', isPlanet: true },
   { id: 'moon', name: 'Moon', command: '301', isPlanet: true },
+  { id: 'phobos', name: 'Phobos', command: '401', isPlanet: true, fastOrbit: true },
+  { id: 'deimos', name: 'Deimos', command: '402', isPlanet: true, fastOrbit: true },
+  { id: 'io', name: 'Io', command: '501', isPlanet: true, fastOrbit: true },
+  { id: 'europa', name: 'Europa', command: '502', isPlanet: true, fastOrbit: true },
+  { id: 'ganymede', name: 'Ganymede', command: '503', isPlanet: true, fastOrbit: true },
+  { id: 'callisto', name: 'Callisto', command: '504', isPlanet: true, fastOrbit: true },
   // Naves de espacio profundo
   { id: 'voyager1', name: 'Voyager 1', command: '-31' },
   { id: 'voyager2', name: 'Voyager 2', command: '-32' },
@@ -1302,7 +1308,7 @@ function parseHeliocentricVectors(resultText) {
   return points;
 }
 
-function buildHeliocentricUrl(target, startTime, stopTime) {
+function buildHeliocentricUrl(target, startTime, stopTime, stepSize) {
   const q = [
     `format=json`,
     `COMMAND='${target.command}'`,
@@ -1313,7 +1319,7 @@ function buildHeliocentricUrl(target, startTime, stopTime) {
     `REF_PLANE='ECLIPTIC'`,
     `START_TIME='${startTime}'`,
     `STOP_TIME='${stopTime}'`,
-    `STEP_SIZE='12%20h'`,
+    `STEP_SIZE='${stepSize}'`,
     `VEC_TABLE='1'`,
     `OUT_UNITS='KM-S'`,
   ].join('&');
@@ -1336,14 +1342,17 @@ async function handleDeepSpace(ctx, env) {
 
   const now = new Date();
   const startTime = now.toISOString().slice(0, 10);
-  const stopTime  = new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const stopTimeSlow = new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const stopTimeFast = new Date(now.getTime() + 5 * 24 * 3600 * 1000).toISOString().slice(0, 10);
 
   const objects = {};
   let anySuccess = false;
 
   for (const target of DEEP_SPACE_TARGETS) {
     try {
-      const res = await fetch(buildHeliocentricUrl(target, startTime, stopTime), { headers: { 'Accept': 'application/json' } });
+      const stopTime = target.fastOrbit ? stopTimeFast : stopTimeSlow;
+      const stepSize = target.fastOrbit ? '30%20m' : '12%20h';
+      const res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' } });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
