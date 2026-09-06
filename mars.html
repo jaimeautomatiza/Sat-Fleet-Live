@@ -586,7 +586,7 @@ const marsImageryLayer = viewer.imageryLayers.addImageryProvider(marsImagery);
 marsImageryLayer.saturation = 3.7;   // bastante más intenso que antes
 marsImageryLayer.hue = 0.17;         // empuja de verdad hacia el naranja
 marsImageryLayer.brightness = 0.9;  // que no se quede apagado al saturar
-marsImageryLayer.contrast = 1.15;
+marsImageryLayer.contrast = 1;
 
 viewer.camera.setView({
     destination: Cesium.Cartesian3.fromDegrees(0, 0, MARS_EQUATORIAL_RADIUS * 3.5, marsEllipsoid)
