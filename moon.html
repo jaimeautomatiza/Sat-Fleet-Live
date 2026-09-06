@@ -329,7 +329,7 @@
     </div>
     <span id="moonBadge">MOON</span>
 
-    <input type="text" id="moonSearch" placeholder="Search site or orbiter..." onkeyup="searchMoonObjects()">
+    <input type="text" id="moonSearch" placeholder="Search site or orbiter..." onkeyup="searchMoonObjects()" onkeydown="if(event.key==='Enter') this.blur()">
 
     <button class="bar-btn" id="moonFiltersBtn" onclick="toggleMoonFiltersPanel()">
         <img src="images/layer.svg" class="layer-icon" alt="">

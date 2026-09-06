@@ -312,7 +312,7 @@
     </div>
     <span id="dsBadge">DEEP SPACE</span>
 
-    <input type="text" id="dsSearch" placeholder="Search planet or spacecraft..." onkeyup="searchDeepSpace()">
+    <input type="text" id="dsSearch" placeholder="Search planet or spacecraft..." onkeyup="searchDeepSpace()" onkeydown="if(event.key==='Enter') this.blur()">
 
     <button class="bar-btn" id="dsFiltersBtn" onclick="toggleDsFiltersPanel()">
         <img src="images/layer.svg" class="layer-icon" alt=""> Layers
@@ -837,7 +837,7 @@ Object.entries(MOON_META).forEach(([id, meta]) => {
 });
 
 // ==================== NAVES DE ESPACIO PROFUNDO ====================
-const SPACECRAFT_IDS = ['voyager1', 'voyager2', 'jwst', 'parker', 'newhorizons', 'juno', 'hera', 'bepicolombo', 'europaclipper', 'lucy', 'psyche'];
+const SPACECRAFT_IDS = ['voyager1', 'voyager2', 'jwst', 'parker', 'newhorizons', 'juno', 'hera', 'bepicolombo', 'europaclipper', 'lucy', 'psyche', 'romantelescope'];
 
 function makeDotTexture() {
     const canvas = document.createElement('canvas');
@@ -1056,6 +1056,7 @@ function interpHeliocentric(points, nowMs) {
 const COMPANION_META = {
     moon: { parent: 'earth', radius: 1.6 },
     jwst: { parent: 'earth', radius: 1.35 },
+    romantelescope: { parent: 'earth', radius: 1.55 },
     juno: { parent: 'jupiter', radius: 2.4 },
     phobos: { parent: 'mars', radius: 0.9 },
     deimos: { parent: 'mars', radius: 1.2 },
@@ -1420,6 +1421,7 @@ const OBJECT_FACTS = {
     europaclipper: "Launched in 2024, on its way to study Jupiter's icy moon Europa and its hidden subsurface ocean.",
     lucy: "On a 12-year journey to study the Trojan asteroids that share Jupiter's orbit, remnants from the solar system's earliest days.",
     psyche: "Heading to the metal-rich asteroid 16 Psyche, believed to be the exposed core of an early planet.",
+    romantelescope: "Launched in August 2026, this NASA space telescope will survey the sky with a field of view 100 times larger than Hubble's, hunting for dark energy clues and exoplanets.",
 };
 
 function pickObjectAt(clientX, clientY) {

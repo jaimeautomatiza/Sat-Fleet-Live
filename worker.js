@@ -1272,6 +1272,7 @@ const DEEP_SPACE_TARGETS = [
   { id: 'europaclipper', name: 'Europa Clipper', command: '-159' },
   { id: 'lucy', name: 'Lucy', command: '-49' },
   { id: 'psyche', name: 'Psyche', command: '-255' },
+  { id: 'romantelescope', name: 'Nancy Grace Roman Space Telescope', command: '-211' },
 ];
 
 function parseHeliocentricVectors(resultText) {

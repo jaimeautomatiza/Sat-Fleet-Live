@@ -2574,7 +2574,7 @@ body.light-mode .rocket-filter-chip {
     <div class="bar-sep"></div>
 
     <!-- Search -->
-    <input type="text" id="barSearch" placeholder="Search satellite..." onkeyup="searchSatellites()">
+    <input type="text" id="barSearch" placeholder="Search satellite..." onkeyup="searchSatellites()" onkeydown="if(event.key==='Enter') this.blur()">
 
     <div class="bar-sep"></div>
 
