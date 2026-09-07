@@ -1272,7 +1272,7 @@ const DEEP_SPACE_TARGETS = [
   { id: 'europaclipper', name: 'Europa Clipper', command: '-159' },
   { id: 'lucy', name: 'Lucy', command: '-49' },
   { id: 'psyche', name: 'Psyche', command: '-255' },
-  { id: 'romantelescope', name: 'Nancy Grace Roman Space Telescope', command: '-211' },
+  { id: 'romantelescope', name: 'Nancy Grace Roman Space Telescope', command: '-211', shortEphemeris: true },
 ];
 
 function parseHeliocentricVectors(resultText) {
@@ -1328,10 +1328,12 @@ function buildHeliocentricUrl(target, startTime, stopTime, stepSize) {
 }
 
 async function handleDeepSpace(ctx, env) {
+  let previousObjects = {}; // guardamos lo último bueno, sea cual sea, para rellenar huecos si algo falla hoy
   try {
     const cached = await env.LAUNCHES_KV.get(KV_KEY_DEEP_SPACE);
     if (cached) {
       const parsed = JSON.parse(cached);
+      previousObjects = parsed.objects || {};
       if (Date.now() - parsed.fetchedAt < DEEP_SPACE_TTL * 1000) {
         return new Response(JSON.stringify({ objects: parsed.objects, _meta: { source: 'kv_cache' } }), {
           status: 200,
@@ -1343,48 +1345,119 @@ async function handleDeepSpace(ctx, env) {
 
   const now = new Date();
   const startTime = now.toISOString().slice(0, 10);
-  const stopTimeSlow = new Date(now.getTime() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
-  const stopTimeFast = new Date(now.getTime() + 5 * 24 * 3600 * 1000).toISOString().slice(0, 10);
-
   const objects = {};
   let anySuccess = false;
+
+  // Cuando la NASA dice "no hay datos después de tal fecha", esa fecha
+  // exacta viene en su propio mensaje de error — la leemos y volvemos a
+  // preguntar justo con ese límite, en vez de adivinar con escalones fijos
+  // que podrían dejar días reales sin pedir.
+  function extractNoEphemerisDate(errMsg) {
+    const m = /after\s+A\.D\.\s+(\d{4})-(\w{3})-(\d{2})/i.exec(errMsg || '');
+    if (!m) return null;
+    const meses = { JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12' };
+    const mm = meses[m[2].toUpperCase()];
+    return mm ? `${m[1]}-${mm}-${m[3]}` : null;
+  }
+
+  async function intentarUnaVez(target, stopTime, stepSize) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    try {
+      const res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const points = parseHeliocentricVectors(data.result);
+      if (!points.length) throw new Error('Sin puntos');
+      return points;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  async function fetchVentanaConLimiteReal(target, dias, stepSize) {
+    const stopTime = new Date(now.getTime() + dias * 24 * 3600 * 1000).toISOString().slice(0, 10);
+    let lastErr;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        return await intentarUnaVez(target, stopTime, stepSize);
+      } catch (err) {
+        lastErr = err;
+        const fechaReal = extractNoEphemerisDate(err.message);
+        if (fechaReal) {
+          // No tiene sentido reintentar una fecha que la NASA ya nos dijo
+          // que no existe — vamos directos al límite real que sí nos dio.
+          return await intentarUnaVez(target, fechaReal, stepSize);
+        }
+        if (attempt < 2) await new Promise(r => setTimeout(r, 300));
+      }
+    }
+    throw lastErr;
+  }
+
+  // Escalones de detalle, de más ancho a más fino. Si algo lleva la etiqueta
+  // manual (fastOrbit/ultraFastOrbit — Fobos, las lunas de Júpiter...),
+  // empezamos directamente en ese escalón, porque ya sabemos que lo necesita.
+  // Para todo lo demás (incluida una futura Starship), empezamos ancho y
+  // solo bajamos si el propio movimiento real nos dice que hace falta.
+  const STEP_TIERS = [
+    { step: '12%20h', ventanas: [30, 15, 5] },
+    { step: '30%20m', ventanas: [5] },
+    { step: '1%20m',  ventanas: [1] },
+  ];
+
+  // Mide si el salto más grande entre dos fotos consecutivas es una porción
+  // demasiado grande de todo el recorrido — vale igual para una luna que
+  // gira en horas que para una nave que cruza millones de km, porque se
+  // mide en proporción, no en kilómetros fijos.
+  function saltoDemasiadoGrande(points) {
+    if (points.length < 2) return false;
+    let total = 0, maxSalto = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+      const dx = points[i+1].x - points[i].x, dy = points[i+1].y - points[i].y, dz = points[i+1].z - points[i].z;
+      const d = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      total += d;
+      if (d > maxSalto) maxSalto = d;
+    }
+    return total > 0 && (maxSalto / total) > 0.15; // ningún salto debería superar el 15% del recorrido total
+  }
+
+  async function fetchConDeteccionAutomatica(target) {
+    let tierIdx = target.ultraFastOrbit ? 2 : (target.fastOrbit ? 1 : 0);
+    let lastError = new Error('No se pudo obtener ningún dato');
+    while (tierIdx < STEP_TIERS.length) {
+      const tier = STEP_TIERS[tierIdx];
+      let necesitaAfinar = false;
+      for (const dias of tier.ventanas) {
+        try {
+          const points = await fetchVentanaConLimiteReal(target, dias, tier.step);
+          if (tierIdx === STEP_TIERS.length - 1 || !saltoDemasiadoGrande(points)) {
+            return points; // esto ya vale, terminamos
+          }
+          necesitaAfinar = true;
+          break; // hay datos, pero demasiado bastos — probamos el siguiente escalón
+        } catch (err) {
+          lastError = err;
+          if (!/no ephemeris/i.test(err.message || '')) {
+            await new Promise(r => setTimeout(r, 300));
+          }
+        }
+      }
+      if (!necesitaAfinar) throw lastError; // el fallo fue real, no de resolución — no seguimos afinando
+      tierIdx++;
+    }
+    throw lastError;
+  }
 
   // Ni todo de golpe (satura a la NASA, falla uno aleatorio cada vez) ni
   // uno a uno (demasiado lento) — grupos pequeños, uno detrás de otro.
   const BATCH_SIZE = 6;
   for (let i = 0; i < DEEP_SPACE_TARGETS.length; i += BATCH_SIZE) {
     const batch = DEEP_SPACE_TARGETS.slice(i, i + BATCH_SIZE);
-    // La NASA, de vez en cuando, no contesta bien a alguna petición suelta —
-    // no importa el tamaño de la tanda, es ruido normal de un servidor
-    // público. En vez de rendirnos a la primera, le damos hasta 2 intentos
-    // más antes de darlo por perdido de verdad.
     const results = await Promise.allSettled(batch.map(async (target) => {
-      const stopTime = target.fastOrbit ? stopTimeFast : stopTimeSlow;
-      const stepSize = target.fastOrbit ? '30%20m' : '12%20h';
-
-      let lastError;
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 8000);
-          let res;
-          try {
-            res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
-          } finally {
-            clearTimeout(timeoutId);
-          }
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          if (data.error) throw new Error(data.error);
-          const points = parseHeliocentricVectors(data.result);
-          if (!points.length) throw new Error('Sin puntos');
-          return { target, points };
-        } catch (err) {
-          lastError = err;
-          if (attempt < 2) await new Promise(r => setTimeout(r, 300)); // pequeña pausa antes de reintentar
-        }
-      }
-      throw lastError;
+      const points = await fetchConDeteccionAutomatica(target);
+      return { target, points };
     }));
 
     results.forEach((result, j) => {
@@ -1392,8 +1465,15 @@ async function handleDeepSpace(ctx, env) {
       if (result.status === 'fulfilled' && result.value.points.length) {
         objects[target.id] = { name: target.name, isPlanet: !!target.isPlanet, points: result.value.points };
         anySuccess = true;
-      } else if (result.status === 'rejected') {
-        console.error(`Horizons fetch failed for ${target.id}:`, result.reason.message);
+      } else {
+        const motivo = result.status === 'rejected' ? result.reason?.message : 'sin puntos devueltos';
+        console.error(`Horizons fetch failed for ${target.id}:`, motivo);
+        // Si falló hoy pero teníamos algo bueno de la última vez, mejor eso
+        // que dejarlo desaparecido del todo — aunque sea de hace unas horas.
+        if (previousObjects[target.id]) {
+          objects[target.id] = previousObjects[target.id];
+          anySuccess = true;
+        }
       }
     });
   }
