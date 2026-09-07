@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SatFleet Live - Deep Space</title>
 
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="shortcut icon" href="/images/logo.png" type="image/png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1342,6 +1346,10 @@ async function loadDeepSpace() {
         const data = await res.json();
         dsObjectsData = data.objects || {};
         window.dsObjectsData = dsObjectsData; // mantener la ventana de depuración actualizada
+
+        const nombres = Object.entries(dsObjectsData).map(([id, o]) => o.name);
+        console.log(`[SatFleet Deep Space] Cargados ${nombres.length} objetos:`, nombres);
+
         updateObjectPositions();
         document.getElementById('loading').style.opacity = '0';
         setTimeout(() => document.getElementById('loading').style.display = 'none', 400);

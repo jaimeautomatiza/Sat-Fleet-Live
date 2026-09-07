@@ -1349,23 +1349,38 @@ async function handleDeepSpace(ctx, env) {
   const objects = {};
   let anySuccess = false;
 
-  for (const target of DEEP_SPACE_TARGETS) {
-    try {
+  // Ni todo de golpe (satura a la NASA, falla uno aleatorio cada vez) ni
+  // uno a uno (demasiado lento) — grupos pequeños, uno detrás de otro.
+  const BATCH_SIZE = 6;
+  for (let i = 0; i < DEEP_SPACE_TARGETS.length; i += BATCH_SIZE) {
+    const batch = DEEP_SPACE_TARGETS.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(batch.map(async (target) => {
       const stopTime = target.fastOrbit ? stopTimeFast : stopTimeSlow;
       const stepSize = target.fastOrbit ? '30%20m' : '12%20h';
-      const res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' } });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      let res;
+      try {
+        res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-
       const points = parseHeliocentricVectors(data.result);
-      if (points.length) {
-        objects[target.id] = { name: target.name, isPlanet: !!target.isPlanet, points };
+      return { target, points };
+    }));
+
+    results.forEach((result, j) => {
+      const target = batch[j];
+      if (result.status === 'fulfilled' && result.value.points.length) {
+        objects[target.id] = { name: target.name, isPlanet: !!target.isPlanet, points: result.value.points };
         anySuccess = true;
+      } else if (result.status === 'rejected') {
+        console.error(`Horizons fetch failed for ${target.id}:`, result.reason.message);
       }
-    } catch (err) {
-      console.error(`Horizons fetch failed for ${target.id}:`, err.message);
-    }
+    });
   }
 
   if (!anySuccess) {
