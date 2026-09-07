@@ -664,11 +664,20 @@ const REAL_RADII_KM = {
     mars: 3396, jupiter: 71492, saturn: 60268, uranus: 25559, neptune: 24764,
     pluto: 1185, ceres: 470,
     phobos: 11.1, deimos: 6.2, io: 1821.6, europa: 1560.8, ganymede: 2634.1, callisto: 2410.3,
+    titan: 2574, enceladus: 252, triton: 1353.4, charon: 606,
+    eris: 1163, haumea: 780, makemake: 715, sedna: 500, quaoar: 555, gonggong: 615, orcus: 455,
 };
 
 const DWARF_META = {
     ceres: { color: 0xa89a8a, size: 0.35, ringAU: 2.767, ecc: 0.0758, inc: 10.59, node: 80.393, peri: 73.597 },
     pluto: { color: 0xd8c9b8, size: 0.4,  ringAU: 39.48, ecc: 0.2488, inc: 17.16, node: 110.299, peri: 113.834 },
+    eris:     { color: 0xe8e2d8, size: 0.34, ringAU: 67.78,  ecc: 0.4405, inc: 44.04, node: 35.95,  peri: 150.98, procedural: true },
+    haumea:   { color: 0xd6cfc2, size: 0.24, ringAU: 43.13,  ecc: 0.195,  inc: 28.2,  node: 121.9,   peri: 239.2,  procedural: true },
+    makemake: { color: 0xc98f6a, size: 0.22, ringAU: 45.8,   ecc: 0.159,  inc: 28.9,  node: 79.6,    peri: 294.0,  procedural: true },
+    sedna:    { color: 0xb03a2e, size: 0.16, ringAU: 506,    ecc: 0.855,  inc: 11.93, node: 144.25,  peri: 311.35, procedural: true },
+    quaoar:   { color: 0x8a7a72, size: 0.17, ringAU: 43.4,   ecc: 0.039,  inc: 7.99,  node: 188.93,  peri: 147.48, procedural: true },
+    gonggong: { color: 0xa8493c, size: 0.19, ringAU: 66.9,   ecc: 0.5032, inc: 30.87, node: 336.84,  peri: 206.64, procedural: true },
+    orcus:    { color: 0x8f9aa5, size: 0.14, ringAU: 39.4,   ecc: 0.226,  inc: 20.6,  node: 268.8,    peri: 73.1,   procedural: true },
 };
 
 // La Luna orbita la Tierra, no el Sol — no tiene sentido dibujarle un
@@ -682,6 +691,10 @@ const MOON_META = {
     europa: { color: 0xc9b89a, size: 0.15 },
     ganymede: { color: 0x9a8a78, size: 0.18 },
     callisto: { color: 0x6a6058, size: 0.17 },
+    titan: { color: 0xd9a856, size: 0.24 },
+    enceladus: { color: 0xf2f2f5, size: 0.05 },
+    triton: { color: 0xd8c9d0, size: 0.14 },
+    charon: { color: 0x9a8f88, size: 0.07 },
 };
 const moonMeshes = {};
 let moonGlows = {};
@@ -767,6 +780,27 @@ function makeGlowSprite(color, size) {
 
 const textureLoader = new THREE.TextureLoader();
 
+// Para los cuerpos sin foto real descargada — un color base con algo de
+// ruido suave, para que no se vea como una bola de plástico lisa, sin
+// pretender que sea una textura real.
+function makeProceduralTexture(hexColor) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = hexColor;
+    ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 140; i++) {
+        const x = Math.random() * 256, y = Math.random() * 256;
+        const r = 6 + Math.random() * 22;
+        const shade = Math.random() > 0.5 ? 'rgba(255,255,255,' : 'rgba(0,0,0,';
+        ctx.fillStyle = shade + (0.03 + Math.random() * 0.07) + ')';
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    return new THREE.CanvasTexture(canvas);
+}
+
 // Arregla cómo se reparte la textura del anillo — sin esto, Three.js reparte
 // el color "en cuña" desde el centro, en vez de "de dentro a fuera", y el
 // anillo se ve mal.
@@ -800,14 +834,18 @@ function buildPlanetLikeMesh(id, meta, meshDict, glowDict) {
 
     const geo = new THREE.SphereGeometry(meta.size, 48, 48);
     const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.85, metalness: 0.02 });
-    const tex = textureLoader.load(
-        'images/deep-space/textures/' + id + '.jpg',
-        undefined,
-        undefined,
-        () => console.warn('[SatFleet Deep Space] No se pudo cargar la textura de ' + id)
-    );
-    tex.colorSpace = THREE.SRGBColorSpace;
-    mat.map = tex;
+    if (meta.procedural) {
+        mat.map = makeProceduralTexture('#' + meta.color.toString(16).padStart(6, '0'));
+    } else {
+        const tex = textureLoader.load(
+            'images/deep-space/textures/' + id + '.jpg',
+            undefined,
+            undefined,
+            () => console.warn('[SatFleet Deep Space] No se pudo cargar la textura de ' + id)
+        );
+        tex.colorSpace = THREE.SRGBColorSpace;
+        mat.map = tex;
+    }
 
     const mesh = new THREE.Mesh(geo, mat);
     mesh.userData = { id, isPlanet: true };
@@ -841,7 +879,7 @@ Object.entries(MOON_META).forEach(([id, meta]) => {
 });
 
 // ==================== NAVES DE ESPACIO PROFUNDO ====================
-const SPACECRAFT_IDS = ['voyager1', 'voyager2', 'jwst', 'parker', 'newhorizons', 'juno', 'hera', 'bepicolombo', 'europaclipper', 'lucy', 'psyche', 'romantelescope'];
+const SPACECRAFT_IDS = ['voyager1', 'voyager2', 'jwst', 'parker', 'newhorizons', 'juno', 'hera', 'bepicolombo', 'europaclipper', 'lucy', 'psyche', 'romantelescope', 'solarorbiter', 'osirisapex'];
 
 function makeDotTexture() {
     const canvas = document.createElement('canvas');
@@ -1068,6 +1106,10 @@ const COMPANION_META = {
     europa: { parent: 'jupiter', radius: 2.6 },
     ganymede: { parent: 'jupiter', radius: 3.0 },
     callisto: { parent: 'jupiter', radius: 3.6 },
+    enceladus: { parent: 'saturn', radius: 4.2 },
+    titan: { parent: 'saturn', radius: 5.0 },
+    triton: { parent: 'neptune', radius: 2.0 },
+    charon: { parent: 'pluto', radius: 1.0 },
 };
 
 const RENDER_CAP = 300;                   // nadie se dibuja más lejos que esto, por practicidad
@@ -1430,6 +1472,19 @@ const OBJECT_FACTS = {
     lucy: "On a 12-year journey to study the Trojan asteroids that share Jupiter's orbit, remnants from the solar system's earliest days.",
     psyche: "Heading to the metal-rich asteroid 16 Psyche, believed to be the exposed core of an early planet.",
     romantelescope: "Launched in August 2026, this NASA space telescope will survey the sky with a field of view 100 times larger than Hubble's, hunting for dark energy clues and exoplanets.",
+    solarorbiter: "A joint ESA/NASA mission studying the Sun up close, and the first to capture direct images of its poles.",
+    osirisapex: "Formerly OSIRIS-REx — after delivering a sample of asteroid Bennu to Earth in 2023, it was renamed and redirected toward the asteroid Apophis.",
+    titan: "Saturn's largest moon, the only moon in the solar system with a thick atmosphere and liquid lakes — of methane, not water.",
+    enceladus: "A small, icy moon of Saturn hiding a subsurface ocean, spraying water vapor into space through cracks at its south pole.",
+    triton: "Neptune's largest moon, likely a captured dwarf planet — the only major moon that orbits backwards relative to its planet's rotation.",
+    charon: "Pluto's largest moon, so massive relative to Pluto that the two effectively orbit each other, rather than Charon simply circling Pluto.",
+    eris: "Slightly smaller than Pluto but more massive, its discovery in 2005 directly triggered the debate that reclassified Pluto as a dwarf planet.",
+    haumea: "An oddly elongated dwarf planet that spins once every 4 hours — so fast it's been stretched into an egg-like shape. It even has its own ring.",
+    makemake: "The second-brightest object in the Kuiper Belt after Pluto, with a surface covered in frozen methane.",
+    sedna: "One of the most distant known objects in the solar system, on an extremely elongated orbit that takes about 11,400 years to complete.",
+    quaoar: "A mid-sized Kuiper Belt object with a surprising ring system — orbiting farther out than a ring should theoretically be able to survive.",
+    gonggong: "A reddish, distant dwarf planet with a single known moon, Xiangliu, named after a Chinese water god.",
+    orcus: "Sometimes called the 'anti-Pluto' for its similar size and orbit — it even has its own large moon, Vanth.",
 };
 
 function pickObjectAt(clientX, clientY) {
@@ -1738,17 +1793,18 @@ window.searchDeepSpace = function() {
 const LABEL_VISIBILITY_DISTANCE = 40; // en unidades de escena — probablemente haya que afinarlo tras verlo
 
 function updateLabelVisibility() {
-    if (realScaleActive) return; // en modo 360, updateRealScalePositions ya decide esto correctamente
+    if (realScaleActive) return;
     Object.entries(labelSprites).forEach(([id, sprite]) => {
         let target;
-        let isSpacecraft = false;
+        let useDistanceRule = false; // naves y lunas: solo de cerca. Sol/planetas/enanos: siempre.
         if (id === 'sun') target = sunMesh;
+        else if (MOON_META[id]) { target = moonMeshes[id]; useDistanceRule = true; }
         else if (DWARF_META[id]) target = dwarfMeshes[id];
         else if (PLANET_META[id]) target = planetMeshes[id];
-        else { target = spacecraftMeshes[id]; isSpacecraft = true; }
+        else { target = spacecraftMeshes[id]; useDistanceRule = true; }
         if (!target) return;
 
-        if (!isSpacecraft) {
+        if (!useDistanceRule) {
             sprite.visible = target.visible;
             return;
         }

@@ -1260,6 +1260,17 @@ const DEEP_SPACE_TARGETS = [
   { id: 'europa', name: 'Europa', command: '502', isPlanet: true, fastOrbit: true },
   { id: 'ganymede', name: 'Ganymede', command: '503', isPlanet: true, fastOrbit: true },
   { id: 'callisto', name: 'Callisto', command: '504', isPlanet: true, fastOrbit: true },
+  { id: 'titan', name: 'Titan', command: '606', isPlanet: true },
+  { id: 'enceladus', name: 'Enceladus', command: '602', isPlanet: true },
+  { id: 'triton', name: 'Triton', command: '801', isPlanet: true },
+  { id: 'charon', name: 'Charon', command: '901', isPlanet: true },
+  { id: 'eris', name: 'Eris', command: '136199', isPlanet: true },
+  { id: 'haumea', name: 'Haumea', command: '136108', isPlanet: true },
+  { id: 'makemake', name: 'Makemake', command: '136472', isPlanet: true },
+  { id: 'sedna', name: 'Sedna', command: '90377', isPlanet: true },
+  { id: 'quaoar', name: 'Quaoar', command: '50000', isPlanet: true },
+  { id: 'gonggong', name: 'Gonggong', command: '225088', isPlanet: true },
+  { id: 'orcus', name: 'Orcus', command: '90482', isPlanet: true },
   // Naves de espacio profundo
   { id: 'voyager1', name: 'Voyager 1', command: '-31' },
   { id: 'voyager2', name: 'Voyager 2', command: '-32' },
@@ -1272,9 +1283,10 @@ const DEEP_SPACE_TARGETS = [
   { id: 'europaclipper', name: 'Europa Clipper', command: '-159' },
   { id: 'lucy', name: 'Lucy', command: '-49' },
   { id: 'psyche', name: 'Psyche', command: '-255' },
-  { id: 'romantelescope', name: 'Nancy Grace Roman Space Telescope', command: '-211', shortEphemeris: true },
+  { id: 'romantelescope', name: 'Nancy Grace Roman Space Telescope', command: '-211' },
+  { id: 'solarorbiter', name: 'Solar Orbiter', command: '-144' },
+  { id: 'osirisapex', name: 'OSIRIS-APEX', command: '-64' },
 ];
-
 function parseHeliocentricVectors(resultText) {
   if (!resultText) return [];
   const soeIdx = resultText.indexOf('$$SOE');
