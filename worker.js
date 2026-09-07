@@ -1475,7 +1475,7 @@ async function handleDeepSpace(ctx, env) {
     results.forEach((result, j) => {
       const target = batch[j];
       if (result.status === 'fulfilled' && result.value.points.length) {
-        objects[target.id] = { name: target.name, isPlanet: !!target.isPlanet, points: result.value.points };
+        objects[target.id] = { name: target.name, isPlanet: !!target.isPlanet, points: result.value.points, lastFreshAt: Date.now() };
         anySuccess = true;
       } else {
         const motivo = result.status === 'rejected' ? result.reason?.message : 'sin puntos devueltos';

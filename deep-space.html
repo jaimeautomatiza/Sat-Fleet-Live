@@ -265,7 +265,13 @@
     #siteInfoPanel.collapsed .site-meta, #siteInfoPanel.collapsed .info-item, #siteInfoPanel.collapsed .site-desc { display:none; }
     #siteInfoPanel.collapsed { padding:10px 16px; }
     #siteInfoPanel .site-close:hover { color:#fff; }
-    #siteInfoPanel .site-meta { font-size:0.7rem; color:rgba(255,255,255,0.45); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; }
+    #siteInfoPanel .site-meta { font-size:0.7rem; color:rgba(255,255,255,0.45); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
+    #siteInfoPanel .site-status { font-size:0.68rem; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+    #siteInfoPanel .site-status .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    #siteInfoPanel .site-status.live { color:#4caf50; }
+    #siteInfoPanel .site-status.live .dot { background:#4caf50; box-shadow:0 0 5px #4caf50; }
+    #siteInfoPanel .site-status.stale { color:rgba(255,255,255,0.4); }
+    #siteInfoPanel .site-status.stale .dot { background:rgba(255,255,255,0.35); }
     #siteInfoPanel .site-desc { font-size:0.8rem; color:rgba(255,255,255,0.8); line-height:1.5; margin-top:8px; }
     #siteInfoPanel .info-item { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
     .ref-selector { margin: 10px 0 8px; }
@@ -419,6 +425,7 @@
         <button class="site-close" onclick="closeSiteInfo(true)">×</button>
     </div>
     <div class="site-meta" id="siteInfoMeta">—</div>
+    <div class="site-status" id="siteInfoStatus"></div>
     <div class="ref-selector" id="refSelectorRow">
         <div class="ref-selector-label">relative to</div>
         <div class="ref-search-wrap">
@@ -1012,6 +1019,22 @@ function formatLightTime(km) {
     const totalHours = totalMinutes / 60;
     if (totalHours < 24) return totalHours.toFixed(1) + ' light-hours away';
     return (totalHours / 24).toFixed(1) + ' light-days away';
+}
+
+function formatRelativeTime(ms) {
+    const s = ms / 1000;
+    if (s < 3600) return Math.round(s / 60) + ' min ago';
+    if (s < 86400) return Math.round(s / 3600) + ' hour' + (Math.round(s / 3600) === 1 ? '' : 's') + ' ago';
+    return Math.round(s / 86400) + ' day' + (Math.round(s / 86400) === 1 ? '' : 's') + ' ago';
+}
+
+function updateFreshnessIndicator(obj) {
+    const el = document.getElementById('siteInfoStatus');
+    if (!obj.lastFreshAt) { el.textContent = ''; el.className = 'site-status'; return; }
+    const ageMs = Date.now() - obj.lastFreshAt;
+    const isLive = ageMs < 24 * 3600 * 1000; // margen de sobra: hasta 4 ciclos de refresco sin visitas
+    el.className = 'site-status ' + (isLive ? 'live' : 'stale');
+    el.innerHTML = '<span class="dot"></span>' + (isLive ? 'Live' : 'Last known position — ' + formatRelativeTime(ageMs));
 }
 
 function refDisplayName(id) {
@@ -1611,6 +1634,7 @@ function showObjectInfo(id) {
     }
     document.getElementById('siteInfoMeta').textContent = obj.isPlanet ? 'Planet · Live position' : 'Active mission · Live position (NASA/JPL Horizons)';
     currentInfoObjId = id;
+    updateFreshnessIndicator(obj);
     referenceBodyId = 'sun';
     document.getElementById('refSearchInput').value = 'Sun';
     document.getElementById('refSearchResults').style.display = 'none';
