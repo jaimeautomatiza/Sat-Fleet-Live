@@ -1354,22 +1354,37 @@ async function handleDeepSpace(ctx, env) {
   const BATCH_SIZE = 6;
   for (let i = 0; i < DEEP_SPACE_TARGETS.length; i += BATCH_SIZE) {
     const batch = DEEP_SPACE_TARGETS.slice(i, i + BATCH_SIZE);
+    // La NASA, de vez en cuando, no contesta bien a alguna petición suelta —
+    // no importa el tamaño de la tanda, es ruido normal de un servidor
+    // público. En vez de rendirnos a la primera, le damos hasta 2 intentos
+    // más antes de darlo por perdido de verdad.
     const results = await Promise.allSettled(batch.map(async (target) => {
       const stopTime = target.fastOrbit ? stopTimeFast : stopTimeSlow;
       const stepSize = target.fastOrbit ? '30%20m' : '12%20h';
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-      let res;
-      try {
-        res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
-      } finally {
-        clearTimeout(timeoutId);
+
+      let lastError;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
+          let res;
+          try {
+            res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
+          } finally {
+            clearTimeout(timeoutId);
+          }
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+          const points = parseHeliocentricVectors(data.result);
+          if (!points.length) throw new Error('Sin puntos');
+          return { target, points };
+        } catch (err) {
+          lastError = err;
+          if (attempt < 2) await new Promise(r => setTimeout(r, 300)); // pequeña pausa antes de reintentar
+        }
       }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      const points = parseHeliocentricVectors(data.result);
-      return { target, points };
+      throw lastError;
     }));
 
     results.forEach((result, j) => {
