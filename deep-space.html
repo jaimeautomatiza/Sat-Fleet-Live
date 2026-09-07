@@ -592,7 +592,7 @@ addStarfield();
 const sunGeo = new THREE.SphereGeometry(2.4, 48, 48);
 const sunMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); // blanco para no teñir la foto real
 const sunTexLoader = new THREE.TextureLoader();
-const sunTex = sunTexLoader.load('images/deep-space/textures/sun.jpg');
+const sunTex = sunTexLoader.load('images/deep-space/textures/sun.webp');
 sunTex.colorSpace = THREE.SRGBColorSpace;
 sunMat.map = sunTex;
 const sunMesh = new THREE.Mesh(sunGeo, sunMat);
@@ -827,7 +827,7 @@ function addSaturnRing(size) {
     const innerR = size * 1.2, outerR = size * 2.3;
     const geo = new THREE.RingGeometry(innerR, outerR, 64);
     fixRingUVs(geo, innerR, outerR);
-    const tex = textureLoader.load('images/deep-space/textures/saturn_ring.png');
+    const tex = textureLoader.load('images/deep-space/textures/saturn_ring.webp');
     tex.colorSpace = THREE.SRGBColorSpace;
     const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false });
     const ring = new THREE.Mesh(geo, mat);
@@ -845,7 +845,7 @@ function buildPlanetLikeMesh(id, meta, meshDict, glowDict) {
         mat.map = makeProceduralTexture('#' + meta.color.toString(16).padStart(6, '0'));
     } else {
         const tex = textureLoader.load(
-            'images/deep-space/textures/' + id + '.jpg',
+            'images/deep-space/textures/' + id + '.webp',
             undefined,
             undefined,
             () => console.warn('[SatFleet Deep Space] No se pudo cargar la textura de ' + id)
@@ -875,7 +875,7 @@ Object.entries(MOON_META).forEach(([id, meta]) => {
     // Sin anillo de órbita — reutilizamos buildPlanetLikeMesh salvo esa parte
     const geo = new THREE.SphereGeometry(meta.size, 32, 32);
     const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 });
-    const tex = textureLoader.load('images/deep-space/textures/' + id + '.jpg', undefined, undefined,
+    const tex = textureLoader.load('images/deep-space/textures/' + id + '.webp', undefined, undefined,
         () => console.warn('[SatFleet Deep Space] No se pudo cargar la textura de ' + id));
     tex.colorSpace = THREE.SRGBColorSpace;
     mat.map = tex;
