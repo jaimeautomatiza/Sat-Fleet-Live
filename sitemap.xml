@@ -139,6 +139,48 @@
   <priority>0.8</priority>
 </url>
 <url>
+    <loc>https://satfleetlive.com/blogs/what-is-deep-space-tracking/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/where-is-voyager-1-now/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/james-webb-telescope-location/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/how-far-is-mars-from-earth/</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/is-pluto-a-planet/</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/curiosity-vs-perseverance/</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/real-scale-view-explained/</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
     <loc>https://satfleetlive.com/moon.html</loc>
     <lastmod>2026-08-29</lastmod>
     <changefreq>daily</changefreq>
@@ -149,6 +191,12 @@
     <lastmod>2026-08-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/deep-space.html</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
 </url>
 <url>
     <loc>https://satfleetlive.com/mars/perseverance/</loc>

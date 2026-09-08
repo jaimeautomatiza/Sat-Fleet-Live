@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+
+    <title>Real Scale View Explained: See Space As It Really Looks | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real Scale View recalculates the solar system using true angular size math, from any planet or spacecraft you select. Here's exactly how it works.">
+    <meta name="keywords" content="real scale view, what space actually looks like, true size solar system, how big does earth look from moon, solar system real scale">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/real-scale-view-explained/">
+
+    <meta property="og:title" content="Real Scale View Explained: See Space As It Really Looks">
+    <meta property="og:description" content="Recalculates the solar system using true angular size math, from any planet or spacecraft you select.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/real-scale-view-explained/">
+    <meta property="og:image" content="/images/logo.png">
+    <meta property="article:published_time" content="2026-09-07">
+    <meta property="article:modified_time" content="2026-09-07">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Real Scale View Explained: See Space As It Really Looks">
+    <meta name="twitter:description" content="Recalculates the solar system using true angular size math, from any planet or spacecraft you select.">
+    <meta name="twitter:image" content="/images/logo.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "Real Scale View Explained: See Space As It Really Looks",
+      "description": "Real Scale View recalculates the solar system using true angular size math, from any planet or spacecraft you select. Here's exactly how it works.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": {
+        "@type": "Organization", "name": "SatFleet Live", "url": "https://satfleetlive.com",
+        "logo": { "@type": "ImageObject", "url": "https://satfleetlive.com/images/logo.png" }
+      },
+      "datePublished": "2026-09-07",
+      "dateModified": "2026-09-07",
+      "url": "https://satfleetlive.com/blogs/real-scale-view-explained/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://satfleetlive.com/blogs/real-scale-view-explained/" }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What is Real Scale View?", "acceptedAnswer": { "@type": "Answer", "text": "Real Scale View is a Deep Space feature that recalculates every nearby object's true angular size and true distance from whichever planet, moon, or spacecraft you have selected, instead of the compressed distances used for general navigation." } },
+        { "@type": "Question", "name": "How is the size of each object calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Using genuine trigonometry: angular size equals 2 times the arctangent of an object's real physical radius divided by its real distance from you. This is the same formula used to calculate how large the Moon or Sun actually appears in Earth's sky." } },
+        { "@type": "Question", "name": "Why does the selected object always look the same size?", "acceptedAnswer": { "@type": "Answer", "text": "Whatever you select is always rendered at a comfortable, consistent size so you're never looking at an invisible speck, regardless of whether it has any close neighbors. Everything else around it is then sized to preserve its true angular size relative to that." } },
+        { "@type": "Question", "name": "Can I use Real Scale View from a spacecraft?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Selecting any tracked spacecraft and activating Real Scale View shows the spacecraft itself as a reference point, with every nearby planet and moon rendered at its true relative angular size from that spacecraft's real position." } }
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://satfleetlive.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://satfleetlive.com/blogs/" },
+        { "@type": "ListItem", "position": 3, "name": "Real Scale View Explained", "item": "https://satfleetlive.com/blogs/real-scale-view-explained/" }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ink: #060a12;
+            --panel: #0c121e;
+            --line: #1b2740;
+            --cyan: #4fd8e0;
+            --cyan-dim: rgba(79,216,224,0.5);
+            --text: #b8c2d6;
+            --text-bright: #eef2fa;
+            --muted: #6b7690;
+        }
+        body { font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--ink); color: var(--text); background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 44px 44px; background-attachment: fixed; }
+        body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(6,10,18,0.2), var(--ink) 75%); pointer-events: none; z-index: -1; }
+
+        header.site-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(6,10,18,0.92); backdrop-filter: blur(6px); z-index: 100;
+        }
+        .logo-link { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+        .logo-link img { width: 32px; height: 32px; border-radius: 50%; }
+        .logo-link span { color: var(--text-bright); font-weight: 700; font-size: 1.05rem; font-family: 'Courier New', monospace; }
+        .site-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .site-nav a { color: var(--muted); border: 1px solid var(--line); padding: 0.4rem 0.85rem; text-decoration: none; font-size: 0.82rem; }
+        .site-nav a:hover { border-color: var(--cyan); color: var(--cyan); }
+
+        .hero { padding: 3.5rem 1.5rem 2rem; max-width: 820px; margin: 0 auto; }
+        .breadcrumb { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.3rem; font-family: 'Courier New', monospace; }
+        .breadcrumb a { color: var(--cyan); text-decoration: none; }
+        .kicker { display: inline-flex; align-items: center; gap: 0.5rem; font-family: 'Courier New', monospace; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); margin-bottom: 1.1rem; }
+        .kicker::before { content: ''; width: 8px; height: 8px; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+        h1 { font-size: 2.3rem; line-height: 1.2; font-weight: 800; color: var(--text-bright); letter-spacing: -0.01em; margin-bottom: 1rem; max-width: 700px; }
+        .subhead { font-size: 1.08rem; color: var(--muted); line-height: 1.65; max-width: 620px; }
+
+        main { max-width: 800px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+        .toc { border: 1px solid var(--line); padding: 1.3rem 1.5rem; margin: 2.5rem 0; background: var(--panel); }
+        .toc-title { font-family: 'Courier New', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--cyan); font-weight: 700; margin-bottom: 0.7rem; }
+        .toc a { display: block; color: #9fb3d6; text-decoration: none; font-size: 0.94rem; line-height: 1.9; }
+        .toc a:hover { color: var(--cyan); }
+
+        article p { line-height: 1.8; margin-bottom: 1.25rem; font-size: 1.05rem; }
+        article strong { color: var(--text-bright); }
+        article a { color: var(--cyan); }
+        article h2 { font-size: 1.45rem; font-weight: 800; color: var(--text-bright); margin: 2.6rem 0 1.1rem; letter-spacing: -0.01em; border-bottom: 1px solid var(--line); padding-bottom: 0.6rem; }
+
+        /* FORMULA BOX */
+        .formula-box { border: 1px solid var(--cyan-dim); background: var(--panel); padding: 1.6rem; margin: 1.8rem 0; text-align: center; }
+        .formula-label { font-family: 'Courier New', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.8rem; }
+        .formula { font-family: 'Courier New', monospace; font-size: 1.25rem; color: var(--cyan); font-weight: 700; }
+        .formula-note { font-size: 0.88rem; color: var(--muted); margin-top: 0.9rem; }
+
+        /* SCENARIO CARDS */
+        .scenario { display: flex; gap: 1rem; border: 1px solid var(--line); background: var(--panel); padding: 1.3rem 1.4rem; margin: 1.2rem 0; }
+        .scenario-num { font-family: 'Courier New', monospace; color: var(--cyan); font-weight: 800; font-size: 1.3rem; flex-shrink: 0; }
+        .scenario strong { display: block; color: var(--text-bright); margin-bottom: 0.3rem; }
+        .scenario span { font-size: 0.96rem; color: var(--text); }
+
+        .callout { border-left: 3px solid var(--cyan); background: var(--panel); padding: 1.1rem 1.4rem; margin: 1.8rem 0; }
+        .callout-label { display: block; font-family: 'Courier New', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--cyan); margin-bottom: 0.4rem; }
+        .callout p { margin: 0; font-size: 0.98rem; }
+
+        .faq { border-bottom: 1px solid var(--line); padding: 1.2rem 0; }
+        .faq summary { cursor: pointer; font-weight: 700; font-size: 1.02rem; color: var(--text-bright); list-style: none; display: flex; justify-content: space-between; }
+        .faq summary::-webkit-details-marker { display: none; }
+        .faq summary::after { content: '+'; color: var(--cyan); font-size: 1.4rem; font-family: monospace; }
+        .faq[open] summary::after { content: '−'; }
+        .faq p { margin: 0.8rem 0 0; color: var(--muted); font-size: 0.98rem; }
+
+        .related { margin: 3rem 0 2rem; }
+        .related-title { font-family: 'Courier New', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; margin-bottom: 1rem; }
+        .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .related-card { border: 1px solid var(--line); padding: 1rem 1.2rem; text-decoration: none; display: block; background: var(--panel); }
+        .related-card:hover { border-color: var(--cyan); }
+        .related-card strong { display: block; color: var(--text-bright); font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .related-card span { color: var(--muted); font-size: 0.85rem; }
+
+        .cta { text-align: center; border: 1px solid var(--cyan-dim); background: var(--panel); padding: 2.4rem; margin: 3rem 0 1rem; }
+        .cta h2 { margin: 0 0 0.6rem !important; color: var(--text-bright); border: none !important; padding: 0 !important; }
+        .cta p { color: var(--muted); margin-bottom: 1.3rem; }
+        .cta-btn { display: inline-block; background: var(--cyan); color: #06121a; padding: 0.75rem 2rem; text-decoration: none; font-weight: 700; font-family: 'Courier New', monospace; }
+
+        footer { text-align: center; padding: 2rem 1rem; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); }
+        footer a { color: var(--cyan); text-decoration: none; }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.7rem; }
+            .related-grid { grid-template-columns: 1fr; }
+            .site-nav { display: none; }
+            .scenario { flex-direction: column; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <a class="logo-link" href="/">
+            <img src="/images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+            <span>SatFleet Live</span>
+        </a>
+        <nav class="site-nav">
+            <a href="/">Live Map</a>
+            <a href="/moon.html">Moon</a>
+            <a href="/mars.html">Mars</a>
+            <a href="/deep-space.html">Deep Space</a>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <p class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/blogs/">Blog</a> &rsaquo; Real Scale View Explained</p>
+        <span class="kicker">Deep Space · Feature Explainer</span>
+        <h1>Real Scale View: See Space Exactly As It Looks</h1>
+        <p class="subhead">Not an illustration, not an artist's impression — a feature built on the same trigonometry that tells you how big the Moon looks in your own sky, applied to any planet or spacecraft you choose.</p>
+    </div>
+
+    <main>
+        <nav class="toc">
+            <div class="toc-title">Contents</div>
+            <a href="#the-problem">The Problem It Solves</a>
+            <a href="#the-math">The Math Behind It</a>
+            <a href="#what-you-see">What You Actually See</a>
+            <a href="#the-limits">Where It Draws the Line</a>
+            <a href="#try-it">How to Try It</a>
+            <a href="#faq">Frequently Asked Questions</a>
+        </nav>
+
+        <article>
+            <p>
+                Most of Deep Space runs in a compressed view — distances are shrunk so the whole solar system fits on a screen at once, useful for finding your way around but not for understanding what anything would actually look like up close. <strong>Real Scale View</strong> is the feature that switches that off.
+            </p>
+
+            <h2 id="the-problem">The Problem It Solves</h2>
+
+            <p>
+                Select any planet, moon, dwarf planet, or spacecraft on the Deep Space map and activate Real Scale View, and everything nearby is recalculated using each object's true physical size and true distance from wherever you're standing — not a stylised icon sized for visibility, but a genuine answer to "how big would this really look from here?"
+            </p>
+
+            <h2 id="the-math">The Math Behind It</h2>
+
+            <p>
+                The core calculation is <strong>angular size</strong> — the same concept astronomers use to describe how large the Moon or Sun appear in Earth's sky, both of which happen to measure almost exactly half a degree despite being wildly different sizes, purely because of how their size and distance happen to balance out.
+            </p>
+
+            <div class="formula-box">
+                <div class="formula-label">Angular size, in plain terms</div>
+                <div class="formula">size = 2 × atan( real radius ÷ real distance )</div>
+                <div class="formula-note">Calculated fresh for every object, every frame, from real NASA/JPL Horizons position data.</div>
+            </div>
+
+            <p>
+                Whatever you've selected is always rendered at a comfortable, consistent size — so you're never left looking at an invisible speck, even if it happens to have no close neighbours in real life. Everything else around it is then sized to preserve its true angular relationship to that, exactly as the formula above defines it.
+            </p>
+
+            <h2 id="what-you-see">What You Actually See</h2>
+
+            <div class="scenario">
+                <div class="scenario-num">01</div>
+                <div><strong>Select the Moon</strong><span>Earth appears at its true relative size in the lunar sky — genuinely larger than the Moon itself ever looks from Earth's surface, exactly as Apollo astronauts described it.</span></div>
+            </div>
+            <div class="scenario">
+                <div class="scenario-num">02</div>
+                <div><strong>Select a spacecraft mid-journey</strong><span>Its home planet shrinks to a distant point of light as real distance grows, the same view described by astronauts looking back at Earth through a real window.</span></div>
+            </div>
+            <div class="scenario">
+                <div class="scenario-num">03</div>
+                <div><strong>Select Jupiter</strong><span>Its four largest moons appear at the true angular size and distance they'd have from the cloud tops — dramatically different from how they're spaced in the default compressed view.</span></div>
+            </div>
+
+            <div class="callout">
+                <span class="callout-label">A recent addition</span>
+                <p>Selecting a spacecraft now shows the spacecraft itself too, rendered as a reference point — so activating Real Scale View from, say, a probe en route to another planet gives you a genuine sense of where you are, not just what's around you.</p>
+            </div>
+
+            <h2 id="the-limits">Where It Draws the Line</h2>
+
+            <p>
+                Two honest limits keep the feature from becoming misleading. First, distance is still capped at a practical maximum for rendering — real interplanetary distances are large enough that without some limit, nothing would fit on screen at all. The true angle every object would occupy in your sky is preserved regardless, only the distance drawn to get there is capped.
+            </p>
+
+            <p>
+                Second, anything genuinely too far away — beyond 100 Astronomical Units, roughly Voyager 1's neighbourhood — simply isn't drawn at all. Rather than fake a marker for something at a meaningless distance, Real Scale View shows real emptiness, which is a more honest answer than pretending everything is always nearby.
+            </p>
+
+            <h2 id="try-it">How to Try It</h2>
+
+            <p>
+                Open <a href="/deep-space.html">Deep Space</a>, select any object, then tap the 360° button that appears once something is selected. The view recalculates instantly, and switching between objects — or exiting back to the compressed view — is a single click away at any time.
+            </p>
+
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <details class="faq">
+                <summary>What is Real Scale View?</summary>
+                <p>Real Scale View is a Deep Space feature that recalculates every nearby object's true angular size and true distance from whichever planet, moon, or spacecraft you have selected, instead of the compressed distances used for general navigation.</p>
+            </details>
+            <details class="faq">
+                <summary>How is the size of each object calculated?</summary>
+                <p>Using genuine trigonometry: angular size equals 2 times the arctangent of an object's real physical radius divided by its real distance from you. This is the same formula used to calculate how large the Moon or Sun actually appears in Earth's sky.</p>
+            </details>
+            <details class="faq">
+                <summary>Why does the selected object always look the same size?</summary>
+                <p>Whatever you select is always rendered at a comfortable, consistent size so you're never looking at an invisible speck, regardless of whether it has any close neighbours. Everything else around it is then sized to preserve its true angular size relative to that.</p>
+            </details>
+            <details class="faq">
+                <summary>Can I use Real Scale View from a spacecraft?</summary>
+                <p>Yes. Selecting any tracked spacecraft and activating Real Scale View shows the spacecraft itself as a reference point, with every nearby planet and moon rendered at its true relative angular size from that spacecraft's real position.</p>
+            </details>
+
+            <div class="related">
+                <div class="related-title">Related Articles</div>
+                <div class="related-grid">
+                    <a href="/blogs/what-is-deep-space-tracking/" class="related-card">
+                        <strong>What Is Deep Space Tracking?</strong>
+                        <span>The full solar system, live — every planet, moon, and spacecraft.</span>
+                    </a>
+                    <a href="/blogs/where-is-voyager-1-now/" class="related-card">
+                        <strong>Where Is Voyager 1 Right Now?</strong>
+                        <span>Humanity's most distant spacecraft, tracked live.</span>
+                    </a>
+                    <a href="/blogs/james-webb-telescope-location/" class="related-card">
+                        <strong>James Webb Telescope Location</strong>
+                        <span>Track the JWST's real position near Sun-Earth L2.</span>
+                    </a>
+                    <a href="/blogs/how-far-is-mars-from-earth/" class="related-card">
+                        <strong>How Far Is Mars From Earth?</strong>
+                        <span>The real, live distance and why it changes so much.</span>
+                    </a>
+                    <a href="/blogs/is-pluto-a-planet/" class="related-card">
+                        <strong>Is Pluto a Planet?</strong>
+                        <span>The real reason it was reclassified, tracked live.</span>
+                    </a>
+                    <a href="/blogs/curiosity-vs-perseverance/" class="related-card">
+                        <strong>Curiosity vs Perseverance</strong>
+                        <span>NASA's two active Mars rovers, compared.</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="cta">
+                <h2>Try Real Scale View Now</h2>
+                <p>Free, live, updated from NASA/JPL data — no account required.</p>
+                <a href="/deep-space.html" class="cta-btn">Open Deep Space</a>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+        © 2026 SatFleetLive ·
+        Source: <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank">NASA/JPL Horizons</a> ·
+        <a href="mailto:jaime.automatiza@gmail.com">Contact</a> ·
+        <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+    </footer>
+
+</body>
+</html>
