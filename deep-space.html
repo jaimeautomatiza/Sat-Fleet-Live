@@ -70,6 +70,7 @@
         background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4);
         padding:2px 8px; border-radius:20px; letter-spacing:0.5px; margin-left:2px; flex-shrink:0;
     }
+    .ds-badge-break { display:none; }
 
     .bar-sep { width:1px; height:26px; background:rgba(255,255,255,0.12); flex-shrink:0; margin:0 2px; }
     .bar-spacer { flex:1; }
@@ -188,6 +189,8 @@
         #nasaCredit { bottom:16px !important; font-size:0.58rem; max-width:calc(100vw - 24px); }
         #overflowBtn { display:flex; }
         #dsSearch { max-width:none; }
+        .ds-badge-break { display:block; }
+        #dsBadge { text-align:center; line-height:1.15; padding:3px 6px; }
     }
 
     #loading {
@@ -262,7 +265,7 @@
     #siteInfoPanel .site-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.1rem; cursor:pointer; line-height:1; padding:0; flex-shrink:0; }
     #siteInfoPanel .site-collapse-btn { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.3rem; cursor:pointer; line-height:1; padding:0 6px 0 0; flex-shrink:0; }
     #siteInfoPanel .site-collapse-btn:hover { color:#fff; }
-    #siteInfoPanel.collapsed .site-meta, #siteInfoPanel.collapsed .info-item, #siteInfoPanel.collapsed .site-desc { display:none; }
+    #siteInfoPanel.collapsed .site-meta, #siteInfoPanel.collapsed .info-item, #siteInfoPanel.collapsed .site-desc, #siteInfoPanel.collapsed .site-status, #siteInfoPanel.collapsed .ref-selector { display:none; }
     #siteInfoPanel.collapsed { padding:10px 16px; }
     #siteInfoPanel .site-close:hover { color:#fff; }
     #siteInfoPanel .site-meta { font-size:0.7rem; color:rgba(255,255,255,0.45); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
@@ -273,6 +276,7 @@
     #siteInfoPanel .site-status.stale { color:rgba(255,255,255,0.4); }
     #siteInfoPanel .site-status.stale .dot { background:rgba(255,255,255,0.35); }
     #siteInfoPanel .site-desc { font-size:0.8rem; color:rgba(255,255,255,0.8); line-height:1.5; margin-top:8px; }
+    #siteInfoPanel .site-desc-reveal { display:none; font-size:0.75rem; color:var(--primary-purple); cursor:pointer; font-weight:600; margin-top:4px; }
     #siteInfoPanel .info-item { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
     .ref-selector { margin: 10px 0 8px; }
     .ref-selector-label { font-size: 0.66rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
@@ -297,13 +301,17 @@
 
     @media (max-width: 768px) {
         #siteInfoPanel {
-            width:180px; max-width:calc(100vw - 100px); min-width:145px;
+            width:150px; max-width:calc(100vw - 120px); min-width:125px;
             right:8px; padding:12px;
         }
         #siteInfoPanel .site-name { font-size:0.82rem; }
         #siteInfoPanel .info-label { font-size:0.62rem; }
         #siteInfoPanel .info-value { font-size:0.78rem; }
         #siteInfoPanel .site-desc { font-size:0.74rem; }
+        #siteInfoPanel .site-meta { display:none; }
+        #siteInfoPanel .site-desc { display:none; }
+        #siteInfoPanel .site-desc.revealed { display:block; }
+        #siteInfoPanel .site-desc-reveal { display:inline-block; }
     }
 
     #firstDraftNote {
@@ -320,7 +328,7 @@
         <img src="images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
         <span class="bar-logo-text">SatFleet Live</span>
     </div>
-    <span id="dsBadge">DEEP SPACE</span>
+    <span id="dsBadge">DEEP<br class="ds-badge-break"> SPACE</span>
 
     <input type="text" id="dsSearch" placeholder="Search planet or spacecraft..." onkeyup="searchDeepSpace()" onkeydown="if(event.key==='Enter') this.blur()">
 
@@ -444,6 +452,7 @@
         <div class="info-value" id="siteInfoSpeed">—</div>
     </div>
     <div class="site-desc" id="siteInfoDesc">—</div>
+    <span class="site-desc-reveal" id="siteInfoDescReveal" onclick="toggleSiteDesc()">Read Info</span>
 </div>
 
 <script type="module">
@@ -1618,6 +1627,8 @@ function showObjectInfo(id) {
         document.getElementById('siteInfoSpeedRow').style.display = 'none';
         document.getElementById('refSelectorRow').style.display = 'none';
         document.getElementById('siteInfoDesc').textContent = 'The star at the center of our solar system, containing over 99.8% of its total mass.';
+        document.getElementById('siteInfoDesc').classList.remove('revealed');
+        document.getElementById('siteInfoDescReveal').textContent = 'Read Info';
         document.getElementById('siteInfoPanel').classList.add('active');
         document.getElementById('dsPovBtn').style.display = 'none';
         animateControlsTarget(new THREE.Vector3(0, 0, 0), 1200, 8);
@@ -1641,6 +1652,8 @@ function showObjectInfo(id) {
     document.getElementById('refSelectorRow').style.display = '';
     updateReferenceCalc();
     document.getElementById('siteInfoDesc').textContent = OBJECT_FACTS[id] || 'Live position calculated from NASA/JPL Horizons ephemeris data.';
+    document.getElementById('siteInfoDesc').classList.remove('revealed');
+    document.getElementById('siteInfoDescReveal').textContent = 'Read Info';
     document.getElementById('siteInfoPanel').classList.add('active');
     document.getElementById('dsPovBtn').style.display = 'flex';
 
@@ -1761,6 +1774,13 @@ function animateToHomeView(duration = 1200) {
 
 window.toggleSiteInfoCollapse = function() {
     document.getElementById('siteInfoPanel').classList.toggle('collapsed');
+};
+
+window.toggleSiteDesc = function() {
+    const desc = document.getElementById('siteInfoDesc');
+    const btn = document.getElementById('siteInfoDescReveal');
+    const revealed = desc.classList.toggle('revealed');
+    btn.textContent = revealed ? 'Hide Info' : 'Read Info';
 };
 
 window.closeSiteInfo = function(keepPovIfActive) {
