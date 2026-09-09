@@ -1127,23 +1127,46 @@ async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
   const startTime = now.toISOString().slice(0, 10);
   const stopTime  = new Date(now.getTime() + 48 * 3600 * 1000).toISOString().slice(0, 10);
 
+  // Guardamos lo último bueno de cada orbitador por separado, para poder
+  // rellenar huecos individuales si alguno falla hoy — mismo principio que
+  // ya usamos en Deep Space, adaptado aquí a listas más cortas.
+  let previousOrbiters = {};
+  try {
+    const prevCached = await env.LAUNCHES_KV.get(kvKey);
+    if (prevCached) previousOrbiters = JSON.parse(prevCached).orbiters || {};
+  } catch(e) {}
+
   const orbiters = {};
   let anySuccess = false;
 
   for (const target of targets) {
-    try {
-      const res = await fetch(buildSubObserverUrl(target, startTime, stopTime), { headers: { 'Accept': 'application/json' } });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
+    let points = null;
+    let lastError;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(buildSubObserverUrl(target, startTime, stopTime), { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        const parsed = parseSubObserverTable(data.result, target.bodyRadiusKm);
+        if (!parsed.length) throw new Error('Sin puntos');
+        points = parsed;
+        break;
+      } catch (err) {
+        lastError = err;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 300));
+      }
+    }
 
-      const points = parseSubObserverTable(data.result, target.bodyRadiusKm);
-      if (points.length) {
-        orbiters[target.id] = { name: target.name, points };
+    if (points) {
+      orbiters[target.id] = { name: target.name, points };
+      anySuccess = true;
+    } else {
+      console.error(`Horizons fetch failed for ${target.id}:`, lastError?.message);
+      if (previousOrbiters[target.id]) {
+        orbiters[target.id] = previousOrbiters[target.id];
         anySuccess = true;
       }
-    } catch (err) {
-      console.error(`Horizons fetch failed for ${target.id}:`, err.message);
     }
   }
 

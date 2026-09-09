@@ -1231,6 +1231,8 @@ async function loadMoonOrbiters() {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         moonOrbitersData = data.orbiters || {};
+        const nombres = Object.values(moonOrbitersData).map(o => o.name);
+        console.log(`[SatFleet Moon] Cargados ${nombres.length}/3 orbitadores esperados:`, nombres);
         renderMoonOrbiters();
     } catch (e) {
         console.warn('[SatFleet Moon] No se pudo cargar el orbitador:', e.message);

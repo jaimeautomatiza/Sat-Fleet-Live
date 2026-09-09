@@ -1327,6 +1327,8 @@ async function loadMarsOrbiters() {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         marsOrbitersData = data.orbiters || {};
+        const nombres = Object.values(marsOrbitersData).map(o => o.name);
+        console.log(`[SatFleet Mars] Cargados ${nombres.length}/6 esperados (4 orbitadores + Fobos + Deimos):`, nombres);
         renderMarsOrbiters();
     } catch (e) {
         console.warn('[SatFleet Mars] No se pudo cargar los orbitadores:', e.message);
