@@ -1627,8 +1627,6 @@ function showObjectInfo(id) {
         document.getElementById('siteInfoSpeedRow').style.display = 'none';
         document.getElementById('refSelectorRow').style.display = 'none';
         document.getElementById('siteInfoDesc').textContent = 'The star at the center of our solar system, containing over 99.8% of its total mass.';
-        document.getElementById('siteInfoDesc').classList.remove('revealed');
-        document.getElementById('siteInfoDescReveal').textContent = 'Read Info';
         document.getElementById('siteInfoPanel').classList.add('active');
         document.getElementById('dsPovBtn').style.display = 'none';
         animateControlsTarget(new THREE.Vector3(0, 0, 0), 1200, 8);
@@ -1652,8 +1650,6 @@ function showObjectInfo(id) {
     document.getElementById('refSelectorRow').style.display = '';
     updateReferenceCalc();
     document.getElementById('siteInfoDesc').textContent = OBJECT_FACTS[id] || 'Live position calculated from NASA/JPL Horizons ephemeris data.';
-    document.getElementById('siteInfoDesc').classList.remove('revealed');
-    document.getElementById('siteInfoDescReveal').textContent = 'Read Info';
     document.getElementById('siteInfoPanel').classList.add('active');
     document.getElementById('dsPovBtn').style.display = 'flex';
 

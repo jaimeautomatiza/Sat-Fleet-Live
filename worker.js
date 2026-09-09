@@ -1159,7 +1159,7 @@ async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
     }
 
     if (points) {
-      orbiters[target.id] = { name: target.name, points };
+      orbiters[target.id] = { name: target.name, points, lastFreshAt: Date.now() };
       anySuccess = true;
     } else {
       console.error(`Horizons fetch failed for ${target.id}:`, lastError?.message);

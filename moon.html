@@ -309,6 +309,20 @@
         z-index:900; display:none; box-shadow:0 20px 50px rgba(0,0,0,0.6);
     }
     #siteInfoPanel.active { display:block; }
+        #siteInfoPanel .site-collapse-btn { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.3rem; cursor:pointer; line-height:1; padding:0 6px 0 0; flex-shrink:0; }
+    #siteInfoPanel .site-collapse-btn:hover { color:#fff; }
+    #siteInfoPanel.collapsed .site-meta, #siteInfoPanel.collapsed .info-item, #siteInfoPanel.collapsed .site-desc, #siteInfoPanel.collapsed .site-status { display:none; }
+    #siteInfoPanel.collapsed { padding:10px 16px; }
+    #siteInfoPanel .site-status { font-size:0.68rem; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+    #siteInfoPanel .site-status .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    #siteInfoPanel .site-status.live { color:#4caf50; }
+    #siteInfoPanel .site-status.live .dot { background:#4caf50; box-shadow:0 0 5px #4caf50; }
+    #siteInfoPanel .site-status.stale { color:rgba(255,255,255,0.4); }
+    #siteInfoPanel .site-status.stale .dot { background:rgba(255,255,255,0.35); }
+    #siteInfoPanel .site-desc-reveal { display:none; font-size:0.75rem; color:var(--primary-purple); cursor:pointer; font-weight:600; margin-top:4px; }
+    #siteInfoPanel .info-item { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+    #siteInfoPanel .info-label { font-size:0.68rem; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.7px; font-weight:500; margin-bottom:2px; }
+    #siteInfoPanel .info-value { font-size:0.88rem; font-weight:600; color:rgba(255,255,255,0.9); font-variant-numeric:tabular-nums; }
     #siteInfoPanel .site-header { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:8px; }
     #siteInfoPanel .site-name { font-size:0.95rem; font-weight:700; color:#e0aaff; line-height:1.3; }
     #siteInfoPanel .site-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.1rem; cursor:pointer; line-height:1; padding:0; flex-shrink:0; }
@@ -317,7 +331,18 @@
     #siteInfoPanel .site-desc { font-size:0.8rem; color:rgba(255,255,255,0.8); line-height:1.5; }
 
     @media (max-width: 768px) {
-        #siteInfoPanel { width:calc(100vw - 32px); right:16px; }
+        #siteInfoPanel {
+            width:150px; max-width:calc(100vw - 120px); min-width:125px;
+            right:8px; padding:12px;
+        }
+        #siteInfoPanel .site-name { font-size:0.82rem; }
+        #siteInfoPanel .info-label { font-size:0.62rem; }
+        #siteInfoPanel .info-value { font-size:0.78rem; }
+        #siteInfoPanel .site-desc { font-size:0.74rem; }
+        #siteInfoPanel .site-meta { display:none; }
+        #siteInfoPanel .site-desc { display:none; }
+        #siteInfoPanel .site-desc.revealed { display:block; }
+        #siteInfoPanel .site-desc-reveal { display:inline-block; }
     }
 </style>
 </head>
@@ -439,10 +464,21 @@
 <div id="siteInfoPanel">
     <div class="site-header">
         <div class="site-name" id="siteInfoName">—</div>
+        <button class="site-collapse-btn" onclick="toggleSiteInfoCollapse()" title="Collapse">−</button>
         <button class="site-close" onclick="closeSiteInfo()">×</button>
     </div>
     <div class="site-meta" id="siteInfoMeta">—</div>
+    <div class="site-status" id="siteInfoStatus"></div>
+    <div class="info-item" id="siteInfoAltitudeRow" style="display:none;">
+        <div class="info-label">Altitude</div>
+        <div class="info-value" id="siteInfoAltitude">—</div>
+    </div>
+    <div class="info-item" id="siteInfoSpeedRow" style="display:none;">
+        <div class="info-label">Velocity (vs. surface)</div>
+        <div class="info-value" id="siteInfoSpeed">—</div>
+    </div>
     <div class="site-desc" id="siteInfoDesc">—</div>
+    <span class="site-desc-reveal" id="siteInfoDescReveal" onclick="toggleSiteDesc()">Read Info</span>
 </div>
 
 <script>
@@ -767,6 +803,14 @@ function showSiteInfo(site) {
     clearOrbiterPath();
     updateMoonPovBtnVisibility();
 
+    // Puntos históricos son fijos: no tienen altitud/velocidad propia ni
+    // estado Live. Si no se limpia, se queda lo del último orbitador
+    // seleccionado.
+    document.getElementById('siteInfoAltitudeRow').style.display = 'none';
+    document.getElementById('siteInfoSpeedRow').style.display = 'none';
+    document.getElementById('siteInfoStatus').textContent = '';
+    document.getElementById('siteInfoStatus').className = 'site-status';
+
     if (site.name === 'Apollo 11') {
     document.getElementById('siteInfoName').innerHTML = '<a href="/moon/apollo-11/" style="color:inherit;text-decoration:underline;">' + site.name + '</a>';
 } else {
@@ -796,6 +840,33 @@ function showSiteInfo(site) {
 // tenemos su posición exacta cada 15 min, así que solo hay que medir la
 // distancia recorrida entre dos instantes muy próximos.
 const MOON_ROTATION_DEG_PER_DAY = 360 / 27.321661; // la Luna gira sincronizada con su órbita (~27,32 días)
+
+function formatRelativeTime(ms) {
+    const s = ms / 1000;
+    if (s < 3600) return Math.round(s / 60) + ' min ago';
+    if (s < 86400) return Math.round(s / 3600) + ' hour' + (Math.round(s / 3600) === 1 ? '' : 's') + ' ago';
+    return Math.round(s / 86400) + ' day' + (Math.round(s / 86400) === 1 ? '' : 's') + ' ago';
+}
+
+function updateFreshnessIndicator(obj) {
+    const el = document.getElementById('siteInfoStatus');
+    if (!obj.lastFreshAt) { el.textContent = ''; el.className = 'site-status'; return; }
+    const ageMs = Date.now() - obj.lastFreshAt;
+    const isLive = ageMs < 6 * 3600 * 1000; // un orbitador da la vuelta en horas, no en días
+    el.className = 'site-status ' + (isLive ? 'live' : 'stale');
+    el.innerHTML = '<span class="dot"></span>' + (isLive ? 'Live' : 'Last known position — ' + formatRelativeTime(ageMs));
+}
+
+window.toggleSiteInfoCollapse = function() {
+    document.getElementById('siteInfoPanel').classList.toggle('collapsed');
+};
+
+window.toggleSiteDesc = function() {
+    const desc = document.getElementById('siteInfoDesc');
+    const btn = document.getElementById('siteInfoDescReveal');
+    const revealed = desc.classList.toggle('revealed');
+    btn.textContent = revealed ? 'Hide Info' : 'Read Info';
+};
 
 function estimateOrbiterSpeedKmh(points, nowMs) {
     const dtMs = 60000; // 1 minuto de separación
@@ -833,13 +904,27 @@ function showOrbiterInfo(orbiterData) {
 }
     document.getElementById('siteInfoMeta').textContent = 'NASA · Lunar orbiter · Live';
 
+    updateFreshnessIndicator(orbiterData);
+
+    const altRow = document.getElementById('siteInfoAltitudeRow');
+    const spdRow = document.getElementById('siteInfoSpeedRow');
     if (p) {
+        document.getElementById('siteInfoAltitude').textContent = Math.round(p.alt).toLocaleString() + ' km';
+        altRow.style.display = '';
+
         const speed = estimateOrbiterSpeedKmh(orbiterData.points, Date.now());
-        const speedText = speed != null ? ' Traveling at ~' + Math.round(speed).toLocaleString() + ' km/h relative to the surface.' : '';
+        if (speed != null) {
+            document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
+            spdRow.style.display = '';
+        } else {
+            spdRow.style.display = 'none';
+        }
+
         document.getElementById('siteInfoDesc').textContent =
-            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°, at ~' + Math.round(p.alt) + ' km altitude.' + speedText + ' ' +
-            'Position calculated from NASA/JPL Horizons ephemeris data.';
+            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°. Position calculated from NASA/JPL Horizons ephemeris data.';
     } else {
+        altRow.style.display = 'none';
+        spdRow.style.display = 'none';
         document.getElementById('siteInfoDesc').textContent = 'Position data unavailable right now.';
     }
     document.getElementById('siteInfoPanel').classList.add('active');
