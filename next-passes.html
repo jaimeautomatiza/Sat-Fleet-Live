@@ -1174,12 +1174,9 @@ function updateNotifPermBtn() {
 }
 
 async function requestNotifPermission() {
-    // ── Bloqueo Premium ──
-    if (!isPremiumUser()) {
-        showPremiumModal('Push notifications alert you 10 and 2 minutes before a satellite passes over your location. Upgrade to Premium to enable them.');
-        return;
-    }
-    // ─────────────────────
+    // Pedir permiso y apuntarse a lanzamientos es gratis para todos — el
+    // Premium solo bloquea el aviso de un pase concreto, más abajo en
+    // toggleNotification(), no este primer paso.
     if (!('Notification' in window)) {
         showToast('⚠️ Notifications not available in this app');
         const btn = document.getElementById('notifPermBtn');
@@ -1253,6 +1250,15 @@ async function toggleNotification(passId) {
         showToast('⏱️ This pass has already started.');
         return;
     }
+
+    // ── El Premium se comprueba aquí, no al pedir el permiso general ──
+    const state0 = notifState[passId];
+    const isActivating = !(state0 && state0.active);
+    if (isActivating && !isPremiumUser()) {
+        showPremiumModal('Push notifications alert you 10 and 2 minutes before a satellite passes over your location. Upgrade to Premium to enable them.');
+        return;
+    }
+    // ───────────────────────────────────────────────────────────────
 
     const state = notifState[passId];
 
