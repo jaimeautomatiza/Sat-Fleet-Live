@@ -1131,6 +1131,15 @@ function isAndroidApp() {
     return typeof Android !== 'undefined' && typeof Android.getPlayerId === 'function';
 }
 
+// Detecta si la web está "instalada" (acceso directo desde los 3 puntitos de
+// Chrome, o "Añadir a pantalla de inicio" en Safari) — o si estamos dentro
+// de la app de Android, que ya cuenta como instalada siempre.
+function isInstalled() {
+    return isAndroidApp()
+        || window.matchMedia('(display-mode: standalone)').matches
+        || navigator.standalone === true;
+}
+
 function updateNotifPermBtn() {
     const btn   = document.getElementById('notifPermBtn');
     const label = document.getElementById('notifPermLabel');
@@ -2665,12 +2674,20 @@ function renderMiniMap(mapId, passIndex) {
 
       window.webFcmToken = token; // lo guardamos para que los pases también puedan usarlo
 
-      await fetch('https://worker.satfleetlive.com/api/fcm/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
-      console.log('Notificaciones activadas (lanzamientos + pases listos)');
+      // Los lanzamientos van por un topic compartido: solo suscribimos a
+      // quien de verdad lo tiene instalado. Si solo tienes la pestaña
+      // abierta, no te llegan lanzamientos — pero los pases que pidas tú
+      // sí, porque esos van directos a tu token, no por este topic.
+      if (isInstalled()) {
+        await fetch('https://worker.satfleetlive.com/api/fcm/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+        console.log('Notificaciones activadas (lanzamientos + pases listos)');
+      } else {
+        console.log('Notificaciones activadas solo para pases (instala la web para recibir lanzamientos)');
+      }
       return true;
     } catch (err) {
       console.error('Error activando notificaciones web:', err);
