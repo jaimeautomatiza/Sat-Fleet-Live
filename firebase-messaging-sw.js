@@ -14,7 +14,7 @@ const messaging = firebase.messaging();
 
 // Se dispara cuando llega un aviso y la pestaña NO está abierta/activa
 messaging.onBackgroundMessage((payload) => {
-  const { title, body } = payload.notification || {};
+  const { title, body } = payload.data || {};
   self.registration.showNotification(title || 'SatFleet Live', {
     body: body || '',
     icon: 'https://satfleetlive.com/images/logo.png',
