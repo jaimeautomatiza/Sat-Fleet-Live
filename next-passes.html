@@ -2637,6 +2637,15 @@ function renderMiniMap(mapId, passIndex) {
         document.addEventListener('DOMContentLoaded', async () => {
             getUserLocation();
             updateNotifPermBtn();
+
+            // Re-registrar el service worker en cada carga — solo en navegador,
+            // nunca en la app Android, y solo si ya tenías permiso concedido
+            // (si no, esperamos a que pulses "Enable Notifications" tú mismo).
+            if (!isAndroidApp() && 'Notification' in window && Notification.permission === 'granted') {
+                if (typeof window.activarNotificacionesWeb === 'function') {
+                    window.activarNotificacionesWeb();
+                }
+            }
             applyPremiumRestrictions();
             const btn = document.getElementById('calculateBtn');
             btn.disabled = true;
