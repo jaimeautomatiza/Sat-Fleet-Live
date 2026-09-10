@@ -1249,6 +1249,16 @@ function scheduleLocalAlerts(passId, pass, direction) {
     return timers;
 }
 
+async function getDeviceToken() {
+    if (isAndroidApp()) return Android.getPlayerId();
+    if (window.webFcmToken) return window.webFcmToken;
+    // No lo teníamos en caché todavía — lo pedimos ahora mismo
+    if (typeof window.activarNotificacionesWeb === 'function') {
+        await window.activarNotificacionesWeb();
+    }
+    return window.webFcmToken || null;
+}
+
 async function toggleNotification(passId) {
     const pass = calculatedPasses.find(p => buildPassId(p) === passId);
     if (!pass) return;
@@ -1269,121 +1279,93 @@ async function toggleNotification(passId) {
 
     const state = notifState[passId];
 
-    // ════ MODO APP ANDROID: usa OneSignal push real ════
-    if (isAndroidApp()) {
-        if (state && state.active) {
-            try {
-                // 👇 AÑADE "const res = " AQUÍ 👇
-                const res = await fetch('https://worker.satfleetlive.com/api/notify/pass', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('satfleet_fb_token') || ''}`
-                    },
-                    body: JSON.stringify({
-                        cancel: true,
-                        playerId: Android.getPlayerId(),
-                        satelliteName: pass.satellite.name,
-                        passTimeIso: pass.startTime.toISOString(),
-                        notifIds: state.notifIds || [],
-                    }),
-                });
-
-                // 🟢 ¡EL PARCHE DEL BUG #2 TAMBIÉN AQUÍ! 🟢
-                if (res.status === 403) {
-                    showToast("⚠️ Session expired. Please open the 'Account' menu to refresh.");
-                    return;
-                }
-                
-            } catch(e) { console.warn('Cancel error:', e); }
-            notifState[passId] = { active: false, timers: [] };
-            updateToggleBtn(passId, false);
-            removePills(passId);
-            showToast('🔕 Alert cancelled for ' + pass.satellite.name);
-            return;
-        }
-
-        // Activar: obtener player ID y llamar al worker
-        const playerId = Android.getPlayerId();
-        if (!playerId) {
-            showToast('⚠️ Could not get device ID. Try restarting the app.');
-            return;
-        }
-
-        const direction = buildDirText(pass);
-        const brightness = typeof pass.brightness === 'number' ? pass.brightness : null;
-
-        try {
-            const res = await fetch('https://worker.satfleetlive.com/api/notify/pass', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('satfleet_fb_token') || ''}`
-                },
-                body: JSON.stringify({
-                    playerId,
-                    satelliteName: pass.satellite.name,
-                    passTimeIso:   pass.startTime.toISOString(),
-                    maxElevation:  pass.maxElevation.toFixed(1),
-                    direction,
-                    brightness,
-                }),
-            });
-
-            // 🟢 ¡AQUÍ ENTRA EL PARCHE DEL BUG #2! 🟢
-            if (res.status === 403) {
-                showToast("⚠️ Session expired. Please open the 'Account' menu to refresh.");
-                return;
-            }
-
-            const data = await res.json();
-            if (!res.ok || !data.ok) throw new Error(data.error || 'Worker error');
-
-            // Calcular cuántos minutos faltan para las alertas
-            const now  = Date.now();
-            const start = pass.startTime.getTime();
-            const fakeTimers = [
-                { ms: 10 * 60 * 1000, label: '10 minutes', fireAt: start - 10 * 60 * 1000 },
-                { ms:  2 * 60 * 1000, label: '2 minutes',  fireAt: start -  2 * 60 * 1000 },
-            ].filter(t => t.fireAt > now);
-
-            notifState[passId] = { active: true, timers: fakeTimers, notifIds: data.notifIds || [] };
-            updateToggleBtn(passId, true);
-            renderPills(passId, fakeTimers);
-            showToast(`🔔 Push alert set! You'll be notified before ${pass.satellite.name} passes.`);
-
-        } catch(err) {
-            console.error('Notify pass error:', err);
-            showToast('❌ Could not schedule alert. Check your connection.');
-        }
+    // ════ Push real vía FCM — mismo camino para Android y navegador ════
+    if (!('Notification' in window) && !isAndroidApp()) {
+        showToast('⚠️ Notifications not available in this browser');
         return;
     }
-
-    // ════ MODO NAVEGADOR: usa Notification API del navegador ════
-    if (!('Notification' in window) || Notification.permission !== 'granted') {
+    if (!isAndroidApp() && Notification.permission !== 'granted') {
         requestNotifPermission();
         return;
     }
 
     if (state && state.active) {
-        state.timers.forEach(({ tid }) => { if (tid) clearTimeout(tid); });
+        try {
+            const token = await getDeviceToken();
+            const res = await fetch('https://worker.satfleetlive.com/api/notify/pass', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('satfleet_fb_token') || ''}`
+                },
+                body: JSON.stringify({
+                    cancel: true,
+                    playerId: token,
+                    satelliteName: pass.satellite.name,
+                    passTimeIso: pass.startTime.toISOString(),
+                }),
+            });
+            if (res.status === 403) {
+                showToast("⚠️ Session expired. Please open the 'Account' menu to refresh.");
+                return;
+            }
+        } catch(e) { console.warn('Cancel error:', e); }
         notifState[passId] = { active: false, timers: [] };
         updateToggleBtn(passId, false);
         removePills(passId);
-        saveScheduledAlerts();
         showToast('🔕 Alert cancelled for ' + pass.satellite.name);
-    } else {
-        const direction = buildDirText(pass);
-        const timers = scheduleLocalAlerts(passId, pass, direction);
-        if (timers.length === 0) {
-            showToast('⏱️ Not enough time to schedule alerts for this pass.');
+        return;
+    }
+
+    const token = await getDeviceToken();
+    if (!token) {
+        showToast('⚠️ Could not get a notification token. Try again in a moment.');
+        return;
+    }
+
+    const direction = buildDirText(pass);
+    const brightness = typeof pass.brightness === 'number' ? pass.brightness : null;
+
+    try {
+        const res = await fetch('https://worker.satfleetlive.com/api/notify/pass', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('satfleet_fb_token') || ''}`
+            },
+            body: JSON.stringify({
+                playerId: token,
+                satelliteName: pass.satellite.name,
+                passTimeIso:   pass.startTime.toISOString(),
+                maxElevation:  pass.maxElevation.toFixed(1),
+                direction,
+                brightness,
+            }),
+        });
+
+        if (res.status === 403) {
+            showToast("⚠️ Session expired. Please open the 'Account' menu to refresh.");
             return;
         }
-        notifState[passId] = { active: true, timers };
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Worker error');
+
+        const now  = Date.now();
+        const start = pass.startTime.getTime();
+        const fakeTimers = [
+            { ms: 10 * 60 * 1000, label: '10 minutes', fireAt: start - 10 * 60 * 1000 },
+            { ms:  2 * 60 * 1000, label: '2 minutes',  fireAt: start -  2 * 60 * 1000 },
+        ].filter(t => t.fireAt > now);
+
+        notifState[passId] = { active: true, timers: fakeTimers };
         updateToggleBtn(passId, true);
-        renderPills(passId, timers);
-        saveScheduledAlerts();
-        showToast(`🔔 Alert set! Keep this tab open to receive alerts.`);
+        renderPills(passId, fakeTimers);
+        showToast(`🔔 Push alert set! You'll be notified before ${pass.satellite.name} passes.`);
+
+    } catch(err) {
+        console.error('Notify pass error:', err);
+        showToast('❌ Could not schedule alert. Check your connection.');
     }
 }
 
@@ -2681,12 +2663,14 @@ function renderMiniMap(mapId, passIndex) {
       const token = await getToken(_messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
       if (!token) { console.warn('No se pudo conseguir el token de FCM'); return false; }
 
+      window.webFcmToken = token; // lo guardamos para que los pases también puedan usarlo
+
       await fetch('https://worker.satfleetlive.com/api/fcm/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
       });
-      console.log('Notificaciones web (lanzamientos) activadas');
+      console.log('Notificaciones activadas (lanzamientos + pases listos)');
       return true;
     } catch (err) {
       console.error('Error activando notificaciones web:', err);

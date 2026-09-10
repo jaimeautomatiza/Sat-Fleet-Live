@@ -373,66 +373,6 @@ async function handleFcmSubscribe(request, env) {
   }
 }
 
-// ════════════════════════════════════════════════════════
-// RUTA TEMPORAL DE PRUEBA — la borramos en cuanto confirmemos que funciona
-// ════════════════════════════════════════════════════════
-async function handleTestFcmAuth(env) {
-  try {
-    const token = await getFcmAccessToken(env);
-    return new Response(JSON.stringify({
-      ok: true,
-      mensaje: 'Permiso conseguido correctamente',
-      empiezaPor: token.slice(0, 15) + '...', // nunca el token completo, ni en una prueba
-      duracionSegundos: fcmTokenCache.expiresAt - Math.floor(Date.now() / 1000),
-    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-  } catch (err) {
-    return new Response(JSON.stringify({
-      ok: false,
-      error: err.message,
-    }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-  }
-}
-
-async function sendOneSignalToPlayer(env, playerId, headings, contents, sendAfterIso) {
-  const appId  = env.ONESIGNAL_APP_ID;
-  const apiKey = env.ONESIGNAL_REST_API_KEY;
-  if (!appId || !apiKey || !playerId) return;
-
-  const body = {
-    app_id:             appId,
-    include_subscription_ids: [playerId],
-    headings,
-    contents,
-    large_icon:        'https://satfleetlive.com/images/logo.png',
-    chrome_web_icon:   'https://satfleetlive.com/images/logo.png',
-    priority:          10,
-    ttl:               3600,
-  };
-
-  if (sendAfterIso) body.send_after = sendAfterIso;
-
-  try {
-    const res = await fetch('https://onesignal.com/api/v1/notifications', {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Basic ${apiKey}`,
-      },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const txt = await res.text();
-      console.error('OneSignal player notif error', res.status, txt);
-      return null;
-    }
-    const json = await res.json();
-    return json.id || null;
-  } catch (err) {
-    console.error('OneSignal player fetch error:', err.message);
-    return null;
-  }
-}
-
 async function handleNotifyPass(request, env) {
   let payload;
   try {
@@ -444,27 +384,24 @@ async function handleNotifyPass(request, env) {
     });
   }
 
-  const { playerId, satelliteName, passTimeIso, maxElevation, direction, brightness, cancel } = payload;
+  // "playerId" es el nombre histórico del campo — hoy contiene un token de
+  // FCM, no un Player ID de OneSignal, pero lo dejamos igual para no tener
+  // que tocar next-passes.html ni la app de Android para esto.
+  const { playerId: token, satelliteName, passTimeIso, maxElevation, direction, brightness, cancel } = payload;
 
-  if (!playerId || !passTimeIso || !satelliteName) {
+  if (!token || !passTimeIso || !satelliteName) {
     return new Response(JSON.stringify({ error: 'Missing fields' }), {
       status: 400,
       headers: makeHeaders({ 'Content-Type': 'application/json' }),
     });
   }
 
+  const alertKey = `pass_alert_${token}_${passTimeIso}`;
+
   if (cancel) {
-    const { notifIds } = payload;
-    if (notifIds && Array.isArray(notifIds) && notifIds.length) {
-      const appId  = env.ONESIGNAL_APP_ID;
-      const apiKey = env.ONESIGNAL_REST_API_KEY;
-      await Promise.all(notifIds.map(id =>
-        fetch(`https://onesignal.com/api/v1/notifications/${id}?app_id=${appId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Basic ${apiKey}` },
-        }).catch(() => {})
-      ));
-    }
+    try {
+      await env.LAUNCHES_KV.delete(alertKey);
+    } catch(e) {}
     return new Response(JSON.stringify({ ok: true, cancelled: true }), {
       headers: makeHeaders({ 'Content-Type': 'application/json' }),
     });
@@ -484,16 +421,23 @@ async function handleNotifyPass(request, env) {
     ? `Mag ${brightness >= 0 ? '+' : ''}${brightness.toFixed(1)}`
     : '';
 
-  // Deduplicación: si ya programamos notif para este pase, devolvemos las mismas
-  const dedupKey = `pass_notif_${playerId}_${passTimeIso}`;
+  // Deduplicación: si ya hay un aviso activo para este pase y este dispositivo,
+  // no lo volvemos a programar por duplicado.
   try {
-    const existing = await env.LAUNCHES_KV.get(dedupKey);
+    const existing = await env.LAUNCHES_KV.get(alertKey);
     if (existing) {
-      const parsed = JSON.parse(existing);
-      return new Response(JSON.stringify({ ok: true, scheduled: parsed.notifIds.length, notifIds: parsed.notifIds, deduplicated: true }), {
+      return new Response(JSON.stringify({ ok: true, scheduled: true, deduplicated: true }), {
         headers: makeHeaders({ 'Content-Type': 'application/json' }),
       });
     }
+  } catch(e) {}
+
+  // Marcamos el aviso como activo ANTES de programar nada — así, aunque el
+  // primer mensaje de la cola se procese casi al instante, ya encuentra la
+  // marca puesta.
+  const ttlSeconds = Math.max(60, Math.ceil((passTime - now) / 1000) + 3600);
+  try {
+    await env.LAUNCHES_KV.put(alertKey, '1', { expirationTtl: ttlSeconds });
   } catch(e) {}
 
   const alerts = [
@@ -501,30 +445,36 @@ async function handleNotifyPass(request, env) {
     { ms:  2 * 60 * 1000, label: '2 minutes'  },
   ];
 
-  const promises = alerts.map(({ ms, label }) => {
+  const title = `${satelliteName} passes soon!`;
+  const body  = `Max ${maxElevation}° · ${direction}${magStr ? ' · ' + magStr : ''}`;
+
+  for (const { ms, label } of alerts) {
     const fireAt = passTime - ms;
-    if (fireAt <= now) return Promise.resolve();
+    if (fireAt <= now) continue; // ya pasó ese aviso concreto, nos lo saltamos
 
-    const sendAfterIso = new Date(fireAt).toISOString();
-    return sendOneSignalToPlayer(
-      env,
-      playerId,
-      { en: `${satelliteName} passes in ${label}!` },
-      { en: `Max ${maxElevation}° · ${direction}${magStr ? ' · ' + magStr : ''}` },
-      sendAfterIso
-    );
-  });
+    const remainingMs = fireAt - now;
+    const alertTitle = `${satelliteName} passes in ${label}!`;
 
-  const results = await Promise.all(promises);
-  const notifIds = results.filter(Boolean);
+    try {
+      if (remainingMs <= 86_400_000) {
+        // Cabe en un solo tramo — programamos el aviso final, preciso
+        await env.PASS_ALERT_QUEUE.send(
+          { type: 'fire', alertKey, token, title: alertTitle, body },
+          { delaySeconds: Math.ceil(remainingMs / 1000) }
+        );
+      } else {
+        // Falta más de 24h — el primer relevo de la posta
+        await env.PASS_ALERT_QUEUE.send(
+          { type: 'recheck', alertKey, token, title: alertTitle, body, fireAt },
+          { delaySeconds: 86400 }
+        );
+      }
+    } catch (err) {
+      console.error('Error programando aviso en la cola:', err.message);
+    }
+  }
 
-  // Guardamos en KV para deduplicar futuros clicks
-  const ttlSeconds = Math.max(60, Math.ceil((passTime - Date.now()) / 1000) + 3600);
-  try {
-    await env.LAUNCHES_KV.put(dedupKey, JSON.stringify({ notifIds }), { expirationTtl: ttlSeconds });
-  } catch(e) {}
-
-  return new Response(JSON.stringify({ ok: true, scheduled: notifIds.length, notifIds }), {
+  return new Response(JSON.stringify({ ok: true, scheduled: true }), {
     headers: makeHeaders({ 'Content-Type': 'application/json' }),
   });
 }
@@ -1697,6 +1647,55 @@ export default {
     await handleLaunches(fakeCtx, env, true); // fuerza refresh para ejecutar notificaciones
   },
 
+  // ════════════════════════════════════════════════════════
+  // Recoge los avisos de pases cuando les toca su hora — el "despertador"
+  // ════════════════════════════════════════════════════════
+  async queue(batch, env, ctx) {
+    for (const message of batch.messages) {
+      try {
+        const { type, alertKey, token, title, body, fireAt } = message.body;
+
+        // ¿Sigue activo el aviso, o el usuario lo canceló mientras esperaba?
+        const stillActive = await env.LAUNCHES_KV.get(alertKey);
+
+        if (type === 'fire') {
+          if (stillActive) {
+            await sendFcmMessage(env, token, 'token', title, body, {
+              url: 'https://satfleetlive.com/next-passes.html',
+            });
+          }
+        } else if (type === 'recheck') {
+          // Relevo de un aviso que estaba a más de 24h — ¿cuánto falta ya?
+          const remainingMs = fireAt - Date.now();
+          if (!stillActive) {
+            // se canceló mientras esperábamos — no hacemos nada más
+          } else if (remainingMs <= 0) {
+            await sendFcmMessage(env, token, 'token', title, body, {
+              url: 'https://satfleetlive.com/next-passes.html',
+            });
+          } else if (remainingMs <= 86_400_000) {
+            // ya cabe en un solo tramo — mandamos el aviso final, preciso
+            await env.PASS_ALERT_QUEUE.send(
+              { type: 'fire', alertKey, token, title, body },
+              { delaySeconds: Math.ceil(remainingMs / 1000) }
+            );
+          } else {
+            // todavía falta más de 24h — otro relevo
+            await env.PASS_ALERT_QUEUE.send(
+              { type: 'recheck', alertKey, token, title, body, fireAt },
+              { delaySeconds: 86400 }
+            );
+          }
+        }
+
+        message.ack();
+      } catch (err) {
+        console.error('Error procesando aviso de la cola:', err.message);
+        message.retry();
+      }
+    }
+  },
+
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
 
@@ -1778,25 +1777,6 @@ export default {
 
     if (pathname === '/api/fcm/subscribe' && request.method === 'POST') {
     return handleFcmSubscribe(request, env);
-  }
-
-  if (pathname === '/api/test-fcm-auth') {
-    return handleTestFcmAuth(env);
-  }
-
-  if (pathname === '/api/test-fcm-send') {
-    try {
-      const result = await sendFcmMessage(
-        env,
-        'todos_los_usuarios',
-        'topic',
-        '🧪 Prueba de SatFleet',
-        'Si ves esto, FCM ya manda notificaciones de verdad.'
-      );
-      return new Response(JSON.stringify({ ok: true, result }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-    } catch (err) {
-      return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
   }
 
   if (pathname === '/api/notify/pass' && request.method === 'POST') {
