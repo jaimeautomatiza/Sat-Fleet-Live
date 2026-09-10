@@ -1654,7 +1654,7 @@ export default {
   async queue(batch, env, ctx) {
     for (const message of batch.messages) {
       try {
-        const { type, alertKey, token, title, body, fireAt } = message.body;
+        const { type, alertKey, token, title, body, fireAt, url } = message.body;
 
         // ¿Sigue activo el aviso, o el usuario lo canceló mientras esperaba?
         const stillActive = await env.LAUNCHES_KV.get(alertKey);
