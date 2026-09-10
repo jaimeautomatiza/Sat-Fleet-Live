@@ -13,11 +13,16 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 // Se dispara cuando llega un aviso y la pestaña NO está abierta/activa
-messaging.onBackgroundMessage((payload) => {
-  const { title, body } = payload.data || {};
-  self.registration.showNotification(title || 'SatFleet Live', {
-    body: body || '',
-    icon: 'https://satfleetlive.com/images/logo.png',
-    badge: 'https://satfleetlive.com/images/logo.png',
-  });
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || 'https://satfleetlive.com';
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) return client.focus();
+      }
+      return clients.openWindow(url);
+    })
+  );
 });
