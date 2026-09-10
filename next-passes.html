@@ -1136,12 +1136,19 @@ function updateNotifPermBtn() {
     const label = document.getElementById('notifPermLabel');
     if (!btn) return;
 
-    // Dentro de la app Android: OneSignal gestiona los permisos nativamente
+    // Dentro de la app Android: comprobamos el permiso real, no lo damos por hecho
     if (isAndroidApp()) {
-        btn.className = 'notif-header-btn granted';
-        label.textContent = '🔔 Alerts Ready';
-        btn.title = 'Push notifications managed by the SatFleet app';
-        btn.onclick = () => showToast('🔔 Tap "Notify me" on any pass to get a push alert!');
+        const activadas = typeof Android.areNotificationsEnabled === 'function'
+            ? Android.areNotificationsEnabled()
+            : true; // apps viejas sin esta función — mejor asumir que sí, que no
+        btn.className = activadas ? 'notif-header-btn granted' : 'notif-header-btn';
+        label.textContent = activadas ? '✅ Notifications On' : '🔕 Notifications Off';
+        btn.title = activadas
+            ? 'Launch alerts arrive automatically. Enable individual satellite pass alerts on each pass card.'
+            : 'Enable notifications for SatFleet Live in your phone settings';
+        btn.onclick = activadas
+            ? () => showToast('🚀 You\'ll get launch alerts automatically. Use "Notify me" on any pass for satellite alerts.')
+            : () => showToast('🔕 Notifications are off. Enable them in your phone\'s app settings.');
         return;
     }
 
