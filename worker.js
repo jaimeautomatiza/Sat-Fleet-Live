@@ -282,7 +282,7 @@ async function getFcmAccessToken(env) {
 // FCM — Envío real (sustituye a las dos funciones de OneSignal)
 // ════════════════════════════════════════════════════════
 
-async function sendFcmMessage(env, target, targetType, title, body, data = {}) {
+async function sendFcmMessage(env, target, targetType, title, body, data = {}, ttlSeconds = 7200) {
   const serviceAccount = JSON.parse(env.FCM_SERVICE_ACCOUNT_JSON);
   const accessToken = await getFcmAccessToken(env);
 
@@ -302,9 +302,14 @@ async function sendFcmMessage(env, target, targetType, title, body, data = {}) {
           icon: 'https://satfleetlive.com/images/logo.png',
           badge: 'https://satfleetlive.com/images/logo.png',
         },
+        headers: { TTL: String(ttlSeconds) },
       },
       android: {
         priority: 'high',
+        ttl: `${ttlSeconds}s`,
+      },
+      apns: {
+        headers: { 'apns-expiration': String(Math.floor(Date.now() / 1000) + ttlSeconds) },
       },
     },
   };
@@ -1015,7 +1020,8 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
             notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
               'Liftoff imminent',
               `${newL.name} launches in less than 5 minutes!`,
-              { launchId: newL.id, type: 't_minus_5' }
+              { launchId: newL.id, type: 't_minus_5' },
+              900 // 15 min — pasado eso, ya habrá despegado o no tiene sentido
             ));
           }
         }
@@ -1029,7 +1035,8 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
           notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
             '✅ Launch confirmed',
             `Mission ${newL.name} is GO for launch. Add it to your calendar!`,
-            { launchId: newL.id, type: 'status_go' }
+            { launchId: newL.id, type: 'status_go' },
+            172800 // 48h — sigue teniendo sentido aunque tardes un rato en verlo
           ));
         }
 
@@ -1042,7 +1049,8 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
           notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
             'New launch in 48 h',
             `${newL.name} just appeared on the schedule — launches within 48 hours!`,
-            { launchId: newL.id, type: 'new_launch_soon' }
+            { launchId: newL.id, type: 'new_launch_soon' },
+            172800 // 48h — coincide con lo que dice el propio texto del aviso
           ));
         }
       }
@@ -1663,7 +1671,7 @@ export default {
           if (stillActive) {
             await sendFcmMessage(env, token, 'token', title, body, {
               url: url || 'https://satfleetlive.com',
-            });
+            }, 900); // 15 min — un aviso de "pasa en 10 min" no sirve de nada si llega horas tarde
           }
         } else if (type === 'recheck') {
           // Relevo de un aviso que estaba a más de 24h — ¿cuánto falta ya?
@@ -1673,7 +1681,7 @@ export default {
           } else if (remainingMs <= 0) {
             await sendFcmMessage(env, token, 'token', title, body, {
               url: url || 'https://satfleetlive.com',
-            });
+            }, 900); // mismo motivo que el otro aviso de pase: tarde, no sirve
           } else if (remainingMs <= 86_400_000) {
             // ya cabe en un solo tramo — mandamos el aviso final, preciso
             await env.PASS_ALERT_QUEUE.send(

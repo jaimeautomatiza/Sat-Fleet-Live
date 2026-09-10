@@ -7,6 +7,7 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="manifest" href="/manifest.json">
     
     <!-- Satellite.js -->
     <script src="js/satellite.min.js"></script>
@@ -1229,35 +1230,6 @@ function buildDirText(pass) {
     return `${az2d(pass.startAzimuth)} → ${az2d(pass.endAzimuth)}`;
 }
 
-function scheduleLocalAlerts(passId, pass, direction) {
-    const now   = Date.now();
-    const start = pass.startTime.getTime();
-    const leads = [
-        { ms: 10 * 60 * 1000, label: '10 minutes' },
-        {  ms:  2 * 60 * 1000, label: '2 minutes'  },
-    ];
-    const timers = [];
-    leads.forEach(({ ms, label }) => {
-        const fireAt = start - ms;
-        const delay  = fireAt - now;
-        if (delay < 0) return;
-        const tid = setTimeout(() => {
-            if (!('Notification' in window) || Notification.permission !== 'granted') return;
-            try {
-                new Notification(`🛰️ ${pass.satellite.name} passes in ${label}`, {
-                    body: `Max ${pass.maxElevation.toFixed(1)}° · ${direction} · Mag ${pass.brightness >= 0 ? '+' : ''}${pass.brightness.toFixed(1)}`,
-                    icon: '/images/logo.png',
-                    tag: `${passId}-${ms}`,
-                });
-            } catch(e) { console.warn('Notification error:', e); }
-            const pill = document.querySelector(`.alert-pill[data-pass="${passId}"][data-lead="${ms}"]`);
-            if (pill) pill.classList.add('fired');
-        }, delay);
-        timers.push({ tid, ms, label, fireAt });
-    });
-    return timers;
-}
-
 async function getDeviceToken() {
     if (isAndroidApp()) return Android.getPlayerId();
     if (window.webFcmToken) return window.webFcmToken;
@@ -1411,32 +1383,6 @@ function removePills(passId) {
     if (pills) pills.remove();
 }
 
-function saveScheduledAlerts() {
-    const toSave = {};
-    for (const [id, state] of Object.entries(notifState)) {
-        if (!state.active) continue;
-        toSave[id] = state.timers.map(({ ms, label, fireAt }) => ({ ms, label, fireAt }));
-    }
-    try { localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(toSave)); } catch(e) {}
-}
-
-function restoreScheduledAlerts() {
-    try {
-        const raw = localStorage.getItem(NOTIF_STORAGE_KEY);
-        if (!raw) return;
-        const saved = JSON.parse(raw);
-        for (const [passId, alertData] of Object.entries(saved)) {
-            const pass = calculatedPasses.find(p => buildPassId(p) === passId);
-            if (!pass || pass.startTime.getTime() <= Date.now()) continue;
-            const direction = buildDirText(pass);
-            const timers = scheduleLocalAlerts(passId, pass, direction);
-            if (timers.length === 0) continue;
-            notifState[passId] = { active: true, timers };
-            updateToggleBtn(passId, true);
-            renderPills(passId, timers);
-        }
-    } catch(e) {}
-}
 // ════════ FIN NOTIFICACIONES ════════
 
         // Variables globales
@@ -1823,7 +1769,6 @@ function applyFilter() {
             
             console.log(`Found ${calculatedPasses.length} visible passes`);
             sortAndDisplayPasses();
-            restoreScheduledAlerts();
             loading.classList.remove('active');
             btn.disabled = false;
         }
