@@ -1154,9 +1154,9 @@ function updateNotifPermBtn() {
     btn.className = 'notif-header-btn';
     if (perm === 'granted') {
         btn.classList.add('granted');
-        label.textContent = '🔔 Alerts ON';
-        btn.title = 'Notifications enabled. Cancel individual alerts on each pass card.';
-        btn.onclick = () => showToast('🔔 Alerts are ON. Use "Alert set" buttons on each pass to cancel.');
+        label.textContent = '✅ Notifications On';
+        btn.title = 'Launch alerts arrive automatically. Enable individual satellite pass alerts on each pass card.';
+        btn.onclick = () => showToast('🚀 You\'ll get launch alerts automatically. Use "Notify me" on any pass for satellite alerts.');
     } else if (perm === 'denied') {
         const userExplicitlyDenied = localStorage.getItem('notif_explicitly_denied');
         if (userExplicitlyDenied) {
@@ -1164,11 +1164,11 @@ function updateNotifPermBtn() {
             label.textContent = '🔕 Blocked';
             btn.onclick = null;
         } else {
-            label.textContent = '🔔 Enable Alerts';
+            label.textContent = '🔔 Enable Notifications';
             btn.onclick = requestNotifPermission;
         }
     } else {
-        label.textContent = '🔔 Enable Alerts';
+        label.textContent = '🔔 Enable Notifications';
         btn.onclick = requestNotifPermission;
     }
 }
@@ -1194,6 +1194,9 @@ async function requestNotifPermission() {
     }
     updateNotifPermBtn();
     if (result === 'granted') {
+        if (typeof window.activarNotificacionesWeb === 'function') {
+            window.activarNotificacionesWeb(); // también recibe avisos de lanzamientos, no solo pases
+        }
         showToast('🔔 Alerts enabled! Press "Notify me" on any pass.');
     } else if (result === 'denied') {
         showToast('🔕 Blocked. Enable notifications in your browser settings.');
@@ -2633,6 +2636,7 @@ function renderMiniMap(mapId, passIndex) {
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, onIdTokenChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCqQcTt6gK_220ZMbDIK9jSuOhCVLTZn4I",
@@ -2645,6 +2649,28 @@ function renderMiniMap(mapId, passIndex) {
 
   const _tokenApp = initializeApp(firebaseConfig);
   const _tokenAuth = getAuth(_tokenApp);
+
+  const _messaging = getMessaging(_tokenApp); // reutiliza la MISMA app, no una nueva
+  const VAPID_KEY = 'BHCjqbQOfo4e3XwFJag5UYkqJP6KLlow_jNWIbMA05oY7Vzv66FT7L58EYgP-bwFkbqfJQ_oY-qj65LWIlohIl0';
+
+  window.activarNotificacionesWeb = async function() {
+    try {
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      const token = await getToken(_messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: registration });
+      if (!token) { console.warn('No se pudo conseguir el token de FCM'); return false; }
+
+      await fetch('https://worker.satfleetlive.com/api/fcm/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      console.log('Notificaciones web (lanzamientos) activadas');
+      return true;
+    } catch (err) {
+      console.error('Error activando notificaciones web:', err);
+      return false;
+    }
+  };
 
   onIdTokenChanged(_tokenAuth, (user) => {
     if (user) {

@@ -198,6 +198,201 @@ function trimLaunch(l) {
 // ONESIGNAL — PUSH NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════════
 
+// ════════════════════════════════════════════════════════
+// FCM — Autenticación (sustituye a la sencilla clave de OneSignal)
+// ════════════════════════════════════════════════════════
+
+let fcmTokenCache = null; // guardamos el permiso mientras siga siendo válido, para no pedir uno nuevo en cada aviso
+
+function base64UrlEncode(data) {
+  let str;
+  if (typeof data === 'string') {
+    str = btoa(unescape(encodeURIComponent(data)));
+  } else {
+    str = btoa(String.fromCharCode(...new Uint8Array(data)));
+  }
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function pemToArrayBuffer(pem) {
+  const b64 = pem
+    .replace(/-----BEGIN PRIVATE KEY-----/, '')
+    .replace(/-----END PRIVATE KEY-----/, '')
+    .replace(/\s/g, '');
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+async function getFcmAccessToken(env) {
+  const now = Math.floor(Date.now() / 1000);
+
+  // Si ya tenemos un permiso vigente (con 1 minuto de margen de seguridad), lo reutilizamos
+  if (fcmTokenCache && fcmTokenCache.expiresAt > now + 60) {
+    return fcmTokenCache.token;
+  }
+
+  const serviceAccount = JSON.parse(env.FCM_SERVICE_ACCOUNT_JSON);
+
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const claims = {
+    iss:   serviceAccount.client_email,
+    scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    aud:   serviceAccount.token_uri || 'https://oauth2.googleapis.com/token',
+    exp:   now + 3600,
+    iat:   now,
+  };
+
+  const unsignedJwt = `${base64UrlEncode(JSON.stringify(header))}.${base64UrlEncode(JSON.stringify(claims))}`;
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'pkcs8',
+    pemToArrayBuffer(serviceAccount.private_key),
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign(
+    'RSASSA-PKCS1-v1_5',
+    cryptoKey,
+    new TextEncoder().encode(unsignedJwt)
+  );
+
+  const signedJwt = `${unsignedJwt}.${base64UrlEncode(signature)}`;
+
+  const tokenRes = await fetch(serviceAccount.token_uri || 'https://oauth2.googleapis.com/token', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    `grant_type=${encodeURIComponent('urn:ietf:params:oauth:grant-type:jwt-bearer')}&assertion=${signedJwt}`,
+  });
+
+  if (!tokenRes.ok) {
+    const errText = await tokenRes.text();
+    throw new Error(`FCM auth failed: ${tokenRes.status} ${errText}`);
+  }
+
+  const tokenData = await tokenRes.json();
+  fcmTokenCache = { token: tokenData.access_token, expiresAt: now + tokenData.expires_in };
+  return tokenData.access_token;
+}
+
+// ════════════════════════════════════════════════════════
+// FCM — Envío real (sustituye a las dos funciones de OneSignal)
+// ════════════════════════════════════════════════════════
+
+async function sendFcmMessage(env, target, targetType, title, body, data = {}) {
+  const serviceAccount = JSON.parse(env.FCM_SERVICE_ACCOUNT_JSON);
+  const accessToken = await getFcmAccessToken(env);
+
+  // targetType: 'token' (a un dispositivo concreto) o 'topic' (a todos los apuntados)
+  const messageTarget = targetType === 'topic' ? { topic: target } : { token: target };
+
+  // Los valores de "data" tienen que ser todos texto, FCM no acepta números ni objetos ahí dentro
+  const dataAsStrings = {};
+  for (const [k, v] of Object.entries(data)) dataAsStrings[k] = String(v);
+
+  const payload = {
+    message: {
+      ...messageTarget,
+      data: { title, body, ...dataAsStrings }, // todo como "data", nunca "notification" — así el clic siempre abre la URL correcta, esté la app como esté
+      webpush: {
+        notification: {
+          icon: 'https://satfleetlive.com/images/logo.png',
+          badge: 'https://satfleetlive.com/images/logo.png',
+        },
+      },
+      android: {
+        priority: 'high',
+      },
+    },
+  };
+
+  const res = await fetch(
+    `https://fcm.googleapis.com/v1/projects/${serviceAccount.project_id}/messages:send`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('FCM send error:', res.status, errText);
+    throw new Error(`FCM send failed: ${res.status} ${errText}`);
+  }
+
+  return await res.json();
+}
+
+// ════════════════════════════════════════════════════════
+// FCM — Apuntar un dispositivo a un tema (equivalente a "suscribirse")
+// ════════════════════════════════════════════════════════
+
+async function subscribeFcmTokenToTopic(env, token, topic) {
+  const accessToken = await getFcmAccessToken(env);
+  const serviceAccount = JSON.parse(env.FCM_SERVICE_ACCOUNT_JSON);
+
+  const res = await fetch('https://iid.googleapis.com/iid/v1:batchAdd', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+      'access_token_auth': 'true',
+    },
+    body: JSON.stringify({
+      to: `/topics/${topic}`,
+      registration_tokens: [token],
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('FCM subscribe error:', res.status, errText);
+    throw new Error(`FCM subscribe failed: ${res.status} ${errText}`);
+  }
+
+  return await res.json();
+}
+
+async function handleFcmSubscribe(request, env) {
+  try {
+    const { token } = await request.json();
+    if (!token) {
+      return new Response(JSON.stringify({ ok: false, error: 'Falta el token' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+    }
+    const result = await subscribeFcmTokenToTopic(env, token, 'todos_los_usuarios');
+    return new Response(JSON.stringify({ ok: true, result }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  } catch (err) {
+    return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// RUTA TEMPORAL DE PRUEBA — la borramos en cuanto confirmemos que funciona
+// ════════════════════════════════════════════════════════
+async function handleTestFcmAuth(env) {
+  try {
+    const token = await getFcmAccessToken(env);
+    return new Response(JSON.stringify({
+      ok: true,
+      mensaje: 'Permiso conseguido correctamente',
+      empiezaPor: token.slice(0, 15) + '...', // nunca el token completo, ni en una prueba
+      duracionSegundos: fcmTokenCache.expiresAt - Math.floor(Date.now() / 1000),
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  } catch (err) {
+    return new Response(JSON.stringify({
+      ok: false,
+      error: err.message,
+    }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}
+
 async function sendOneSignalToPlayer(env, playerId, headings, contents, sendAfterIso) {
   const appId  = env.ONESIGNAL_APP_ID;
   const apiKey = env.ONESIGNAL_REST_API_KEY;
@@ -603,41 +798,6 @@ function premiumRequired() {
     );
 }
 
-async function sendOneSignalNotification(env, headings, contents, data = {}) {
-  const appId  = env.ONESIGNAL_APP_ID;
-  const apiKey = env.ONESIGNAL_REST_API_KEY;
-  if (!appId || !apiKey) return;
-
-  try {
-    const res = await fetch('https://onesignal.com/api/v1/notifications', {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Basic ${apiKey}`,
-      },
-      body: JSON.stringify({
-        app_id:            appId,
-        included_segments: ['Total Subscriptions'],
-        headings,
-        contents,
-        data,
-        large_icon:        'https://satfleetlive.com/images/logo.png',
-        chrome_web_icon:   'https://satfleetlive.com/images/logo.png',
-        chrome_web_badge:  'https://satfleetlive.com/images/logo.png',
-        firefox_icon:      'https://satfleetlive.com/images/logo.png',
-        priority:          10,
-        ttl:               3600,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.text();
-      console.error('OneSignal HTTP', res.status, body);
-    }
-  } catch (err) {
-    console.error('OneSignal fetch error:', err.message);
-  }
-}
-
 // ═══════════════════════════════════════════════════════════════
 // TTL DINÁMICO
 // ═══════════════════════════════════════════════════════════════
@@ -883,12 +1043,9 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
           const alreadySent = await env.LAUNCHES_KV.get(liveKey).catch(() => null);
           if (!alreadySent) {
             await env.LAUNCHES_KV.put(liveKey, '1', { expirationTtl: 7200 }).catch(() => {});
-            notifPromises.push(sendOneSignalNotification(env,
-              { en: '🔴 Live now',    es: '🔴 En directo' },
-              {
-                en: `${newL.name} is streaming live right now. Watch it on SatFleet!`,
-                es: `La misión ${newL.name} está transmitiendo en directo. ¡Síguelo en SatFleet!`,
-              },
+            notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
+              '🔴 Live now',
+              `${newL.name} is streaming live right now. Watch it on SatFleet!`,
               { launchId: newL.id, type: 'webcast_live' }
             ));
           }
@@ -904,12 +1061,9 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
           const alreadySent = await env.LAUNCHES_KV.get(notifKey).catch(() => null);
           if (!alreadySent) {
             await env.LAUNCHES_KV.put(notifKey, '1', { expirationTtl: 3600 }).catch(() => {});
-            notifPromises.push(sendOneSignalNotification(env,
-              { en: 'Liftoff imminent', es: 'Despegue inminente' },
-              {
-                en: `${newL.name} launches in less than 5 minutes!`,
-                es: `¡La misión ${newL.name} despega en menos de 5 minutos!`,
-              },
+            notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
+              'Liftoff imminent',
+              `${newL.name} launches in less than 5 minutes!`,
               { launchId: newL.id, type: 't_minus_5' }
             ));
           }
@@ -921,12 +1075,9 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
           oldL && oldL.status?.abbrev !== 'Go' &&
           new Date(newL.net).getTime() - nowMs > FIVE_MIN
         ) {
-          notifPromises.push(sendOneSignalNotification(env,
-            { en: '✅ Launch confirmed', es: '✅ Lanzamiento confirmado' },
-            {
-              en: `Mission ${newL.name} is GO for launch. Add it to your calendar!`,
-              es: `La misión ${newL.name} tiene luz verde. ¡Apúntalo en tu calendario!`,
-            },
+          notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
+            '✅ Launch confirmed',
+            `Mission ${newL.name} is GO for launch. Add it to your calendar!`,
             { launchId: newL.id, type: 'status_go' }
           ));
         }
@@ -937,12 +1088,9 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
           new Date(newL.net).getTime() - nowMs < 48 * 3_600_000 &&
           new Date(newL.net).getTime() > nowMs
         ) {
-          notifPromises.push(sendOneSignalNotification(env,
-            { en: 'New launch in 48 h', es: 'Nuevo lanzamiento en 48 h' },
-            {
-              en: `${newL.name} just appeared on the schedule — launches within 48 hours!`,
-              es: `¡${newL.name} acaba de aparecer en el calendario y despega en menos de 48 horas!`,
-            },
+          notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
+            'New launch in 48 h',
+            `${newL.name} just appeared on the schedule — launches within 48 hours!`,
             { launchId: newL.id, type: 'new_launch_soon' }
           ));
         }
@@ -1625,6 +1773,29 @@ export default {
         return new Response(JSON.stringify({ premium: cachedEntry.premium, store: cachedEntry.store }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
       }
       return new Response(JSON.stringify({ premium: false }), { status: 200, headers: makeHeaders({ 'Content-Type': 'application/json' }) });
+    }
+  }
+
+    if (pathname === '/api/fcm/subscribe' && request.method === 'POST') {
+    return handleFcmSubscribe(request, env);
+  }
+
+  if (pathname === '/api/test-fcm-auth') {
+    return handleTestFcmAuth(env);
+  }
+
+  if (pathname === '/api/test-fcm-send') {
+    try {
+      const result = await sendFcmMessage(
+        env,
+        'todos_los_usuarios',
+        'topic',
+        '🧪 Prueba de SatFleet',
+        'Si ves esto, FCM ya manda notificaciones de verdad.'
+      );
+      return new Response(JSON.stringify({ ok: true, result }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    } catch (err) {
+      return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
   }
 
