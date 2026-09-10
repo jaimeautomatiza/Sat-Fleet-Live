@@ -447,6 +447,7 @@ async function handleNotifyPass(request, env) {
 
   const title = `${satelliteName} passes soon!`;
   const body  = `Max ${maxElevation}° · ${direction}${magStr ? ' · ' + magStr : ''}`;
+  const url   = 'https://satfleetlive.com'; // mismo destino que ya usa Android por defecto
 
   for (const { ms, label } of alerts) {
     const fireAt = passTime - ms;
@@ -459,13 +460,13 @@ async function handleNotifyPass(request, env) {
       if (remainingMs <= 86_400_000) {
         // Cabe en un solo tramo — programamos el aviso final, preciso
         await env.PASS_ALERT_QUEUE.send(
-          { type: 'fire', alertKey, token, title: alertTitle, body },
+          { type: 'fire', alertKey, token, title: alertTitle, body, url },
           { delaySeconds: Math.ceil(remainingMs / 1000) }
         );
       } else {
         // Falta más de 24h — el primer relevo de la posta
         await env.PASS_ALERT_QUEUE.send(
-          { type: 'recheck', alertKey, token, title: alertTitle, body, fireAt },
+          { type: 'recheck', alertKey, token, title: alertTitle, body, fireAt, url },
           { delaySeconds: 86400 }
         );
       }
@@ -1661,7 +1662,7 @@ export default {
         if (type === 'fire') {
           if (stillActive) {
             await sendFcmMessage(env, token, 'token', title, body, {
-              url: 'https://satfleetlive.com/next-passes.html',
+              url: url || 'https://satfleetlive.com',
             });
           }
         } else if (type === 'recheck') {
@@ -1671,18 +1672,18 @@ export default {
             // se canceló mientras esperábamos — no hacemos nada más
           } else if (remainingMs <= 0) {
             await sendFcmMessage(env, token, 'token', title, body, {
-              url: 'https://satfleetlive.com/next-passes.html',
+              url: url || 'https://satfleetlive.com',
             });
           } else if (remainingMs <= 86_400_000) {
             // ya cabe en un solo tramo — mandamos el aviso final, preciso
             await env.PASS_ALERT_QUEUE.send(
-              { type: 'fire', alertKey, token, title, body },
+              { type: 'fire', alertKey, token, title, body, url },
               { delaySeconds: Math.ceil(remainingMs / 1000) }
             );
           } else {
             // todavía falta más de 24h — otro relevo
             await env.PASS_ALERT_QUEUE.send(
-              { type: 'recheck', alertKey, token, title, body, fireAt },
+              { type: 'recheck', alertKey, token, title, body, fireAt, url },
               { delaySeconds: 86400 }
             );
           }

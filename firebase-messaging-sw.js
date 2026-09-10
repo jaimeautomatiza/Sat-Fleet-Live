@@ -37,7 +37,11 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.matchAll({ type: 'window' }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) return client.focus();
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          // Antes solo enfocábamos la pestaña que ya estaba abierta, sin
+          // llevarla a ningún sitio — ahora también navega, igual que Android.
+          return client.navigate(url).then(c => c.focus());
+        }
       }
       return clients.openWindow(url);
     })
