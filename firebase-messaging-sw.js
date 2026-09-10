@@ -12,8 +12,6 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Se dispara cuando llega un aviso y la pestaña NO está abierta/activa
-
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = (event.notification.data && event.notification.data.url) || 'https://satfleetlive.com';
@@ -25,4 +23,14 @@ self.addEventListener('notificationclick', (event) => {
       return clients.openWindow(url);
     })
   );
+});
+
+messaging.onBackgroundMessage((payload) => {
+  const { title, body, url } = payload.data || {};
+  self.registration.showNotification(title || 'SatFleet Live', {
+    body: body || '',
+    icon: 'https://satfleetlive.com/images/logo.png',
+    badge: 'https://satfleetlive.com/images/logo.png',
+    data: { url: url || 'https://satfleetlive.com' }, // esto es justo lo que faltaba
+  });
 });
