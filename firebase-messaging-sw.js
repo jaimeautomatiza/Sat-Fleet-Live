@@ -1,5 +1,4 @@
 importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.8.1/firebase-messaging-compat.js');
 
 firebase.initializeApp({
   apiKey: "AIzaSyCqQcTt6gK_220ZMbDIK9jSuOhCVLTZn4I",
@@ -10,7 +9,27 @@ firebase.initializeApp({
   appId: "1:369952976257:web:c7ba2050865524fca80c80"
 });
 
-const messaging = firebase.messaging();
+// Escuchamos el aviso "en crudo" directamente, sin pasar por
+// messaging.onBackgroundMessage() — así evitamos el fallo conocido de
+// Firebase que duplica la notificación en algunos casos.
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+  const payload = event.data.json();
+  const data = payload.data || {};
+
+  const title = data.title || 'SatFleet Live';
+  const body  = data.body || '';
+  const url   = data.url || 'https://satfleetlive.com';
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon: 'https://satfleetlive.com/images/logo.png',
+      badge: 'https://satfleetlive.com/images/logo.png',
+      data: { url },
+    })
+  );
+});
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
@@ -23,14 +42,4 @@ self.addEventListener('notificationclick', (event) => {
       return clients.openWindow(url);
     })
   );
-});
-
-messaging.onBackgroundMessage((payload) => {
-  const { title, body, url } = payload.data || {};
-  self.registration.showNotification(title || 'SatFleet Live', {
-    body: body || '',
-    icon: 'https://satfleetlive.com/images/logo.png',
-    badge: 'https://satfleetlive.com/images/logo.png',
-    data: { url: url || 'https://satfleetlive.com' }, // esto es justo lo que faltaba
-  });
 });
