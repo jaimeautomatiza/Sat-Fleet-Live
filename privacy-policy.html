@@ -68,7 +68,7 @@
   <li><strong>Identificador de usuario único (UID)</strong>: generado por Firebase, utilizado para vincular la cuenta con el estado de suscripción Premium.</li>
   <li><strong>Información de suscripción y pago</strong>: procesada por Stripe (pagos web) o Google Play Billing (pagos en la app Android), y gestionada por RevenueCat. No almacenamos datos de tarjetas de crédito en nuestros servidores.</li>
   <li><strong>Ubicación geográfica aproximada</strong>: solicitada opcionalmente para calcular los pases de satélites visibles desde tu posición. Solo se utiliza en el momento del cálculo y se almacena localmente en tu dispositivo. No se envía a nuestros servidores.</li>
-  <li><strong>Token de notificaciones push (Player ID)</strong>: si el usuario activa las alertas de pases de satélites, se genera un identificador de dispositivo anónimo a través de OneSignal para enviar notificaciones programadas.</li>
+  <li><strong>Token de notificaciones push</strong>: si el usuario activa las alertas (de pases de satélites o de lanzamientos), se genera un identificador de dispositivo anónimo a través de Firebase Cloud Messaging (Google) para enviar notificaciones.</li>
   <li><strong>Dirección IP</strong>: procesada temporalmente por Cloudflare (nuestra infraestructura de servidor) para la prestación del servicio y protección frente a abusos. No la almacenamos de forma permanente.</li>
 </ul>
 
@@ -78,7 +78,7 @@
   <li>Autenticar al usuario y mantener su sesión activa.</li>
   <li>Gestionar el estado de su suscripción Premium a través de RevenueCat.</li>
   <li>Calcular los pases de satélites visibles desde la ubicación del usuario.</li>
-  <li>Enviar notificaciones push programadas sobre pases de satélites, si el usuario las activa explícitamente. Este servicio es prestado por <strong>OneSignal</strong>, que almacena el token de notificación del dispositivo en sus servidores. Puedes consultar la política de privacidad de OneSignal en <a href="https://onesignal.com/privacy_policy" target="_blank">onesignal.com/privacy_policy</a>.</li>
+  <li>Enviar notificaciones push sobre pases de satélites y lanzamientos de cohetes, si el usuario las activa explícitamente. Este servicio es prestado por <strong>Firebase Cloud Messaging</strong> (Google), que almacena el token de notificación del dispositivo en sus servidores. Puedes consultar la política de privacidad de Google en <a href="https://policies.google.com/privacy" target="_blank">policies.google.com/privacy</a>.</li>
   <li>Mejorar el servicio mediante estadísticas anónimas de uso (Google Analytics), solo si el usuario da su consentimiento explícito.</li>
       <li>La función <strong>AR Sky View (Beta)</strong> puede acceder a la cámara del dispositivo únicamente para mostrar la vista de realidad aumentada en tiempo real. En ningún momento se graba, almacena ni comparte el contenido de la cámara.</li>
 <li>El uso de la cámara es completamente opcional. Si el usuario no activa la función AR, no se accede a la cámara en ningún momento.</li>
@@ -93,7 +93,7 @@
   <li><strong>RevenueCat</strong> — Gestión de suscripciones y pagos. <a href="https://www.revenuecat.com/privacy" target="_blank">Política de privacidad</a></li>
   <li><strong>Stripe</strong> — Procesamiento de pagos web. <a href="https://stripe.com/es/privacy" target="_blank">Política de privacidad</a></li>
   <li><strong>Google Play Billing</strong> (Google LLC) — Procesamiento de pagos en Android. <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
-  <li><strong>OneSignal</strong> — Notificaciones push. <a href="https://onesignal.com/privacy_policy" target="_blank">Política de privacidad</a></li>
+  <li><strong>Firebase Cloud Messaging</strong> (Google LLC) — Notificaciones push. <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
   <li><strong>Cloudflare</strong> — Infraestructura de red y seguridad. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Política de privacidad</a></li>
   <li><strong>Google Analytics</strong> — Estadísticas de uso (solo con consentimiento del usuario). <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
 </ul>
@@ -107,10 +107,10 @@
 </ul>
 
 <h2>Transferencias internacionales de datos</h2>
-<p>Algunos de los proveedores mencionados anteriormente (Firebase, Stripe, RevenueCat, Cloudflare, OneSignal, Google Analytics) tienen su sede en Estados Unidos u otros países fuera del Espacio Económico Europeo. Cuando esto ocurre, la transferencia de datos se realiza amparada en las Cláusulas Contractuales Tipo aprobadas por la Comisión Europea, o en otro mecanismo de adecuación reconocido por el RGPD, garantizando un nivel de protección equivalente al exigido dentro de la UE.</p>
+<p>Algunos de los proveedores mencionados anteriormente (Firebase, Stripe, RevenueCat, Cloudflare, Google Analytics) tienen su sede en Estados Unidos u otros países fuera del Espacio Económico Europeo. Cuando esto ocurre, la transferencia de datos se realiza amparada en las Cláusulas Contractuales Tipo aprobadas por la Comisión Europea, o en otro mecanismo de adecuación reconocido por el RGPD, garantizando un nivel de protección equivalente al exigido dentro de la UE.</p>
 
 <h2>Conservación de los datos</h2>
-<p>Los datos de cuenta se conservan mientras el usuario mantenga su cuenta activa. Al eliminar la cuenta, los datos de autenticación son borrados de Firebase de forma inmediata. Los datos de suscripción en RevenueCat pueden conservarse durante el período exigido por la normativa fiscal aplicable. Los tokens de notificación se eliminan automáticamente cuando el usuario desactiva las alertas.</p>
+<p>Los datos de cuenta se conservan mientras el usuario mantenga su cuenta activa. Al eliminar la cuenta, los datos de autenticación son borrados de Firebase de forma inmediata. Los datos de suscripción en RevenueCat pueden conservarse durante el período exigido por la normativa fiscal aplicable. El token de notificación permanece activo mientras el usuario mantenga concedido el permiso de notificaciones; se elimina automáticamente si revoca dicho permiso o desinstala la aplicación.p>
 
 <h2>Derechos del usuario (RGPD)</h2>
 <p>Si reside en el Espacio Económico Europeo, tiene derecho a:</p>
@@ -150,7 +150,7 @@
   <li><strong>Unique user identifier (UID)</strong>: generated by Firebase, used to link the account with Premium subscription status.</li>
   <li><strong>Subscription and payment data</strong>: processed by Stripe (web payments) or Google Play Billing (Android in-app payments), and managed by RevenueCat. We do not store credit card details on our servers.</li>
   <li><strong>Approximate geographic location</strong>: optionally requested to calculate satellite passes visible from your position. It is only used at the time of calculation and stored locally on your device. It is not sent to our servers.</li>
-  <li><strong>Push notification token (Player ID)</strong>: if the user enables satellite pass alerts, an anonymous device identifier is generated via OneSignal to send scheduled notifications.</li>
+  <li><strong>Push notification token</strong>: if the user enables alerts (satellite passes or rocket launches), an anonymous device identifier is generated via Firebase Cloud Messaging (Google) to send notifications.</li>
   <li><strong>IP address</strong>: temporarily processed by Cloudflare (our server infrastructure) to provide the service and protect against abuse. We do not store it permanently.</li>
 </ul>
 
@@ -160,7 +160,7 @@
   <li>Authenticating the user and maintaining an active session.</li>
   <li>Managing Premium subscription status through RevenueCat.</li>
   <li>Calculating satellite passes visible from the user's location.</li>
-  <li>Sending scheduled push notifications about satellite passes, if explicitly enabled by the user. This service is provided by <strong>OneSignal</strong>, which stores the device notification token on their servers. See OneSignal's privacy policy at <a href="https://onesignal.com/privacy_policy" target="_blank">onesignal.com/privacy_policy</a>.</li>
+  <li>Sending push notifications about satellite passes and rocket launches, if explicitly enabled by the user. This service is provided by <strong>Firebase Cloud Messaging</strong> (Google), which stores the device notification token on their servers. See Google's privacy policy at <a href="https://policies.google.com/privacy" target="_blank">policies.google.com/privacy</a>.</li>
   <li>Improving the service through anonymous usage statistics (Google Analytics), only with the user's explicit consent.</li>
       <li>The <strong>AR Sky View (Beta)</strong> feature may access the device camera solely to display the augmented reality view in real time. The camera feed is never recorded, stored, or shared.</li>
 <li>Camera access is entirely optional. If the user does not activate the AR feature, the camera is never accessed.</li>
@@ -174,7 +174,7 @@
   <li><strong>RevenueCat</strong> — Subscription and payment management. <a href="https://www.revenuecat.com/privacy" target="_blank">Privacy policy</a></li>
   <li><strong>Stripe</strong> — Web payment processing. <a href="https://stripe.com/privacy" target="_blank">Privacy policy</a></li>
   <li><strong>Google Play Billing</strong> (Google LLC) — Android in-app payment processing. <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
-  <li><strong>OneSignal</strong> — Push notifications. <a href="https://onesignal.com/privacy_policy" target="_blank">Privacy policy</a></li>
+  <li><strong>Firebase Cloud Messaging</strong> (Google LLC) — Push notifications. <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
   <li><strong>Cloudflare</strong> — Network infrastructure and security. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Privacy policy</a></li>
   <li><strong>Google Analytics</strong> — Usage statistics (only with user consent). <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
 </ul>
@@ -188,10 +188,10 @@
 </ul>
 
 <h2>International Data Transfers</h2>
-<p>Some of the providers listed above (Firebase, Stripe, RevenueCat, Cloudflare, OneSignal, Google Analytics) are based in the United States or other countries outside the European Economic Area. Where this occurs, the data transfer is carried out under the Standard Contractual Clauses approved by the European Commission, or another adequacy mechanism recognised under the GDPR, ensuring a level of protection equivalent to that required within the EU.</p>
+<p>Some of the providers listed above (Firebase, Stripe, RevenueCat, Cloudflare, Google Analytics) are based in the United States or other countries outside the European Economic Area. Where this occurs, the data transfer is carried out under the Standard Contractual Clauses approved by the European Commission, or another adequacy mechanism recognised under the GDPR, ensuring a level of protection equivalent to that required within the EU.</p>
 
 <h2>Data Retention</h2>
-<p>Account data is retained while the user's account remains active. Upon account deletion, authentication data is immediately removed from Firebase. Subscription data in RevenueCat may be retained for the period required by applicable tax regulations. Notification tokens are automatically deleted when the user disables alerts.</p>
+<p>Account data is retained while the user's account remains active. Upon account deletion, authentication data is immediately removed from Firebase. Subscription data in RevenueCat may be retained for the period required by applicable tax regulations. The notification token remains active as long as the user keeps notification permissions granted; it is automatically deleted if permission is revoked or the app is uninstalled.</p>
 
 <h2>Your Rights (GDPR)</h2>
 <p>If you reside in the European Economic Area, you have the right to:</p>

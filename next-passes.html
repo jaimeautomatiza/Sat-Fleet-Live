@@ -1169,11 +1169,17 @@ function updateNotifPermBtn() {
     }
     const perm = Notification.permission;
     btn.className = 'notif-header-btn';
-    if (perm === 'granted') {
+    if (perm === 'granted' && isInstalled()) {
         btn.classList.add('granted');
         label.textContent = '✅ Notifications On';
         btn.title = 'Launch alerts arrive automatically. Enable individual satellite pass alerts on each pass card.';
         btn.onclick = () => showToast('🚀 You\'ll get launch alerts automatically. Use "Notify me" on any pass for satellite alerts.');
+    } else if (perm === 'granted' && !isInstalled()) {
+        // Tiene el permiso concedido, pero al no estar instalada, no le va a
+        // llegar nada de verdad — se lo decimos claro, en vez de mentirle.
+        label.textContent = '📲 Install to Enable';
+        btn.title = 'Install SatFleet Live to your home screen to receive notifications';
+        btn.onclick = () => showToast('📲 Add SatFleet Live to your home screen (browser menu → Install) to receive notifications.');
     } else if (perm === 'denied') {
         const userExplicitlyDenied = localStorage.getItem('notif_explicitly_denied');
         if (userExplicitlyDenied) {
