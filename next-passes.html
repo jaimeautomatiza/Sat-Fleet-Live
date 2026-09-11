@@ -1298,6 +1298,11 @@ async function toggleNotification(passId) {
         return;
     }
 
+    if (!isInstalled()) {
+        showToast('📲 Please install SatFleet Live to your home screen first to enable alerts.');
+        return;
+    }
+
     const token = await getDeviceToken();
     if (!token) {
         showToast('⚠️ Could not get a notification token. Try again in a moment.');
