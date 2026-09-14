@@ -6,7 +6,6 @@
     <title>AR Sky View – SatFleet Live</title>
     <link rel="icon" type="image/png" href="images/logo.png">
     <script src="js/satellite.min.js"></script>
-    <script src="js/geomagnetism.min.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -565,9 +564,9 @@ let compassAccuracyDeg = null;    // grados; de iOS si está disponible, si no s
 let compassQuality   = 'calibrating'; // 'calibrating' | 'good' | 'fair' | 'poor' | 'needs-motion'
 let calibStartTime   = null;
 let sawWideSwing     = false;
-let pendingQuality      = null;  // valor "peor" candidato, en espera de confirmarse
+let pendingQuality      = null;
 let pendingQualitySince = 0;
-const QUALITY_HOLD_MS   = 700;   // ms que debe mantenerse un empeoramiento antes de mostrarlo
+const QUALITY_HOLD_MS   = 700;
 let rawHeadingBuf     = [];       // {t, h} — últimas lecturas crudas para detectar calibración/jitter
 const RAW_BUF_MS      = 3000;
 
@@ -608,41 +607,19 @@ function circularDiff(a, b) { // a-b envuelto a [-180,180]
 }
 
 // ═══════════════════════════════════════════════
-// DECLINATION (magnético → norte real)
-// Se calcula sola con el modelo WMM embebido en la librería `geomagnetism`
-// (js/geomagnetism.min.js) — sin red, sin API key, funciona offline. El
-// usuario puede seguir ajustándola a mano con los botones +/-; en ese caso
-// dejamos de tocarla automáticamente hasta que pulse "Reset".
+// MANUAL DECLINATION OFFSET (magnético → norte real)
+// Nota: la API pública de NOAA para declinación ahora exige registro,
+// así que en vez de depender de un fetch que puede fallar en silencio,
+// dejamos el ajuste en manos del usuario (persistido) — apagado (0°) por defecto.
 // ═══════════════════════════════════════════════
-let declinationIsManual = localStorage.getItem('arDeclinationManual') === '1';
-
 (function loadDeclination() {
     const saved = parseFloat(localStorage.getItem('arDeclinationOffset'));
     magDeclination = isNaN(saved) ? 0 : clamp(saved, -30, 30);
 })();
 
-function autoUpdateDeclination() {
-    if (declinationIsManual) return;               // el usuario ya la ajustó a mano
-    if (typeof geomagnetism === 'undefined') return; // por si el script no cargó
-    try {
-        const info = geomagnetism.model().point([userLocation.lat, userLocation.lng]);
-        magDeclination = clamp(info.decl, -30, 30);
-        localStorage.setItem('arDeclinationOffset', String(magDeclination));
-        renderDeclinationValue();
-    } catch (e) { /* fecha fuera de rango del modelo → nos quedamos con el último valor */ }
-}
-
 function adjustDeclination(delta, reset) {
-    if (reset) {
-        declinationIsManual = false;
-        localStorage.removeItem('arDeclinationManual');
-        autoUpdateDeclination();               // vuelve al valor calculado automáticamente
-    } else {
-        declinationIsManual = true;
-        localStorage.setItem('arDeclinationManual', '1');
-        magDeclination = clamp(magDeclination + delta, -30, 30);
-        localStorage.setItem('arDeclinationOffset', String(magDeclination));
-    }
+    magDeclination = reset ? 0 : clamp(magDeclination + delta, -30, 30);
+    localStorage.setItem('arDeclinationOffset', String(magDeclination));
     renderDeclinationValue();
 }
 
@@ -679,7 +656,6 @@ function initLocation() {
             userLocation.lat = p.lat;
             userLocation.lng = p.lng;
             document.getElementById('statusGPS').textContent = 'OK';
-            autoUpdateDeclination();
         } catch(e) {}
     }
     if (navigator.geolocation) {
@@ -688,7 +664,6 @@ function initLocation() {
             userLocation.lng = pos.coords.longitude;
             localStorage.setItem('userLocation', JSON.stringify(userLocation));
             document.getElementById('statusGPS').textContent = 'GPS';
-            autoUpdateDeclination();
         }, () => {
             document.getElementById('statusGPS').textContent = 'EST';
         }, { timeout: 8000, maximumAge: 60000 });
@@ -911,34 +886,30 @@ function trackCalibrationQuality(rawHeadingDeg) {
         }
     }
 
-    const elapsed = calibStartTime ? now - calibStartTime : 0;
-    let rawQuality;
-    if (elapsed < 1200 || compassAccuracyDeg === null) {
-        rawQuality = 'calibrating';
-    } else if (compassAccuracyDeg > 30) {
-        rawQuality = sawWideSwing ? 'poor' : 'needs-motion';
-    } else if (compassAccuracyDeg > 12) {
-        rawQuality = 'fair';
-    } else {
-        rawQuality = 'good';
-    }
+const elapsed = calibStartTime ? now - calibStartTime : 0;
+let rawQuality;
+if (elapsed < 1200 || compassAccuracyDeg === null) {
+    rawQuality = 'calibrating';
+} else if (compassAccuracyDeg > 30) {
+    rawQuality = sawWideSwing ? 'poor' : 'needs-motion';
+} else if (compassAccuracyDeg > 12) {
+    rawQuality = 'fair';
+} else {
+    rawQuality = 'good';
+}
 
-    // Histéresis: un giro rápido y puntual (p.ej. bajar el móvil para tocar
-    // la pantalla) dispara un jitter momentáneo que antes se mostraba al
-    // instante como "Poor". Ahora solo se muestra un empeoramiento si se
-    // mantiene QUALITY_HOLD_MS; una mejora, en cambio, se ve al momento.
-    const rank = { good: 0, fair: 1, calibrating: 1, 'needs-motion': 2, poor: 2 };
-    const isWorse = (rank[rawQuality] ?? 1) > (rank[compassQuality] ?? 1);
+const rank = { good: 0, fair: 1, calibrating: 1, 'needs-motion': 2, poor: 2 };
+const isWorse = (rank[rawQuality] ?? 1) > (rank[compassQuality] ?? 1);
 
-    if (!isWorse) {
-        compassQuality = rawQuality;
-        pendingQuality = null;
-    } else if (pendingQuality !== rawQuality) {
-        pendingQuality = rawQuality;
-        pendingQualitySince = now;
-    } else if (now - pendingQualitySince > QUALITY_HOLD_MS) {
-        compassQuality = rawQuality;
-    }
+if (!isWorse) {
+    compassQuality = rawQuality;
+    pendingQuality = null;
+} else if (pendingQuality !== rawQuality) {
+    pendingQuality = rawQuality;
+    pendingQualitySince = now;
+} else if (now - pendingQualitySince > QUALITY_HOLD_MS) {
+    compassQuality = rawQuality;
+}
 }
 
 function updateQualityIndicator() {
@@ -1457,15 +1428,11 @@ function showPopup(sat) {
 function calcOrbitPoints(sat) {
     orbitPoints = [];
     const now = new Date();
-    // Antes: pasos de 60s → cerca del cénit el satélite puede desplazarse
-    // decenas de grados de un punto al siguiente, y unir esos puntos con
-    // líneas rectas se veía "esquinado". Con pasos de 10s la curva queda
-    // suave y el punto del satélite (recalculado en vivo) cae sobre ella.
-    const stepMs  = 10 * 1000;
-    const startMs = -10 * 60 * 1000; // 10 min hacia atrás
-    const endMs   =  90 * 60 * 1000; // 90 min hacia delante
+    const stepMs  = 10 * 1000;       // antes 60s → línea esquinada
+    const startMs = -10 * 60 * 1000;
+    const endMs   =  90 * 60 * 1000;
     for (let t0 = startMs; t0 < endMs; t0 += stepMs) {
-        const t = new Date(now.getTime() + t0);
+    const t = new Date(now.getTime() + t0);
         try {
             const pv = satellite.propagate(sat.satrec, t);
             if (!pv || !pv.position) continue;
@@ -1478,7 +1445,7 @@ function calcOrbitPoints(sat) {
             const { elevation, azimuth } = calcAzEl(
                 userLocation.lat, userLocation.lng, lat, lng, alt
             );
-            orbitPoints.push({ azimuth, elevation, t: t0 });
+            orbitPoints.push({ azimuth, elevation, t: i });
         } catch(e) {}
     }
 }
