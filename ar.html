@@ -564,9 +564,6 @@ let compassAccuracyDeg = null;    // grados; de iOS si está disponible, si no s
 let compassQuality   = 'calibrating'; // 'calibrating' | 'good' | 'fair' | 'poor' | 'needs-motion'
 let calibStartTime   = null;
 let sawWideSwing     = false;
-let pendingQuality      = null;
-let pendingQualitySince = 0;
-const QUALITY_HOLD_MS   = 700;
 let rawHeadingBuf     = [];       // {t, h} — últimas lecturas crudas para detectar calibración/jitter
 const RAW_BUF_MS      = 3000;
 
@@ -886,30 +883,16 @@ function trackCalibrationQuality(rawHeadingDeg) {
         }
     }
 
-const elapsed = calibStartTime ? now - calibStartTime : 0;
-let rawQuality;
-if (elapsed < 1200 || compassAccuracyDeg === null) {
-    rawQuality = 'calibrating';
-} else if (compassAccuracyDeg > 30) {
-    rawQuality = sawWideSwing ? 'poor' : 'needs-motion';
-} else if (compassAccuracyDeg > 12) {
-    rawQuality = 'fair';
-} else {
-    rawQuality = 'good';
-}
-
-const rank = { good: 0, fair: 1, calibrating: 1, 'needs-motion': 2, poor: 2 };
-const isWorse = (rank[rawQuality] ?? 1) > (rank[compassQuality] ?? 1);
-
-if (!isWorse) {
-    compassQuality = rawQuality;
-    pendingQuality = null;
-} else if (pendingQuality !== rawQuality) {
-    pendingQuality = rawQuality;
-    pendingQualitySince = now;
-} else if (now - pendingQualitySince > QUALITY_HOLD_MS) {
-    compassQuality = rawQuality;
-}
+    const elapsed = calibStartTime ? now - calibStartTime : 0;
+    if (elapsed < 1200 || compassAccuracyDeg === null) {
+        compassQuality = 'calibrating';
+    } else if (compassAccuracyDeg > 30) {
+        compassQuality = sawWideSwing ? 'poor' : 'needs-motion';
+    } else if (compassAccuracyDeg > 12) {
+        compassQuality = 'fair';
+    } else {
+        compassQuality = 'good';
+    }
 }
 
 function updateQualityIndicator() {
@@ -1428,11 +1411,10 @@ function showPopup(sat) {
 function calcOrbitPoints(sat) {
     orbitPoints = [];
     const now = new Date();
-    const stepMs  = 10 * 1000;       // antes 60s → línea esquinada
-    const startMs = -10 * 60 * 1000;
-    const endMs   =  90 * 60 * 1000;
-    for (let t0 = startMs; t0 < endMs; t0 += stepMs) {
-    const t = new Date(now.getTime() + t0);
+    const steps = 90;
+    const stepMs = 60 * 1000;
+    for (let i = -10; i < steps; i++) {
+        const t = new Date(now.getTime() + i * stepMs);
         try {
             const pv = satellite.propagate(sat.satrec, t);
             if (!pv || !pv.position) continue;
