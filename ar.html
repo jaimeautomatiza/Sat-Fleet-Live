@@ -1411,10 +1411,11 @@ function showPopup(sat) {
 function calcOrbitPoints(sat) {
     orbitPoints = [];
     const now = new Date();
-    const steps = 90;
-    const stepMs = 60 * 1000;
-    for (let i = -10; i < steps; i++) {
-        const t = new Date(now.getTime() + i * stepMs);
+    const stepMs  = 10 * 1000;
+    const startMs = -10 * 60 * 1000;
+    const endMs   =  90 * 60 * 1000;
+    for (let t0 = startMs; t0 < endMs; t0 += stepMs) {
+    const t = new Date(now.getTime() + t0);
         try {
             const pv = satellite.propagate(sat.satrec, t);
             if (!pv || !pv.position) continue;
