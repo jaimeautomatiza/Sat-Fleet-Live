@@ -114,35 +114,23 @@
             touch-action: none;
         }
 
-        /* ===== COMPASS RING (modo brújula sin cámara) ===== */
+        /* ===== SENSOR CONFIDENCE RING =====
+           Sutil anillo que rodea el visor y cambia de color según la
+           calidad de la fusión de sensores (calibrando / buena / regular / pobre).
+           Es puramente informativo y no bloquea el toque. */
         #compassRing {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: min(85vw, 85vh);
-            height: min(85vw, 85vh);
+            width: min(90vw, 90vh);
+            height: min(90vw, 90vh);
             border-radius: 50%;
-            border: 1.5px solid rgba(255,107,53,0.25);
-            box-shadow:
-                0 0 0 1px rgba(255,107,53,0.08),
-                inset 0 0 80px rgba(0,0,0,0.5);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.4);
             z-index: 2;
             pointer-events: none;
-            transition: opacity 0.4s;
-        }
-        #compassRing.hidden { opacity: 0; }
-
-        /* Horizon line */
-        #horizonLine {
-            position: fixed;
-            top: 50%;
-            left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,107,53,0.4), transparent);
-            z-index: 2;
-            pointer-events: none;
-            transform: translateY(-50%);
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
         }
 
         /* ===== STATUS BAR ===== */
@@ -156,14 +144,18 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 24px;
-            padding: 8px 20px;
+            padding: 8px 18px;
             display: flex;
-            gap: 18px;
+            gap: 14px;
             align-items: center;
             z-index: 1000;
             font-size: 0.75rem;
             white-space: nowrap;
+            max-width: 94vw;
+            overflow-x: auto;
+            scrollbar-width: none;
         }
+        #statusBar::-webkit-scrollbar { display: none; }
 
         .status-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .status-label { font-size: 0.6rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -340,6 +332,9 @@
 <!-- SKY CANVAS (satélites) -->
 <canvas id="skyCanvas"></canvas>
 
+<!-- SENSOR CONFIDENCE RING -->
+<div id="compassRing"></div>
+
 <!-- FILTERS BUTTON + PANEL -->
 <button id="arFiltersBtn" onclick="toggleArFilters()" style="
     position: fixed;
@@ -408,10 +403,42 @@
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#9400d3;flex-shrink:0;display:inline-block;"></span>Technology</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ff69b4;flex-shrink:0;display:inline-block;"></span>Other</div>
     </div>
+
+    <!-- DECLINACIÓN MAGNÉTICA MANUAL (opcional) -->
+    <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:0.7rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">True North Offset</div>
+        <div style="font-size:0.68rem; color:rgba(255,255,255,0.45); margin-bottom:8px; line-height:1.4;">
+            The compass reads magnetic north. If satellites feel off, set your local
+            <span style="color:rgba(255,255,255,0.65);">magnetic declination</span> (look it up for your city).
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button onclick="adjustDeclination(-1)" style="width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:0.9rem;cursor:pointer;">−</button>
+            <div style="flex:1; text-align:center; font-size:0.85rem; font-weight:700; color:var(--orange);" id="declinationValue">0.0°</div>
+            <button onclick="adjustDeclination(1)" style="width:28px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);color:#fff;font-size:0.9rem;cursor:pointer;">+</button>
+            <button onclick="adjustDeclination(0, true)" style="padding:0 10px;height:28px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);font-size:0.68rem;cursor:pointer;">Reset</button>
+        </div>
+    </div>
 </div>
 
 <!-- MODE PILL -->
 <div id="modePill">COMPASS MODE</div>
+
+<!-- MANUAL RECALIBRATE -->
+<button id="recalibBtn" onclick="document.getElementById('calibModal').style.display='flex'" title="Recalibrate compass" style="
+    position: fixed;
+    top: calc(var(--bar) + 10px);
+    left: 12px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,107,53,0.4);
+    background: rgba(10,10,10,0.7);
+    color: var(--orange);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 1000;
+">🧭</button>
 
 <!-- CALIBRATION HINT -->
 <div id="calibHint">Move your phone in a figure-8 to calibrate</div>
@@ -424,7 +451,7 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     z-index: 3000;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 24px;
@@ -475,7 +502,7 @@
         <span class="status-value" id="statusVisible">—</span>
     </div>
     <div class="status-item">
-        <span class="status-label">Heading</span>
+        <span class="status-label">Heading <span id="statusHeadingMode" style="opacity:0.55;">MAG</span></span>
         <span class="status-value" id="statusHeading">—°</span>
     </div>
     <div class="status-item">
@@ -485,6 +512,10 @@
     <div class="status-item">
         <span class="status-label">Location</span>
         <span class="status-value" id="statusGPS">—</span>
+    </div>
+    <div class="status-item">
+        <span class="status-label">Compass</span>
+        <span class="status-value" id="statusCompassQuality" style="font-size:0.72rem;">—</span>
     </div>
 </div>
 
@@ -526,6 +557,28 @@ let cameraActive = false;
 let mediaStream  = null;
 let animFrame    = null;
 
+// ── SENSOR FUSION STATE ──
+let magDeclination   = 0;         // offset manual grados (magnético → norte real), 0 = desactivado
+let compassSource    = 'none';    // 'ios' | 'absolute' | 'relative'
+let compassAccuracyDeg = null;    // grados; de iOS si está disponible, si no se estima
+let compassQuality   = 'calibrating'; // 'calibrating' | 'good' | 'fair' | 'poor' | 'needs-motion'
+let calibStartTime   = null;
+let sawWideSwing     = false;
+let rawHeadingBuf     = [];       // {t, h} — últimas lecturas crudas para detectar calibración/jitter
+const RAW_BUF_MS      = 3000;
+
+let emaInit = false;
+let smoothHeadingSin = 0, smoothHeadingCos = 1; // EMA circular del heading (evita salto 0°/360°)
+let smoothTilt = 0;                              // EMA del tilt/elevación
+
+const QUALITY_STYLES = {
+    calibrating:   { text: 'Calibrating…',    color: 'rgba(255,255,255,0.55)', ring: 'rgba(255,255,255,0.15)' },
+    good:          { text: 'Good',            color: '#00d26a',                ring: 'rgba(0,210,106,0.35)' },
+    fair:          { text: 'Fair',            color: '#ffd700',                ring: 'rgba(255,215,0,0.32)' },
+    poor:          { text: 'Poor · tap 🧭',   color: '#ff5555',                ring: 'rgba(255,85,85,0.38)' },
+    'needs-motion':{ text: 'Move in a "8"',   color: '#ffd700',                ring: 'rgba(255,215,0,0.32)' },
+};
+
 // FOV del "visor" en grados
 const FOV_AZ = 80;   // campo horizontal
 const FOV_EL = 70;   // campo vertical
@@ -537,6 +590,44 @@ let drawnSats = [];
 let selectedSat = null;
 // Filter
 let arFilters = new Set(['all']);
+
+// ═══════════════════════════════════════════════
+// MATH HELPERS
+// ═══════════════════════════════════════════════
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+function mapRange(v, inMin, inMax, outMin, outMax) {
+    const t = clamp((v - inMin) / (inMax - inMin), 0, 1);
+    return outMin + t * (outMax - outMin);
+}
+function circularDiff(a, b) { // a-b envuelto a [-180,180]
+    return ((a - b + 540) % 360) - 180;
+}
+
+// ═══════════════════════════════════════════════
+// MANUAL DECLINATION OFFSET (magnético → norte real)
+// Nota: la API pública de NOAA para declinación ahora exige registro,
+// así que en vez de depender de un fetch que puede fallar en silencio,
+// dejamos el ajuste en manos del usuario (persistido) — apagado (0°) por defecto.
+// ═══════════════════════════════════════════════
+(function loadDeclination() {
+    const saved = parseFloat(localStorage.getItem('arDeclinationOffset'));
+    magDeclination = isNaN(saved) ? 0 : clamp(saved, -30, 30);
+})();
+
+function adjustDeclination(delta, reset) {
+    magDeclination = reset ? 0 : clamp(magDeclination + delta, -30, 30);
+    localStorage.setItem('arDeclinationOffset', String(magDeclination));
+    renderDeclinationValue();
+}
+
+function renderDeclinationValue() {
+    const el = document.getElementById('declinationValue');
+    if (!el) return;
+    el.textContent = (magDeclination >= 0 ? '+' : '') + magDeclination.toFixed(1) + '°';
+    const badge = document.getElementById('statusHeadingMode');
+    if (badge) badge.textContent = magDeclination === 0 ? 'MAG' : 'TRUE';
+}
+document.addEventListener('DOMContentLoaded', renderDeclinationValue);
 // ═══════════════════════════════════════════════
 // RESIZE
 // ═══════════════════════════════════════════════
@@ -619,15 +710,9 @@ function parseTLE(gpData) {
 }
 
 // ═══════════════════════════════════════════════
-// COMPASS / ORIENTATION
+// COMPASS / ORIENTATION — SENSOR FUSION
 // ═══════════════════════════════════════════════
-let rawHeading = 0;
-let rawTilt    = 0;
 let compassDataCount = 0;
-// Buffer para media móvil — últimas 4 lecturas
-const HEADING_BUF_SIZE = 4;
-const headingBuf = [];
-let headingBufSum = 0;
 
 function startCompass() {
     if (!window.DeviceOrientationEvent) {
@@ -672,76 +757,165 @@ function startCompass() {
 }
 
 function handleOrientation(e) {
-    let h = null;
+    let magHeading = null;
+    let source = 'relative';
 
-    if (e.webkitCompassHeading !== undefined) {
-        h = e.webkitCompassHeading;
+    // iOS Safari expone un heading absoluto ya corregido + su propia estimación de precisión
+    if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)) {
+        magHeading = e.webkitCompassHeading;
+        source = 'ios';
+        if (typeof e.webkitCompassAccuracy === 'number' && e.webkitCompassAccuracy >= 0) {
+            compassAccuracyDeg = e.webkitCompassAccuracy;
+        }
     } else if (e.alpha !== null) {
-        h = (360 - e.alpha) % 360;
-        // Screen orientation compensation
+        magHeading = (360 - e.alpha) % 360;
+        source = e.absolute ? 'absolute' : 'relative';
+
+        // Compensación de orientación de pantalla (solo aplica al heading — el
+        // eje físico de la cámara no depende de esto, ver cálculo de tilt más abajo)
         const ori = window.screen.orientation?.type || window.orientation || 0;
         if (typeof ori === 'string') {
-            if (ori.includes('landscape-primary'))   h = (h + 90)  % 360;
-            else if (ori.includes('landscape-secondary')) h = (h + 270) % 360;
-            else if (ori.includes('portrait-secondary'))  h = (h + 180) % 360;
+            if (ori.includes('landscape-primary'))        magHeading = (magHeading + 90)  % 360;
+            else if (ori.includes('landscape-secondary'))  magHeading = (magHeading + 270) % 360;
+            else if (ori.includes('portrait-secondary'))   magHeading = (magHeading + 180) % 360;
         } else {
-            if      (ori === 90)  h = (h + 90)  % 360;
-            else if (ori === -90) h = (h + 270) % 360;
-            else if (ori === 180) h = (h + 180) % 360;
+            if      (ori === 90)  magHeading = (magHeading + 90)  % 360;
+            else if (ori === -90) magHeading = (magHeading + 270) % 360;
+            else if (ori === 180) magHeading = (magHeading + 180) % 360;
         }
     }
 
-    if (h === null || isNaN(h)) return;
+    if (magHeading === null || isNaN(magHeading)) return;
 
+    compassSource = source;
     compassDataCount++;
     compassReady = true;
     hideCalibHint();
+    if (calibStartTime === null) calibStartTime = Date.now();
 
-    // beta=0 → horizontal boca arriba, beta=90 → vertical apuntando horizonte
-    // gamma afecta cuando el móvil está inclinado de lado
-    let b = e.beta !== null ? e.beta : 90;
-    let g = e.gamma !== null ? e.gamma : 0;
-    b = Math.max(-180, Math.min(180, b));
-    // Cuando el móvil está vertical (b≈90), miramos al horizonte (elevScreen≈0)
-    // Cuando inclinamos hacia arriba (b<90), miramos más alto
-    // Compensar si el móvil está en landscape con gamma
-    let elevScreen;
-    if (Math.abs(g) > 45) {
-        // Landscape: gamma va de 90 (horizonte) a 0 (cénit)
-        elevScreen = 90 - Math.abs(g);
+    trackCalibrationQuality(magHeading);
+
+    // Norte real = magnético + declinación (0° si el usuario no la ha ajustado)
+    const trueHeading = ((magHeading + magDeclination) % 360 + 360) % 360;
+
+    // ── Heading: EMA circular adaptativa ──
+    // En vez de una media móvil de tamaño fijo (que o tiembla o va con retraso
+    // según cuántas muestras uses), pesamos cada nueva lectura según cuánto se
+    // aleja de lo que ya teníamos: giros grandes se siguen rápido, el temblor
+    // de la mano en reposo se aplana casi del todo.
+    const hRad = trueHeading * Math.PI / 180;
+    const targetSin = Math.sin(hRad), targetCos = Math.cos(hRad);
+
+    if (!emaInit) {
+        smoothHeadingSin = targetSin;
+        smoothHeadingCos = targetCos;
     } else {
-        // b=90 → vertical mirando horizonte → 0°
-        // b=0  → plano boca arriba → -90°
-        // b=180 → plano boca abajo mirando cielo → +90°
-        // b negativo → igual que positivo, solo cambia de signo suavemente
-        elevScreen = b - 90;
+        const curHeading = (Math.atan2(smoothHeadingSin, smoothHeadingCos) * 180 / Math.PI + 360) % 360;
+        const delta = Math.abs(circularDiff(trueHeading, curHeading));
+        const w = mapRange(delta, 1.5, 25, 0.10, 0.65);
+        smoothHeadingSin += (targetSin - smoothHeadingSin) * w;
+        smoothHeadingCos += (targetCos - smoothHeadingCos) * w;
     }
-    elevScreen = Math.max(-90, Math.min(90, elevScreen));
+    heading = (Math.atan2(smoothHeadingSin, smoothHeadingCos) * 180 / Math.PI + 360) % 360;
 
-    // Media móvil del heading para eliminar temblor
-    // Convertir a vectores para evitar el problema del cruce 0°/360°
-    const hRad = h * Math.PI / 180;
-    headingBuf.push({ sin: Math.sin(hRad), cos: Math.cos(hRad) });
-    if (headingBuf.length > HEADING_BUF_SIZE) headingBuf.shift();
+    // ── Tilt/elevación: fórmula continua, sin el salto que había a |gamma|>45° ──
+    // elevation = asin(-cos(beta)·cos(gamma)) da exactamente lo mismo que la
+    // fórmula antigua (beta-90) cuando el teléfono está en modo retrato normal
+    // (gamma≈0), pero se extiende de forma continua a cualquier inclinación
+    // lateral/landscape, en vez de saltar de una fórmula a otra en el límite.
+    const b = e.beta  !== null ? clamp(e.beta,  -180, 180) : 90;
+    const g = e.gamma !== null ? clamp(e.gamma, -90, 90)   : 0;
+    const bRad = b * Math.PI / 180, gRad = g * Math.PI / 180;
+    const elevRaw = Math.asin(clamp(-Math.cos(bRad) * Math.cos(gRad), -1, 1)) * 180 / Math.PI;
 
-    let sinSum = 0, cosSum = 0;
-    headingBuf.forEach(v => { sinSum += v.sin; cosSum += v.cos; });
-    const smoothH = Math.atan2(sinSum / headingBuf.length, cosSum / headingBuf.length) * 180 / Math.PI;
-    rawHeading = (smoothH + 360) % 360;
+    if (!emaInit) {
+        smoothTilt = elevRaw;
+    } else {
+        const wt = mapRange(Math.abs(elevRaw - smoothTilt), 1, 20, 0.12, 0.6);
+        smoothTilt += (elevRaw - smoothTilt) * wt;
+    }
+    tilt = smoothTilt;
+    emaInit = true;
 
-    // Tilt con suavizado moderado
-    const tiltDelta = elevScreen - rawTilt;
-    const tiltStep = Math.abs(tiltDelta) > 15 ? tiltDelta * 0.15 : tiltDelta * 0.45;
-    rawTilt = rawTilt + tiltStep;
-
-    heading = rawHeading;
-    tilt    = rawTilt;
     rawRoll = rawRoll * 0.5 + g * 0.5;
     roll    = rawRoll;
 
     document.getElementById('statusHeading').textContent = Math.round(heading) + '°';
     document.getElementById('statusTilt').textContent    = Math.round(tilt) + '°';
     document.getElementById('modePill').textContent = cameraActive ? 'CAMERA MODE' : 'COMPASS MODE';
+    updateQualityIndicator();
+}
+
+// ═══════════════════════════════════════════════
+// CALIBRATION QUALITY — detecta de verdad si el compás
+// necesita el gesto en forma de "8", en vez de un timer a ciegas
+// ═══════════════════════════════════════════════
+function trackCalibrationQuality(rawHeadingDeg) {
+    const now = Date.now();
+    rawHeadingBuf.push({ t: now, h: rawHeadingDeg });
+    while (rawHeadingBuf.length && now - rawHeadingBuf[0].t > RAW_BUF_MS) rawHeadingBuf.shift();
+
+    if (rawHeadingBuf.length >= 3) {
+        // Amplitud angular cubierta en los últimos ~3s (para saber si el usuario
+        // ya ha movido el móvil lo suficiente como para que el compás se autoajuste)
+        const base = rawHeadingBuf[0].h;
+        let minRel = 0, maxRel = 0;
+        rawHeadingBuf.forEach(s => {
+            const rel = circularDiff(s.h, base);
+            if (rel < minRel) minRel = rel;
+            if (rel > maxRel) maxRel = rel;
+        });
+        if (maxRel - minRel > 50) sawWideSwing = true;
+
+        // Si el dispositivo no reporta su propia precisión (Android no lo hace,
+        // solo iOS con webkitCompassAccuracy), la estimamos por el temblor entre
+        // muestras consecutivas — mucho temblor con el móvil quieto = interferencia.
+        if (compassSource !== 'ios') {
+            const recent = rawHeadingBuf.slice(-10);
+            if (recent.length >= 4) {
+                let diffs = [];
+                for (let i = 1; i < recent.length; i++) {
+                    diffs.push(Math.abs(circularDiff(recent[i].h, recent[i - 1].h)));
+                }
+                const jitter = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+                compassAccuracyDeg = clamp(jitter * 3, 2, 60);
+            }
+        }
+    }
+
+    const elapsed = calibStartTime ? now - calibStartTime : 0;
+    if (elapsed < 1200 || compassAccuracyDeg === null) {
+        compassQuality = 'calibrating';
+    } else if (compassAccuracyDeg > 30) {
+        compassQuality = sawWideSwing ? 'poor' : 'needs-motion';
+    } else if (compassAccuracyDeg > 12) {
+        compassQuality = 'fair';
+    } else {
+        compassQuality = 'good';
+    }
+}
+
+function updateQualityIndicator() {
+    const style = QUALITY_STYLES[compassQuality] || QUALITY_STYLES.calibrating;
+
+    const pill = document.getElementById('statusCompassQuality');
+    if (pill) { pill.textContent = style.text; pill.style.color = style.color; }
+
+    const ring = document.getElementById('compassRing');
+    if (ring) {
+        ring.style.borderColor = style.ring;
+        ring.style.boxShadow = `0 0 26px ${style.ring}, inset 0 0 80px rgba(0,0,0,0.4)`;
+    }
+
+    // Auto-abrir el modal de calibración solo una vez por dispositivo, y solo si
+    // la calidad es de verdad mala tras dar tiempo a que el sensor se asiente —
+    // nunca en cada carga de página como pasaba antes.
+    const badEnough = compassQuality === 'poor' || compassQuality === 'needs-motion';
+    const elapsed = calibStartTime ? Date.now() - calibStartTime : 0;
+    if (badEnough && elapsed > 5000 && !localStorage.getItem('arCalibModalSeen')) {
+        document.getElementById('calibModal').style.display = 'flex';
+        localStorage.setItem('arCalibModalSeen', '1');
+    }
 }
 
 // ═══════════════════════════════════════════════
@@ -1006,7 +1180,7 @@ function drawFrame(ts) {
     }
 
     if (!cameraActive) {
-        drawNightSky();
+        drawNightSky(ts);
     }
 
     drawCardinalLabels();
@@ -1016,10 +1190,47 @@ function drawFrame(ts) {
     drawCrosshair();
 }
 
-function drawNightSky() {
-    // Fondo oscuro simple
-    ctx.fillStyle = 'rgba(5,5,20,0.98)';
+let starField = null;
+function initStarField() {
+    if (starField) return;
+    starField = [];
+    let seed = 42;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    for (let i = 0; i < 180; i++) {
+        starField.push({
+            az: rnd() * 360,
+            el: rnd() * 100 - 10,
+            r: 0.5 + rnd() * 1.3,
+            baseAlpha: 0.15 + rnd() * 0.45,
+            twinkleSpeed: 0.5 + rnd() * 1.5,
+            twinklePhase: rnd() * Math.PI * 2,
+        });
+    }
+}
+
+function drawNightSky(ts) {
+    // Degradado sutil en vez de negro plano — un poco más claro cerca del horizonte
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, 'rgba(4,4,14,0.98)');
+    grad.addColorStop(1, 'rgba(11,9,24,0.98)');
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
+
+    initStarField();
+    const t = (ts || 0) / 1000;
+    ctx.save();
+    starField.forEach(s => {
+        const pos = projectToScreen(s.az, s.el);
+        if (!pos || pos.x < -10 || pos.x > W + 10 || pos.y < -10 || pos.y > H + 10) return;
+        const twinkle = 0.75 + 0.25 * Math.sin(t * s.twinkleSpeed + s.twinklePhase);
+        ctx.globalAlpha = s.baseAlpha * twinkle;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.restore();
+    ctx.globalAlpha = 1;
 }
 
 
