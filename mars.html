@@ -360,6 +360,74 @@
         #siteInfoPanel .site-desc.revealed { display:block; }
         #siteInfoPanel .site-desc-reveal { display:inline-block; }
     }
+
+    #infoFooter {
+        position: fixed; bottom: 0; left: 0; right: 0; height: 22px;
+        background: rgba(10, 10, 10, 0.82);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        border-top: 1px solid rgba(255,255,255,0.06);
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        font-size: 0.62rem; color: rgba(255,255,255,0.35);
+        z-index: 500; white-space: nowrap; overflow: hidden; padding: 0 12px;
+    }
+    body.light-mode #infoFooter {
+        background: rgba(245,245,245,0.88);
+        border-top: 1px solid rgba(0,0,0,0.08);
+        color: rgba(0,0,0,0.4);
+    }
+    #infoFooter a, #infoFooter .about-link {
+        color: rgba(77,166,255,0.7); text-decoration: none; transition: color 0.2s;
+        cursor: pointer; background: none; border: none; font-size: 0.62rem;
+        padding: 0; font-family: inherit;
+    }
+    #infoFooter a:hover, #infoFooter .about-link:hover { color: #4da6ff; }
+    #infoFooter .footer-sep { color: rgba(255,255,255,0.2); }
+    body.light-mode #infoFooter .footer-sep { color: rgba(0,0,0,0.2); }
+
+    #aboutPanel {
+        position: fixed; bottom: 22px; left: 0; right: 0;
+        max-height: 0; overflow: hidden;
+        background: rgba(10,10,10,0.95);
+        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        transition: max-height 0.3s ease; z-index: 499;
+    }
+    #aboutPanel.open { max-height: 220px; }
+    #aboutPanel-inner {
+        padding: 14px 20px; font-size: 0.78rem; line-height: 1.55;
+        color: rgba(255,255,255,0.75); max-width: 700px; margin: 0 auto;
+    }
+    #aboutPanel-inner a { color: #4da6ff; }
+    body.light-mode #aboutPanel {
+        background: rgba(245,245,245,0.96);
+        border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    body.light-mode #aboutPanel-inner { color: rgba(0,0,0,0.65); }
+
+    #infoFooter .about-link { }
+#infoFooter .footer-secondary { }
+
+@media (max-width: 600px) {
+    #infoFooter .footer-secondary { display: none; }
+
+    #aboutPanel {
+        bottom: auto; top: 50%; left: 50%; right: auto;
+        transform: translate(-50%, -50%);
+        width: 88%; max-width: 380px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        z-index: 950;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.2s ease, max-height 0.3s ease;
+    }
+    #aboutPanel.open { opacity: 1; pointer-events: auto; max-height: 320px; }
+
+    #aboutBackdrop {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.5); z-index: 940;
+    }
+    #aboutBackdrop.open { display: block; }
+}
 </style>
 </head>
 <body>
@@ -1457,6 +1525,34 @@ viewer.scene.globe.tileLoadProgressEvent.addEventListener(function(remaining) {
     if (remaining === 0) hideLoading();
 });
 setTimeout(hideLoading, 5000);
+</script>
+
+<div id="infoFooter">
+    <span>Source:</span>
+    <a href="https://trek.nasa.gov" target="_blank">NASA Mars Trek</a>
+    <span class="footer-sep footer-secondary">|</span>
+    <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" class="footer-secondary">JPL Horizons</a>
+    <span class="footer-sep">|</span>
+    <a href="mailto:jaime.automatiza@gmail.com">Contact</a>
+    <span class="footer-sep">|</span>
+    <a href="https://satfleetlive.com/privacy-policy" target="_blank">Privacy Policy</a>
+    <span class="footer-sep">|</span>
+    <button class="about-link" onclick="toggleAboutPanel()">About</button>
+</div>
+<div id="aboutBackdrop" onclick="toggleAboutPanel()"></div>
+
+<div id="aboutPanel">
+    <div id="aboutPanel-inner">
+        Follow NASA's active Mars rovers — Curiosity and Perseverance — moving live across the Martian surface, with their real driving trails sourced from mission telemetry. See how the two rovers compare in our <a href="/blogs/curiosity-vs-perseverance/">Curiosity vs Perseverance guide →</a>
+    </div>
+</div>
+
+<script>
+window.toggleAboutPanel = function() {
+    document.getElementById('aboutPanel').classList.toggle('open');
+    const bd = document.getElementById('aboutBackdrop');
+    if (bd) bd.classList.toggle('open');
+};
 </script>
 
 </body>
