@@ -1121,6 +1121,7 @@ async function handleStripeCheckout(request, env) {
     `customer_email=${enc(email)}`,
     `metadata[app_user_id]=${enc(uid)}`,
     `subscription_data[metadata][app_user_id]=${enc(uid)}`,
+    `subscription_data[trial_period_days]=7`,
   ].join('&');
 
   try {
