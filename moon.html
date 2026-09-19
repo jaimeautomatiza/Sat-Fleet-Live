@@ -430,6 +430,38 @@
     }
     #aboutBackdrop.open { display: block; }
 }
+
+#trialPromoBanner {
+    position: fixed; bottom: 78px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    width: calc(100% - 32px); max-width: 480px;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+    padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+    z-index: 900; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+#trialPromoBanner.visible { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+#trialPromoBanner img { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+#trialPromoBanner .tp-content { flex: 1; min-width: 0; }
+#trialPromoBanner .tp-title { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.92); margin-bottom: 2px; }
+#trialPromoBanner .tp-sub { font-size: 0.72rem; color: rgba(255,255,255,0.55); line-height: 1.35; }
+#trialPromoBanner .tp-cta {
+    background: #4da6ff; color: #0a0a0a; border: none; border-radius: 7px;
+    padding: 7px 12px; font-size: 0.74rem; font-weight: 600; cursor: pointer;
+    white-space: nowrap; flex-shrink: 0;
+}
+#trialPromoBanner .tp-close {
+    background: none; border: none; color: rgba(255,255,255,0.4);
+    font-size: 1.1rem; cursor: pointer; padding: 0 2px; flex-shrink: 0; line-height: 1;
+}
+#trialPromoBanner .tp-close:hover { color: rgba(255,255,255,0.8); }
+@media (max-width: 480px) {
+    #trialPromoBanner { flex-wrap: wrap; }
+    #trialPromoBanner .tp-cta { order: 3; width: 100%; margin-top: 6px; text-align: center; }
+}
 </style>
 </head>
 <body>
@@ -1453,7 +1485,58 @@ window.toggleAboutPanel = function() {
     const bd = document.getElementById('aboutBackdrop');
     if (bd) bd.classList.toggle('open');
 };
+
+// Esta página no tenía ninguna noción de Premium hasta ahora — leemos la
+// misma bandera que ya gestionan index.html / next-passes.html / account.html,
+// compartida por estar todas en el mismo dominio.
+function isPremiumUser() { return localStorage.getItem('satfleet_is_premium') === '1'; }
+
+function maybeShowTrialPromo() {
+    if (isPremiumUser()) return;
+
+    const KEY = 'satfleet_trial_promo_last_shown';
+    const last = parseInt(localStorage.getItem(KEY) || '0', 10);
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    if (Date.now() - last < sevenDaysMs) return;
+
+    setTimeout(() => {
+        const el = document.getElementById('trialPromoBanner');
+        if (!el) return;
+        el.classList.add('visible');
+        localStorage.setItem(KEY, Date.now().toString());
+        if (typeof gtag === 'function') {
+            gtag('event', 'trial_promo_shown', { page_path: window.location.pathname });
+        }
+    }, 35000);
+}
+
+window.trialPromoClick = function() {
+    if (typeof gtag === 'function') {
+        gtag('event', 'trial_promo_clicked', { page_path: window.location.pathname });
+    }
+    window.location.href = '/account.html';
+};
+
+window.trialPromoClose = function() {
+    if (typeof gtag === 'function') {
+        gtag('event', 'trial_promo_closed', { page_path: window.location.pathname });
+    }
+    const el = document.getElementById('trialPromoBanner');
+    if (el) el.classList.remove('visible');
+};
+
+maybeShowTrialPromo();
 </script>
+
+<div id="trialPromoBanner">
+    <img src="/images/logo.png" alt="SatFleet Live">
+    <div class="tp-content">
+        <div class="tp-title">Try SatFleet Premium</div>
+        <div class="tp-sub">Push alerts for every pass · Full details on every launch</div>
+    </div>
+    <button class="tp-cta" onclick="trialPromoClick()">Try free for 7 days</button>
+    <button class="tp-close" onclick="trialPromoClose()">×</button>
+</div>
 
 </body>
 </html>
