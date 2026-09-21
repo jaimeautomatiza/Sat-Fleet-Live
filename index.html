@@ -663,6 +663,11 @@
             transform: translateX(0);
         }
 
+        .satellite-info .collapse-btn { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.3rem; cursor:pointer; line-height:1; padding:0 6px 0 0; flex-shrink:0; }
+        .satellite-info .collapse-btn:hover { color:#fff; }
+        .satellite-info.collapsed .info-item, .satellite-info.collapsed #rocketVideoContainer, .satellite-info.collapsed #trajectoryDisclaimer, .satellite-info.collapsed #simulateFlightContainer { display:none; }
+        .satellite-info.collapsed { padding:10px 16px; }
+
         body.light-mode .satellite-info {
             background: rgba(250,250,252,0.98);
             border-color: rgba(156,39,176,0.15);
@@ -2263,6 +2268,7 @@ body.light-mode .rocket-filter-chip {
     <div class="info-header">
         <div class="satellite-name" id="satelliteName">Satellite Name</div>
         <div style="display:flex; align-items:center;">
+            <button class="collapse-btn" onclick="toggleSatelliteInfoCollapse()" title="Collapse">−</button>
             <button class="close-btn" onclick="closeSatelliteInfo()">×</button>
         </div>
     </div>
@@ -3476,6 +3482,10 @@ function updateStats() {
         setInterval(updateStats, 5000);
 
         // Cerrar panel de información
+window.toggleSatelliteInfoCollapse = function() {
+    document.getElementById('satelliteInfo').classList.toggle('collapsed');
+};
+
 function closeSatelliteInfo() {
     document.getElementById('satelliteInfo').classList.remove('active');
     const _legR = document.getElementById('legendPanel');
