@@ -2494,14 +2494,17 @@ window.toggleAboutPanel = function() {
 function isPremiumUser() { return localStorage.getItem('satfleet_is_premium') === '1'; }
 
 function maybeShowTrialPromo() {
-    if (isPremiumUser()) return;
-
     const KEY = 'satfleet_trial_promo_last_shown';
     const last = parseInt(localStorage.getItem(KEY) || '0', 10);
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
     if (Date.now() - last < sevenDaysMs) return;
 
     setTimeout(() => {
+        // Comprobamos Premium AQUÍ, justo antes de mostrarlo — no al
+        // principio — dándole a la verificación real todo el margen de
+        // estos 35 segundos para terminar, en vez de arriesgarnos a una
+        // carrera de tiempos con una página recién cargada.
+        if (isPremiumUser()) return;
         const el = document.getElementById('trialPromoBanner');
         if (!el) return;
         el.classList.add('visible');
