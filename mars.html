@@ -2111,14 +2111,23 @@ maybeShowTrialPromo();
   // Playback que lo necesiten.
   onIdTokenChanged(_tokenAuth, (user) => {
     if (user) {
-      user.getIdToken().then((token) => {
+      user.getIdToken().then(async (token) => {
         localStorage.setItem('satfleet_fb_token', token);
+        // A diferencia de index.html/next-passes.html, estas tres páginas
+        // nunca escribían esta bandera por su cuenta — solo la leían,
+        // fiándose de que otra página la hubiera dejado puesta antes. Ahora
+        // también la comprobamos y escribimos aquí mismo, de verdad.
+        if (typeof checkIsPremiumClientSide === 'function') {
+          const isPremium = await checkIsPremiumClientSide();
+          localStorage.setItem('satfleet_is_premium', isPremium ? '1' : '0');
+        }
         if (typeof onPremiumTokenRefreshed === 'function') {
           onPremiumTokenRefreshed();
         }
       }).catch(() => {});
     } else {
       localStorage.removeItem('satfleet_fb_token');
+      localStorage.setItem('satfleet_is_premium', '0');
     }
   });
 </script>
