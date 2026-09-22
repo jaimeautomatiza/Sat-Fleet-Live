@@ -146,27 +146,117 @@
     #exploreBtn:hover, #exploreBtn.open { background:rgba(255,255,255,0.14); color:#fff; }
     #exploreBtn .explore-icon { width:15px; height:15px; filter:invert(1); opacity:0.75; }
 
-    #exploreFloatBtn {
-        display:none; position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
+    /* A partir de ahora, Explore y Playback viven SIEMPRE flotando abajo,
+       en cualquier tamaño de pantalla — ya no solo en móvil. */
+    #exploreBtn { display: none !important; }
+
+    #bottomFloatBar {
+        position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
+        display:flex; gap:8px; z-index:850;
+    }
+    #exploreFloatBtn, #playbackFloatBtn {
+        display:flex; position:static;
         background:rgba(15,15,15,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
         border:1px solid rgba(255,255,255,0.10); border-radius:20px; padding:6px 14px;
-        z-index:850; align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
+        align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
     }
-    #exploreFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
-    #exploreFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
-    #exploreFloatBtn.open, #exploreFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
-    #exploreFloatBtn.open img, #exploreFloatBtn.open span { opacity:1; }
+    #exploreFloatBtn img, #playbackFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
+    #exploreFloatBtn span, #playbackFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
+    #exploreFloatBtn.open, #exploreFloatBtn:active,
+    #playbackFloatBtn.open, #playbackFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
+    #exploreFloatBtn.open img, #exploreFloatBtn.open span,
+    #playbackFloatBtn.open img, #playbackFloatBtn.open span { opacity:1; }
 
-    @media (max-width: 768px) {
-        #exploreFloatBtn { display:flex; }
+    /* ═══ Selector de fecha ═══ */
+    #playbackBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:950; }
+    #playbackBackdrop.open { display:block; }
+    #playbackDatePanel {
+        position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+        width:88%; max-width:340px;
+        background:rgba(10,10,10,0.97); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+        border:1px solid rgba(255,255,255,0.12); border-radius:16px;
+        padding:20px; z-index:960;
+        opacity:0; pointer-events:none; transition:opacity 0.2s ease;
     }
+    #playbackDatePanel.open { opacity:1; pointer-events:auto; }
+    #playbackDatePanel h3 { font-size:0.95rem; margin:0 0 4px; color:#fff; }
+    #playbackDatePanel p { font-size:0.72rem; color:rgba(255,255,255,0.5); margin:0 0 14px; line-height:1.4; }
+    #playbackDateInput {
+        width:100%; padding:10px 12px; border-radius:8px; box-sizing:border-box;
+        background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+        color:#fff; font-size:0.9rem; margin-bottom:14px; color-scheme:dark;
+    }
+    #playbackGoBtn {
+        width:100%; padding:10px; border-radius:8px; border:none;
+        background:#9c27b0; color:#fff; font-size:0.85rem; font-weight:600; cursor:pointer;
+    }
+    #playbackGoBtn:disabled { opacity:0.6; cursor:default; }
+    #playbackDateError { font-size:0.68rem; color:#ff6b6b; margin-top:8px; display:none; }
+        #playbackDateInput:disabled, #playbackDateSelect:disabled { opacity:0.4; cursor:not-allowed; }
+    #playbackPremiumLabel {
+        display:none; font-size:0.68rem; color:#ffd700;
+        background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.3);
+        border-radius:6px; padding:6px 10px; margin-bottom:10px; text-align:center;
+    }
+    #playbackPremiumLabel.visible { display:block; }
+        #premiumRequiredBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:970; }
+    #premiumRequiredBackdrop.open { display:block; }
+    #premiumRequiredPanel {
+        position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+        width:88%; max-width:340px; text-align:center; box-sizing:border-box;
+        background:rgba(10,10,10,0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+        border:1px solid rgba(156,39,176,0.3); border-radius:16px;
+        padding:28px 22px; z-index:980;
+        opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+    }
+    #premiumRequiredPanel.open { opacity:1; pointer-events:auto; }
+    #premiumRequiredPanel .pr-icon { font-size:2.2rem; margin-bottom:10px; }
+    #premiumRequiredPanel h3 { font-size:1.05rem; color:#fff; margin:0 0 10px; }
+    #premiumRequiredPanel p { font-size:0.78rem; color:rgba(255,255,255,0.6); line-height:1.5; margin:0 0 18px; }
+    #premiumUpgradeBtn {
+        width:100%; padding:11px; border-radius:8px; border:none; margin-bottom:8px;
+        background:linear-gradient(135deg, #9c27b0, #b026ff); color:#fff; font-size:0.88rem; font-weight:700; cursor:pointer;
+    }
+    #premiumMaybeLaterBtn {
+        width:100%; padding:9px; border-radius:8px; border:none;
+        background:none; color:rgba(255,255,255,0.5); font-size:0.78rem; cursor:pointer;
+    }
+
+    /* ═══ Barra de tiempo ═══ */
+    #playbackTimeline {
+        position:fixed; bottom:0; left:0; right:0;
+        background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        border-top:1px solid rgba(255,255,255,0.1);
+        padding:10px 14px 14px; z-index:870; display:none;
+    }
+    #playbackTimeline.active { display:block; }
+    #playbackTimeline .pt-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    #playbackTimeline .pt-date { font-size:0.78rem; color:#fff; font-weight:600; }
+    #playbackTimeline .pt-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.2rem; cursor:pointer; padding:0 4px; }
+    #playbackTimeline .pt-controls { display:flex; align-items:center; gap:10px; }
+    #playbackPlayBtn {
+        width:32px; height:32px; border-radius:50%; border:none; flex-shrink:0;
+        background:#9c27b0; color:#fff; cursor:pointer;
+        display:flex; align-items:center; justify-content:center; font-size:0.8rem;
+    }
+    #playbackScrubber { flex:1; appearance:none; -webkit-appearance:none; height:4px; border-radius:2px; background:rgba(255,255,255,0.15); outline:none; }
+    #playbackScrubber::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#9c27b0; cursor:pointer; }
+    #playbackSpeedGroup { display:flex; gap:4px; margin-top:8px; justify-content:center; }
+    .pt-speed-btn {
+        background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+        color:rgba(255,255,255,0.6); font-size:0.65rem; padding:4px 10px; border-radius:6px; cursor:pointer;
+    }
+    .pt-speed-btn.active { background:rgba(156,39,176,0.3); border-color:rgba(156,39,176,0.6); color:#fff; }
 
     #exploreMenu {
         position:fixed; background:rgba(10,10,16,0.98); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
         border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:8px;
         z-index:1100; min-width:160px; box-shadow:0 20px 50px rgba(0,0,0,0.6);
         opacity:0; pointer-events:none; transition:opacity 0.18s ease, transform 0.18s ease;
-        top:calc(var(--bar-height) + 8px); right:16px; transform:translateY(-8px);
+        /* Ahora Explore vive siempre abajo, en cualquier tamaño de pantalla
+           — el menú tiene que desplegarse desde ahí, no desde donde estaba
+           antes de mover el botón. */
+        top:auto; right:auto; bottom:56px; left:50%; transform:translateX(-50%) translateY(8px);
     }
     #exploreMenu.open { opacity:1; pointer-events:all; transform:translateY(0); }
 
@@ -177,13 +267,6 @@
     }
     .explore-item:hover { background:rgba(255,255,255,0.09); color:#fff; }
     .explore-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; display:inline-block; }
-
-    @media (max-width: 768px) {
-        #exploreMenu {
-            top:auto; right:auto; bottom:56px; left:50%; transform:translateX(-50%) translateY(8px);
-        }
-        #exploreMenu.open { transform:translateX(-50%) translateY(0); }
-    }
 
     #marsFiltersBtn {
         border-color:rgba(156,39,176,0.7); color:var(--primary-purple);
@@ -306,7 +389,7 @@
     .legend-color { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 
     #marsPovBtn {
-        display:none; position:fixed; bottom:24px; right:16px; width:48px; height:48px;
+        display:none; position:fixed; bottom:100px; right:16px; width:48px; height:48px;
         border-radius:50%; background:rgba(15,15,15,0.6); backdrop-filter:blur(10px);
         -webkit-backdrop-filter:blur(10px); border:1.5px solid rgba(255,255,255,0.12);
         cursor:pointer; z-index:850; align-items:center; justify-content:center;
@@ -457,6 +540,13 @@
     #trialPromoBanner { flex-wrap: wrap; }
     #trialPromoBanner .tp-cta { order: 3; width: 100%; margin-top: 6px; text-align: center; }
 }
+
+#playbackGoBtn.loading { position:relative; overflow:hidden; }
+#playbackGoBtn .pt-progress-fill {
+    position:absolute; left:0; top:0; bottom:0; background:rgba(255,255,255,0.15);
+    width:0%; transition:width 0.2s linear; z-index:0;
+}
+#playbackGoBtn span { position:relative; z-index:1; }
 </style>
 </head>
 <body>
@@ -496,9 +586,53 @@
     <button id="overflowBtn" onclick="toggleOverflowMenu()">⋯</button>
 </div>
 
+<div id="bottomFloatBar">
 <div id="exploreFloatBtn" onclick="toggleExploreMenu()">
     <img src="images/planet-switcher.svg" alt="">
     <span>Explore</span>
+</div>
+<div id="playbackFloatBtn" onclick="togglePlaybackDatePanel()">
+    <img src="images/icon-playback.svg" alt="">
+    <span>Playback</span>
+</div>
+</div>
+
+<div id="playbackBackdrop" onclick="closePlaybackDatePanel()"></div>
+<div id="playbackDatePanel">
+    <h3>Time Travel</h3>
+        <div id="playbackPremiumLabel">🔒 This is a Premium feature</div>
+    <p>See where Mars orbiters were on any date since October 1957.</p>
+    <input type="date" id="playbackDateInput" min="1957-10-04" />
+    <div id="playbackDateError">Could not load data for that date. Try another.</div>
+    <button id="playbackGoBtn" onclick="startMarsPlayback()"><span class="pt-progress-fill"></span><span id="playbackGoText">Go</span></button>
+</div>
+
+<div id="premiumRequiredBackdrop" onclick="closePremiumRequiredPanel()"></div>
+<div id="premiumRequiredPanel">
+    <div class="pr-icon">🔒</div>
+    <h3>Premium feature</h3>
+    <p>Time Travel is part of SatFleet Premium — explore any archived date, not just the most recent one.</p>
+    <button id="premiumUpgradeBtn" onclick="window.location.href='/account.html'">See Premium</button>
+    <button id="premiumMaybeLaterBtn" onclick="closePremiumRequiredPanel()">Maybe later</button>
+</div>
+
+<div id="playbackTimeline">
+    <div class="pt-top">
+        <div class="pt-date" id="playbackDateLabel">—</div>
+        <div class="pt-date pt-end-date" id="playbackEndDateLabel" style="opacity:0.5; font-size:0.68rem;">—</div>
+        <button class="pt-close" onclick="exitMarsPlayback()">×</button>
+    </div>
+    <div class="pt-controls">
+        <button id="playbackPlayBtn" onclick="togglePlaybackPlay()">▶</button>
+        <input type="range" id="playbackScrubber" min="0" max="1000" value="0" oninput="onPlaybackScrub(this.value)">
+    </div>
+    <div id="playbackSpeedGroup">
+        <button class="pt-speed-btn" data-speed="300" onclick="setPlaybackSpeed(300)">5m/s</button>
+        <button class="pt-speed-btn" data-speed="900" onclick="setPlaybackSpeed(900)">15m/s</button>
+        <button class="pt-speed-btn active" data-speed="3600" onclick="setPlaybackSpeed(3600)">1h/s</button>
+        <button class="pt-speed-btn" data-speed="21600" onclick="setPlaybackSpeed(21600)">6h/s</button>
+        <button class="pt-speed-btn" data-speed="86400" onclick="setPlaybackSpeed(86400)">1d/s</button>
+    </div>
 </div>
 
 <div id="exploreMenu">
@@ -619,20 +753,40 @@ function closeOverflowOnOutside(e) {
 }
 
 // ==================== SELECTOR DE CUERPO (Explore) ====================
-function toggleExploreMenu() {
+window.toggleExploreMenu = function() {
     const menu = document.getElementById('exploreMenu');
-    const isOpen = menu.classList.toggle('open');
+    const willOpen = !menu.classList.contains('open');
     const barBtn = document.getElementById('exploreBtn');
     const floatBtn = document.getElementById('exploreFloatBtn');
-    if (barBtn) barBtn.classList.toggle('open', isOpen);
-    if (floatBtn) floatBtn.classList.toggle('open', isOpen);
-    if (isOpen) {
+
+    if (willOpen) {
+        // Posición calculada de verdad, mirando dónde está el botón en ese
+        // momento — no un porcentaje fijo que "más o menos" coincide.
+        const triggerBtn = (floatBtn && floatBtn.offsetParent !== null) ? floatBtn : barBtn;
+        if (triggerBtn) {
+            const rect = triggerBtn.getBoundingClientRect();
+            menu.style.left = (rect.left + rect.width / 2) + 'px';
+            menu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+            menu.style.top = 'auto';
+            menu.style.right = 'auto';
+            menu.style.transform = 'translateX(-50%) translateY(8px)';
+        }
+    }
+
+    menu.classList.toggle('open', willOpen);
+    if (barBtn) barBtn.classList.toggle('open', willOpen);
+    if (floatBtn) floatBtn.classList.toggle('open', willOpen);
+    if (willOpen) {
         setTimeout(() => {
             document.addEventListener('touchstart', closeExploreOnOutside, { once:true });
-            document.addEventListener('mousedown', closeExploreOnOutside, { once:true });
+            // 'pointerdown' en vez de 'mousedown' — Cesium usa pointerdown
+            // por dentro y evita que el navegador genere el mousedown de
+            // compatibilidad sobre su propio mapa, así que mousedown nunca
+            // llegaba a dispararse ahí.
+            document.addEventListener('pointerdown', closeExploreOnOutside, { once:true, capture:true });
         }, 10);
     }
-}
+};
 function closeExploreMenu() {
     document.getElementById('exploreMenu').classList.remove('open');
     const barBtn = document.getElementById('exploreBtn');
@@ -772,7 +926,13 @@ let siteEntities = [];
 
 function addRoverEntity(site, w, h) {
     const entity = viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 0, marsEllipsoid),
+        position: new Cesium.CallbackProperty(function() {
+            if (orbiterTimeOverride !== null) {
+                const p = getRoverPositionAtTime(site.id, orbiterTimeOverride);
+                return p ? Cesium.Cartesian3.fromDegrees(p.lng, p.lat, 0, marsEllipsoid) : undefined;
+            }
+            return Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 0, marsEllipsoid);
+        }, false),
         billboard: {
             image: ROVER_ICON,
             width: w,
@@ -871,6 +1031,34 @@ loadHistoricSites();
 // ==================== RASTRO REAL DE LOS ROVERS ====================
 // Datos servidos por el Worker (que a su vez los lee de tu GitHub) —
 // mismo patrón que el TLE, la web nunca llama a GitHub directamente.
+// Fecha real de amartizaje de cada rover — hace falta para convertir un
+// "sol" (día marciano de misión) en una fecha real de calendario. Un sol
+// dura 24h 39min 35s, un poco más que un día terrestre.
+const ROVER_LANDING_MS = {
+    curiosity: Date.parse('2012-08-06T05:17:57Z'),
+    perseverance: Date.parse('2021-02-18T20:55:00Z'),
+};
+const SOL_MS = 88775244; // duración de un sol marciano, en milisegundos
+
+function getRoverPositionAtTime(roverId, timeMs) {
+    const points = roverTrailData[roverId];
+    const landingMs = ROVER_LANDING_MS[roverId];
+    if (!points || !points.length || !landingMs) return null;
+
+    const targetSol = (timeMs - landingMs) / SOL_MS;
+    if (targetSol < points[0].sol) return null; // antes de que empezáramos a registrar su posición
+
+    // El rover no se mueve de forma continua entre mediciones — mostramos
+    // su última posición CONFIRMADA a esa fecha, no un punto inventado a
+    // medio camino entre dos sitios que nunca visitó en ese tramo.
+    let best = points[0];
+    for (const p of points) {
+        if (p.sol <= targetSol) best = p;
+        else break;
+    }
+    return best;
+}
+
 let roverTrailEntities = {};
 
 let roverTrailData = {};             // datos siempre cargados en segundo plano
@@ -969,8 +1157,15 @@ function showSiteInfo(site) {
         if (_marsPovRestartTimeout) { clearTimeout(_marsPovRestartTimeout); _marsPovRestartTimeout = null; }
         _marsPovRestartTimeout = setTimeout(() => { _marsPovRestartTimeout = null; toggleMarsPov(); }, 100);
     } else {
+        let flyLng = site.lng, flyLat = site.lat;
+        // Si es un rover (tiene rastro) y estamos en Playback, volamos a su
+        // posición real de esa fecha, no a la de ahora mismo.
+        if (orbiterTimeOverride !== null && roverTrailData[site.id]) {
+            const roverPos = getRoverPositionAtTime(site.id, orbiterTimeOverride);
+            if (roverPos) { flyLng = roverPos.lng; flyLat = roverPos.lat; }
+        }
         viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 120000, marsEllipsoid),
+            destination: Cesium.Cartesian3.fromDegrees(flyLng, flyLat, 120000, marsEllipsoid),
             duration: 1.5
         });
     }
@@ -1031,6 +1226,36 @@ function estimateOrbiterSpeedKmh(points, nowMs) {
     return speedMs * 3.6; // metros/segundo → km/h
 }
 
+// Versión ligera para Playback — SOLO actualiza los números (altitud,
+// velocidad), sin redibujar la trayectoria ni tocar el 360°. La versión
+// completa (showOrbiterInfo) hace ambas cosas, y llamarla en cada fotograma
+// apagaba y encendía el modo POV sin parar.
+function refreshOrbiterInfoNumbers(orbiterData) {
+    const nowT = orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now();
+    const cart = interpOrbiterCartesian(orbiterData.points, nowT);
+    const p = cart ? cartesianToLatLngAlt(cart) : null;
+
+    const altRow = document.getElementById('siteInfoAltitudeRow');
+    const spdRow = document.getElementById('siteInfoSpeedRow');
+    if (p) {
+        document.getElementById('siteInfoAltitude').textContent = Math.round(p.alt).toLocaleString() + ' km';
+        altRow.style.display = '';
+        const speed = estimateOrbiterSpeedKmh(orbiterData.points, nowT);
+        if (speed != null) {
+            document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
+            spdRow.style.display = '';
+        } else {
+            spdRow.style.display = 'none';
+        }
+        document.getElementById('siteInfoDesc').textContent =
+            'Currently near ' + p.lat.toFixed(1) + '°, ' + p.lng.toFixed(1) + '°. Position calculated from NASA/JPL Horizons ephemeris data.';
+    } else {
+        altRow.style.display = 'none';
+        spdRow.style.display = 'none';
+        document.getElementById('siteInfoDesc').textContent = 'Position data unavailable right now.';
+    }
+}
+
 function showOrbiterInfo(orbiterData) {
     currentSelectedSite = null;
     currentSelectedOrbiter = orbiterData;
@@ -1038,7 +1263,7 @@ function showOrbiterInfo(orbiterData) {
     drawOrbiterPath(orbiterData);
     updateMarsPovBtnVisibility();
 
-    const cart = interpOrbiterCartesian(orbiterData.points, Date.now());
+    const cart = interpOrbiterCartesian(orbiterData.points, orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now());
     const p = cart ? cartesianToLatLngAlt(cart) : null;
 
     document.getElementById('siteInfoName').textContent = orbiterData.name;
@@ -1052,7 +1277,7 @@ function showOrbiterInfo(orbiterData) {
         document.getElementById('siteInfoAltitude').textContent = Math.round(p.alt).toLocaleString() + ' km';
         altRow.style.display = '';
 
-        const speed = estimateOrbiterSpeedKmh(orbiterData.points, Date.now());
+        const speed = estimateOrbiterSpeedKmh(orbiterData.points, orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now());
         if (speed != null) {
             document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
             spdRow.style.display = '';
@@ -1148,7 +1373,10 @@ function searchMarsObjects() {
     const site = MARS_SITES.concat(MARS_HISTORIC_SITES).find(s => s.name.toLowerCase().includes(q));
     if (site) { showSiteInfo(site); return; }
 
-    const found = Object.entries(marsOrbitersData).find(([id, o]) => o.name.toLowerCase().includes(q));
+    // Durante Playback, buscamos en esos datos, no en los datos en vivo —
+    // si no, encontrábamos el nombre correcto pero con la posición de hoy.
+    const dataSource = (orbiterTimeOverride !== null && playbackData) ? playbackData : marsOrbitersData;
+    const found = Object.entries(dataSource).find(([id, o]) => o.name.toLowerCase().includes(q));
     if (found) {
         const [id, orbiter] = found;
         showOrbiterInfo({ id, name: orbiter.name, points: orbiter.points });
@@ -1235,7 +1463,7 @@ function cartesianToLatLngAlt(cart) {
 
 function computeOrbiterPathPositions(points, aheadMs, stepMs) {
     const positions = [];
-    const start = Date.now();
+    const start = orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now();
     for (let t = start; t <= start + aheadMs; t += stepMs) {
         const c = interpOrbiterCartesian(points, t);
         if (c) positions.push(c);
@@ -1281,12 +1509,18 @@ let _marsPovRestartTimeout = null;
 
 function getMarsPovTarget() {
     if (currentSelectedOrbiter) {
-        const cart = interpOrbiterCartesian(currentSelectedOrbiter.points, Date.now());
+        const cart = interpOrbiterCartesian(currentSelectedOrbiter.points, orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now());
         if (!cart) return null;
         const p = cartesianToLatLngAlt(cart);
         return { lat: p.lat, lng: p.lng, altM: Math.max(p.alt, 0) * 1000, isOrbiter: true };
     }
     if (currentSelectedSite) {
+        // Si el sitio es un rover (no un lugar fijo tipo cráter) y estamos en
+        // Playback, usamos su posición real de esa fecha, no la de ahora mismo.
+        if (orbiterTimeOverride !== null && currentSelectedSite.id && roverTrailData[currentSelectedSite.id]) {
+            const roverPos = getRoverPositionAtTime(currentSelectedSite.id, orbiterTimeOverride);
+            if (roverPos) return { lat: roverPos.lat, lng: roverPos.lng, altM: 0, isOrbiter: false };
+        }
         return { lat: currentSelectedSite.lat, lng: currentSelectedSite.lng, altM: 0, isOrbiter: false };
     }
     return null;
@@ -1425,18 +1659,19 @@ function toggleMarsPov() {
     }
 }
 
-function renderMarsOrbiters() {
+function renderMarsOrbiters(dataOverride) {
     orbiterEntities.forEach(e => viewer.entities.remove(e));
     orbiterEntities = [];
     clearOrbiterPath();
 
-    Object.entries(marsOrbitersData).forEach(([id, orbiter]) => {
-        if (id === 'sun') return; // el Sol no se pinta como orbitador, solo se usa para la luz
+    const dataSource = dataOverride || marsOrbitersData;
+    Object.entries(dataSource).forEach(([id, orbiter]) => {
         const points = orbiter.points;
         if (!points || !points.length) return;
+        const color = getOrbiterColor(id);
 
         const positionProperty = new Cesium.CallbackProperty(function() {
-            return interpOrbiterCartesian(points, Date.now());
+            return interpOrbiterCartesian(points, orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now());
         }, false);
 
         const labelColor = ORBITER_ICONS[id] ? Cesium.Color.WHITE : getOrbiterColor(id);
@@ -1508,7 +1743,8 @@ function getMarsSubsolarLongitudeEast(nowMs) {
 }
 
 function updateMarsLighting() {
-    const subsolarLng = getMarsSubsolarLongitudeEast(Date.now());
+    const refMs = orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now();
+    const subsolarLng = getMarsSubsolarLongitudeEast(refMs);
     // La declinación solar (norte/sur) cambia con las estaciones marcianas,
     // muy despacio (año marciano = 687 días) — un valor fijo aproximado es
     // más que suficiente para un efecto visual, no buscamos precisión científica aquí.
@@ -1541,7 +1777,225 @@ async function loadMarsOrbiters() {
 }
 
 loadMarsOrbiters();
-setInterval(loadMarsOrbiters, 30 * 60 * 1000);
+setInterval(loadMarsOrbiters, 30 * 60 * 1000); // refresco cliente cada 30 min (la caché del Worker dura 6h de sobra)
+
+// Panel de info siempre vivo — tanto en modo normal como en Playback (la
+// propia función ya sabe cuál de los dos tiempos usar). El punto en pantalla
+// ya se mueve solo gracias al CallbackProperty; esto solo refresca el texto.
+setInterval(() => {
+    if (currentSelectedOrbiter) refreshOrbiterInfoNumbers(currentSelectedOrbiter);
+}, 250);
+
+// ═══════════════ PLAYBACK ═══════════════
+let orbiterTimeOverride = null; // null = tiempo real; si no, la "hora falsa" que usa el dibujado
+let playbackData = null;
+let playbackStartMs = null;
+let playbackEndMs = null;
+let playbackPlaying = false;
+let playbackSpeed = 3600; // segundos simulados por cada segundo real
+let playbackTickId = null;
+let playbackLastTick = null;
+
+// Comprueba Premium y actualiza la interfaz — la usan tanto la apertura
+// manual del panel como el vigilante, para no repetir la misma lógica dos
+// veces en sitios distintos que podrían acabar desincronizados.
+async function refreshPlaybackPremiumState() {
+    const panel = document.getElementById('playbackDatePanel');
+    if (!panel.classList.contains('open')) return; // nadie está mirando, no hace falta tocar nada
+
+    const dateInput = document.getElementById('playbackDateInput');
+    const label = document.getElementById('playbackPremiumLabel');
+    const goText = document.getElementById('playbackGoText');
+
+    const isPremium = await checkIsPremiumClientSide();
+    dateInput.disabled = !isPremium;
+    label.classList.toggle('visible', !isPremium);
+    goText.textContent = isPremium ? 'Go' : '🔒 Premium';
+    window._playbackIsLocked = !isPremium;
+}
+
+window.togglePlaybackDatePanel = async function() {
+    const willOpen = !document.getElementById('playbackDatePanel').classList.contains('open');
+    document.getElementById('playbackDatePanel').classList.toggle('open', willOpen);
+    document.getElementById('playbackBackdrop').classList.toggle('open', willOpen);
+    if (!willOpen) return;
+
+    document.getElementById('playbackDateInput').disabled = true; // bloqueado mientras comprobamos
+    await refreshPlaybackPremiumState();
+};
+window.closePlaybackDatePanel = function() {
+    document.getElementById('playbackDatePanel').classList.remove('open');
+    document.getElementById('playbackBackdrop').classList.remove('open');
+};
+
+window.closePremiumRequiredPanel = function() {
+    document.getElementById('premiumRequiredPanel').classList.remove('open');
+    document.getElementById('premiumRequiredBackdrop').classList.remove('open');
+};
+function showPremiumRequiredPanel() {
+    document.getElementById('premiumRequiredPanel').classList.add('open');
+    document.getElementById('premiumRequiredBackdrop').classList.add('open');
+}
+async function checkIsPremiumClientSide() {
+    const token = localStorage.getItem('satfleet_fb_token');
+    if (!token) return false;
+    try {
+        const res = await fetch('https://worker.satfleetlive.com/api/check-premium', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        return !!data.premium;
+    } catch (e) { return false; }
+}
+function onPremiumTokenRefreshed() {
+    refreshPlaybackPremiumState();
+}
+
+window.startMarsPlayback = async function() {
+    if (window._playbackIsLocked) {
+        closePlaybackDatePanel();
+        showPremiumRequiredPanel();
+        return;
+    }
+    const dateVal = document.getElementById('playbackDateInput').value;
+    const errEl = document.getElementById('playbackDateError');
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (!dateVal || dateVal < '1957-10-04' || dateVal > todayStr) {
+        errEl.textContent = 'Please pick a valid date in range.';
+        errEl.style.display = 'block';
+        return;
+    }
+    errEl.style.display = 'none';
+
+    const isPremium = await checkIsPremiumClientSide();
+    if (!isPremium) {
+        closePlaybackDatePanel();
+        showPremiumRequiredPanel();
+        return;
+    }
+
+    const goBtn = document.getElementById('playbackGoBtn');
+    goBtn.disabled = true;
+    startLoadingProgress(5000); // Luna/Marte: pocos objetivos, suele ir rápido
+
+    try {
+        const res = await fetch(`https://worker.satfleetlive.com/api/mars-orbiters-playback?date=${dateVal}`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('satfleet_fb_token') || ''}` }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        playbackData = data.orbiters || {};
+
+        let minMs = Infinity, maxMs = -Infinity;
+        Object.values(playbackData).forEach(o => {
+            (o.points || []).forEach(p => {
+                const t = Date.parse(p.time);
+                if (t < minMs) minMs = t;
+                if (t > maxMs) maxMs = t;
+            });
+        });
+        if (!isFinite(minMs)) throw new Error('Sin datos');
+
+        playbackStartMs = minMs;
+        playbackEndMs = maxMs;
+        document.getElementById('playbackEndDateLabel').textContent = 'until ' + new Date(maxMs).toUTCString().slice(0, 22);
+        orbiterTimeOverride = playbackStartMs;
+
+        renderMarsOrbiters(playbackData);
+        closePlaybackDatePanel();
+        document.getElementById('playbackTimeline').classList.add('active');
+        document.getElementById('playbackScrubber').value = 0;
+        updatePlaybackDateLabel();
+    } catch (e) {
+        errEl.textContent = 'Could not load data for that date. Try another.';
+        errEl.style.display = 'block';
+    } finally {
+        stopLoadingProgress();
+        document.getElementById('playbackGoText').textContent = 'Go';
+        goBtn.disabled = false;
+    }
+};
+
+function updatePlaybackDateLabel() {
+    const d = new Date(orbiterTimeOverride);
+    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22);
+    const pct = (orbiterTimeOverride - playbackStartMs) / (playbackEndMs - playbackStartMs) * 1000;
+    document.getElementById('playbackScrubber').value = Math.round(pct);
+}
+
+let loadingProgressTimer = null;
+function startLoadingProgress(estimatedMs) {
+    const fill = document.querySelector('#playbackGoBtn .pt-progress-fill');
+    const txt = document.getElementById('playbackGoText');
+    let pct = 0;
+    const stepMs = 150;
+    const increment = 88 / (estimatedMs / stepMs); // llega a ~88%, nunca sola al 100%
+    loadingProgressTimer = setInterval(() => {
+        pct = Math.min(88, pct + increment);
+        fill.style.width = pct + '%';
+        txt.textContent = `Loading… ${Math.round(pct)}%`;
+    }, stepMs);
+}
+function stopLoadingProgress() {
+    if (loadingProgressTimer) { clearInterval(loadingProgressTimer); loadingProgressTimer = null; }
+    const fill = document.querySelector('#playbackGoBtn .pt-progress-fill');
+    if (fill) fill.style.width = '0%';
+}
+
+window.onPlaybackScrub = function(val) {
+    orbiterTimeOverride = playbackStartMs + (val / 1000) * (playbackEndMs - playbackStartMs);
+    updatePlaybackDateLabel();
+    if (currentSelectedOrbiter) refreshOrbiterInfoNumbers(currentSelectedOrbiter);
+    updateMarsLighting();
+};
+
+window.togglePlaybackPlay = function() {
+    playbackPlaying = !playbackPlaying;
+    document.getElementById('playbackPlayBtn').textContent = playbackPlaying ? '⏸' : '▶';
+    if (playbackPlaying) {
+        playbackLastTick = performance.now();
+        playbackTickId = requestAnimationFrame(playbackTick);
+    } else if (playbackTickId) {
+        cancelAnimationFrame(playbackTickId);
+    }
+};
+
+let lastInfoRefreshMs = 0;
+function playbackTick(now) {
+    const deltaReal = (now - playbackLastTick) / 1000;
+    playbackLastTick = now;
+    orbiterTimeOverride += deltaReal * playbackSpeed * 1000;
+    // Solo tocamos el DOM unas pocas veces por segundo, no en cada fotograma
+    // — así el 360° tiene todo el presupuesto de la cámara para él solo.
+    if (currentSelectedOrbiter && now - lastInfoRefreshMs > 250) {
+        refreshOrbiterInfoNumbers(currentSelectedOrbiter);
+        lastInfoRefreshMs = now;
+    }
+    updateMarsLighting();
+    if (orbiterTimeOverride >= playbackEndMs) {
+        orbiterTimeOverride = playbackEndMs;
+        playbackPlaying = false;
+        document.getElementById('playbackPlayBtn').textContent = '▶';
+        updatePlaybackDateLabel();
+        return;
+    }
+    updatePlaybackDateLabel();
+    if (playbackPlaying) playbackTickId = requestAnimationFrame(playbackTick);
+}
+
+window.setPlaybackSpeed = function(s) {
+    playbackSpeed = s;
+    document.querySelectorAll('.pt-speed-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.speed) === s));
+};
+
+window.exitMarsPlayback = function() {
+    playbackPlaying = false;
+    if (playbackTickId) cancelAnimationFrame(playbackTickId);
+    orbiterTimeOverride = null;
+    playbackData = null;
+    document.getElementById('playbackTimeline').classList.remove('active');
+    renderMarsOrbiters();
+};
 updateMarsLighting();
 setInterval(updateMarsLighting, 60 * 1000); // Marte gira despacio, cada minuto es de sobra
 
@@ -1634,6 +2088,40 @@ maybeShowTrialPromo();
     <button class="tp-cta" onclick="trialPromoClick()">Try free for 7 days</button>
     <button class="tp-close" onclick="trialPromoClose()">×</button>
 </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, onIdTokenChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqQcTt6gK_220ZMbDIK9jSuOhCVLTZn4I",
+    authDomain: "satfleet-live.firebaseapp.com",
+    projectId: "satfleet-live",
+    storageBucket: "satfleet-live.firebasestorage.app",
+    messagingSenderId: "369952976257",
+    appId: "1:369952976257:web:c7ba2050865524fca80c80"
+  };
+
+  const _tokenApp = initializeApp(firebaseConfig);
+  const _tokenAuth = getAuth(_tokenApp);
+
+  // Vigilante silencioso — si alguien ya inició sesión antes en otra página
+  // del sitio (index.html, account.html...), aquí no hace falta que vuelva
+  // a iniciarla: solo mantenemos su token fresco, listo para las rutas de
+  // Playback que lo necesiten.
+  onIdTokenChanged(_tokenAuth, (user) => {
+    if (user) {
+      user.getIdToken().then((token) => {
+        localStorage.setItem('satfleet_fb_token', token);
+        if (typeof onPremiumTokenRefreshed === 'function') {
+          onPremiumTokenRefreshed();
+        }
+      }).catch(() => {});
+    } else {
+      localStorage.removeItem('satfleet_fb_token');
+    }
+  });
+</script>
 
 </body>
 </html>

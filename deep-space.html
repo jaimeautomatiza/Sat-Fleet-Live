@@ -137,25 +137,113 @@
     #exploreBtn:hover, #exploreBtn.open { background:rgba(255,255,255,0.14); color:#fff; }
     #exploreBtn .explore-icon { width:15px; height:15px; filter:invert(1); opacity:0.75; }
 
-    #exploreFloatBtn {
-        display:none; position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+    #exploreBtn { display: none !important; }
+
+    #bottomFloatBar {
+        position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
+        display:flex; gap:8px; z-index:850;
+    }
+    #exploreFloatBtn, #playbackFloatBtn {
+        display:flex; position:static;
         background:rgba(15,15,15,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
         border:1px solid rgba(255,255,255,0.10); border-radius:20px; padding:6px 14px;
-        z-index:850; align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
+        align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
     }
-    #exploreFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
-    #exploreFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
-    #exploreFloatBtn.open, #exploreFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
-    #exploreFloatBtn.open img, #exploreFloatBtn.open span { opacity:1; }
+    #exploreFloatBtn img, #playbackFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
+    #exploreFloatBtn span, #playbackFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
+    #exploreFloatBtn.open, #exploreFloatBtn:active,
+    #playbackFloatBtn.open, #playbackFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
+    #exploreFloatBtn.open img, #exploreFloatBtn.open span,
+    #playbackFloatBtn.open img, #playbackFloatBtn.open span { opacity:1; }
 
-    @media (max-width: 768px) { #exploreFloatBtn { display:flex; bottom:54px; } }
+    #playbackBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:950; }
+    #playbackBackdrop.open { display:block; }
+    #playbackDatePanel {
+        position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+        width:88%; max-width:340px;
+        background:rgba(10,10,10,0.97); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+        border:1px solid rgba(255,255,255,0.12); border-radius:16px;
+        padding:20px; z-index:960;
+        opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+    }
+    #playbackDatePanel.open { opacity:1; pointer-events:auto; }
+    #playbackDatePanel h3 { font-size:0.95rem; margin:0 0 4px; color:#fff; }
+    #playbackDatePanel p { font-size:0.72rem; color:rgba(255,255,255,0.5); margin:0 0 14px; line-height:1.4; }
+    #playbackDateInput {
+        width:100%; padding:10px 12px; border-radius:8px; box-sizing:border-box;
+        background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+        color:#fff; font-size:0.9rem; margin-bottom:14px; color-scheme:dark;
+    }
+    #playbackGoBtn {
+        width:100%; padding:10px; border-radius:8px; border:none;
+        background:#9c27b0; color:#fff; font-size:0.85rem; font-weight:600; cursor:pointer;
+    }
+    #playbackGoBtn:disabled { opacity:0.6; cursor:default; }
+    #playbackDateError { font-size:0.68rem; color:#ff6b6b; margin-top:8px; display:none; }
+        #playbackDateInput:disabled, #playbackDateSelect:disabled { opacity:0.4; cursor:not-allowed; }
+    #playbackPremiumLabel {
+        display:none; font-size:0.68rem; color:#ffd700;
+        background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.3);
+        border-radius:6px; padding:6px 10px; margin-bottom:10px; text-align:center;
+    }
+    #playbackPremiumLabel.visible { display:block; }
+        #premiumRequiredBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:970; }
+    #premiumRequiredBackdrop.open { display:block; }
+    #premiumRequiredPanel {
+        position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+        width:88%; max-width:340px; text-align:center; box-sizing:border-box;
+        background:rgba(10,10,10,0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+        border:1px solid rgba(156,39,176,0.3); border-radius:16px;
+        padding:28px 22px; z-index:980;
+        opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+    }
+    #premiumRequiredPanel.open { opacity:1; pointer-events:auto; }
+    #premiumRequiredPanel .pr-icon { font-size:2.2rem; margin-bottom:10px; }
+    #premiumRequiredPanel h3 { font-size:1.05rem; color:#fff; margin:0 0 10px; }
+    #premiumRequiredPanel p { font-size:0.78rem; color:rgba(255,255,255,0.6); line-height:1.5; margin:0 0 18px; }
+    #premiumUpgradeBtn {
+        width:100%; padding:11px; border-radius:8px; border:none; margin-bottom:8px;
+        background:linear-gradient(135deg, #9c27b0, #b026ff); color:#fff; font-size:0.88rem; font-weight:700; cursor:pointer;
+    }
+    #premiumMaybeLaterBtn {
+        width:100%; padding:9px; border-radius:8px; border:none;
+        background:none; color:rgba(255,255,255,0.5); font-size:0.78rem; cursor:pointer;
+    }
+
+    #playbackTimeline {
+        position:fixed; bottom:0; left:0; right:0;
+        background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        border-top:1px solid rgba(255,255,255,0.1);
+        padding:10px 14px 14px; z-index:870; display:none;
+    }
+    #playbackTimeline.active { display:block; }
+    #playbackTimeline .pt-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+    #playbackTimeline .pt-date { font-size:0.78rem; color:#fff; font-weight:600; }
+    #playbackTimeline .pt-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.2rem; cursor:pointer; padding:0 4px; }
+    #playbackTimeline .pt-controls { display:flex; align-items:center; gap:10px; }
+    #playbackPlayBtn {
+        width:32px; height:32px; border-radius:50%; border:none; flex-shrink:0;
+        background:#9c27b0; color:#fff; cursor:pointer;
+        display:flex; align-items:center; justify-content:center; font-size:0.8rem;
+    }
+    #playbackScrubber { flex:1; appearance:none; -webkit-appearance:none; height:4px; border-radius:2px; background:rgba(255,255,255,0.15); outline:none; }
+    #playbackScrubber::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#9c27b0; cursor:pointer; }
+    #playbackSpeedGroup { display:flex; gap:4px; margin-top:8px; justify-content:center; }
+    .pt-speed-btn {
+        background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+        color:rgba(255,255,255,0.6); font-size:0.65rem; padding:4px 10px; border-radius:6px; cursor:pointer;
+    }
+    .pt-speed-btn.active { background:rgba(156,39,176,0.3); border-color:rgba(156,39,176,0.6); color:#fff; }
 
     #exploreMenu {
         position:fixed; background:rgba(10,10,16,0.98); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
         border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:8px;
         z-index:1100; min-width:160px; box-shadow:0 20px 50px rgba(0,0,0,0.6);
         opacity:0; pointer-events:none; transition:opacity 0.18s ease, transform 0.18s ease;
-        top:calc(var(--bar-height) + 8px); right:16px; transform:translateY(-8px);
+        /* Ahora Explore vive siempre abajo, en cualquier tamaño de pantalla
+           — el menú tiene que desplegarse desde ahí, no desde donde estaba
+           antes de mover el botón. */
+        top:auto; right:auto; bottom:56px; left:50%; transform:translateX(-50%) translateY(8px);
     }
     #exploreMenu.open { opacity:1; pointer-events:all; transform:translateY(0); }
     .explore-item {
@@ -165,10 +253,6 @@
     }
     .explore-item:hover { background:rgba(255,255,255,0.09); color:#fff; }
     .explore-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; display:inline-block; }
-    @media (max-width: 768px) {
-        #exploreMenu { top:auto; right:auto; bottom:56px; left:50%; transform:translateX(-50%) translateY(8px); }
-        #exploreMenu.open { transform:translateX(-50%) translateY(0); }
-    }
 
     #overflowBtn {
         display:none; height:34px; width:34px; border-radius:50%;
@@ -420,6 +504,12 @@
     #trialPromoBanner { flex-wrap: wrap; }
     #trialPromoBanner .tp-cta { order: 3; width: 100%; margin-top: 6px; text-align: center; }
 }
+#playbackGoBtn.loading { position:relative; overflow:hidden; }
+#playbackGoBtn .pt-progress-fill {
+    position:absolute; left:0; top:0; bottom:0; background:rgba(255,255,255,0.15);
+    width:0%; transition:width 0.2s linear; z-index:0;
+}
+#playbackGoBtn span { position:relative; z-index:1; }
 </style>
 </head>
 <body>
@@ -458,9 +548,55 @@
     <button id="overflowBtn" onclick="toggleOverflowMenu()">⋯</button>
 </div>
 
+<div id="bottomFloatBar">
 <div id="exploreFloatBtn" onclick="toggleExploreMenu()">
     <img src="images/planet-switcher.svg" alt="">
     <span>Explore</span>
+</div>
+<div id="playbackFloatBtn" onclick="togglePlaybackDatePanel()">
+    <img src="images/icon-playback.svg" alt="">
+    <span>Playback</span>
+</div>
+</div>
+
+<div id="playbackBackdrop" onclick="closePlaybackDatePanel()"></div>
+<div id="playbackDatePanel">
+    <h3>Time Travel</h3>
+        <div id="playbackPremiumLabel">🔒 This is a Premium feature</div>
+    <p>See where planets and spacecraft were on any date since October 1957. Loading may take a few seconds — there are 42 objects to fetch.</p>
+    <input type="date" id="playbackDateInput" min="1957-10-04" />
+    <div id="playbackDateError">Could not load data for that date. Try another.</div>
+    <button id="playbackGoBtn" onclick="startDeepSpacePlayback()"><span class="pt-progress-fill"></span><span id="playbackGoText">Go</span></button>
+</div>
+
+<div id="premiumRequiredBackdrop" onclick="closePremiumRequiredPanel()"></div>
+<div id="premiumRequiredPanel">
+    <div class="pr-icon">🔒</div>
+    <h3>Premium feature</h3>
+    <p>Time Travel is part of SatFleet Premium — explore any archived date, not just the most recent one.</p>
+    <button id="premiumUpgradeBtn" onclick="window.location.href='/account.html'">See Premium</button>
+    <button id="premiumMaybeLaterBtn" onclick="closePremiumRequiredPanel()">Maybe later</button>
+</div>
+
+<div id="playbackTimeline">
+    <div class="pt-top">
+        <div class="pt-date" id="playbackDateLabel">—</div>
+        <div class="pt-date pt-end-date" id="playbackEndDateLabel" style="opacity:0.5; font-size:0.68rem;">—</div>
+        <button class="pt-close" onclick="exitDeepSpacePlayback()">×</button>
+    </div>
+    <div class="pt-controls">
+        <button id="playbackPlayBtn" onclick="togglePlaybackPlay()">▶</button>
+        <input type="range" id="playbackScrubber" min="0" max="1000" value="0" oninput="onPlaybackScrub(this.value)">
+    </div>
+    <div id="playbackSpeedGroup">
+        <button class="pt-speed-btn" data-speed="900" onclick="setPlaybackSpeed(900)">15m/s</button>
+        <button class="pt-speed-btn active" data-speed="3600" onclick="setPlaybackSpeed(3600)">1h/s</button>
+        <button class="pt-speed-btn" data-speed="21600" onclick="setPlaybackSpeed(21600)">6h/s</button>
+        <button class="pt-speed-btn" data-speed="86400" onclick="setPlaybackSpeed(86400)">1d/s</button>
+        <button class="pt-speed-btn" data-speed="604800" onclick="setPlaybackSpeed(604800)">1w/s</button>
+        <button class="pt-speed-btn" data-speed="2629800" onclick="setPlaybackSpeed(2629800)">1mo/s</button>
+        <button class="pt-speed-btn" data-speed="31557600" onclick="setPlaybackSpeed(31557600)">1yr/s</button>
+    </div>
 </div>
 
 <div id="exploreMenu">
@@ -585,12 +721,28 @@ function closeOverflowOnOutside(e) {
 // ==================== SELECTOR DE CUERPO (Explore) ====================
 window.toggleExploreMenu = function() {
     const menu = document.getElementById('exploreMenu');
-    const isOpen = menu.classList.toggle('open');
+    const willOpen = !menu.classList.contains('open');
     const barBtn = document.getElementById('exploreBtn');
     const floatBtn = document.getElementById('exploreFloatBtn');
-    if (barBtn) barBtn.classList.toggle('open', isOpen);
-    if (floatBtn) floatBtn.classList.toggle('open', isOpen);
-    if (isOpen) {
+
+    if (willOpen) {
+        // Posición calculada de verdad, mirando dónde está el botón en ese
+        // momento — no un porcentaje fijo que "más o menos" coincide.
+        const triggerBtn = (floatBtn && floatBtn.offsetParent !== null) ? floatBtn : barBtn;
+        if (triggerBtn) {
+            const rect = triggerBtn.getBoundingClientRect();
+            menu.style.left = (rect.left + rect.width / 2) + 'px';
+            menu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+            menu.style.top = 'auto';
+            menu.style.right = 'auto';
+            menu.style.transform = 'translateX(-50%) translateY(8px)';
+        }
+    }
+
+    menu.classList.toggle('open', willOpen);
+    if (barBtn) barBtn.classList.toggle('open', willOpen);
+    if (floatBtn) floatBtn.classList.toggle('open', willOpen);
+    if (willOpen) {
         setTimeout(() => {
             document.addEventListener('touchstart', closeExploreOnOutside, { once:true });
             document.addEventListener('mousedown', closeExploreOnOutside, { once:true });
@@ -1157,7 +1309,7 @@ function refDisplayName(id) {
 
 function updateReferenceCalc() {
     if (!currentInfoObjId) return;
-    const nowMs = Date.now();
+    const nowMs = dsTimeOverride !== null ? dsTimeOverride : Date.now();
     const distRow = document.getElementById('siteInfoDistanceRow');
     const speedRow = document.getElementById('siteInfoSpeedRow');
     const refName = refDisplayName(referenceBodyId);
@@ -1254,7 +1406,7 @@ const MIN_VISIBLE_RENDER_RADIUS = 0.01;   // por debajo de esto, es un punto, no
 const ABSOLUTE_CUTOFF_KM = 100 * AU_KM;   // más allá de esto, no se pinta nada — vacío real
 
 function updateRealScalePositions(selfId) {
-    const nowMs = Date.now();
+    const nowMs = dsTimeOverride !== null ? dsTimeOverride : Date.now();
     const selfObj = dsObjectsData[selfId];
     if (!selfObj) return;
     const selfReal = interpHeliocentric(selfObj.points, nowMs);
@@ -1432,11 +1584,34 @@ function exitRealScaleMode() {
 
 function updateObjectPositions() {
     if (realScaleActive && selectedObjectId) { updateRealScalePositions(selectedObjectId); return; }
-    const nowMs = Date.now();
+    const nowMs = dsTimeOverride !== null ? dsTimeOverride : Date.now();
     const realPos = {}; // guardamos la posición real (en km) de cada uno para poder restarlas entre sí
     Object.entries(dsObjectsData).forEach(([id, obj]) => {
+        // Si el momento actual es ANTERIOR al primer dato real de este
+        // cuerpo (ej. BepiColombo antes de su lanzamiento), no lo tratamos
+        // como "tiene posición" — aunque interpHeliocentric devolvería algo
+        // (enganchado al primer punto), mostrarlo sería mentir: ese cuerpo
+        // todavía no estaba ahí.
+        if (obj.points?.length && nowMs < Date.parse(obj.points[0].time)) return;
         const p = interpHeliocentric(obj.points, nowMs);
         if (p) realPos[id] = p;
+    });
+
+    // Cualquier cuerpo sin datos en esta fecha (Playback antes de existir, o
+    // un fallo puntual al pedirlo) se esconde del todo — antes esto solo
+    // cubría naves, ahora cubre también planetas, lunas y planetas enanos,
+    // que es justo donde apareció el fallo con la Tierra y Marte.
+    [...Object.keys(PLANET_META), ...Object.keys(DWARF_META), ...Object.keys(MOON_META), ...SPACECRAFT_IDS].forEach(id => {
+        const hayDatos = !!realPos[id];
+        const isMoonId = !!MOON_META[id];
+        const isDwarfId = !!DWARF_META[id];
+        const isPlanetId = !!PLANET_META[id];
+        const mesh = isMoonId ? moonMeshes[id] : (isDwarfId ? dwarfMeshes[id] : (isPlanetId ? planetMeshes[id] : spacecraftMeshes[id]));
+        if (mesh) mesh.visible = hayDatos;
+        // Los planetas y planetas enanos también tienen un halo aparte —
+        // si escondemos el cuerpo, hay que esconder también su halo.
+        const glowDict = isDwarfId ? dwarfGlows : planetGlows;
+        if (glowDict[id]) glowDict[id].visible = hayDatos;
     });
 
     Object.entries(dsObjectsData).forEach(([id, obj]) => {
@@ -1517,7 +1692,28 @@ function updateObjectPositions() {
 function planetMeshOffset(id) { return (PLANET_META[id]?.size || 1) + 1.4; }
 
 // ==================== CARGA DE DATOS ====================
+let dsInitialLoadTimer = null;
+function startInitialLoadProgress(estimatedMs) {
+    const p = document.querySelector('#loading p');
+    let pct = 0;
+    const stepMs = 200;
+    const increment = 88 / (estimatedMs / stepMs); // llega a ~88%, nunca sola al 100%
+    dsInitialLoadTimer = setInterval(() => {
+        pct = Math.min(88, pct + increment);
+        p.textContent = `Loading the Solar System... ${Math.round(pct)}%`;
+    }, stepMs);
+}
+function stopInitialLoadProgress() {
+    if (dsInitialLoadTimer) { clearInterval(dsInitialLoadTimer); dsInitialLoadTimer = null; }
+}
+
 async function loadDeepSpace() {
+    // Solo mostramos el porcentaje en la carga inicial (el spinner ya
+    // visible) — en las recargas silenciosas de fondo cada 30 min, el
+    // spinner ya está oculto, así que no hace falta animar nada.
+    const spinnerVisible = document.getElementById('loading').style.display !== 'none';
+    if (spinnerVisible) startInitialLoadProgress(20000); // 42 objetos: ~20s en un día normal, más si la NASA va lenta
+
     try {
         await document.fonts.ready; // evita que las etiquetas se dibujen con la fuente equivocada
         const res = await fetch('https://worker.satfleetlive.com/api/deep-space');
@@ -1530,16 +1726,270 @@ async function loadDeepSpace() {
         console.log(`[SatFleet Deep Space] Cargados ${nombres.length} objetos:`, nombres);
 
         updateObjectPositions();
+        stopInitialLoadProgress();
         document.getElementById('loading').style.opacity = '0';
         setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
     } catch (e) {
+        stopInitialLoadProgress();
         console.warn('[SatFleet Deep Space] No se pudieron cargar los datos:', e.message);
         document.getElementById('loading').querySelector('p').textContent = 'Data temporarily unavailable — retrying...';
     }
 }
+
+// ═══════════════ PLAYBACK ═══════════════
+let dsTimeOverride = null; // null = tiempo real; si no, la "hora falsa" que usa updateObjectPositions
+let dsPlaybackData = null;
+let playbackStartMs = null;
+let playbackEndMs = null;
+let playbackPlaying = false;
+let playbackSpeed = 3600;
+let playbackTickId = null;
+let playbackLastTick = null;
+
+// Comprueba Premium y actualiza la interfaz — la usan tanto la apertura
+// manual del panel como el vigilante, para no repetir la misma lógica dos
+// veces en sitios distintos que podrían acabar desincronizados.
+async function refreshPlaybackPremiumState() {
+    const panel = document.getElementById('playbackDatePanel');
+    if (!panel.classList.contains('open')) return; // nadie está mirando, no hace falta tocar nada
+
+    const dateInput = document.getElementById('playbackDateInput');
+    const label = document.getElementById('playbackPremiumLabel');
+    const goText = document.getElementById('playbackGoText');
+
+    const isPremium = await checkIsPremiumClientSide();
+    dateInput.disabled = !isPremium;
+    label.classList.toggle('visible', !isPremium);
+    goText.textContent = isPremium ? 'Go' : '🔒 Premium';
+    window._playbackIsLocked = !isPremium;
+}
+
+window.togglePlaybackDatePanel = async function() {
+    const willOpen = !document.getElementById('playbackDatePanel').classList.contains('open');
+    document.getElementById('playbackDatePanel').classList.toggle('open', willOpen);
+    document.getElementById('playbackBackdrop').classList.toggle('open', willOpen);
+    if (!willOpen) return;
+
+    document.getElementById('playbackDateInput').disabled = true; // bloqueado mientras comprobamos
+    await refreshPlaybackPremiumState();
+};
+window.closePlaybackDatePanel = function() {
+    document.getElementById('playbackDatePanel').classList.remove('open');
+    document.getElementById('playbackBackdrop').classList.remove('open');
+};
+
+window.closePremiumRequiredPanel = function() {
+    document.getElementById('premiumRequiredPanel').classList.remove('open');
+    document.getElementById('premiumRequiredBackdrop').classList.remove('open');
+};
+function showPremiumRequiredPanel() {
+    document.getElementById('premiumRequiredPanel').classList.add('open');
+    document.getElementById('premiumRequiredBackdrop').classList.add('open');
+}
+async function checkIsPremiumClientSide() {
+    const token = localStorage.getItem('satfleet_fb_token');
+    if (!token) return false;
+    try {
+        const res = await fetch('https://worker.satfleetlive.com/api/check-premium', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        return !!data.premium;
+    } catch (e) { return false; }
+}
+function onPremiumTokenRefreshed() {
+    refreshPlaybackPremiumState();
+}
+
+window.startDeepSpacePlayback = async function() {
+    if (window._playbackIsLocked) {
+        closePlaybackDatePanel();
+        showPremiumRequiredPanel();
+        return;
+    }
+    const dateVal = document.getElementById('playbackDateInput').value;
+    const errEl = document.getElementById('playbackDateError');
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    console.log(`[Playback] Solicitado: fecha=${dateVal}`);
+
+    if (!dateVal || dateVal < '1957-10-04' || dateVal > todayStr) {
+        console.error(`[Playback] Fecha fuera de rango: ${dateVal}`);
+        errEl.textContent = 'Please pick a valid date in range.';
+        errEl.style.display = 'block';
+        return;
+    }
+    errEl.style.display = 'none';
+
+    const isPremium = await checkIsPremiumClientSide();
+    if (!isPremium) {
+        closePlaybackDatePanel();
+        showPremiumRequiredPanel();
+        return;
+    }
+
+    const goBtn = document.getElementById('playbackGoBtn');
+    goBtn.disabled = true;
+    startLoadingProgress(18000); // Deep Space: hasta 42 objetivos, tarda más
+
+    const endpoint = `https://worker.satfleetlive.com/api/deep-space-playback?date=${dateVal}`;
+
+    console.log(`[Playback] Llamando a: ${endpoint}`);
+    const fetchStarted = performance.now();
+
+    try {
+        const res = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('satfleet_fb_token') || ''}` }
+        });
+        const elapsedS = ((performance.now() - fetchStarted) / 1000).toFixed(1);
+        console.log(`[Playback] Respuesta recibida en ${elapsedS}s — status ${res.status}`);
+
+        if (!res.ok) {
+            const errBody = await res.text().catch(() => '(sin cuerpo)');
+            console.error(`[Playback] Error del servidor: HTTP ${res.status} — ${errBody}`);
+            throw new Error('HTTP ' + res.status);
+        }
+        const data = await res.json();
+        dsPlaybackData = data.objects || {};
+
+        const nombres = Object.keys(dsPlaybackData);
+        console.log(`[Playback] Objetos recibidos: ${nombres.length} —`, nombres);
+        if (data._meta) console.log('[Playback] Meta:', data._meta);
+
+        let minMs = Infinity, maxMs = -Infinity;
+        Object.values(dsPlaybackData).forEach(o => {
+            (o.points || []).forEach(p => {
+                const t = Date.parse(p.time);
+                if (t < minMs) minMs = t;
+                if (t > maxMs) maxMs = t;
+            });
+        });
+        if (!isFinite(minMs)) {
+            console.error('[Playback] Ningún objeto trajo puntos usables — no se puede continuar');
+            throw new Error('Sin datos');
+        }
+
+        console.log(`[Playback] Ventana real: ${new Date(minMs).toISOString()} → ${new Date(maxMs).toISOString()}`);
+
+        playbackStartMs = minMs;
+        playbackEndMs = maxMs;
+        document.getElementById('playbackEndDateLabel').textContent = 'until ' + new Date(maxMs).toUTCString().slice(0, 22);
+        dsTimeOverride = playbackStartMs;
+
+        dsObjectsData = dsPlaybackData;
+        updateObjectPositions();
+
+        closePlaybackDatePanel();
+        document.getElementById('playbackTimeline').classList.add('active');
+        document.getElementById('playbackScrubber').value = 0;
+        updatePlaybackDateLabel();
+        console.log('[Playback] Listo — timeline activada');
+    } catch (e) {
+        console.error('[Playback] Fallo al cargar:', e.message);
+        errEl.textContent = 'Could not load data for that date. Try another.';
+        errEl.style.display = 'block';
+    } finally {
+        stopLoadingProgress();
+        document.getElementById('playbackGoText').textContent = 'Go';
+        goBtn.disabled = false;
+    }
+};
+
+function updatePlaybackDateLabel() {
+    const d = new Date(dsTimeOverride);
+    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22);
+    const pct = (dsTimeOverride - playbackStartMs) / (playbackEndMs - playbackStartMs) * 1000;
+    document.getElementById('playbackScrubber').value = Math.round(pct);
+}
+
+let loadingProgressTimer = null;
+function startLoadingProgress(estimatedMs) {
+    const fill = document.querySelector('#playbackGoBtn .pt-progress-fill');
+    const txt = document.getElementById('playbackGoText');
+    let pct = 0;
+    const stepMs = 150;
+    const increment = 88 / (estimatedMs / stepMs);
+    loadingProgressTimer = setInterval(() => {
+        pct = Math.min(88, pct + increment);
+        fill.style.width = pct + '%';
+        txt.textContent = `Loading… ${Math.round(pct)}%`;
+    }, stepMs);
+}
+function stopLoadingProgress() {
+    if (loadingProgressTimer) { clearInterval(loadingProgressTimer); loadingProgressTimer = null; }
+    const fill = document.querySelector('#playbackGoBtn .pt-progress-fill');
+    if (fill) fill.style.width = '0%';
+}
+
+window.onPlaybackScrub = function(val) {
+    dsTimeOverride = playbackStartMs + (val / 1000) * (playbackEndMs - playbackStartMs);
+    updatePlaybackDateLabel();
+    updateObjectPositions();
+    updateEarthRotation(dsTimeOverride);
+    if (currentInfoObjId) updateReferenceCalc();
+};
+
+window.togglePlaybackPlay = function() {
+    playbackPlaying = !playbackPlaying;
+    document.getElementById('playbackPlayBtn').textContent = playbackPlaying ? '⏸' : '▶';
+    if (playbackPlaying) {
+        playbackLastTick = performance.now();
+        playbackTickId = requestAnimationFrame(playbackTick);
+    } else if (playbackTickId) {
+        cancelAnimationFrame(playbackTickId);
+    }
+};
+
+function playbackTick(now) {
+    const deltaReal = (now - playbackLastTick) / 1000;
+    playbackLastTick = now;
+    dsTimeOverride += deltaReal * playbackSpeed * 1000;
+    if (currentInfoObjId) updateReferenceCalc();
+    if (dsTimeOverride >= playbackEndMs) {
+        dsTimeOverride = playbackEndMs;
+        playbackPlaying = false;
+        document.getElementById('playbackPlayBtn').textContent = '▶';
+        updatePlaybackDateLabel();
+        updateObjectPositions();
+        return;
+    }
+    updatePlaybackDateLabel();
+    updateObjectPositions();
+    updateEarthRotation(dsTimeOverride);
+    if (playbackPlaying) playbackTickId = requestAnimationFrame(playbackTick);
+}
+
+window.setPlaybackSpeed = function(s) {
+    playbackSpeed = s;
+    document.querySelectorAll('.pt-speed-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.speed) === s));
+};
+
+window.exitDeepSpacePlayback = function() {
+    playbackPlaying = false;
+    if (playbackTickId) cancelAnimationFrame(playbackTickId);
+    dsTimeOverride = null;
+    dsPlaybackData = null;
+    [...Object.keys(PLANET_META), ...Object.keys(DWARF_META), ...Object.keys(MOON_META), ...SPACECRAFT_IDS].forEach(id => {
+        const isMoonId = !!MOON_META[id];
+        const isDwarfId = !!DWARF_META[id];
+        const isPlanetId = !!PLANET_META[id];
+        const mesh = isMoonId ? moonMeshes[id] : (isDwarfId ? dwarfMeshes[id] : (isPlanetId ? planetMeshes[id] : spacecraftMeshes[id]));
+        if (mesh) mesh.visible = true;
+        const glowDict = isDwarfId ? dwarfGlows : planetGlows;
+        if (glowDict[id]) glowDict[id].visible = true;
+    });
+    document.getElementById('playbackTimeline').classList.remove('active');
+    loadDeepSpace(); // recarga los datos en vivo desde cero
+};
 loadDeepSpace();
 setInterval(loadDeepSpace, 30 * 60 * 1000);
 setInterval(updateObjectPositions, 60 * 1000); // reposiciona entre recargas de datos
+
+// Panel de info siempre vivo, en modo normal y en Playback — updateReferenceCalc
+// ya sabe elegir el tiempo correcto por sí sola.
+setInterval(() => {
+    if (currentInfoObjId) updateReferenceCalc();
+}, 250);
 
 // ==================== CAPAS (Layers) ====================
 let showPlanets = true, showOrbits = true, showSpacecraft = true, showDwarfs = true, showMoons = true;
@@ -1671,7 +2121,7 @@ function smoothTrajectory(rawPoints, samplesPerSegment = 8) {
 // empujamos a su superficie real, sin inventar la dirección.
 function snapPointIfInsidePlanet(vec, realPoint) {
     for (const planetId of Object.keys(PLANET_META)) {
-        const nowMs = Date.now();
+        const nowMs = dsTimeOverride !== null ? dsTimeOverride : Date.now();
         const planetObj = dsObjectsData[planetId];
         if (!planetObj) continue;
         const pp = interpHeliocentric(planetObj.points, nowMs);
@@ -1990,7 +2440,7 @@ function updateEarthRotation(nowMs) {
 
 function animate() {
     requestAnimationFrame(animate);
-    updateEarthRotation(Date.now());
+    updateEarthRotation(dsTimeOverride !== null ? dsTimeOverride : Date.now());
     controls.update();
     updateLabelVisibility();
     renderer.render(scene, camera);
@@ -2089,6 +2539,40 @@ maybeShowTrialPromo();
     <button class="tp-cta" onclick="trialPromoClick()">Try free for 7 days</button>
     <button class="tp-close" onclick="trialPromoClose()">×</button>
 </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, onIdTokenChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqQcTt6gK_220ZMbDIK9jSuOhCVLTZn4I",
+    authDomain: "satfleet-live.firebaseapp.com",
+    projectId: "satfleet-live",
+    storageBucket: "satfleet-live.firebasestorage.app",
+    messagingSenderId: "369952976257",
+    appId: "1:369952976257:web:c7ba2050865524fca80c80"
+  };
+
+  const _tokenApp = initializeApp(firebaseConfig);
+  const _tokenAuth = getAuth(_tokenApp);
+
+  // Vigilante silencioso — si alguien ya inició sesión antes en otra página
+  // del sitio (index.html, account.html...), aquí no hace falta que vuelva
+  // a iniciarla: solo mantenemos su token fresco, listo para las rutas de
+  // Playback que lo necesiten.
+  onIdTokenChanged(_tokenAuth, (user) => {
+    if (user) {
+      user.getIdToken().then((token) => {
+        localStorage.setItem('satfleet_fb_token', token);
+        if (typeof onPremiumTokenRefreshed === 'function') {
+          onPremiumTokenRefreshed();
+        }
+      }).catch(() => {});
+    } else {
+      localStorage.removeItem('satfleet_fb_token');
+    }
+  });
+</script>
 
 </body>
 </html>

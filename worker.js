@@ -46,18 +46,18 @@ const MOON_ORBITERS_TTL    = 6 * 3600;
 const MARS_ORBITERS_TTL    = 6 * 3600;
 
 const MOON_ORBITER_TARGETS = [
-  { id: 'lro',    name: 'LRO (NASA)',           bodyCommand: '301', observerCommand: '-85',  bodyRadiusKm: 1737.4 },
-  { id: 'ch2',    name: 'Chandrayaan-2 (ISRO)', bodyCommand: '301', observerCommand: '-152', bodyRadiusKm: 1737.4 },
-  { id: 'danuri', name: 'Danuri (KARI)',        bodyCommand: '301', observerCommand: '-155', bodyRadiusKm: 1737.4 },
+  { id: 'lro',    name: 'LRO (NASA)',           bodyCommand: '301', observerCommand: '-85',  bodyRadiusKm: 1737.4, launchDate: '2009-06-18' },
+  { id: 'ch2',    name: 'Chandrayaan-2 (ISRO)', bodyCommand: '301', observerCommand: '-152', bodyRadiusKm: 1737.4, launchDate: '2019-07-22' },
+  { id: 'danuri', name: 'Danuri (KARI)',        bodyCommand: '301', observerCommand: '-155', bodyRadiusKm: 1737.4, launchDate: '2022-08-04' },
 ];
 
 // Solo orbitadores con vectores REALES en Horizons. MAVEN, ExoMars TGO y
 // Tianwen-1 no los tienen (comprobado) — se quedan fuera hasta que existan.
 const MARS_ORBITER_TARGETS = [
-  { id: 'mro',     name: 'MRO (NASA)',          bodyCommand: '499', observerCommand: '-74', bodyRadiusKm: 3389.5 },
-  { id: 'odyssey', name: 'Mars Odyssey (NASA)', bodyCommand: '499', observerCommand: '-53', bodyRadiusKm: 3389.5 },
-  { id: 'mex',     name: 'Mars Express (ESA)',  bodyCommand: '499', observerCommand: '-41', bodyRadiusKm: 3389.5 },
-  { id: 'hope',    name: 'Hope / EMM (UAE)',    bodyCommand: '499', observerCommand: '-62', bodyRadiusKm: 3389.5 },
+  { id: 'mro',     name: 'MRO (NASA)',          bodyCommand: '499', observerCommand: '-74', bodyRadiusKm: 3389.5, launchDate: '2005-08-12' },
+  { id: 'odyssey', name: 'Mars Odyssey (NASA)', bodyCommand: '499', observerCommand: '-53', bodyRadiusKm: 3389.5, launchDate: '2001-04-07' },
+  { id: 'mex',     name: 'Mars Express (ESA)',  bodyCommand: '499', observerCommand: '-41', bodyRadiusKm: 3389.5, launchDate: '2003-06-02' },
+  { id: 'hope',    name: 'Hope / EMM (UAE)',    bodyCommand: '499', observerCommand: '-62', bodyRadiusKm: 3389.5, launchDate: '2020-07-19' },
   // Lunas naturales de Marte — mismo radio de Marte para calcular su altitud real
   { id: 'phobos',  name: 'Phobos',              bodyCommand: '499', observerCommand: '401', bodyRadiusKm: 3389.5 },
   { id: 'deimos',  name: 'Deimos',              bodyCommand: '499', observerCommand: '402', bodyRadiusKm: 3389.5 },
@@ -782,6 +782,200 @@ function calcDynamicTTL(results) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ARCHIVO HISTÓRICO DE TLE — una foto al día, guardada en formato clásico
+// ═══════════════════════════════════════════════════════════════
+
+const TLE_ARCHIVE_TTL_DAYS = 30;
+const TLE_ARCHIVE_CRON     = '0 3 * * *'; // 03:00 UTC — una vez al día basta, es un archivo histórico
+const DEEP_SPACE_WARM_CRON = '0 * * * *'; // cada hora — barato de comprobar (no hace nada si la caché sigue viva), y así nunca pasan más de ~1h de margen antes de que alguien real se encuentre la caché caducada
+
+const ALPHA5_LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // NORAD "Alpha-5": se salta la I y la O
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+function isLeapYear(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
+
+function satnumStr(noradId) {
+  if (noradId <= 99999) return String(noradId).padStart(5, '0');
+  // A partir de 100000, el catálogo NORAD usa una letra en vez del primer dígito
+  const thousands = Math.floor(noradId / 10000); // 10..33
+  const remainder  = noradId % 10000;
+  const letter = ALPHA5_LETTERS[thousands - 10];
+  return letter + String(remainder).padStart(4, '0');
+}
+
+function parseIntldesg(objectId) {
+  const m = /^(\d{4})-(\d{3})([A-Za-z]*)/.exec(objectId || '');
+  if (!m) return ' '.repeat(8);
+  const yy = m[1].slice(2);
+  return (yy + m[2] + m[3]).padEnd(8, ' ');
+}
+
+// Calculado a mano, sin pasar por el objeto Date de JS: Date solo guarda
+// milisegundos, y el EPOCH de CelesTrak trae microsegundos — usar Date aquí
+// perdía precisión y desplazaba el último dígito (y con él, el checksum).
+function epochToYyddd(epochIso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?/.exec(epochIso);
+  const year = Number(m[1]), month = Number(m[2]), day = Number(m[3]);
+  const hour = Number(m[4]), minute = Number(m[5]), second = Number(m[6]);
+  const microsecond = Number((m[7] || '').padEnd(6, '0').slice(0, 6));
+
+  let doy = day;
+  for (let mo = 1; mo < month; mo++) {
+    doy += DAYS_IN_MONTH[mo - 1];
+    if (mo === 2 && isLeapYear(year)) doy += 1;
+  }
+  const fracOfDay = (hour * 3600 + minute * 60 + second + microsecond / 1e6) / 86400;
+  const ddd = (doy + fracOfDay).toFixed(8).padStart(12, '0');
+  return String(year % 100).padStart(2, '0') + ddd;
+}
+
+function fmtNdot(value) {
+  const sign = value < 0 ? '-' : ' ';
+  let s = sign + Math.abs(value).toFixed(8);
+  const idx = s.indexOf('0');
+  s = s.slice(0, idx) + s.slice(idx + 1);
+  return s + ' ';
+}
+
+function toExpPython(value, decimals) {
+  const s = value.toExponential(decimals);
+  const m = /^(-?)(\d(?:\.\d+)?)e([+-])(\d+)$/.exec(s);
+  const sign = m[1] ? '-' : ' ';
+  return sign + m[2] + 'e' + m[3] + m[4].padStart(2, '0');
+}
+
+function abbreviateRate(value, zeroExponentString) {
+  let s = toExpPython(value, 4) + ' ';
+  s = s.replace('.', '');
+  s = s.replace('e+00', zeroExponentString);
+  s = s.replace('e-0', '-');
+  s = s.replace('e+0', '+');
+  return s;
+}
+
+function fmtDeg8_4f(value) {
+  const s = Math.abs(value).toFixed(4);
+  return (value < 0 ? '-' + s : s).padStart(8, ' ');
+}
+
+function computeTleChecksum(line) {
+  let total = 0;
+  for (const c of line.slice(0, 68)) {
+    if (c >= '0' && c <= '9') total += Number(c);
+    else if (c === '-') total += 1;
+  }
+  return total % 10;
+}
+
+function ommToTle(obj) {
+  const satnum = satnumStr(obj.NORAD_CAT_ID);
+  const classification = (obj.CLASSIFICATION_TYPE || 'U').trim() || 'U';
+  const intldesg  = parseIntldesg(obj.OBJECT_ID);
+  const epochField = epochToYyddd(obj.EPOCH);
+  const ndotField  = fmtNdot(obj.MEAN_MOTION_DOT || 0);
+  const nddotField = abbreviateRate((obj.MEAN_MOTION_DDOT || 0) * 10.0, '-0');
+  const bstarField = abbreviateRate((obj.BSTAR || 0) * 10.0, '+0');
+  const ephtype = obj.EPHEMERIS_TYPE ?? 0;
+  const elnum   = String(obj.ELEMENT_SET_NO ?? 0).padStart(4, ' ');
+
+  let line1 = `1 ${satnum}${classification} ${intldesg} ${epochField} ${ndotField}${nddotField}${bstarField}${ephtype} ${elnum}`;
+  line1 += String(computeTleChecksum(line1));
+
+  const eccField = obj.ECCENTRICITY.toFixed(7).replace('0.', '');
+  const mmField  = obj.MEAN_MOTION.toFixed(8).padStart(11, ' ');
+  const revField = String(obj.REV_AT_EPOCH ?? 0).padStart(5, ' ');
+
+  let line2 = `2 ${satnum} ${fmtDeg8_4f(obj.INCLINATION)} ${fmtDeg8_4f(obj.RA_OF_ASC_NODE)} ${eccField} ${fmtDeg8_4f(obj.ARG_OF_PERICENTER)} ${fmtDeg8_4f(obj.MEAN_ANOMALY)} ${mmField}${revField}`;
+  line2 += String(computeTleChecksum(line2));
+
+  return { name: obj.OBJECT_NAME || 'UNKNOWN', line1, line2 };
+}
+
+async function archiveTleSnapshot(env) {
+  let gpData;
+  try {
+    const res = await fetch(CELESTRAK_URL, {
+      headers: {
+        'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com; contact: jaime.automatiza@gmail.com)',
+        'Accept': 'application/json',
+      },
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    gpData = JSON.parse(await res.text());
+  } catch (e) {
+    console.error('TLE archive: no se pudo obtener CelesTrak, se reintenta mañana:', e.message);
+    return;
+  }
+
+  let text = '';
+  let converted = 0;
+  for (const obj of gpData) {
+    try {
+      const { name, line1, line2 } = ommToTle(obj);
+      text += name + '\n' + line1 + '\n' + line2 + '\n';
+      converted++;
+    } catch (e) {
+      continue;
+    }
+  }
+
+  const dateKey = new Date().toISOString().slice(0, 10);
+  await env.LAUNCHES_KV.put(`tle_archive_${dateKey}`, text, {
+    expirationTtl: TLE_ARCHIVE_TTL_DAYS * 24 * 3600,
+  });
+
+  let index = [];
+  try {
+    const raw = await env.LAUNCHES_KV.get('tle_archive_index');
+    if (raw) index = JSON.parse(raw);
+  } catch (e) {}
+  index = index.filter(d => d !== dateKey);
+  index.push(dateKey);
+  index = index.filter(d => (Date.now() - new Date(d + 'T00:00:00Z').getTime()) / 86400000 <= TLE_ARCHIVE_TTL_DAYS).sort();
+  await env.LAUNCHES_KV.put('tle_archive_index', JSON.stringify(index), {
+    expirationTtl: TLE_ARCHIVE_TTL_DAYS * 24 * 3600,
+  });
+
+  console.log(`TLE archive: guardado ${dateKey} — ${converted}/${gpData.length} objetos, ${text.length} bytes`);
+}
+
+async function handleTlePlayback(request, env) {
+  const url = new URL(request.url);
+  const dateParam = url.searchParams.get('date');
+
+  const validFormat = typeof dateParam === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateParam);
+  const realDate = validFormat && new Date(dateParam + 'T00:00:00Z').toISOString().slice(0, 10) === dateParam;
+  const todayUtc = new Date().toISOString().slice(0, 10);
+  if (!validFormat || !realDate || dateParam > todayUtc) {
+    return new Response(JSON.stringify({ error: 'Parámetro ?date=YYYY-MM-DD inválido' }), {
+      status: 400,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const text = await env.LAUNCHES_KV.get(`tle_archive_${dateParam}`);
+  if (!text) {
+    return new Response(JSON.stringify({ error: `No hay snapshot archivado para ${dateParam} — o aún no existía el archivo ese día, o ya caducaron sus 30 días` }), {
+      status: 404,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  return new Response(text, {
+    status: 200,
+    headers: makeHeaders({ 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }),
+  });
+}
+
+async function handleTleArchiveIndex(env) {
+  const raw = await env.LAUNCHES_KV.get('tle_archive_index');
+  return new Response(raw || '[]', {
+    status: 200,
+    headers: makeHeaders({ 'Content-Type': 'application/json' }),
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
 // HANDLER: /api/tle
 // ═══════════════════════════════════════════════════════════════
 
@@ -1217,37 +1411,21 @@ function buildSubObserverUrl(target, startTime, stopTime) {
   return `${HORIZONS_BASE}?${q}`;
 }
 
-async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
-  try {
-    const cached = await env.LAUNCHES_KV.get(kvKey);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      if (Date.now() - parsed.fetchedAt < ttl * 1000) {
-        return new Response(JSON.stringify({ orbiters: parsed.orbiters, _meta: { source: 'kv_cache', fetchedAt: new Date(parsed.fetchedAt).toISOString() } }), {
-          status: 200,
-          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'X-Cache': 'HIT' }),
-        });
-      }
-    }
-  } catch(e) { console.error('Orbiters KV read error:', e.message); }
-
-  const now = new Date();
-  const startTime = now.toISOString().slice(0, 10);
-  const stopTime  = new Date(now.getTime() + 48 * 3600 * 1000).toISOString().slice(0, 10);
-
-  // Guardamos lo último bueno de cada orbitador por separado, para poder
-  // rellenar huecos individuales si alguno falla hoy — mismo principio que
-  // ya usamos en Deep Space, adaptado aquí a listas más cortas.
-  let previousOrbiters = {};
-  try {
-    const prevCached = await env.LAUNCHES_KV.get(kvKey);
-    if (prevCached) previousOrbiters = JSON.parse(prevCached).orbiters || {};
-  } catch(e) {}
+// El "motor" — calcula posiciones para CUALQUIER fecha que le des, sin
+// decidir él mismo cuál usar. Eso lo deciden las dos funciones de abajo.
+async function computeOrbiters(refDate, targets, previousOrbiters) {
+  const startTime = refDate.toISOString().slice(0, 10);
+  const stopTime  = new Date(refDate.getTime() + 48 * 3600 * 1000).toISOString().slice(0, 10);
 
   const orbiters = {};
   let anySuccess = false;
+  let skippedCount = 0;
 
   for (const target of targets) {
+    // Si la nave aún no se había lanzado en esa fecha, sabemos la respuesta sin
+    // preguntar a Horizons (evita 3 intentos inútiles + esperas). Las lunas naturales no tienen launchDate.
+    if (target.launchDate && refDate < new Date(target.launchDate + 'T00:00:00Z')) { skippedCount++; continue; }
+
     let points = null;
     let lastError;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -1278,6 +1456,36 @@ async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
     }
   }
 
+  // Si TODOS estaban sin lanzar en esa fecha (p. ej. Luna en el año 2000), no es un error de la NASA:
+  // devolvemos una respuesta válida y vacía en vez de un 502 engañoso.
+  if (!anySuccess && skippedCount === targets.length) anySuccess = true;
+
+  return { orbiters, anySuccess };
+}
+
+// Puerta de entrada 1: "ahora mismo" — la de siempre, sin cambios de comportamiento
+async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
+  try {
+    const cached = await env.LAUNCHES_KV.get(kvKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Date.now() - parsed.fetchedAt < ttl * 1000) {
+        return new Response(JSON.stringify({ orbiters: parsed.orbiters, _meta: { source: 'kv_cache', fetchedAt: new Date(parsed.fetchedAt).toISOString() } }), {
+          status: 200,
+          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'X-Cache': 'HIT' }),
+        });
+      }
+    }
+  } catch(e) { console.error('Orbiters KV read error:', e.message); }
+
+  let previousOrbiters = {};
+  try {
+    const prevCached = await env.LAUNCHES_KV.get(kvKey);
+    if (prevCached) previousOrbiters = JSON.parse(prevCached).orbiters || {};
+  } catch(e) {}
+
+  const { orbiters, anySuccess } = await computeOrbiters(new Date(), targets, previousOrbiters);
+
   if (!anySuccess) {
     try {
       const stale = await env.LAUNCHES_KV.get(kvKey);
@@ -1304,12 +1512,66 @@ async function handleOrbiters(ctx, env, targets, kvKey, ttl) {
   });
 }
 
+// Puerta de entrada 2: NUEVA — una fecha del pasado, para el Playback.
+// Mismo motor de arriba, pero cacheado 30 días (el pasado no cambia nunca).
+async function handleOrbitersPlayback(request, ctx, env, targets, kvKeyPrefix) {
+  const url = new URL(request.url);
+  const dateParam = url.searchParams.get('date');
+
+  const PLAYBACK_MIN_DATE = '1957-10-04'; // mismo límite que ya validamos en Deep Space
+  const todayUtc = new Date().toISOString().slice(0, 10);
+  const validFormat = typeof dateParam === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateParam);
+  const realDate = validFormat && new Date(dateParam + 'T00:00:00Z').toISOString().slice(0, 10) === dateParam;
+  if (!validFormat || !realDate || dateParam < PLAYBACK_MIN_DATE || dateParam > todayUtc) {
+    return new Response(JSON.stringify({ error: `Parámetro ?date=YYYY-MM-DD inválido (rango permitido: ${PLAYBACK_MIN_DATE} a ${todayUtc})` }), {
+      status: 400,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const kvKey = `${kvKeyPrefix}_playback_${dateParam}`;
+  try {
+    const cached = await env.LAUNCHES_KV.get(kvKey);
+    if (cached) {
+      return new Response(JSON.stringify({ orbiters: JSON.parse(cached).orbiters, _meta: { source: 'kv_cache_playback' } }), {
+        status: 200,
+        headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }),
+      });
+    }
+  } catch(e) { console.error('Orbiters playback KV read error:', e.message); }
+
+  const refDate = new Date(dateParam + 'T00:00:00Z');
+  const { orbiters, anySuccess } = await computeOrbiters(refDate, targets, {});
+
+  if (!anySuccess) {
+    return new Response(JSON.stringify({ error: 'Horizons unreachable para esa fecha', orbiters: {} }), {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  ctx.waitUntil(env.LAUNCHES_KV.put(kvKey, JSON.stringify({ orbiters }), { expirationTtl: 30 * 24 * 3600 }));
+
+  return new Response(JSON.stringify({ orbiters, _meta: { source: 'fresh_fetch_playback', date: dateParam } }), {
+    status: 200,
+    headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }),
+  });
+}
+
 async function handleMoonOrbiters(ctx, env) {
   return handleOrbiters(ctx, env, MOON_ORBITER_TARGETS, KV_KEY_MOON_ORBITERS, MOON_ORBITERS_TTL);
 }
 
+async function handleMoonOrbitersPlayback(request, ctx, env) {
+  return handleOrbitersPlayback(request, ctx, env, MOON_ORBITER_TARGETS, 'moon_orbiters');
+}
+
 async function handleMarsOrbiters(ctx, env) {
   return handleOrbiters(ctx, env, MARS_ORBITER_TARGETS, KV_KEY_MARS_ORBITERS, MARS_ORBITERS_TTL);
+}
+
+async function handleMarsOrbitersPlayback(request, ctx, env) {
+  return handleOrbitersPlayback(request, ctx, env, MARS_ORBITER_TARGETS, 'mars_orbiters');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1402,21 +1664,22 @@ const DEEP_SPACE_TARGETS = [
   { id: 'quaoar', name: 'Quaoar', command: '50000', isPlanet: true },
   { id: 'gonggong', name: 'Gonggong', command: '225088', isPlanet: true },
   { id: 'orcus', name: 'Orcus', command: '90482', isPlanet: true },
-  // Naves de espacio profundo
-  { id: 'voyager1', name: 'Voyager 1', command: '-31' },
-  { id: 'voyager2', name: 'Voyager 2', command: '-32' },
-  { id: 'jwst',      name: 'James Webb Space Telescope', command: '-170' },
-  { id: 'parker',    name: 'Parker Solar Probe', command: '-96' },
-  { id: 'newhorizons', name: 'New Horizons', command: '-98' },
-  { id: 'juno',      name: 'Juno', command: '-61' },
-  { id: 'hera', name: 'Hera', command: '-91' },
-  { id: 'bepicolombo', name: 'BepiColombo', command: '-121' },
-  { id: 'europaclipper', name: 'Europa Clipper', command: '-159' },
-  { id: 'lucy', name: 'Lucy', command: '-49' },
-  { id: 'psyche', name: 'Psyche', command: '-255' },
-  { id: 'romantelescope', name: 'Nancy Grace Roman Space Telescope', command: '-211' },
-  { id: 'solarorbiter', name: 'Solar Orbiter', command: '-144' },
-  { id: 'osirisapex', name: 'OSIRIS-APEX', command: '-64' },
+  // Naves de espacio profundo — launchDate real de cada una, para el Playback:
+  // así nunca preguntamos a Horizons por una nave que todavía no existía.
+  { id: 'voyager1', name: 'Voyager 1', command: '-31', launchDate: '1977-09-05' },
+  { id: 'voyager2', name: 'Voyager 2', command: '-32', launchDate: '1977-08-20' },
+  { id: 'jwst',      name: 'James Webb Space Telescope', command: '-170', launchDate: '2021-12-25' },
+  { id: 'parker',    name: 'Parker Solar Probe', command: '-96', launchDate: '2018-08-12' },
+  { id: 'newhorizons', name: 'New Horizons', command: '-98', launchDate: '2006-01-19' },
+  { id: 'juno',      name: 'Juno', command: '-61', launchDate: '2011-08-05' },
+  { id: 'hera', name: 'Hera', command: '-91', launchDate: '2024-10-07' },
+  { id: 'bepicolombo', name: 'BepiColombo', command: '-121', launchDate: '2018-10-20' },
+  { id: 'europaclipper', name: 'Europa Clipper', command: '-159', launchDate: '2024-10-14' },
+  { id: 'lucy', name: 'Lucy', command: '-49', launchDate: '2021-10-16' },
+  { id: 'psyche', name: 'Psyche', command: '-255', launchDate: '2023-10-13' },
+  { id: 'romantelescope', name: 'Nancy Grace Roman Space Telescope', command: '-211', launchDate: '2026-08-30' },
+  { id: 'solarorbiter', name: 'Solar Orbiter', command: '-144', launchDate: '2020-02-10' },
+  { id: 'osirisapex', name: 'OSIRIS-APEX', command: '-64', launchDate: '2016-09-08' },
 ];
 function parseHeliocentricVectors(resultText) {
   if (!resultText) return [];
@@ -1470,23 +1733,8 @@ function buildHeliocentricUrl(target, startTime, stopTime, stepSize) {
   return `${HORIZONS_BASE}?${q}`;
 }
 
-async function handleDeepSpace(ctx, env) {
-  let previousObjects = {}; // guardamos lo último bueno, sea cual sea, para rellenar huecos si algo falla hoy
-  try {
-    const cached = await env.LAUNCHES_KV.get(KV_KEY_DEEP_SPACE);
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      previousObjects = parsed.objects || {};
-      if (Date.now() - parsed.fetchedAt < DEEP_SPACE_TTL * 1000) {
-        return new Response(JSON.stringify({ objects: parsed.objects, _meta: { source: 'kv_cache' } }), {
-          status: 200,
-          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8' }),
-        });
-      }
-    }
-  } catch(e) { console.error('Deep space KV read error:', e.message); }
-
-  const now = new Date();
+async function computeDeepSpaceObjects(refDate, previousObjects) {
+  const now = refDate; // "now" en el sentido de "el instante alrededor del cual pedimos la ventana" — puede ser hoy, o una fecha del pasado para el Playback
   const startTime = now.toISOString().slice(0, 10);
   const objects = {};
   let anySuccess = false;
@@ -1495,19 +1743,40 @@ async function handleDeepSpace(ctx, env) {
   // exacta viene en su propio mensaje de error — la leemos y volvemos a
   // preguntar justo con ese límite, en vez de adivinar con escalones fijos
   // que podrían dejar días reales sin pedir.
-  function extractNoEphemerisDate(errMsg) {
-    const m = /after\s+A\.D\.\s+(\d{4})-(\w{3})-(\d{2})/i.exec(errMsg || '');
-    if (!m) return null;
-    const meses = { JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12' };
-    const mm = meses[m[2].toUpperCase()];
-    return mm ? `${m[1]}-${mm}-${m[3]}` : null;
+  const MESES_HORIZONS = { JAN:'01',FEB:'02',MAR:'03',APR:'04',MAY:'05',JUN:'06',JUL:'07',AUG:'08',SEP:'09',OCT:'10',NOV:'11',DEC:'12' };
+
+  // Horizons usa dos frases distintas según en qué extremo falten datos:
+  // "after A.D. X" → los datos se acaban antes de lo pedido (hay que acortar el FINAL)
+  // "prior to A.D. X" → los datos empiezan después de lo pedido (hay que adelantar el INICIO)
+  // Antes solo sabíamos leer la primera — por eso Voyager 1, pedido desde
+  // antes de su lanzamiento, se descartaba entero en vez de ajustar el inicio.
+  function extractEphemerisBoundary(errMsg) {
+    const msg = errMsg || '';
+    const after = /after\s+A\.D\.\s+(\d{4})-(\w{3})-(\d{2})/i.exec(msg);
+    if (after) {
+      const mm = MESES_HORIZONS[after[2].toUpperCase()];
+      return mm ? { type: 'after', date: `${after[1]}-${mm}-${after[3]}` } : null;
+    }
+    const prior = /prior\s+to\s+A\.D\.\s+(\d{4})-(\w{3})-(\d{2})/i.exec(msg);
+    if (prior) {
+      const mm = MESES_HORIZONS[prior[2].toUpperCase()];
+      if (!mm) return null;
+      // El mensaje trae también la HORA exacta (ej. "13:59:24") que nosotros
+      // no leemos — si reintentamos con la misma fecha a medianoche, seguimos
+      // pidiendo antes de esa hora real, y la NASA nos rechaza otra vez con
+      // el mismo motivo. Sumamos un día entero de margen para no rozarlo.
+      const fechaBase = new Date(`${prior[1]}-${mm}-${prior[3]}T00:00:00Z`);
+      const fechaSegura = new Date(fechaBase.getTime() + 24 * 3600 * 1000).toISOString().slice(0, 10);
+      return { type: 'prior', date: fechaSegura };
+    }
+    return null;
   }
 
-  async function intentarUnaVez(target, stopTime, stepSize) {
+  async function intentarUnaVez(target, stopTime, stepSize, inicioPersonalizado) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
-      const res = await fetch(buildHeliocentricUrl(target, startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
+      const res = await fetch(buildHeliocentricUrl(target, inicioPersonalizado || startTime, stopTime, stepSize), { headers: { 'Accept': 'application/json' }, signal: controller.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -1527,13 +1796,19 @@ async function handleDeepSpace(ctx, env) {
         return await intentarUnaVez(target, stopTime, stepSize);
       } catch (err) {
         lastErr = err;
-        const fechaReal = extractNoEphemerisDate(err.message);
-        if (fechaReal) {
-          // No tiene sentido reintentar una fecha que la NASA ya nos dijo
-          // que no existe — vamos directos al límite real que sí nos dio.
-          return await intentarUnaVez(target, fechaReal, stepSize);
+        const boundary = extractEphemerisBoundary(err.message);
+        if (boundary?.type === 'after') {
+          // Los datos se acaban antes de lo pedido — acortamos el final.
+          return await intentarUnaVez(target, boundary.date, stepSize);
         }
-        if (attempt < 2) await new Promise(r => setTimeout(r, 300));
+        if (boundary?.type === 'prior') {
+          // Los datos empiezan después de lo pedido (ej. Voyager 1, pedido
+          // desde antes de su lanzamiento) — adelantamos el inicio a la
+          // fecha real, manteniendo el mismo final de siempre.
+          return await intentarUnaVez(target, stopTime, stepSize, boundary.date);
+        }
+        if (/no ephemeris/i.test(err.message || '')) throw err;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 300 * (attempt + 1) * (attempt + 1)));
       }
     }
     throw lastErr;
@@ -1545,9 +1820,10 @@ async function handleDeepSpace(ctx, env) {
   // Para todo lo demás (incluida una futura Starship), empezamos ancho y
   // solo bajamos si el propio movimiento real nos dice que hace falta.
   const STEP_TIERS = [
-    { step: '12%20h', ventanas: [30, 15, 5] },
-    { step: '30%20m', ventanas: [5] },
-    { step: '1%20m',  ventanas: [1] },
+    { step: '12%20h', ventanas: [30] },  // objetos normales — SIEMPRE el rango ancho completo
+    { step: '3%20h',  ventanas: [30] },  // si a 12h se ve "brusco", afinamos la resolución, sin recortar el rango
+    { step: '30%20m', ventanas: [5] },   // aquí empiezan los objetos fastOrbit
+    { step: '1%20m',  ventanas: [1] },   // aquí empiezan los ultraFastOrbit
   ];
 
   // Mide si el salto más grande entre dos fotos consecutivas es una porción
@@ -1567,7 +1843,7 @@ async function handleDeepSpace(ctx, env) {
   }
 
   async function fetchConDeteccionAutomatica(target) {
-    let tierIdx = target.ultraFastOrbit ? 2 : (target.fastOrbit ? 1 : 0);
+    let tierIdx = target.ultraFastOrbit ? 3 : (target.fastOrbit ? 2 : 0);
     let lastError = new Error('No se pudo obtener ningún dato');
     while (tierIdx < STEP_TIERS.length) {
       const tier = STEP_TIERS[tierIdx];
@@ -1582,12 +1858,16 @@ async function handleDeepSpace(ctx, env) {
           break; // hay datos, pero demasiado bastos — probamos el siguiente escalón
         } catch (err) {
           lastError = err;
-          if (!/no ephemeris/i.test(err.message || '')) {
-            await new Promise(r => setTimeout(r, 300));
-          }
+          // "No ephemeris" = la nave no existía en esa fecha: probar otro
+          // escalón no ayuda, es el único caso donde sí nos rendimos ya.
+          if (/no ephemeris/i.test(err.message || '')) throw err;
+          await new Promise(r => setTimeout(r, 300));
         }
       }
-      if (!necesitaAfinar) throw lastError; // el fallo fue real, no de resolución — no seguimos afinando
+      // Tanto si el motivo fue "se ve brusco" como si fue un fallo real
+      // (un 503 puntual, por ejemplo), probamos el siguiente escalón — así
+      // cada objeto tiene margen en LOS CUATRO escalones, no solo en el
+      // primero, antes de rendirse del todo.
       tierIdx++;
     }
     throw lastError;
@@ -1599,12 +1879,23 @@ async function handleDeepSpace(ctx, env) {
   for (let i = 0; i < DEEP_SPACE_TARGETS.length; i += BATCH_SIZE) {
     const batch = DEEP_SPACE_TARGETS.slice(i, i + BATCH_SIZE);
     const results = await Promise.allSettled(batch.map(async (target) => {
+      // Ni preguntamos: si la fecha pedida es anterior a su lanzamiento real,
+      // sabemos la respuesta sin gastar ninguna llamada a Horizons.
+      // Solo descartamos sin preguntar si el lanzamiento cae CLARAMENTE fuera
+      // de cualquier ventana que vayamos a intentar (30 días es la más ancha
+      // que probamos) — si cae dentro, lo intentamos: Horizons y nuestro
+      // propio sistema de reintentos ya saben ajustarse a la fecha real.
+      const maxVentanaMs = 30 * 24 * 3600 * 1000;
+      if (target.launchDate && new Date(target.launchDate + 'T00:00:00Z').getTime() > now.getTime() + maxVentanaMs) {
+        return { target, points: [], skipped: true };
+      }
       const points = await fetchConDeteccionAutomatica(target);
       return { target, points };
     }));
 
     results.forEach((result, j) => {
       const target = batch[j];
+      if (result.status === 'fulfilled' && result.value.skipped) return; // nave aún no lanzada en esa fecha: no es un fallo, no lo registramos como tal
       if (result.status === 'fulfilled' && result.value.points.length) {
         objects[target.id] = { name: target.name, isPlanet: !!target.isPlanet, points: result.value.points, lastFreshAt: Date.now() };
         anySuccess = true;
@@ -1620,6 +1911,27 @@ async function handleDeepSpace(ctx, env) {
       }
     });
   }
+
+  return { objects, anySuccess };
+}
+
+async function handleDeepSpace(ctx, env) {
+  let previousObjects = {};
+  try {
+    const cached = await env.LAUNCHES_KV.get(KV_KEY_DEEP_SPACE);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      previousObjects = parsed.objects || {};
+      if (Date.now() - parsed.fetchedAt < DEEP_SPACE_TTL * 1000) {
+        return new Response(JSON.stringify({ objects: parsed.objects, _meta: { source: 'kv_cache' } }), {
+          status: 200,
+          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8' }),
+        });
+      }
+    }
+  } catch(e) { console.error('Deep space KV read error:', e.message); }
+
+  const { objects, anySuccess } = await computeDeepSpaceObjects(new Date(), previousObjects);
 
   if (!anySuccess) {
     try {
@@ -1647,12 +1959,75 @@ async function handleDeepSpace(ctx, env) {
   });
 }
 
+// ════════ PLAYBACK — mismo motor, apuntando a una fecha del pasado ════════
+// El pasado no cambia nunca, así que cacheamos 30 días — evita volver a
+// preguntarle a Horizons por una fecha que ya trajimos antes.
+async function handleDeepSpacePlayback(request, ctx, env) {
+  const url = new URL(request.url);
+  const dateParam = url.searchParams.get('date'); // formato exacto: 2025-03-15
+
+  // Solo aceptamos una fecha real, con formato exacto, entre el inicio de la era espacial y hoy.
+  // Sin esto, cualquiera podía pedir "0001-01-01" o formatos raros (que además hacían fallar el Worker).
+  const PLAYBACK_MIN_DATE = '1957-10-04'; // Sputnik 1 — probado en vivo: fechas muy anteriores no responden bien
+  const todayUtc = new Date().toISOString().slice(0, 10);
+  const validFormat = typeof dateParam === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateParam);
+  const realDate = validFormat && new Date(dateParam + 'T00:00:00Z').toISOString().slice(0, 10) === dateParam; // rechaza 2025-02-30
+  if (!validFormat || !realDate || dateParam < PLAYBACK_MIN_DATE || dateParam > todayUtc) {
+    return new Response(JSON.stringify({ error: `Parámetro ?date=YYYY-MM-DD inválido (rango permitido: ${PLAYBACK_MIN_DATE} a ${todayUtc})` }), {
+      status: 400,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const kvKey = `deep_space_playback_${dateParam}`;
+  try {
+    const cached = await env.LAUNCHES_KV.get(kvKey);
+    if (cached) {
+      return new Response(JSON.stringify({ objects: JSON.parse(cached).objects, _meta: { source: 'kv_cache_playback' } }), {
+        status: 200,
+        headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }),
+      });
+    }
+  } catch(e) { console.error('Playback KV read error:', e.message); }
+
+  const refDate = new Date(dateParam + 'T00:00:00Z'); // los datos devueltos cubren ese día y los ~30 siguientes (no van centrados en la fecha)
+  const { objects, anySuccess } = await computeDeepSpaceObjects(refDate, {}); // sin red de seguridad de "lo último bueno" — no aplica a fechas concretas del pasado
+
+  if (!anySuccess) {
+    return new Response(JSON.stringify({ error: 'Horizons unreachable para esa fecha', objects: {} }), {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  ctx.waitUntil(env.LAUNCHES_KV.put(kvKey, JSON.stringify({ objects }), { expirationTtl: 30 * 24 * 3600 }));
+
+  return new Response(JSON.stringify({ objects, _meta: { source: 'fresh_fetch_playback', date: dateParam } }), {
+    status: 200,
+    headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=86400' }),
+  });
+}
+
 // ═══════════════════════════════════════════════════════════════
 // ROUTER PRINCIPAL
 // ═══════════════════════════════════════════════════════════════
 
 export default {
   async scheduled(event, env, ctx) {
+    // Tres tareas comparten el mismo "despertador" de Cron Triggers,
+    // diferenciadas por qué expresión cron ha disparado esta ejecución.
+    if (event.cron === TLE_ARCHIVE_CRON) {
+      await archiveTleSnapshot(env);
+      return;
+    }
+    if (event.cron === DEEP_SPACE_WARM_CRON) {
+      // handleDeepSpace ya sabe no hacer nada si la caché sigue viva —
+      // esto solo dispara trabajo de verdad cuando hace falta, pero lo
+      // hace EL PROPIO WORKER, nunca un usuario real esperando en directo.
+      const fakeCtx = { waitUntil: (p) => ctx.waitUntil(p) };
+      await handleDeepSpace(fakeCtx, env);
+      return;
+    }
     const fakeCtx = { waitUntil: (p) => ctx.waitUntil(p) };
     await handleLaunches(fakeCtx, env, true); // fuerza refresh para ejecutar notificaciones
   },
@@ -1806,12 +2181,44 @@ export default {
     }
 
     if (pathname === '/api/tle') return handleTle(ctx, env);
+    if (pathname === '/api/tle-playback') {
+      const url = new URL(request.url);
+      const dateParam = url.searchParams.get('date');
+      const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
+      if (dateParam !== yesterday) {
+        // Cualquier fecha que no sea "ayer" es de pago — "ayer" siempre
+        // queda libre, sin comprobar nada.
+        const uid = extractUidFromJWT(request.headers.get('Authorization'));
+        const isPremium = await checkPremiumStatus(uid, env);
+        if (!isPremium) return premiumRequired();
+      }
+      return handleTlePlayback(request, env);
+    }
+    if (pathname === '/api/tle-archive-index') return handleTleArchiveIndex(env);
     if (pathname.startsWith('/api/tle/'))        return handleTleSingle(request, env);
     if (pathname.startsWith('/api/satellite/'))  return handleSatelliteInfo(request, env);
     if (pathname.startsWith('/api/launches/upcoming')) return handleLaunches(ctx, env);
     if (pathname === '/api/moon-orbiters') return handleMoonOrbiters(ctx, env);
+    if (pathname === '/api/moon-orbiters-playback') {
+      const uid = extractUidFromJWT(request.headers.get('Authorization'));
+      const isPremium = await checkPremiumStatus(uid, env);
+      if (!isPremium) return premiumRequired();
+      return handleMoonOrbitersPlayback(request, ctx, env);
+    }
     if (pathname === '/api/mars-orbiters') return handleMarsOrbiters(ctx, env);
+    if (pathname === '/api/mars-orbiters-playback') {
+      const uid = extractUidFromJWT(request.headers.get('Authorization'));
+      const isPremium = await checkPremiumStatus(uid, env);
+      if (!isPremium) return premiumRequired();
+      return handleMarsOrbitersPlayback(request, ctx, env);
+    }
     if (pathname === '/api/deep-space') return handleDeepSpace(ctx, env);
+    if (pathname === '/api/deep-space-playback') {
+      const uid = extractUidFromJWT(request.headers.get('Authorization'));
+      const isPremium = await checkPremiumStatus(uid, env);
+      if (!isPremium) return premiumRequired();
+      return handleDeepSpacePlayback(request, ctx, env);
+    }
     if (pathname.startsWith('/api/rover-trail/')) return handleRoverTrail(request, ctx, env);
 
     return new Response(JSON.stringify({ error: 'Not Found', path: pathname }), {

@@ -94,6 +94,7 @@
 <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
     <style>
+        #exploreBtn { display: none !important; }
         * {
             margin: 0;
             padding: 0;
@@ -1732,29 +1733,30 @@ body.light-mode .rocket-filter-chip {
         #exploreBtn .explore-icon { width:15px; height:15px; filter:invert(1); opacity:0.75; }
         #exploreBtn:hover, #exploreBtn.open { background:rgba(255,255,255,0.14); color:#fff; }
 
-        #exploreFloatBtn {
-            display:none; position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
-            background:rgba(15,15,15,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-            border:1px solid rgba(255,255,255,0.10); border-radius:20px; padding:6px 14px;
-            z-index:850; align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
-        }
-        #exploreFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
-        #exploreFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
-        #exploreFloatBtn.open, #exploreFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
-        #exploreFloatBtn.open img, #exploreFloatBtn.open span { opacity:1; }
-
-        @media (max-width: 768px) {
-            #exploreFloatBtn { display:flex; }
-        }
+    #bottomFloatBar {
+        position:fixed; bottom:36px; left:50%; transform:translateX(-50%);
+        display:flex; gap:8px; z-index:850;
+    }
+    #exploreFloatBtn, #playbackFloatBtn {
+        display:flex; position:static;
+        background:rgba(15,15,15,0.55); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+        border:1px solid rgba(255,255,255,0.10); border-radius:20px; padding:6px 14px;
+        align-items:center; gap:6px; cursor:pointer; transition:all 0.2s ease;
+    }
+    #exploreFloatBtn img, #playbackFloatBtn img { width:15px; height:15px; filter:invert(1); opacity:0.55; }
+    #exploreFloatBtn span, #playbackFloatBtn span { font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:600; }
+    #exploreFloatBtn.open, #exploreFloatBtn:active,
+    #playbackFloatBtn.open, #playbackFloatBtn:active { background:rgba(156,39,176,0.18); border-color:rgba(156,39,176,0.4); }
+    #exploreFloatBtn.open img, #exploreFloatBtn.open span,
+    #playbackFloatBtn.open img, #playbackFloatBtn.open span { opacity:1; }
 
         #exploreMenu {
             position:fixed; background:rgba(10,10,16,0.98); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
             border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:8px;
             z-index:1100; min-width:160px; box-shadow:0 20px 50px rgba(0,0,0,0.6);
             opacity:0; pointer-events:none; transition:opacity 0.18s ease, transform 0.18s ease;
-            top:calc(var(--bar-height) + 8px); right:16px; transform:translateY(-8px);
         }
-        #exploreMenu.open { opacity:1; pointer-events:all; transform:translateY(0); }
+        #exploreMenu.open { opacity:1; pointer-events:all; }
 
         .explore-item {
             display:flex; align-items:center; gap:9px; width:100%; padding:9px 12px; border:none; background:none;
@@ -1763,13 +1765,6 @@ body.light-mode .rocket-filter-chip {
         }
         .explore-item:hover { background:rgba(255,255,255,0.09); color:#fff; }
         .explore-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; display:inline-block; }
-
-        @media (max-width: 768px) {
-            #exploreMenu {
-                top:auto; right:auto; bottom:56px; left:50%; transform:translateX(-50%) translateY(8px);
-            }
-            #exploreMenu.open { transform:translateX(-50%) translateY(0); }
-        }
 
         /* ===== MÓVIL: botón ⋯ menú overflow ===== */
         #overflowBtn {
@@ -2252,6 +2247,81 @@ body.light-mode .rocket-filter-chip {
         #trialPromoBanner { flex-wrap: wrap; }
         #trialPromoBanner .tp-cta { order: 3; width: 100%; margin-top: 6px; text-align: center; }
     }
+    #playbackBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:950; }
+#playbackBackdrop.open { display:block; }
+#playbackDatePanel {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:88%; max-width:340px;
+    background:rgba(10,10,10,0.97); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,0.12); border-radius:16px;
+    padding:20px; z-index:960;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+}
+#playbackDatePanel.open { opacity:1; pointer-events:auto; }
+#playbackDatePanel h3 { font-size:0.95rem; margin:0 0 4px; color:#fff; }
+#playbackDatePanel p { font-size:0.72rem; color:rgba(255,255,255,0.5); margin:0 0 14px; line-height:1.4; }
+#playbackDateSelect {
+    width:100%; padding:10px 12px; border-radius:8px; box-sizing:border-box;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
+    color:#fff; font-size:0.9rem; margin-bottom:14px;
+}
+#playbackDateSelect option { background:#151515; }
+#premiumRequiredBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:970; }
+#premiumRequiredBackdrop.open { display:block; }
+#premiumRequiredPanel {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:88%; max-width:340px; text-align:center; box-sizing:border-box;
+    background:rgba(10,10,10,0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(156,39,176,0.3); border-radius:16px;
+    padding:28px 22px; z-index:980;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+}
+#premiumRequiredPanel.open { opacity:1; pointer-events:auto; }
+#premiumRequiredPanel .pr-icon { font-size:2.2rem; margin-bottom:10px; }
+#premiumRequiredPanel h3 { font-size:1.05rem; color:#fff; margin:0 0 10px; }
+#premiumRequiredPanel p { font-size:0.78rem; color:rgba(255,255,255,0.6); line-height:1.5; margin:0 0 18px; }
+#premiumUpgradeBtn {
+    width:100%; padding:11px; border-radius:8px; border:none; margin-bottom:8px;
+    background:linear-gradient(135deg, #9c27b0, #b026ff); color:#fff; font-size:0.88rem; font-weight:700; cursor:pointer;
+}
+#premiumMaybeLaterBtn {
+    width:100%; padding:9px; border-radius:8px; border:none;
+    background:none; color:rgba(255,255,255,0.5); font-size:0.78rem; cursor:pointer;
+}
+#playbackGoBtn {
+    width:100%; padding:10px; border-radius:8px; border:none; position:relative; overflow:hidden;
+    background:#9c27b0; color:#fff; font-size:0.85rem; font-weight:600; cursor:pointer;
+}
+#playbackGoBtn:disabled { opacity:0.6; cursor:default; }
+#playbackGoBtn .pt-progress-fill { position:absolute; left:0; top:0; bottom:0; background:rgba(255,255,255,0.15); width:0%; transition:width 0.2s linear; z-index:0; }
+#playbackGoBtn span.label { position:relative; z-index:1; }
+#playbackDateError { font-size:0.68rem; color:#ff6b6b; margin-top:8px; display:none; }
+
+#playbackTimeline {
+    position:fixed; bottom:0; left:0; right:0;
+    background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-top:1px solid rgba(255,255,255,0.1);
+    padding:10px 14px 14px; z-index:870; display:none;
+}
+#playbackTimeline.active { display:block; }
+#playbackTimeline .pt-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+#playbackTimeline .pt-date { font-size:0.78rem; color:#fff; font-weight:600; }
+#playbackTimeline .pt-loaded { font-size:0.65rem; color:rgba(255,255,255,0.4); }
+#playbackTimeline .pt-close { background:none; border:none; color:rgba(255,255,255,0.5); font-size:1.2rem; cursor:pointer; padding:0 4px; }
+#playbackTimeline .pt-controls { display:flex; align-items:center; gap:10px; }
+#playbackPlayBtn {
+    width:32px; height:32px; border-radius:50%; border:none; flex-shrink:0;
+    background:#9c27b0; color:#fff; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:0.8rem;
+}
+#playbackScrubber { flex:1; appearance:none; -webkit-appearance:none; height:4px; border-radius:2px; background:rgba(255,255,255,0.15); outline:none; }
+#playbackScrubber::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#9c27b0; cursor:pointer; }
+#playbackSpeedGroup { display:flex; gap:4px; margin-top:8px; justify-content:center; flex-wrap:wrap; }
+.pt-speed-btn {
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12);
+    color:rgba(255,255,255,0.6); font-size:0.65rem; padding:4px 10px; border-radius:6px; cursor:pointer;
+}
+.pt-speed-btn.active { background:rgba(156,39,176,0.3); border-color:rgba(156,39,176,0.6); color:#fff; }
 
     </style>
 </head>
@@ -2716,9 +2786,53 @@ body.light-mode .rocket-filter-chip {
     <button id="mobilePanelBtn" onclick="toggleMobilePanel()">+</button>
 </div>
 
+<div id="bottomFloatBar">
 <div id="exploreFloatBtn" onclick="toggleExploreMenu()">
     <img src="images/planet-switcher.svg" alt="">
     <span>Explore</span>
+</div>
+
+<div id="playbackFloatBtn" onclick="togglePlaybackDatePanel()">
+    <img src="images/icon-playback.svg" alt="">
+    <span>Playback</span>
+</div>
+</div>
+
+<div id="playbackBackdrop" onclick="closePlaybackDatePanel()"></div>
+<div id="playbackDatePanel">
+    <h3>Time Travel</h3>
+    <p>See where satellites were on a past date. Only dates we've actually archived are shown — new ones get added daily.</p>
+    <select id="playbackDateSelect"><option value="">Loading available dates…</option></select>
+    <button id="playbackGoBtn" onclick="startTlePlayback()"><span class="pt-progress-fill"></span><span class="label">Go</span></button>
+    <div id="playbackDateError"></div>
+</div>
+
+<div id="premiumRequiredBackdrop" onclick="closePremiumRequiredPanel()"></div>
+<div id="premiumRequiredPanel">
+    <div class="pr-icon">🔒</div>
+    <h3>Premium feature</h3>
+    <p>Every date except yesterday is part of SatFleet Premium — go back further than one day, whenever you like.</p>
+    <button id="premiumUpgradeBtn" onclick="window.location.href='/account.html'">See Premium</button>
+    <button id="premiumMaybeLaterBtn" onclick="closePremiumRequiredPanel()">Maybe later</button>
+</div>
+
+<div id="playbackTimeline">
+    <div class="pt-top">
+        <div>
+            <div class="pt-date" id="playbackDateLabel">—</div>
+            <div class="pt-loaded" id="playbackLoadedLabel"></div>
+        </div>
+        <button class="pt-close" onclick="exitTlePlayback()">×</button>
+    </div>
+    <div class="pt-controls">
+        <button id="playbackPlayBtn" onclick="togglePlaybackPlay()">▶</button>
+        <input type="range" id="playbackScrubber" min="0" max="1000" value="0" oninput="onPlaybackScrub(this.value)">
+    </div>
+    <div id="playbackSpeedGroup">
+        <button class="pt-speed-btn" data-speed="900" onclick="setPlaybackSpeed(900)">15m/s</button>
+        <button class="pt-speed-btn active" data-speed="3600" onclick="setPlaybackSpeed(3600)">1h/s</button>
+        <button class="pt-speed-btn" data-speed="21600" onclick="setPlaybackSpeed(21600)">6h/s</button>
+    </div>
 </div>
 
 <div id="exploreMenu">
@@ -2882,6 +2996,306 @@ let cesiumUpdateInterval = null;
             // Otros / Misceláneos
             return 'misc';
         }
+
+        // ═══════════════════════════════════════════════════════════════
+// PLAYBACK DE SATÉLITES — carga progresiva, día a día
+// ═══════════════════════════════════════════════════════════════
+let tleArchiveIndex = [];       // ['2026-09-20', '2026-09-21', ...] — fechas reales disponibles
+let tlePlaybackDays = {};       // { '2026-09-20': [{name,satrec,noradId}, ...], ... } — se rellena poco a poco
+let tlePlaybackLoadedCount = 0;
+let tleTimeOverride = null;     // null = en vivo; si no, la "hora falsa" del Playback
+let tlePlaybackPlaying = false;
+let tlePlaybackSpeed = 3600;
+let tlePlaybackTickId = null;
+let tlePlaybackLastTick = null;
+let tlePlaybackStartMs = null;
+
+window.togglePlaybackDatePanel = async function() {
+    const panel = document.getElementById('playbackDatePanel');
+    const bd = document.getElementById('playbackBackdrop');
+    const willOpen = !panel.classList.contains('open');
+    panel.classList.toggle('open', willOpen);
+    bd.classList.toggle('open', willOpen);
+
+    if (willOpen && tleArchiveIndex.length === 0) {
+        const select = document.getElementById('playbackDateSelect');
+        try {
+            const res = await fetch('https://worker.satfleetlive.com/api/tle-archive-index');
+            const dates = await res.json();
+            tleArchiveIndex = dates.sort();
+            if (!tleArchiveIndex.length) {
+                select.innerHTML = '<option value="">No dates archived yet — check back soon</option>';
+                return;
+            }
+            const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
+            select.innerHTML = tleArchiveIndex.map(d => {
+                const isFree = (d === yesterday);
+                return `<option value="${d}">${isFree ? d + ' (free)' : '🔒 ' + d}</option>`;
+            }).join('');
+        } catch (e) {
+            select.innerHTML = '<option value="">Could not load dates</option>';
+            console.error('[TLE Playback] Error cargando el índice:', e.message);
+        }
+    }
+};
+window.closePlaybackDatePanel = function() {
+    document.getElementById('playbackDatePanel').classList.remove('open');
+    document.getElementById('playbackBackdrop').classList.remove('open');
+};
+
+function parseTleTextToSatrecs(text) {
+    const lines = text.split('\n').filter(l => l.trim().length);
+    const out = [];
+    for (let i = 0; i < lines.length; i += 3) {
+        const name = (lines[i] || '').trim();
+        const line1 = lines[i + 1], line2 = lines[i + 2];
+        if (!line1 || !line2) continue;
+        try {
+            const satrec = satellite.twoline2satrec(line1, line2);
+            const noradId = line1.substring(2, 7).trim();
+            out.push({ name, satrec, noradId });
+        } catch (e) { continue; }
+    }
+    return out;
+}
+
+async function loadOneTleDay(dateStr) {
+    try {
+        const token = localStorage.getItem('satfleet_fb_token') || '';
+        const res = await fetch(`https://worker.satfleetlive.com/api/tle-playback?date=${dateStr}`, {
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const satrecs = parseTleTextToSatrecs(text);
+        const byId = {};
+        satrecs.forEach(s => { byId[s.noradId] = s; });
+        tlePlaybackDays[dateStr] = byId;
+        tlePlaybackLoadedCount++;
+        console.log(`[TLE Playback] ${dateStr}: ${satrecs.length} satélites cargados (${tlePlaybackLoadedCount}/${tleArchiveIndex.length})`);
+    } catch (e) {
+        console.error(`[TLE Playback] Fallo cargando ${dateStr}:`, e.message);
+        tlePlaybackDays[dateStr] = null; // se recuerda como "falló", no se reintenta solo
+    }
+    updatePlaybackAvailableRange();
+}
+
+async function loadTleDaysProgressively() {
+    for (const dateStr of tleArchiveIndex) {
+        await loadOneTleDay(dateStr);
+    }
+}
+
+function updatePlaybackAvailableRange() {
+    document.getElementById('playbackLoadedLabel').textContent =
+        `${tlePlaybackLoadedCount}/${tleArchiveIndex.length} days loaded`;
+}
+
+window.closePremiumRequiredPanel = function() {
+    document.getElementById('premiumRequiredPanel').classList.remove('open');
+    document.getElementById('premiumRequiredBackdrop').classList.remove('open');
+};
+function showPremiumRequiredPanel() {
+    document.getElementById('premiumRequiredPanel').classList.add('open');
+    document.getElementById('premiumRequiredBackdrop').classList.add('open');
+}
+async function checkIsPremiumClientSide() {
+    const token = localStorage.getItem('satfleet_fb_token');
+    if (!token) return false;
+    try {
+        const res = await fetch('https://worker.satfleetlive.com/api/check-premium', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        return !!data.premium;
+    } catch (e) { return false; }
+}
+function onPremiumTokenRefreshed() {
+    // Reservado para el futuro, no hace falta que haga nada por ahora.
+}
+
+window.startTlePlayback = async function() {
+    const dateVal = document.getElementById('playbackDateSelect').value;
+    const errEl = document.getElementById('playbackDateError');
+    if (!dateVal) {
+        errEl.textContent = 'Pick a date from the list.';
+        errEl.style.display = 'block';
+        return;
+    }
+    errEl.style.display = 'none';
+
+    const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
+    const isFreeDate = (dateVal === yesterday);
+
+    let isPremium = true;
+    if (!isFreeDate) {
+        isPremium = await checkIsPremiumClientSide();
+        if (!isPremium) {
+            closePlaybackDatePanel();
+            showPremiumRequiredPanel();
+            return;
+        }
+    }
+
+    const goBtn = document.getElementById('playbackGoBtn');
+    const fill = goBtn.querySelector('.pt-progress-fill');
+    const label = goBtn.querySelector('.label');
+    goBtn.disabled = true;
+    label.textContent = 'Loading…';
+
+    tlePlaybackDays = {};
+    tlePlaybackLoadedCount = 0;
+
+    // El primer día (el elegido) se pide YA, antes que nada — es lo único
+    // que hace falta para empezar a ver algo, el resto sigue de fondo.
+    await loadOneTleDay(dateVal);
+    if (!tlePlaybackDays[dateVal]) {
+        errEl.textContent = 'Could not load that date. Try another.';
+        errEl.style.display = 'block';
+        goBtn.disabled = false;
+        label.textContent = 'Go';
+        return;
+    }
+
+    tlePlaybackStartMs = Date.parse(dateVal + 'T00:00:00Z');
+    tleTimeOverride = tlePlaybackStartMs;
+
+    closePlaybackDatePanel();
+    document.getElementById('playbackTimeline').classList.add('active');
+    document.getElementById('playbackScrubber').value = 0;
+    updatePlaybackDateLabel();
+    updateTleSatellitePositions();
+
+    goBtn.disabled = false;
+    label.textContent = 'Go';
+    fill.style.width = '0%';
+
+    // Solo seguimos cargando el resto de días de fondo si de verdad es
+    // Premium — para un usuario gratuito, cargar días que nunca va a poder
+    // ver sería gastar datos suyos y llamadas nuestras sin ningún motivo.
+    if (isPremium) {
+        loadTleDaysProgressively();
+    }
+};
+
+function updatePlaybackDateLabel() {
+    const d = new Date(tleTimeOverride);
+    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22);
+    // El máximo del slider crece según se van cargando días — cada día son
+    // 1000/tleArchiveIndex.length unidades del control deslizante.
+    const totalDays = tleArchiveIndex.length || 1;
+    const dayIndex = tleArchiveIndex.indexOf(new Date(tleTimeOverride).toISOString().slice(0, 10));
+    const fracWithinDay = (tleTimeOverride - Date.parse(new Date(tleTimeOverride).toISOString().slice(0, 10) + 'T00:00:00Z')) / 86400000;
+    const pct = ((Math.max(0, dayIndex) + fracWithinDay) / totalDays) * 1000;
+    document.getElementById('playbackScrubber').value = Math.max(0, Math.min(1000, Math.round(pct)));
+}
+
+function updateTleSatellitePositions() {
+    const dateStr = new Date(tleTimeOverride).toISOString().slice(0, 10);
+    const dayData = tlePlaybackDays[dateStr];
+    const gmst = satellite.gstime(new Date(tleTimeOverride));
+
+    primitiveDataArray.forEach(({ sat, point, label }) => {
+        const match = dayData ? dayData[sat.noradId] : null;
+        if (!match) {
+            // Ese satélite no existía (o no tenemos datos) ese día — se esconde,
+            // igual que hicimos con las sondas fantasma en Deep Space.
+            if (point) point.show = false;
+            if (label) label.show = false;
+            return;
+        }
+        try {
+            const pv = satellite.propagate(match.satrec, new Date(tleTimeOverride));
+            if (!pv || !pv.position) { if (point) point.show = false; return; }
+            const geo = satellite.eciToGeodetic(pv.position, gmst);
+            const lat = satellite.degreesLat(geo.latitude);
+            const lng = satellite.degreesLong(geo.longitude);
+            if (isNaN(lat) || isNaN(lng)) { if (point) point.show = false; return; }
+
+            // Dejamos los datos frescos en el propio objeto, igual que hace
+            // updateCesiumPositions en modo en vivo — así, si este satélite
+            // es el que tienes seleccionado, el panel los puede leer.
+            sat.lat = lat;
+            sat.lng = lng;
+            sat.altitude = geo.height;
+            if (pv.velocity) {
+                sat.velocity = Math.sqrt(pv.velocity.x**2 + pv.velocity.y**2 + pv.velocity.z**2) * 3600;
+            }
+
+            const pos = Cesium.Cartesian3.fromDegrees(lng, lat, geo.height * 1000);
+            if (point) { point.position = pos; point.show = true; }
+            if (label) { label.position = pos; label.show = true; }
+        } catch (e) {
+            if (point) point.show = false;
+        }
+    });
+    refreshSatelliteInfoNumbers();
+}
+
+window.onPlaybackScrub = function(val) {
+    const totalDays = tleArchiveIndex.length || 1;
+    const dayFrac = (val / 1000) * totalDays;
+    const dayIndex = Math.min(tleArchiveIndex.length - 1, Math.floor(dayFrac));
+    const dateStr = tleArchiveIndex[dayIndex];
+    const withinDayMs = (dayFrac - dayIndex) * 86400000;
+    tleTimeOverride = Date.parse(dateStr + 'T00:00:00Z') + withinDayMs;
+    updatePlaybackDateLabel();
+    updateTleSatellitePositions();
+};
+
+window.togglePlaybackPlay = function() {
+    tlePlaybackPlaying = !tlePlaybackPlaying;
+    document.getElementById('playbackPlayBtn').textContent = tlePlaybackPlaying ? '⏸' : '▶';
+    if (tlePlaybackPlaying) {
+        tlePlaybackLastTick = performance.now();
+        tlePlaybackTickId = requestAnimationFrame(tlePlaybackTick);
+    } else if (tlePlaybackTickId) {
+        cancelAnimationFrame(tlePlaybackTickId);
+    }
+};
+
+function tlePlaybackTick(now) {
+    const deltaReal = (now - tlePlaybackLastTick) / 1000;
+    tlePlaybackLastTick = now;
+    tleTimeOverride += deltaReal * tlePlaybackSpeed * 1000;
+
+    const maxMs = Date.parse(tleArchiveIndex[tleArchiveIndex.length - 1] + 'T23:59:59Z');
+    if (tleTimeOverride >= maxMs) {
+        tleTimeOverride = maxMs;
+        tlePlaybackPlaying = false;
+        document.getElementById('playbackPlayBtn').textContent = '▶';
+    }
+
+    // Si el día al que hemos llegado todavía no ha terminado de cargar,
+    // pausamos solos en vez de enseñar datos a medias o vacíos.
+    const dateStr = new Date(tleTimeOverride).toISOString().slice(0, 10);
+    if (tlePlaybackDays[dateStr] === undefined) {
+        tlePlaybackPlaying = false;
+        document.getElementById('playbackPlayBtn').textContent = '▶';
+        console.log(`[TLE Playback] Esperando a que termine de cargar ${dateStr}...`);
+    }
+
+    updatePlaybackDateLabel();
+    updateTleSatellitePositions();
+    if (tlePlaybackPlaying) tlePlaybackTickId = requestAnimationFrame(tlePlaybackTick);
+}
+
+window.setPlaybackSpeed = function(s) {
+    tlePlaybackSpeed = s;
+    document.querySelectorAll('.pt-speed-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.speed) === s));
+};
+
+window.exitTlePlayback = function() {
+    tlePlaybackPlaying = false;
+    if (tlePlaybackTickId) cancelAnimationFrame(tlePlaybackTickId);
+    tleTimeOverride = null;
+    document.getElementById('playbackTimeline').classList.remove('active');
+    primitiveDataArray.forEach(({ point, label }) => {
+        if (point) point.show = true;
+        if (label) label.show = true;
+    });
+    updateCesiumPositions(); // vuelve a las posiciones en vivo
+};
 
         // Cargar satélites desde archivo local (sin llamadas directas a Celestrak)
         async function loadSatellites() {
@@ -3254,6 +3668,44 @@ if (!infoPanel.classList.contains('active')) {
     currentSelectedRocket = null;
 }
 }
+}
+
+// Refresco ligero — SOLO lee sat.altitude/velocity/lat/lng (que ya se
+// mantienen frescos por otro lado, cada uno a su ritmo) y actualiza el
+// texto en pantalla. No vuelve a propagar nada por su cuenta.
+function refreshSatelliteInfoNumbers() {
+    const sat = currentSelectedSat;
+    if (!sat) return;
+    // El Worker actualiza targetLat/targetLng/targetAlt cada vez, pero
+    // lat/lng/altitude solo se rellenan una vez al principio (para animar
+    // el punto suavemente) — así que leemos los "target" si existen.
+    const alt = sat.targetAlt ?? sat.altitude;
+    const lat = sat.targetLat ?? sat.lat;
+    const lng = sat.targetLng ?? sat.lng;
+    if (alt == null || sat.velocity == null) return;
+
+    const altText = Math.round(alt).toLocaleString() + ' km';
+    const velText = Math.round(sat.velocity).toLocaleString() + ' km/h';
+    const latText = lat.toFixed(4) + '°';
+    const lngText = lng.toFixed(4) + '°';
+
+    const altEl = document.getElementById('satelliteAltitude');
+    if (altEl) altEl.textContent = altText;
+    const velEl = document.getElementById('satelliteVelocity');
+    if (velEl) velEl.textContent = velText;
+    const latEl = document.getElementById('satelliteLatitude');
+    if (latEl) latEl.textContent = latText;
+    const lngEl = document.getElementById('satelliteLongitude');
+    if (lngEl) lngEl.textContent = lngText;
+
+    const mAltEl = document.getElementById('mobileSatelliteAltitude');
+    if (mAltEl) mAltEl.textContent = altText;
+    const mVelEl = document.getElementById('mobileSatelliteVelocity');
+    if (mVelEl) mVelEl.textContent = velText;
+    const mLatEl = document.getElementById('mobileSatelliteLatitude');
+    if (mLatEl) mLatEl.textContent = latText;
+    const mLngEl = document.getElementById('mobileSatelliteLongitude');
+    if (mLngEl) mLngEl.textContent = lngText;
 }
 
         function showSatelliteInfo(sat) {
@@ -4770,6 +5222,7 @@ function updateCesiumPositions() {
     });
 // Le decimos a Cesium que renderice este fotograma porque los satélites se han movido
     cesiumViewer.scene.requestRender();
+    refreshSatelliteInfoNumbers(); // el panel abierto (si hay uno) se refresca con estos mismos datos recién calculados
 }
 
 // Marcador de ubicación del usuario en el globo 3D
@@ -4953,6 +5406,7 @@ setTimeout(() => {
                 sat.targetAlt = alt;
                 sat.velocity = vel; // <-- Se la asignamos al satélite
             }
+            refreshSatelliteInfoNumbers();
         }
     };
 
@@ -5170,20 +5624,48 @@ function startInterpolation() {
             document.getElementById('overflowMenu').classList.remove('open');
         }
 
-                function toggleExploreMenu() {
-            const menu = document.getElementById('exploreMenu');
-            const isOpen = menu.classList.toggle('open');
-            const barBtn = document.getElementById('exploreBtn');
-            const floatBtn = document.getElementById('exploreFloatBtn');
-            if (barBtn) barBtn.classList.toggle('open', isOpen);
-            if (floatBtn) floatBtn.classList.toggle('open', isOpen);
-            if (isOpen) {
-                setTimeout(() => {
-                    document.addEventListener('touchstart', closeExploreOnOutside, { once: true });
-                    document.addEventListener('mousedown', closeExploreOnOutside, { once: true });
-                }, 10);
-            }
+window.toggleExploreMenu = function() {
+    const menu = document.getElementById('exploreMenu');
+    const willOpen = !menu.classList.contains('open');
+    const barBtn = document.getElementById('exploreBtn');
+    const floatBtn = document.getElementById('exploreFloatBtn');
+
+    if (willOpen) {
+        const triggerBtn = (floatBtn && floatBtn.offsetParent !== null) ? floatBtn : barBtn;
+        if (triggerBtn) {
+            const rect = triggerBtn.getBoundingClientRect();
+            menu.style.left = (rect.left + rect.width / 2) + 'px';
+            menu.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+            menu.style.top = 'auto';
+            menu.style.right = 'auto';
+            menu.style.transform = 'translateX(-50%) translateY(8px)';
         }
+    }
+
+    menu.classList.toggle('open', willOpen);
+    if (barBtn) barBtn.classList.toggle('open', willOpen);
+    if (floatBtn) floatBtn.classList.toggle('open', willOpen);
+    if (willOpen) {
+        setTimeout(() => {
+            document.addEventListener('touchstart', closeExploreOnOutside, { once:true });
+            document.addEventListener('pointerdown', closeExploreOnOutside, { once:true, capture:true });
+        }, 10);
+    }
+};
+function closeExploreMenu() {
+    document.getElementById('exploreMenu').classList.remove('open');
+    const barBtn = document.getElementById('exploreBtn');
+    const floatBtn = document.getElementById('exploreFloatBtn');
+    if (barBtn) barBtn.classList.remove('open');
+    if (floatBtn) floatBtn.classList.remove('open');
+}
+function closeExploreOnOutside(e) {
+    const menu = document.getElementById('exploreMenu');
+    const barBtn = document.getElementById('exploreBtn');
+    const floatBtn = document.getElementById('exploreFloatBtn');
+    const clickedTrigger = (barBtn && barBtn.contains(e.target)) || (floatBtn && floatBtn.contains(e.target));
+    if (!menu.contains(e.target) && !clickedTrigger) closeExploreMenu();
+}
         function closeExploreMenu() {
             document.getElementById('exploreMenu').classList.remove('open');
             const barBtn = document.getElementById('exploreBtn');
