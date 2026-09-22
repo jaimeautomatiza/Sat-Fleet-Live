@@ -2277,7 +2277,8 @@ body.light-mode .rocket-filter-chip {
     opacity:0; pointer-events:none; transition:opacity 0.2s ease;
 }
 #premiumRequiredPanel.open { opacity:1; pointer-events:auto; }
-#premiumRequiredPanel .pr-icon { font-size:2.2rem; margin-bottom:10px; }
+    #premiumRequiredPanel .pr-icon { margin-bottom:10px; }
+    #premiumRequiredPanel .pr-icon img { width:36px; height:36px; filter:invert(1); opacity:0.9; }
 #premiumRequiredPanel h3 { font-size:1.05rem; color:#fff; margin:0 0 10px; }
 #premiumRequiredPanel p { font-size:0.78rem; color:rgba(255,255,255,0.6); line-height:1.5; margin:0 0 18px; }
 #premiumUpgradeBtn {
@@ -2809,7 +2810,7 @@ body.light-mode .rocket-filter-chip {
 
 <div id="premiumRequiredBackdrop" onclick="closePremiumRequiredPanel()"></div>
 <div id="premiumRequiredPanel">
-    <div class="pr-icon">🔒</div>
+    <div class="pr-icon"><img src="images/icon-lock.svg" alt=""></div>
     <h3>Premium feature</h3>
     <p>Every date except yesterday is part of SatFleet Premium — go back further than one day, whenever you like.</p>
     <button id="premiumUpgradeBtn" onclick="window.location.href='/account.html'">See Premium</button>
@@ -3030,7 +3031,7 @@ window.togglePlaybackDatePanel = async function() {
             const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
             select.innerHTML = tleArchiveIndex.map(d => {
                 const isFree = (d === yesterday);
-                return `<option value="${d}">${isFree ? d + ' (free)' : '🔒 ' + d}</option>`;
+                return `<option value="${d}">${isFree ? d + ' (free)' : d + ' (Premium)'}</option>`;
             }).join('');
         } catch (e) {
             select.innerHTML = '<option value="">Could not load dates</option>';

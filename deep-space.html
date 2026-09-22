@@ -198,7 +198,9 @@
         opacity:0; pointer-events:none; transition:opacity 0.2s ease;
     }
     #premiumRequiredPanel.open { opacity:1; pointer-events:auto; }
-    #premiumRequiredPanel .pr-icon { font-size:2.2rem; margin-bottom:10px; }
+    #premiumRequiredPanel .pr-icon { margin-bottom:10px; }
+    #premiumRequiredPanel .pr-icon img { width:36px; height:36px; filter:invert(1); opacity:0.9; }
+    #playbackPremiumLabel img { width:12px; height:12px; filter:invert(1); vertical-align:-1px; margin-right:4px; }
     #premiumRequiredPanel h3 { font-size:1.05rem; color:#fff; margin:0 0 10px; }
     #premiumRequiredPanel p { font-size:0.78rem; color:rgba(255,255,255,0.6); line-height:1.5; margin:0 0 18px; }
     #premiumUpgradeBtn {
@@ -562,7 +564,7 @@
 <div id="playbackBackdrop" onclick="closePlaybackDatePanel()"></div>
 <div id="playbackDatePanel">
     <h3>Time Travel</h3>
-        <div id="playbackPremiumLabel">🔒 This is a Premium feature</div>
+        <div id="playbackPremiumLabel"><img src="images/icon-lock.svg" alt=""> This is a Premium feature</div>
     <p>See where planets and spacecraft were on any date since October 1957. Loading may take a few seconds — there are 42 objects to fetch.</p>
     <input type="date" id="playbackDateInput" min="1957-10-04" />
     <div id="playbackDateError">Could not load data for that date. Try another.</div>
@@ -571,7 +573,7 @@
 
 <div id="premiumRequiredBackdrop" onclick="closePremiumRequiredPanel()"></div>
 <div id="premiumRequiredPanel">
-    <div class="pr-icon">🔒</div>
+    <div class="pr-icon"><img src="images/icon-lock.svg" alt=""></div>
     <h3>Premium feature</h3>
     <p>Time Travel is part of SatFleet Premium — explore any archived date, not just the most recent one.</p>
     <button id="premiumUpgradeBtn" onclick="window.location.href='/account.html'">See Premium</button>
@@ -1760,7 +1762,7 @@ async function refreshPlaybackPremiumState() {
     const isPremium = await checkIsPremiumClientSide();
     dateInput.disabled = !isPremium;
     label.classList.toggle('visible', !isPremium);
-    goText.textContent = isPremium ? 'Go' : '🔒 Premium';
+    goText.innerHTML = isPremium ? 'Go' : '<img src="images/icon-lock.svg" alt="" style="width:11px;height:11px;filter:invert(1);vertical-align:-1px;margin-right:3px;">Premium';
     window._playbackIsLocked = !isPremium;
 }
 
