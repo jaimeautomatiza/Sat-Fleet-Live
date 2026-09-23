@@ -3192,7 +3192,8 @@ window.startTlePlayback = async function() {
 
 function updatePlaybackDateLabel() {
     const d = new Date(tleTimeOverride);
-    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22);
+    const localTxt = d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22) + ' UTC (' + localTxt + ' hora local)';
     // El máximo del slider crece según se van cargando días — cada día son
     // 1000/tleArchiveIndex.length unidades del control deslizante.
     const totalDays = tleArchiveIndex.length || 1;
@@ -3260,6 +3261,13 @@ window.onPlaybackScrub = function(val) {
     tleTimeOverride = Date.parse(dateStr + 'T00:00:00Z') + withinDayMs;
     updatePlaybackDateLabel();
     updateTleSatellitePositions();
+
+    // Al mover la barra a mano (adelante o atrás), la órbita dibujada debe
+    // repintarse YA para ese instante — no esperar a que complete una vuelta,
+    // como sí tiene sentido cuando se está reproduciendo sola.
+    if (currentSelectedSat) {
+        drawOrbit3D(currentSelectedSat, false);
+    }
 };
 
 window.togglePlaybackPlay = function() {
@@ -3283,6 +3291,13 @@ function tlePlaybackTick(now) {
     deltaReal = Math.min(deltaReal, 0.25);
     tlePlaybackLastTick = now;
     tleTimeOverride += deltaReal * tlePlaybackSpeed * 1000;
+
+    // Nunca debe retroceder antes del día que elegiste al darle a "Go" — así,
+    // pase lo que pase (un empujoncito raro, un redondeo...), Play jamás te
+    // manda a un día anterior que ni siquiera has cargado.
+    if (tleTimeOverride < tlePlaybackStartMs) {
+        tleTimeOverride = tlePlaybackStartMs;
+    }
 
     const maxMs = Date.parse(tleArchiveIndex[tleArchiveIndex.length - 1] + 'T23:59:59Z');
     if (tleTimeOverride >= maxMs) {
