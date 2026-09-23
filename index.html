@@ -3187,6 +3187,7 @@ window.startTlePlayback = async function() {
     document.getElementById('playbackScrubber').value = 0;
     updatePlaybackDateLabel();
     updateTleSatellitePositions();
+    cesiumViewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(tleTimeOverride));
 
     goBtn.disabled = false;
     label.textContent = 'Go';
@@ -3271,6 +3272,7 @@ window.onPlaybackScrub = function(val) {
     tleTimeOverride = Date.parse(dateStr + 'T00:00:00Z') + withinDayMs;
     updatePlaybackDateLabel();
     updateTleSatellitePositions();
+    cesiumViewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(tleTimeOverride));
 
     // Al mover la barra a mano (adelante o atrás), la órbita dibujada debe
     // repintarse YA para ese instante — no esperar a que complete una vuelta,
@@ -3357,6 +3359,7 @@ window.exitTlePlayback = function() {
         if (label) label.show = true;
     });
     updateCesiumPositions(); // vuelve a las posiciones en vivo
+    cesiumViewer.clock.currentTime = Cesium.JulianDate.now();
 };
 
         // Cargar satélites desde archivo local (sin llamadas directas a Celestrak)
