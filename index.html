@@ -3219,6 +3219,13 @@ function updateTleSatellitePositions() {
             sat.lat = lat;
             sat.lng = lng;
             sat.altitude = geo.height;
+            // El bucle de suavizado del modo en vivo intenta "corregir" la
+            // posición hacia targetLat/Lng/Alt en cada fotograma — si no lo
+            // sincronizamos también, arrastra el punto de vuelta hacia el
+            // último dato en vivo antiguo, creando ese movimiento fantasma.
+            sat.targetLat = lat;
+            sat.targetLng = lng;
+            sat.targetAlt = geo.height;
             if (pv.velocity) {
                 sat.velocity = Math.sqrt(pv.velocity.x**2 + pv.velocity.y**2 + pv.velocity.z**2) * 3600;
             }
@@ -4958,14 +4965,26 @@ function drawOrbit3D(sat) {
         currentOrbit3D = null;
     }
 
+    // Durante Playback, usamos el mismo reloj Y los mismos elementos
+    // orbitales que ya usamos para posicionar al satélite — si no, la
+    // línea dibujada no tendría ninguna relación con dónde aparece de verdad.
+    let satrecToUse = sat.satrec;
+    let now = new Date();
+    if (tleTimeOverride !== null) {
+        now = new Date(tleTimeOverride);
+        const dateStr = now.toISOString().slice(0, 10);
+        const dayData = tlePlaybackDays[dateStr];
+        const match = dayData ? dayData[sat.noradId] : null;
+        if (match) satrecToUse = match.satrec;
+    }
+
     const points = [];
-    const now = new Date();
     const steps = 120; // un punto por minuto → 2 horas de órbita
 
     for (let i = 0; i < steps; i++) {
         const future = new Date(now.getTime() + i * 60 * 1000);
         try {
-            const pv = window.satellite.propagate(sat.satrec, future);
+            const pv = window.satellite.propagate(satrecToUse, future);
             if (!pv || !pv.position) continue;
             const gmst = window.satellite.gstime(future);
             const geo  = window.satellite.eciToGeodetic(pv.position, gmst);
