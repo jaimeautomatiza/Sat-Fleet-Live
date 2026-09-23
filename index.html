@@ -3127,8 +3127,18 @@ function onPremiumTokenRefreshed() {
 }
 
 window.startTlePlayback = async function() {
-    const dateVal = document.getElementById('playbackDateSelect').value;
     const errEl = document.getElementById('playbackDateError');
+
+    // Si la página todavía no ha terminado de cargar los satélites en
+    // pantalla, Playback no tendría nada real que mover — mejor avisar
+    // claro que dejar que parezca que ha funcionado sin más.
+    if (!primitiveDataArray || primitiveDataArray.length === 0) {
+        errEl.textContent = 'Satellites are still loading — please wait a moment and try again.';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    const dateVal = document.getElementById('playbackDateSelect').value;
     if (!dateVal) {
         errEl.textContent = 'Pick a date from the list.';
         errEl.style.display = 'block';
