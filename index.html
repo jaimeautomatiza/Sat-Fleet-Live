@@ -3287,6 +3287,7 @@ window.togglePlaybackPlay = function() {
     }
 };
 
+let _lastPlaybackPosUpdate = 0;
 function tlePlaybackTick(now) {
     let deltaReal = (now - tlePlaybackLastTick) / 1000;
     // Si el hilo principal ha estado ocupado (cargando/parseando otro día en
@@ -3322,7 +3323,16 @@ function tlePlaybackTick(now) {
     }
 
     updatePlaybackDateLabel();
-    updateTleSatellitePositions();
+
+    // Igual que en modo en vivo: por debajo de 3.000, recalculamos cada
+    // fotograma (fluido de verdad). Por encima, frenamos el ritmo del
+    // recálculo caro — el reloj/la barra de tiempo siguen avanzando fluidos
+    // siempre, solo se frena la parte de tocar cada satélite.
+    const totalPlaybackSats = primitiveDataArray.length;
+    if (totalPlaybackSats <= 3000 || (now - _lastPlaybackPosUpdate) >= 300) {
+        _lastPlaybackPosUpdate = now;
+        updateTleSatellitePositions();
+    }
 
     // Si hay un satélite seleccionado y ya completó su vuelta, repintamos su
     // órbita (sin mover la cámara) para que la línea no se quede desfasada.

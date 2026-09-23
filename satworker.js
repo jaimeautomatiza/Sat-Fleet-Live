@@ -22,15 +22,9 @@ self.onmessage = function(e) {
         positionsBuf = new Float64Array(satrecList.length * 4);
         self.postMessage({ type: 'READY', count: satrecList.length });
 
-        // Cuantos más satélites activos, más caro sale cada cálculo — este
-        // ritmo se estira solo para que el coste total por segundo no crezca
-        // sin control. Con pocos, sigue igual de rápido que siempre.
-        let intervalMs = 2000;
-        if (satrecList.length > 12000) intervalMs = 5000;
-        else if (satrecList.length > 8000) intervalMs = 4000;
-        else if (satrecList.length > 4000) intervalMs = 3000;
-
-        setInterval(() => calcAndSend(), intervalMs);
+        // Probado en la app de Android con los 16.000+ activos: 2 segundos
+        // fijos va bien, sin necesidad de estirar el ritmo según la cantidad.
+        setInterval(() => calcAndSend(), 2000);
 
     } else if (type === 'CALC') {
         calcAndSend();
