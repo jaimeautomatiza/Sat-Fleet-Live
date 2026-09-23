@@ -2830,6 +2830,8 @@ body.light-mode .rocket-filter-chip {
         <input type="range" id="playbackScrubber" min="0" max="1000" value="0" oninput="onPlaybackScrub(this.value)">
     </div>
     <div id="playbackSpeedGroup">
+        <button class="pt-speed-btn" data-speed="1" onclick="setPlaybackSpeed(1)">1:1</button>
+        <button class="pt-speed-btn" data-speed="300" onclick="setPlaybackSpeed(300)">5m/s</button>
         <button class="pt-speed-btn" data-speed="900" onclick="setPlaybackSpeed(900)">15m/s</button>
         <button class="pt-speed-btn active" data-speed="3600" onclick="setPlaybackSpeed(3600)">1h/s</button>
         <button class="pt-speed-btn" data-speed="21600" onclick="setPlaybackSpeed(21600)">6h/s</button>
@@ -5414,6 +5416,12 @@ setTimeout(() => {
         }
 
         if (type === 'POSITIONS') {
+            // Si el Playback (máquina del tiempo) está activo, estos datos son
+            // la posición EN VIVO de AHORA MISMO — hay que ignorarlos por completo,
+            // si no, pisan constantemente la posición y el panel de datos del
+            // Playback aunque esté en pausa en otro día/hora.
+            if (tleTimeOverride !== null) return;
+
             const { buf, timestamp } = e.data;
             lastWorkerTime = timestamp;
 
