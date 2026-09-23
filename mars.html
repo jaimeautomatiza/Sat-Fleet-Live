@@ -1920,7 +1920,7 @@ window.startMarsPlayback = async function() {
 
 function updatePlaybackDateLabel() {
     const d = new Date(orbiterTimeOverride);
-    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22) + ' UTC';
+    document.getElementById('playbackDateLabel').innerHTML = d.toUTCString().slice(0, 22) + '<br>UTC';
     const pct = (orbiterTimeOverride - playbackStartMs) / (playbackEndMs - playbackStartMs) * 1000;
     document.getElementById('playbackScrubber').value = Math.round(pct);
 }
