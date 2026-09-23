@@ -587,7 +587,7 @@
         <button class="pt-close" onclick="exitDeepSpacePlayback()">×</button>
     </div>
     <div class="pt-controls">
-        <button id="playbackPlayBtn" onclick="togglePlaybackPlay()">▶</button>
+        <button id="playbackPlayBtn" onclick="togglePlaybackPlay()"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
         <input type="range" id="playbackScrubber" min="0" max="1000" value="0" oninput="onPlaybackScrub(this.value)">
     </div>
     <div id="playbackSpeedGroup">
@@ -1899,7 +1899,7 @@ window.startDeepSpacePlayback = async function() {
 
 function updatePlaybackDateLabel() {
     const d = new Date(dsTimeOverride);
-    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22);
+    document.getElementById('playbackDateLabel').textContent = d.toUTCString().slice(0, 22) + ' UTC';
     const pct = (dsTimeOverride - playbackStartMs) / (playbackEndMs - playbackStartMs) * 1000;
     document.getElementById('playbackScrubber').value = Math.round(pct);
 }
@@ -1931,9 +1931,15 @@ window.onPlaybackScrub = function(val) {
     if (currentInfoObjId) updateReferenceCalc();
 };
 
+function setPlaybackPlayIcon(isPlaying) {
+    document.getElementById('playbackPlayBtn').innerHTML = isPlaying
+        ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+}
+
 window.togglePlaybackPlay = function() {
     playbackPlaying = !playbackPlaying;
-    document.getElementById('playbackPlayBtn').textContent = playbackPlaying ? '⏸' : '▶';
+    setPlaybackPlayIcon(playbackPlaying);
     if (playbackPlaying) {
         playbackLastTick = performance.now();
         playbackTickId = requestAnimationFrame(playbackTick);
@@ -1950,7 +1956,7 @@ function playbackTick(now) {
     if (dsTimeOverride >= playbackEndMs) {
         dsTimeOverride = playbackEndMs;
         playbackPlaying = false;
-        document.getElementById('playbackPlayBtn').textContent = '▶';
+        setPlaybackPlayIcon(false);
         updatePlaybackDateLabel();
         updateObjectPositions();
         return;

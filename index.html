@@ -2826,7 +2826,7 @@ body.light-mode .rocket-filter-chip {
         <button class="pt-close" onclick="exitTlePlayback()">×</button>
     </div>
     <div class="pt-controls">
-        <button id="playbackPlayBtn" onclick="togglePlaybackPlay()">▶</button>
+        <button id="playbackPlayBtn" onclick="togglePlaybackPlay()"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
         <input type="range" id="playbackScrubber" min="0" max="1000" value="0" oninput="onPlaybackScrub(this.value)">
     </div>
     <div id="playbackSpeedGroup">
@@ -3270,9 +3270,15 @@ window.onPlaybackScrub = function(val) {
     }
 };
 
+function setPlaybackPlayIcon(isPlaying) {
+    document.getElementById('playbackPlayBtn').innerHTML = isPlaying
+        ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+}
+
 window.togglePlaybackPlay = function() {
     tlePlaybackPlaying = !tlePlaybackPlaying;
-    document.getElementById('playbackPlayBtn').textContent = tlePlaybackPlaying ? '⏸' : '▶';
+    setPlaybackPlayIcon(tlePlaybackPlaying);
     if (tlePlaybackPlaying) {
         tlePlaybackLastTick = performance.now();
         tlePlaybackTickId = requestAnimationFrame(tlePlaybackTick);
@@ -3303,7 +3309,7 @@ function tlePlaybackTick(now) {
     if (tleTimeOverride >= maxMs) {
         tleTimeOverride = maxMs;
         tlePlaybackPlaying = false;
-        document.getElementById('playbackPlayBtn').textContent = '▶';
+        setPlaybackPlayIcon(false);
     }
 
     // Si el día al que hemos llegado todavía no ha terminado de cargar,
