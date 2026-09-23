@@ -3334,6 +3334,7 @@ function tlePlaybackTick(now) {
 
     updatePlaybackDateLabel();
     updateTleSatellitePositions();
+    cesiumViewer.clock.currentTime = Cesium.JulianDate.fromDate(new Date(tleTimeOverride));
 
     // Si hay un satélite seleccionado y ya completó su vuelta, repintamos su
     // órbita (sin mover la cámara) para que la línea no se quede desfasada.
