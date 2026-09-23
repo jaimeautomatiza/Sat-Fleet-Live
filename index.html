@@ -5466,7 +5466,14 @@ setTimeout(() => {
             if (tleTimeOverride !== null) return;
 
             const { buf, timestamp } = e.data;
+            // El intervalo real varía (2-5s según cuántos satélites haya) —
+            // lo medimos nosotros mismos, en vez de asumir un número fijo,
+            // para que la interpolación sepa cuánto tiempo tiene de verdad
+            // para llegar de un punto real al siguiente.
+            const actualIntervalMs = _lastPositionsTs ? (timestamp - _lastPositionsTs) : 2000;
+            _lastPositionsTs = timestamp;
             lastWorkerTime = timestamp;
+            const _interpNow = performance.now();
 
             for (let i = 0; i < allSatellites.length; i++) {
                 const sat = allSatellites[i];
@@ -5483,7 +5490,17 @@ setTimeout(() => {
                     sat.altitude = alt;
                     sat.velocity = vel;
                 }
-                
+
+                // Guardamos DÓNDE ESTÁ AHORA MISMO (el punto de partida del
+                // siguiente tramo) antes de sobreescribir el destino — así
+                // el movimiento entre los dos es una línea recta a ritmo
+                // constante, no un frenazo hacia el nuevo dato.
+                sat.prevLat = sat.lat;
+                sat.prevLng = sat.lng;
+                sat.prevAlt = sat.altitude;
+                sat.interpStartTs = _interpNow;
+                sat.interpIntervalMs = actualIntervalMs;
+
                 sat.targetLat = lat;
                 sat.targetLng = lng;
                 sat.targetAlt = alt;
@@ -5520,6 +5537,8 @@ function requestWorkerCalc() {
 
 let _lastRenderTs = 0;
 let _lastWorkerUpdateProcessed = 0;
+let _lastPositionsTs = 0;
+let _chunkCursor = 0;
 
 // EL TRUCO MAGICO: Reutilizamos un único objeto en memoria para no saturar la RAM
 const _scratchPos = new Cesium.Cartesian3();
@@ -5530,111 +5549,57 @@ function startInterpolation() {
     function loop(ts) {
         interpFrame = requestAnimationFrame(loop);
         if (!is3DMode || !cesiumViewer) return;
+        // Mientras Playback esté activo, nada de esto debe tocar ninguna
+        // posición — esos datos son los del Worker en vivo, de ahora mismo.
+        if (tleTimeOverride !== null) return;
 
         const totalSats = primitiveDataArray.length;
 
-        // MODO MASIVO (+3000 satélites)
-        // Mientras Playback esté activo, este bloque no debe tocar nada —
-        // el Worker en vivo sigue mandando datos de hoy de fondo, y sin este
-        // freno, los "chafaría" encima de la posición de Playback cada vez
-        // que llega una actualización nueva.
-        if (totalSats > 3000 && tleTimeOverride === null) {
-            if (lastWorkerTime > _lastWorkerUpdateProcessed) {
-                _lastWorkerUpdateProcessed = lastWorkerTime;
-                
-                for (let i = 0; i < totalSats; i++) {
-                    const { sat, point, label } = primitiveDataArray[i];
-                    if (sat.targetLat === undefined) continue;
-                    
-                    sat.lat = sat.targetLat;
-                    sat.lng = sat.targetLng;
-                    sat.altitude = sat.targetAlt;
-                    
-                    Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000, undefined, _scratchPos);
-                    point.position = _scratchPos;
-                    if (label) label.position = _scratchPos;
-                }
-                cesiumViewer.scene.requestRender();
-            }
-            // Si el modo 360 está activo, mover la cámara también en modo masivo
-            // POV: seguir al satélite cada frame manteniendo el ángulo del usuario
-        let _loopTarget = null;
-        if (currentSelectedSat && currentSelectedSat.lat != null) {
-            _loopTarget = currentSelectedSat;
-        } else if (currentSelectedRocket) {
-            const _lid2 = String(currentSelectedRocket.id);
-            const _fSlots = _flightEnts[_lid2];
-            if (_fSlots) {
-                const _el2 = _getRocketElapsed(_lid2);
-                // Seguir stage2 tras la separación, sino rocket_main
-                // No depende de entity.show para no perder el seguimiento al ocultarse
-                const _s2Slot   = _fSlots.find(s => s.type === 'stage2');
-                const _mainSlot = _fSlots.find(s => s.type === 'main');
-                const _activeSlot = (_s2Slot && _el2 >= (_s2Slot.sepT || 0)) ? _s2Slot : _mainSlot;
-                if (_activeSlot) {
-                    const _rp = _fInterp(_activeSlot.pts, _el2);
-                    if (_rp) {
-                        _loopTarget = { lat: _rp.lat, lng: _rp.lng, altitude: _rp.alt };
-                    }
-                }
-            }
-            if (!_loopTarget) {
-                _loopTarget = {
-                    lat: parseFloat(currentSelectedRocket.pad?.latitude),
-                    lng: parseFloat(currentSelectedRocket.pad?.longitude),
-                    altitude: 0.05
-                };
-            }
-        }
-        if (isPovActive && !isPovAnimating && _loopTarget && _loopTarget.lat != null) {
-    const povPos = Cesium.Cartesian3.fromDegrees(
-        _loopTarget.lng, _loopTarget.lat,
-        (_loopTarget.altitude || 0) * 1000);
-    const transform = Cesium.Transforms.eastNorthUpToFixedFrame(povPos);
-    // Usamos NUESTRAS variables de ángulo, no las de Cesium
-    // Así el usuario tiene control total y el satélite siempre en el centro
-    cesiumViewer.camera.lookAtTransform(
-        transform,
-        new Cesium.HeadingPitchRange(povUserHeading, povUserPitch, povUserRange)
-    );
-    cesiumViewer.scene.requestRender();
-}
-            return;
-        }
-
-        // MODO ULTRAFLUIDO (-3000 satélites)
-        const dt = _lastRenderTs ? (ts - _lastRenderTs) : 16.6; 
-        _lastRenderTs = ts;
-        const lerpFactor = Math.min(dt / 2000.0, 1.0);
+        // Reparto de trabajo por fotograma: en vez de tocar TODOS los
+        // satélites cada vez (caro con muchos) o solo cada pocos segundos
+        // (poco fluido), cada fotograma actualiza un trozo rotatorio de
+        // como mucho 3.000 — el tamaño que ya sabemos que va fino. Con
+        // menos de 3.000 activos, esto cubre a todos cada fotograma igual
+        // que antes; con 16.000, tarda unos 5-6 fotogramas en darles la
+        // vuelta a todos — visualmente fluido, sin subir nunca el coste
+        // máximo por fotograma.
+        const CHUNK = 3000;
+        const start = _chunkCursor;
+        const end = Math.min(start + CHUNK, totalSats);
         let needsRender = false;
 
-        for (let i = 0; i < totalSats; i++) {
+        for (let i = start; i < end; i++) {
             const { sat, point, label } = primitiveDataArray[i];
             if (sat.targetLat === undefined) continue;
 
-            needsRender = true;
+            // Interpolación LINEAL (velocidad constante) entre el punto de
+            // partida y el destino, repartida a lo largo del intervalo real
+            // — se mueve sin parar hasta llegar, no frena y espera.
+            const intervalMs = sat.interpIntervalMs || 2000;
+            const elapsed = ts - (sat.interpStartTs || ts);
+            const t = Math.min(Math.max(elapsed / intervalMs, 0), 1);
 
-            sat.lat += (sat.targetLat - sat.lat) * lerpFactor;
-            sat.altitude += (sat.targetAlt - sat.altitude) * lerpFactor;
+            sat.lat = sat.prevLat + (sat.targetLat - sat.prevLat) * t;
+            sat.altitude = sat.prevAlt + (sat.targetAlt - sat.prevAlt) * t;
 
-            let dlng = sat.targetLng - sat.lng;
+            let dlng = sat.targetLng - sat.prevLng;
             if (dlng > 180) dlng -= 360;
             else if (dlng < -180) dlng += 360;
-            sat.lng += dlng * lerpFactor;
-            
+            sat.lng = sat.prevLng + dlng * t;
             if (sat.lng > 180) sat.lng -= 360;
             else if (sat.lng < -180) sat.lng += 360;
 
+            needsRender = true;
             Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000, undefined, _scratchPos);
             point.position = _scratchPos;
             if (label) label.position = _scratchPos;
-        
         }
 
+        _chunkCursor = (end >= totalSats) ? 0 : end;
         if (needsRender) cesiumViewer.scene.requestRender();
-        
-        // Si el modo 360 está activo, mover la cámara con el satélite cada fotograma
-        // POV: seguir al satélite cada frame manteniendo el ángulo del usuario
+
+        // POV: seguir al satélite/cohete seleccionado cada fotograma,
+        // manteniendo el ángulo del usuario.
         let _loopTarget = null;
         if (currentSelectedSat && currentSelectedSat.lat != null) {
             _loopTarget = currentSelectedSat;
@@ -5643,8 +5608,6 @@ function startInterpolation() {
             const _fSlots = _flightEnts[_lid2];
             if (_fSlots) {
                 const _el2 = _getRocketElapsed(_lid2);
-                // Seguir stage2 tras la separación, sino rocket_main
-                // No depende de entity.show para no perder el seguimiento al ocultarse
                 const _s2Slot   = _fSlots.find(s => s.type === 'stage2');
                 const _mainSlot = _fSlots.find(s => s.type === 'main');
                 const _activeSlot = (_s2Slot && _el2 >= (_s2Slot.sepT || 0)) ? _s2Slot : _mainSlot;
@@ -5664,18 +5627,16 @@ function startInterpolation() {
             }
         }
         if (isPovActive && !isPovAnimating && _loopTarget && _loopTarget.lat != null) {
-    const povPos = Cesium.Cartesian3.fromDegrees(
-        _loopTarget.lng, _loopTarget.lat,
-        (_loopTarget.altitude || 0) * 1000);
-    const transform = Cesium.Transforms.eastNorthUpToFixedFrame(povPos);
-    // Usamos NUESTRAS variables de ángulo, no las de Cesium
-    // Así el usuario tiene control total y el satélite siempre en el centro
-    cesiumViewer.camera.lookAtTransform(
-        transform,
-        new Cesium.HeadingPitchRange(povUserHeading, povUserPitch, povUserRange)
-    );
-    cesiumViewer.scene.requestRender();
-}
+            const povPos = Cesium.Cartesian3.fromDegrees(
+                _loopTarget.lng, _loopTarget.lat,
+                (_loopTarget.altitude || 0) * 1000);
+            const transform = Cesium.Transforms.eastNorthUpToFixedFrame(povPos);
+            cesiumViewer.camera.lookAtTransform(
+                transform,
+                new Cesium.HeadingPitchRange(povUserHeading, povUserPitch, povUserRange)
+            );
+            cesiumViewer.scene.requestRender();
+        }
     }
     interpFrame = requestAnimationFrame(loop);
 }
