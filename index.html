@@ -3012,6 +3012,7 @@ let tlePlaybackSpeed = 3600;
 let tlePlaybackTickId = null;
 let tlePlaybackLastTick = null;
 let tlePlaybackStartMs = null;
+let orbitNextRedrawMs = null;   // instante (tiempo de Playback) en que toca repintar la órbita
 
 window.togglePlaybackDatePanel = async function() {
     const panel = document.getElementById('playbackDatePanel');
@@ -3273,7 +3274,13 @@ window.togglePlaybackPlay = function() {
 };
 
 function tlePlaybackTick(now) {
-    const deltaReal = (now - tlePlaybackLastTick) / 1000;
+    let deltaReal = (now - tlePlaybackLastTick) / 1000;
+    // Si el hilo principal ha estado ocupado (cargando/parseando otro día en
+    // segundo plano, el móvil yendo lento, etc.), este fotograma puede llegar
+    // mucho más tarde de lo normal. Sin este límite, ese hueco de tiempo real
+    // se multiplica por la velocidad y el Playback pega un salto enorme (a
+    // veces directo al final) en vez de avanzar poco a poco.
+    deltaReal = Math.min(deltaReal, 0.25);
     tlePlaybackLastTick = now;
     tleTimeOverride += deltaReal * tlePlaybackSpeed * 1000;
 
@@ -3295,6 +3302,13 @@ function tlePlaybackTick(now) {
 
     updatePlaybackDateLabel();
     updateTleSatellitePositions();
+
+    // Si hay un satélite seleccionado y ya completó su vuelta, repintamos su
+    // órbita (sin mover la cámara) para que la línea no se quede desfasada.
+    if (currentSelectedSat && orbitNextRedrawMs !== null && tleTimeOverride >= orbitNextRedrawMs) {
+        drawOrbit3D(currentSelectedSat, false);
+    }
+
     if (tlePlaybackPlaying) tlePlaybackTickId = requestAnimationFrame(tlePlaybackTick);
 }
 
@@ -4968,7 +4982,7 @@ function cssColorToCesium(cssColor) {
 // Dibujar trayectoria orbital en 3D (equivalente al polyline de Leaflet)
 let currentOrbit3D = null;
 
-function drawOrbit3D(sat) {
+function drawOrbit3D(sat, flyCamera = true) {
     // Eliminar órbita anterior
     if (currentOrbit3D) {
         cesiumViewer.entities.remove(currentOrbit3D);
@@ -5022,8 +5036,16 @@ function drawOrbit3D(sat) {
         }
     });
 
-    // Volar suavemente hacia el satélite (solo si el POV no está activo)
-    if (!isPovActive && sat.lat && sat.lng && sat.altitude) {
+    // Programar el próximo repintado para cuando el satélite complete esta vuelta
+    let periodMs = 100 * 60000; // valor de respaldo (~100 min) por si el cálculo falla
+    try {
+        const periodMinutes = (2 * Math.PI) / satrecToUse.no; // no = movimiento medio en rad/min
+        if (isFinite(periodMinutes) && periodMinutes > 0) periodMs = periodMinutes * 60000;
+    } catch (e) {}
+    orbitNextRedrawMs = now.getTime() + periodMs;
+
+    // Volar suavemente hacia el satélite (solo si el POV no está activo Y no es un repintado silencioso)
+    if (flyCamera && !isPovActive && sat.lat && sat.lng && sat.altitude) {
         cesiumViewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(
                 sat.lng, sat.lat,
