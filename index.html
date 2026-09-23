@@ -2605,7 +2605,7 @@ body.light-mode .rocket-filter-chip {
 <div id="povBtnFloat" style="
     display: none;
     position: fixed;
-    bottom: 100px;
+    bottom: 140px;
     right: 16px;
     width: 48px;
     height: 48px;
@@ -3083,13 +3083,21 @@ async function loadOneTleDay(dateStr) {
 
 async function loadTleDaysProgressively() {
     for (const dateStr of tleArchiveIndex) {
+        if (tlePlaybackDays[dateStr] !== undefined) continue; // ya lo tenemos, no lo pidamos dos veces
         await loadOneTleDay(dateStr);
     }
 }
 
 function updatePlaybackAvailableRange() {
-    document.getElementById('playbackLoadedLabel').textContent =
-        `${tlePlaybackLoadedCount}/${tleArchiveIndex.length} days loaded`;
+    const label = document.getElementById('playbackLoadedLabel');
+    const remaining = tleArchiveIndex.length - tlePlaybackLoadedCount;
+    if (remaining > 0) {
+        label.textContent = `Loading history in background… ${remaining} day${remaining === 1 ? '' : 's'} left`;
+        label.style.opacity = '0.9';
+    } else {
+        label.textContent = `${tlePlaybackLoadedCount} days available`;
+        label.style.opacity = '0.5';
+    }
 }
 
 window.closePremiumRequiredPanel = function() {
@@ -5471,7 +5479,11 @@ function startInterpolation() {
         const totalSats = primitiveDataArray.length;
 
         // MODO MASIVO (+3000 satélites)
-        if (totalSats > 3000) {
+        // Mientras Playback esté activo, este bloque no debe tocar nada —
+        // el Worker en vivo sigue mandando datos de hoy de fondo, y sin este
+        // freno, los "chafaría" encima de la posición de Playback cada vez
+        // que llega una actualización nueva.
+        if (totalSats > 3000 && tleTimeOverride === null) {
             if (lastWorkerTime > _lastWorkerUpdateProcessed) {
                 _lastWorkerUpdateProcessed = lastWorkerTime;
                 
