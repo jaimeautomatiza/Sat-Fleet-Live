@@ -3176,9 +3176,7 @@ window.startTlePlayback = async function() {
     document.getElementById('playbackTimeline').classList.add('active');
     document.getElementById('playbackScrubber').value = 0;
     updatePlaybackDateLabel();
-    const _enterStarts = captureSatellitePositions();
     updateTleSatellitePositions();
-    animatePositionTransition(_enterStarts, 1200);
 
     goBtn.disabled = false;
     label.textContent = 'Go';
@@ -3342,15 +3340,13 @@ window.setPlaybackSpeed = function(s) {
 window.exitTlePlayback = function() {
     tlePlaybackPlaying = false;
     if (tlePlaybackTickId) cancelAnimationFrame(tlePlaybackTickId);
-    const _exitStarts = captureSatellitePositions();
     tleTimeOverride = null;
     document.getElementById('playbackTimeline').classList.remove('active');
     primitiveDataArray.forEach(({ point, label }) => {
         if (point) point.show = true;
         if (label) label.show = true;
     });
-    updateCesiumPositions(); // recalcula las posiciones en vivo reales
-    animatePositionTransition(_exitStarts, 1200);
+    updateCesiumPositions(); // vuelve a las posiciones en vivo
 };
 
         // Cargar satélites desde archivo local (sin llamadas directas a Celestrak)
@@ -5537,51 +5533,6 @@ function requestWorkerCalc() {
 
 let _lastRenderTs = 0;
 let _lastWorkerUpdateProcessed = 0;
-let _transitionFrame = null;
-
-// Guarda dónde está cada punto AHORA MISMO — se llama justo ANTES de que
-// algo vaya a mover las posiciones de verdad, para tener un "antes" real
-// con el que animar el deslizamiento.
-function captureSatellitePositions() {
-    return primitiveDataArray.map(({ point }) => point.position ? Cesium.Cartesian3.clone(point.position) : null);
-}
-
-// Desliza cada punto desde 'starts' hasta donde esté AHORA MISMO (ya
-// actualizado por quien llamó a esta función) — funciona igual de bien
-// entrando o saliendo de Playback, y con cualquier cantidad de satélites,
-// porque no depende de ningún efecto secundario, es una animación de
-// verdad, corta y puntual.
-function animatePositionTransition(starts, durationMs) {
-    if (_transitionFrame) cancelAnimationFrame(_transitionFrame);
-    if (!cesiumViewer) return;
-
-    const startTs = performance.now();
-    const ends = primitiveDataArray.map(({ point }) => point.position ? Cesium.Cartesian3.clone(point.position) : null);
-
-    function step(ts) {
-        const t = Math.min((ts - startTs) / durationMs, 1);
-        const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic — arranca rápido, frena suave al llegar
-
-        for (let i = 0; i < primitiveDataArray.length; i++) {
-            const s = starts[i], e = ends[i];
-            if (!s || !e) continue;
-            const { point, label } = primitiveDataArray[i];
-            Cesium.Cartesian3.lerp(s, e, eased, _scratchPos);
-            point.position = Cesium.Cartesian3.clone(_scratchPos);
-            if (label) label.position = point.position;
-        }
-
-        cesiumViewer.scene.requestRender();
-
-        if (t < 1) {
-            _transitionFrame = requestAnimationFrame(step);
-        } else {
-            _transitionFrame = null;
-        }
-    }
-
-    _transitionFrame = requestAnimationFrame(step);
-}
 let _lastPositionsTs = 0;
 
 // EL TRUCO MAGICO: Reutilizamos un único objeto en memoria para no saturar la RAM
