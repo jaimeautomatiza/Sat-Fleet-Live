@@ -5218,6 +5218,10 @@ filtered.forEach(sat => {
 function updateCesiumPositions() {
     if (!cesiumViewer || !is3DMode) return;
     if (!satPointCollection || !satLabelCollection) return;
+    // Venga de donde venga la llamada (hay 4 sitios que la arrancan), esta
+    // función no sabe nada de Playback — así que, mientras esté activo, no
+    // debe tocar ni una posición, pase lo que pase.
+    if (tleTimeOverride !== null) return;
 
     const now = new Date();
 
