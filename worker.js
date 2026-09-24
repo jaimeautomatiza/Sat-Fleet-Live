@@ -2185,9 +2185,9 @@ export default {
       const url = new URL(request.url);
       const dateParam = url.searchParams.get('date');
       const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
-      if (dateParam !== yesterday) {
-        // Cualquier fecha que no sea "ayer" es de pago — "ayer" siempre
-        // queda libre, sin comprobar nada.
+      if (dateParam < yesterday) {
+        // Ayer y hoy quedan libres, sin comprobar nada — cualquier fecha
+        // MÁS ANTIGUA que ayer es de pago.
         const uid = extractUidFromJWT(request.headers.get('Authorization'));
         const isPremium = await checkPremiumStatus(uid, env);
         if (!isPremium) return premiumRequired();

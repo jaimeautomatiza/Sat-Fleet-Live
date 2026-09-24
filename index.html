@@ -3033,7 +3033,7 @@ window.togglePlaybackDatePanel = async function() {
             }
             const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
             select.innerHTML = tleArchiveIndex.map(d => {
-                const isFree = (d === yesterday);
+                const isFree = (d >= yesterday); // hoy o ayer, cualquiera de los dos vale
                 return `<option value="${d}">${isFree ? d + ' (free)' : d + ' (Premium)'}</option>`;
             }).join('');
         } catch (e) {
@@ -3147,7 +3147,7 @@ window.startTlePlayback = async function() {
     errEl.style.display = 'none';
 
     const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
-    const isFreeDate = (dateVal === yesterday);
+    const isFreeDate = (dateVal >= yesterday); // hoy o ayer, cualquiera de los dos vale
 
     let isPremium = true;
     if (!isFreeDate) {
