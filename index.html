@@ -3061,6 +3061,7 @@ let tlePlaybackTickId = null;
 let tlePlaybackLastTick = null;
 let tlePlaybackStartMs = null;
 let orbitNextRedrawMs = null;   // instante (tiempo de Playback) en que toca repintar la órbita
+let cachedIsPremiumForCalendar = false;
 
 window.togglePlaybackDatePanel = async function() {
     const panel = document.getElementById('playbackDatePanel');
@@ -3077,6 +3078,9 @@ window.togglePlaybackDatePanel = async function() {
         } catch (e) {
             console.error('[TLE Playback] Error cargando el índice:', e.message);
         }
+        // Comprobamos Premium una sola vez, aquí — el calendario reutiliza
+        // este resultado cada vez que se pinta, en vez de preguntar cada mes.
+        cachedIsPremiumForCalendar = await checkIsPremiumClientSide();
         if (tleArchiveIndex.length) {
             calendarViewMonth = new Date(tleArchiveIndex[tleArchiveIndex.length - 1] + 'T00:00:00Z');
         }
@@ -3115,7 +3119,7 @@ function renderCalendar() {
             html += `<div class="cal-day">${day}</div>`;
             continue;
         }
-        const isFree = (dateStr >= yesterday);
+        const isFree = cachedIsPremiumForCalendar || (dateStr >= yesterday);
         const isSelected = (dateStr === selectedPlaybackDate);
         html += `<div class="cal-day ${isFree ? 'cal-free' : 'cal-locked'} ${isSelected ? 'cal-selected' : ''}" onclick="selectCalendarDay('${dateStr}', ${isFree})">${day}</div>`;
     }
