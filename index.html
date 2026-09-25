@@ -2247,6 +2247,44 @@ body.light-mode .rocket-filter-chip {
         #trialPromoBanner { flex-wrap: wrap; }
         #trialPromoBanner .tp-cta { order: 3; width: 100%; margin-top: 6px; text-align: center; }
     }
+ 
+    #playbackCalendar { margin-bottom: 14px; }
+#playbackCalendar .cal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px; color: #fff; font-size: 0.85rem; font-weight: 600;
+}
+#playbackCalendar .cal-header button {
+    background: rgba(255,255,255,0.08); border: none; color: #fff;
+    width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 1rem;
+}
+#playbackCalendar .cal-header button:disabled { opacity: 0.3; cursor: default; }
+#playbackCalendar .cal-weekdays, #playbackCalendar .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+}
+#playbackCalendar .cal-weekdays span {
+    text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.4); padding-bottom: 4px;
+}
+.cal-day {
+    position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; font-size: 0.75rem; cursor: default; color: rgba(255,255,255,0.2);
+}
+.cal-day.cal-empty { visibility: hidden; }
+.cal-day.cal-free { background: rgba(255,255,255,0.08); color: #fff; cursor: pointer; }
+.cal-day.cal-free:hover { background: rgba(156,39,176,0.25); }
+.cal-day.cal-free.cal-selected { background: #9c27b0; color: #fff; font-weight: 700; }
+.cal-day.cal-locked { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.35); cursor: pointer; }
+.cal-day.cal-locked::after {
+    content: '';
+    position: absolute;
+    bottom: 1px; right: 2px;
+    width: 7px; height: 7px;
+    background-image: url("images/icon-lock.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    filter: invert(1);
+    opacity: 0.5;
+}
+
     #playbackBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:950; }
 #playbackBackdrop.open { display:block; }
 #playbackDatePanel {
@@ -2715,11 +2753,12 @@ body.light-mode .rocket-filter-chip {
     <div style="width:56px; height:56px; background:rgba(156,39,176,0.13); border:1.5px solid rgba(156,39,176,0.45); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
-    <div style="font-size:1.05rem; font-weight:800; color:#e0aaff; margin-bottom:10px;">Premium Feature</div>
+    <div style="font-size:1.05rem; font-weight:800; color:#e0aaff; margin-bottom:10px;">Try Premium Free</div>
     <div style="font-size:0.82rem; color:rgba(230,225,240,0.55); line-height:1.65; margin-bottom:26px;" id="premiumModalDesc">This feature requires an active SatFleet Live Premium subscription.</div>
+    <div style="display:inline-flex; align-items:center; gap:6px; margin:0 auto 22px; padding:7px 16px; background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4); border-radius:20px; color:#e0aaff; font-size:0.74rem; font-weight:700; letter-spacing:0.2px;">7 days free, then €2.99/mo — cancel anytime</div>
     <div style="display:flex; gap:10px;">
       <button onclick="closePremiumModal()" style="flex:1; padding:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:11px; color:rgba(230,225,240,0.6); font-size:0.82rem; font-weight:600; cursor:pointer; font-family:inherit;">Not now</button>
-      <button onclick="clickPremiumUpgrade()" style="flex:1; padding:10px; background:linear-gradient(135deg,#a333bc,#7b1fa2); border:none; border-radius:11px; color:#fff; font-size:0.84rem; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(156,39,176,0.45);">Upgrade — €2.99/mo</button>
+      <button onclick="clickPremiumUpgrade()" style="flex:1; padding:10px; background:linear-gradient(135deg,#a333bc,#7b1fa2); border:none; border-radius:11px; color:#fff; font-size:0.84rem; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(156,39,176,0.45);">Start Free Trial</button>
     </div>
   </div>
 </div>
@@ -2803,7 +2842,15 @@ body.light-mode .rocket-filter-chip {
 <div id="playbackDatePanel">
     <h3>Time Travel</h3>
     <p>See where satellites were on a past date. Only dates we've actually archived are shown — new ones get added daily.</p>
-    <select id="playbackDateSelect"><option value="">Loading available dates…</option></select>
+    <div id="playbackCalendar">
+        <div class="cal-header">
+            <button type="button" onclick="calendarChangeMonth(-1)">‹</button>
+            <span id="calMonthLabel">—</span>
+            <button type="button" onclick="calendarChangeMonth(1)">›</button>
+        </div>
+        <div class="cal-weekdays"><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span></div>
+        <div class="cal-grid" id="calGrid"></div>
+    </div>
     <button id="playbackGoBtn" onclick="startTlePlayback()"><span class="pt-progress-fill"></span><span class="label">Go</span></button>
     <div id="playbackDateError"></div>
 </div>
@@ -2811,9 +2858,10 @@ body.light-mode .rocket-filter-chip {
 <div id="premiumRequiredBackdrop" onclick="closePremiumRequiredPanel()"></div>
 <div id="premiumRequiredPanel">
     <div class="pr-icon"><img src="images/icon-lock.svg" alt=""></div>
-    <h3>Premium feature</h3>
-    <p>Every date except yesterday is part of SatFleet Premium — go back further than one day, whenever you like.</p>
-    <button id="premiumUpgradeBtn" onclick="window.location.href='/account.html'">See Premium</button>
+    <h3>Try Premium Free</h3>
+    <p>Every date except today and yesterday is part of SatFleet Premium — go back further than that, whenever you like.</p>
+    <div style="display:inline-block; margin:0 0 14px; padding:6px 14px; background:rgba(156,39,176,0.15); border:1px solid rgba(156,39,176,0.4); border-radius:20px; color:#e0aaff; font-size:0.72rem; font-weight:700; letter-spacing:0.2px;">7 days free, then €2.99/mo — cancel anytime</div>
+    <button id="premiumUpgradeBtn" onclick="window.location.href='/account.html'">Start Free Trial</button>
     <button id="premiumMaybeLaterBtn" onclick="closePremiumRequiredPanel()">Maybe later</button>
 </div>
 
@@ -3022,24 +3070,80 @@ window.togglePlaybackDatePanel = async function() {
     bd.classList.toggle('open', willOpen);
 
     if (willOpen && tleArchiveIndex.length === 0) {
-        const select = document.getElementById('playbackDateSelect');
         try {
             const res = await fetch('https://worker.satfleetlive.com/api/tle-archive-index');
             const dates = await res.json();
             tleArchiveIndex = dates.sort();
-            if (!tleArchiveIndex.length) {
-                select.innerHTML = '<option value="">No dates archived yet — check back soon</option>';
-                return;
-            }
-            const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
-            select.innerHTML = tleArchiveIndex.map(d => {
-                const isFree = (d >= yesterday); // hoy o ayer, cualquiera de los dos vale
-                return `<option value="${d}">${isFree ? d + ' (free)' : d + ' (Premium)'}</option>`;
-            }).join('');
         } catch (e) {
-            select.innerHTML = '<option value="">Could not load dates</option>';
             console.error('[TLE Playback] Error cargando el índice:', e.message);
         }
+        if (tleArchiveIndex.length) {
+            calendarViewMonth = new Date(tleArchiveIndex[tleArchiveIndex.length - 1] + 'T00:00:00Z');
+        }
+        renderCalendar();
+    }
+};
+
+let calendarViewMonth = new Date();
+let selectedPlaybackDate = null;
+
+function renderCalendar() {
+    const grid = document.getElementById('calGrid');
+    const label = document.getElementById('calMonthLabel');
+    if (!tleArchiveIndex.length) {
+        label.textContent = '—';
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:rgba(255,255,255,0.4); font-size:0.75rem; padding:10px 0;">No dates archived yet — check back soon</div>';
+        return;
+    }
+
+    const year = calendarViewMonth.getUTCFullYear();
+    const month = calendarViewMonth.getUTCMonth();
+    label.textContent = calendarViewMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+    const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
+    const firstOfMonth = new Date(Date.UTC(year, month, 1));
+    const firstWeekday = (firstOfMonth.getUTCDay() + 6) % 7; // que la semana empiece en lunes
+    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+
+    let html = '';
+    for (let i = 0; i < firstWeekday; i++) html += '<div class="cal-day cal-empty"></div>';
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = new Date(Date.UTC(year, month, day)).toISOString().slice(0, 10);
+        const hasData = tleArchiveIndex.includes(dateStr);
+        if (!hasData) {
+            html += `<div class="cal-day">${day}</div>`;
+            continue;
+        }
+        const isFree = (dateStr >= yesterday);
+        const isSelected = (dateStr === selectedPlaybackDate);
+        html += `<div class="cal-day ${isFree ? 'cal-free' : 'cal-locked'} ${isSelected ? 'cal-selected' : ''}" onclick="selectCalendarDay('${dateStr}', ${isFree})">${day}</div>`;
+    }
+
+    grid.innerHTML = html;
+
+    // Botón "siguiente mes" deshabilitado si no hay ningún día archivado más allá del mes que se ve ahora
+    const lastArchived = tleArchiveIndex[tleArchiveIndex.length - 1];
+    const lastArchivedDate = new Date(lastArchived + 'T00:00:00Z');
+    const nextBtn = document.querySelector('#playbackCalendar .cal-header button:last-child');
+    nextBtn.disabled = (year === lastArchivedDate.getUTCFullYear() && month === lastArchivedDate.getUTCMonth());
+}
+
+window.calendarChangeMonth = function(delta) {
+    calendarViewMonth = new Date(Date.UTC(calendarViewMonth.getUTCFullYear(), calendarViewMonth.getUTCMonth() + delta, 1));
+    renderCalendar();
+};
+
+window.selectCalendarDay = function(dateStr, isFree) {
+    selectedPlaybackDate = dateStr;
+    renderCalendar();
+    if (!isFree) {
+        checkIsPremiumClientSide().then(isPremium => {
+            if (!isPremium) {
+                closePlaybackDatePanel();
+                showPremiumRequiredPanel();
+            }
+        });
     }
 };
 window.closePlaybackDatePanel = function() {
@@ -3138,7 +3242,7 @@ window.startTlePlayback = async function() {
         return;
     }
 
-    const dateVal = document.getElementById('playbackDateSelect').value;
+    const dateVal = selectedPlaybackDate;
     if (!dateVal) {
         errEl.textContent = 'Pick a date from the list.';
         errEl.style.display = 'block';
@@ -3201,16 +3305,26 @@ window.startTlePlayback = async function() {
     }
 };
 
+// El rango del control va SOLO desde el día que elegiste hasta el más
+// reciente archivado — nunca hacia atrás, aunque existan días anteriores
+// en el archivo (esos podrían ser de pago, o simplemente no elegidos).
+function getPlaybackRange() {
+    const startDateStr = new Date(tlePlaybackStartMs).toISOString().slice(0, 10);
+    const startIdx = Math.max(0, tleArchiveIndex.indexOf(startDateStr));
+    const playableDays = Math.max(1, tleArchiveIndex.length - startIdx);
+    return { startIdx, playableDays };
+}
+
 function updatePlaybackDateLabel() {
     const d = new Date(tleTimeOverride);
     const localTxt = d.toLocaleString('es-ES', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
     document.getElementById('playbackDateLabel').innerHTML = d.toUTCString().slice(0, 22) + ' UTC<br>(' + localTxt + ' hora local)';
-    // El máximo del slider crece según se van cargando días — cada día son
-    // 1000/tleArchiveIndex.length unidades del control deslizante.
-    const totalDays = tleArchiveIndex.length || 1;
-    const dayIndex = tleArchiveIndex.indexOf(new Date(tleTimeOverride).toISOString().slice(0, 10));
+
+    const { startIdx, playableDays } = getPlaybackRange();
+    const currentDayIndex = tleArchiveIndex.indexOf(new Date(tleTimeOverride).toISOString().slice(0, 10));
+    const relativeIndex = Math.max(0, currentDayIndex - startIdx);
     const fracWithinDay = (tleTimeOverride - Date.parse(new Date(tleTimeOverride).toISOString().slice(0, 10) + 'T00:00:00Z')) / 86400000;
-    const pct = ((Math.max(0, dayIndex) + fracWithinDay) / totalDays) * 1000;
+    const pct = ((relativeIndex + fracWithinDay) / playableDays) * 1000;
     document.getElementById('playbackScrubber').value = Math.max(0, Math.min(1000, Math.round(pct)));
 }
 
@@ -3264,11 +3378,11 @@ function updateTleSatellitePositions() {
 }
 
 window.onPlaybackScrub = function(val) {
-    const totalDays = tleArchiveIndex.length || 1;
-    const dayFrac = (val / 1000) * totalDays;
-    const dayIndex = Math.min(tleArchiveIndex.length - 1, Math.floor(dayFrac));
+    const { startIdx, playableDays } = getPlaybackRange();
+    const dayFrac = (val / 1000) * playableDays;
+    const dayIndex = Math.min(tleArchiveIndex.length - 1, startIdx + Math.floor(dayFrac));
     const dateStr = tleArchiveIndex[dayIndex];
-    const withinDayMs = (dayFrac - dayIndex) * 86400000;
+    const withinDayMs = (dayFrac - Math.floor(dayFrac)) * 86400000;
     tleTimeOverride = Date.parse(dateStr + 'T00:00:00Z') + withinDayMs;
     updatePlaybackDateLabel();
     updateTleSatellitePositions();
