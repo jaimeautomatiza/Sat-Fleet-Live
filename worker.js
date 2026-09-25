@@ -1822,8 +1822,8 @@ async function computeDeepSpaceObjects(refDate, previousObjects) {
   const STEP_TIERS = [
     { step: '12%20h', ventanas: [30] },  // objetos normales — SIEMPRE el rango ancho completo
     { step: '3%20h',  ventanas: [30] },  // si a 12h se ve "brusco", afinamos la resolución, sin recortar el rango
-    { step: '30%20m', ventanas: [5] },   // aquí empiezan los objetos fastOrbit
-    { step: '1%20m',  ventanas: [1] },   // aquí empiezan los ultraFastOrbit
+    { step: '30%20m', ventanas: [30] },  // fastOrbit — mismo rango de 30 días, solo con paso más fino
+    { step: '1%20m',  ventanas: [1] },   // ultraFastOrbit — aquí sí se mantiene corto, sería demasiado dato a este detalle
   ];
 
   // Mide si el salto más grande entre dos fotos consecutivas es una porción
