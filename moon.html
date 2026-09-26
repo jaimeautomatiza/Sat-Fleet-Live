@@ -403,6 +403,21 @@
         transition:all 0.2s ease;
     }
     #moonPovBtn img { width:26px; height:26px; filter:invert(1); opacity:0.3; transition:all 0.2s; }
+    #moonPhaseWidget {
+        position:fixed; bottom:196px; right:16px; width:52px;
+        z-index:850; pointer-events:none;
+        display:flex; flex-direction:column; align-items:center; gap:3px;
+        opacity:0.55; transition:opacity 0.3s ease;
+    }
+    #moonPhaseWidget svg {
+        width:34px; height:34px; display:block;
+        filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+    }
+    #moonPhaseLabel {
+        font-size:0.55rem; color:rgba(255,255,255,0.65);
+        text-align:center; line-height:1.15; letter-spacing:0.02em;
+        text-shadow:0 1px 3px rgba(0,0,0,0.9);
+    }
     #moonPovBtn.active {
         background:rgba(156,39,176,0.2); border-color:var(--primary-purple);
         box-shadow:0 0 20px rgba(156,39,176,0.6);
@@ -690,6 +705,14 @@
     <img src="images/360-degrees.svg" alt="POV">
 </div>
 
+<div id="moonPhaseWidget" title="Moon phase">
+    <svg viewBox="-18 -18 36 36" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="0" cy="0" r="14" fill="#1a1a20" stroke="rgba(255,255,255,0.18)" stroke-width="0.6"/>
+        <path id="moonPhaseLit" d="" fill="#e8e6df"/>
+    </svg>
+    <div id="moonPhaseLabel">—</div>
+</div>
+
 <div class="legend collapsed" id="legendPanel">
     <div class="legend-header">
         <div class="legend-title">Layers</div>
@@ -874,6 +897,48 @@ function getMoonPhaseAge(date) {
     if (age < 0) age += synodicMonth;
     return age; // 0 = luna nueva, ~14.77 = luna llena
 }
+
+// ===== Indicador visual de fase lunar =====
+// Sigue la fecha de Playback si está activo, así el disco refleja siempre
+// la fase real de lo que estás viendo en pantalla.
+function renderMoonPhase() {
+    const path  = document.getElementById('moonPhaseLit');
+    const label = document.getElementById('moonPhaseLabel');
+    if (!path || !label) return;
+
+    const refDate = orbiterTimeOverride !== null ? new Date(orbiterTimeOverride) : new Date();
+    const frac  = getMoonPhaseAge(refDate) / 29.530588853; // 0 = nueva, 0.5 = llena
+    const angle = frac * 2 * Math.PI;
+    const cosA  = Math.cos(angle);
+    const illum = (1 - cosA) / 2;
+    const waxing = frac < 0.5;
+
+    const R  = 14;
+    const rx = R * Math.abs(cosA); // el terminador es una semielipse que se estrecha
+
+    if (illum < 0.01) {
+        path.setAttribute('d', '');
+    } else if (illum > 0.99) {
+        path.setAttribute('d', `M 0,-${R} A ${R},${R} 0 1,1 0,${R} A ${R},${R} 0 1,1 0,-${R} Z`);
+    } else {
+        const limbSweep = waxing ? 1 : 0;
+        const termSweep = ((cosA > 0) === waxing) ? 0 : 1;
+        path.setAttribute('d',
+            `M 0,-${R} A ${R},${R} 0 0,${limbSweep} 0,${R} A ${rx.toFixed(2)},${R} 0 0,${termSweep} 0,-${R} Z`);
+    }
+
+    let name;
+    if (illum < 0.02)      name = 'New Moon';
+    else if (illum > 0.98) name = 'Full Moon';
+    else if (Math.abs(illum - 0.5) < 0.04) name = waxing ? 'First Quarter' : 'Last Quarter';
+    else if (illum < 0.5)  name = waxing ? 'Waxing Crescent' : 'Waning Crescent';
+    else                   name = waxing ? 'Waxing Gibbous'  : 'Waning Gibbous';
+
+    label.textContent = `${name} · ${Math.round(illum * 100)}%`;
+}
+
+setTimeout(renderMoonPhase, 100);
+setInterval(renderMoonPhase, 1000); // barato: solo redibuja un path SVG
 
 let orbiterTimeOverride = null; // null = tiempo real; si no, la "hora falsa" que usa el dibujado — declarada aquí arriba porque updateMoonLighting la necesita desde el primer momento, antes de llegar a la sección de Playback
 

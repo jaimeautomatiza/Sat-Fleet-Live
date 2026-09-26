@@ -372,8 +372,6 @@
         }
 
         /* Botón 3D */
-        /* Deliberadamente discreto: la app es 3D por defecto, el 2D es
-           una salida secundaria para quien la busque. */
         #toggleViewBtn {
             height: 32px;
             padding: 0 11px;
@@ -394,9 +392,6 @@
             color: rgba(255, 255, 255, 0.7);
             border-color: rgba(255, 255, 255, 0.25);
         }
-
-        body.light-mode #toggleViewBtn { color: rgba(0, 0, 0, 0.3); border-color: rgba(0, 0, 0, 0.12); }
-        body.light-mode #toggleViewBtn:hover { color: rgba(0, 0, 0, 0.65); border-color: rgba(0, 0, 0, 0.25); background: rgba(0, 0, 0, 0.04); }
 
         /* Botón Only Visible */
         #visibilityToggle {
@@ -2731,7 +2726,6 @@ body.light-mode .rocket-filter-chip {
     </button>
     <div class="overflow-divider"></div>
     <a class="overflow-item gold" href="account.html" style="font-weight:600;"><img src="images/account.svg" style="width: 18px; height: 18px; filter: invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt="Account"> Account / Premium</a>
-    <button class="overflow-item" id="overflowViewBtn" onclick="toggleView(); closeOverflowMenu()" style="opacity:0.45; font-size:0.8rem;">2D</button>
 </div>
 
 <!-- Loading -->
@@ -2814,7 +2808,6 @@ body.light-mode .rocket-filter-chip {
         <img src="images/planet-switcher.svg" class="explore-icon" alt="">
         Explore
     </button>
-    <button id="toggleViewBtn" onclick="toggleView()">2D</button>
 
     <!-- Elevation controls (visible solo cuando Only Visible activo) -->
     <div class="visibility-filter-controls" id="visibilityControls">
@@ -2947,7 +2940,8 @@ let cesiumUpdateInterval = null;
 
             // Tiles para tema claro
             const lightTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-                attribution: '©OpenStreetMap contributors',
+                attribution: 'Tiles ©Esri — Esri, HERE, Garmin, ©OpenStreetMap',
+                maxNativeZoom: 16,
                 maxZoom: 19
             });
 
