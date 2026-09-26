@@ -1666,6 +1666,17 @@ const DEEP_SPACE_TARGETS = [
   { id: 'orcus', name: 'Orcus', command: '90482', isPlanet: true },
   // Naves de espacio profundo — launchDate real de cada una, para el Playback:
   // así nunca preguntamos a Horizons por una nave que todavía no existía.
+
+  //Tripuladas:
+  { id: 'artemis2', name: 'Artemis II', command: '-1024' },
+  { id: 'snoopy', name: 'Snoopy (Apollo 10 LM)', command: '-399101' },
+
+  //Curiosidades:
+  { id: 'apollo11s4b', name: 'Apollo 11 (S-IVB stage)', command: '-399110' },
+  { id: 'teslaroadster', name: 'Tesla Roadster (Starman)', command: '-143205' },
+
+  //Naves Espaciales
+  { id: 'artemis1', name: 'Artemis I', command: '-1023' },
   { id: 'voyager1', name: 'Voyager 1', command: '-31', launchDate: '1977-09-05' },
   { id: 'voyager2', name: 'Voyager 2', command: '-32', launchDate: '1977-08-20' },
   { id: 'jwst',      name: 'James Webb Space Telescope', command: '-170', launchDate: '2021-12-25' },
@@ -1733,7 +1744,7 @@ function buildHeliocentricUrl(target, startTime, stopTime, stepSize) {
   return `${HORIZONS_BASE}?${q}`;
 }
 
-async function computeDeepSpaceObjects(refDate, previousObjects) {
+async function computeDeepSpaceObjects(refDate, previousObjects, env, isLive = true) {
   const now = refDate; // "now" en el sentido de "el instante alrededor del cual pedimos la ventana" — puede ser hoy, o una fecha del pasado para el Playback
   const startTime = now.toISOString().slice(0, 10);
   const objects = {};
@@ -1889,8 +1900,35 @@ async function computeDeepSpaceObjects(refDate, previousObjects) {
       if (target.launchDate && new Date(target.launchDate + 'T00:00:00Z').getTime() > now.getTime() + maxVentanaMs) {
         return { target, points: [], skipped: true };
       }
-      const points = await fetchConDeteccionAutomatica(target);
-      return { target, points };
+
+      // Red de seguridad automática: si ya detectamos antes que esto terminó
+      // (la propia NASA nos lo dijo), no volvemos a preguntar hasta que
+      // caduque el aviso — solo aplica en directo, nunca en Playback.
+      if (isLive && env) {
+        try {
+          const yaTerminada = await env.LAUNCHES_KV.get(`mission_ended_${target.id}`);
+          if (yaTerminada) return { target, points: [], skipped: true };
+        } catch (e) { /* si el KV falla al leer, seguimos e intentamos con normalidad */ }
+      }
+
+      try {
+        const points = await fetchConDeteccionAutomatica(target);
+        return { target, points };
+      } catch (err) {
+        // Si la propia NASA nos dice explícitamente "no hay datos después de
+        // tal fecha", y estamos en directo, lo apuntamos para no volver a
+        // preguntar — con caducidad, por si algún día publican más datos.
+        if (isLive && env) {
+          const boundary = extractEphemerisBoundary(err.message);
+          if (boundary?.type === 'after') {
+            try {
+              await env.LAUNCHES_KV.put(`mission_ended_${target.id}`, boundary.date, { expirationTtl: 75 * 24 * 3600 });
+            } catch (e) { /* si falla el guardado, no pasa nada — se reintentará la próxima vez */ }
+            return { target, points: [], skipped: true };
+          }
+        }
+        throw err;
+      }
     }));
 
     results.forEach((result, j) => {
@@ -1931,7 +1969,7 @@ async function handleDeepSpace(ctx, env) {
     }
   } catch(e) { console.error('Deep space KV read error:', e.message); }
 
-  const { objects, anySuccess } = await computeDeepSpaceObjects(new Date(), previousObjects);
+  const { objects, anySuccess } = await computeDeepSpaceObjects(new Date(), previousObjects, env, true);
 
   if (!anySuccess) {
     try {
@@ -1991,7 +2029,7 @@ async function handleDeepSpacePlayback(request, ctx, env) {
   } catch(e) { console.error('Playback KV read error:', e.message); }
 
   const refDate = new Date(dateParam + 'T00:00:00Z'); // los datos devueltos cubren ese día y los ~30 siguientes (no van centrados en la fecha)
-  const { objects, anySuccess } = await computeDeepSpaceObjects(refDate, {}); // sin red de seguridad de "lo último bueno" — no aplica a fechas concretas del pasado
+  const { objects, anySuccess } = await computeDeepSpaceObjects(refDate, {}, env, false); // sin red de seguridad de "lo último bueno" — no aplica a fechas concretas del pasado
 
   if (!anySuccess) {
     return new Response(JSON.stringify({ error: 'Horizons unreachable para esa fecha', objects: {} }), {

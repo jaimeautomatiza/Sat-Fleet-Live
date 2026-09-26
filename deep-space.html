@@ -650,6 +650,8 @@ Explore the entire solar system live: all 8 planets, several dwarf planets, and 
     <div class="legend-item" style="width:100%; height:1px; background:rgba(255,255,255,0.12); margin:6px 0; padding:0;"></div>
     <div class="legend-item" style="font-size:0.72rem; font-weight:700; color:var(--primary-purple); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:2px;">Deep Space Missions</div>
     <div class="legend-item"><div class="legend-color" style="background:var(--primary-purple);"></div><span>Active spacecraft (live)</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffffff;"></div><span>Crewed missions</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#00e5ff;"></div><span>Curiosities</span></div>
 </div>
 
 <div id="dsFiltersPanel">
@@ -663,6 +665,8 @@ Explore the entire solar system live: all 8 planets, several dwarf planets, and 
         <button class="filter-chip active" id="layerSpacecraftBtn" onclick="toggleSpacecraftLayer()">Spacecraft</button>
         <button class="filter-chip active" id="layerDwarfBtn" onclick="toggleDwarfLayer()">Dwarf Planets</button>
         <button class="filter-chip active" id="layerMoonsBtn" onclick="toggleMoonsLayer()">Moons</button>
+        <button class="filter-chip active" id="layerCuriositiesBtn" onclick="toggleCuriositiesLayer()">Curiosities</button>
+        <button class="filter-chip active" id="layerCrewedBtn" onclick="toggleCrewedLayer()">Crewed</button>
     </div>
 </div>
 
@@ -918,6 +922,8 @@ function bodyColorHex(id) {
     if (MOON_META[id]) return '#bbbbbb';
     if (DWARF_META[id]) return '#e8a87c';
     if (PLANET_META[id]) return '#' + PLANET_META[id].color.toString(16).padStart(6, '0');
+    if (CREWED_IDS.includes(id)) return '#ffffff';
+    if (CURIOSITY_IDS.includes(id)) return '#00e5ff';
     return '#b026ff';
 }
 
@@ -1155,7 +1161,13 @@ Object.entries(MOON_META).forEach(([id, meta]) => {
 });
 
 // ==================== NAVES DE ESPACIO PROFUNDO ====================
-const SPACECRAFT_IDS = ['voyager1', 'voyager2', 'jwst', 'parker', 'newhorizons', 'juno', 'hera', 'bepicolombo', 'europaclipper', 'lucy', 'psyche', 'romantelescope', 'solarorbiter', 'osirisapex'];
+const SPACECRAFT_IDS = ['voyager1', 'voyager2', 'jwst', 'parker', 'newhorizons', 'juno', 'hera', 'bepicolombo', 'europaclipper', 'lucy', 'psyche', 'romantelescope', 'solarorbiter', 'osirisapex', 'artemis1', 'artemis2', 'snoopy', 'apollo11s4b', 'teslaroadster'];
+let showCuriosities = true;
+let showCrewed = true;
+// Tripuladas de verdad — se pintan en blanco en vez del morado normal
+const CREWED_IDS = ['snoopy', 'artemis2'];
+// Curiosidades — cosas humanas raras flotando por ahí, ni misión activa ni cuerpo natural
+const CURIOSITY_IDS = ['apollo11s4b', 'teslaroadster'];
 
 function makeDotTexture() {
     const canvas = document.createElement('canvas');
@@ -1670,7 +1682,7 @@ function updateObjectPositions() {
 
         let sprite = labelSprites[id];
         if (!sprite) {
-            const labelColor = DWARF_META[id] ? '#e8a87c' : (obj.isPlanet ? '#e0e0e0' : '#b026ff');
+            const labelColor = DWARF_META[id] ? '#e8a87c' : (obj.isPlanet ? '#e0e0e0' : bodyColorHex(id));
             sprite = makeLabelSprite(obj.name, labelColor);
             scene.add(sprite);
             labelSprites[id] = sprite;
@@ -2019,8 +2031,29 @@ window.toggleOrbitsLayer = function() {
 window.toggleSpacecraftLayer = function() {
     showSpacecraft = !showSpacecraft;
     document.getElementById('layerSpacecraftBtn').classList.toggle('active', showSpacecraft);
-    Object.values(spacecraftMeshes).forEach(m => m.visible = showSpacecraft);
-    SPACECRAFT_IDS.forEach(id => { if (labelSprites[id]) labelSprites[id].visible = showSpacecraft; });
+    // Las "curiosidades" y las tripuladas tienen su propio interruptor — no las tocamos aquí.
+    SPACECRAFT_IDS.filter(id => !CURIOSITY_IDS.includes(id) && !CREWED_IDS.includes(id)).forEach(id => {
+        if (spacecraftMeshes[id]) spacecraftMeshes[id].visible = showSpacecraft;
+        if (labelSprites[id]) labelSprites[id].visible = showSpacecraft;
+    });
+    if (realScaleActive && selectedObjectId) updateRealScalePositions(selectedObjectId);
+};
+window.toggleCuriositiesLayer = function() {
+    showCuriosities = !showCuriosities;
+    document.getElementById('layerCuriositiesBtn').classList.toggle('active', showCuriosities);
+    CURIOSITY_IDS.forEach(id => {
+        if (spacecraftMeshes[id]) spacecraftMeshes[id].visible = showCuriosities;
+        if (labelSprites[id]) labelSprites[id].visible = showCuriosities;
+    });
+    if (realScaleActive && selectedObjectId) updateRealScalePositions(selectedObjectId);
+};
+window.toggleCrewedLayer = function() {
+    showCrewed = !showCrewed;
+    document.getElementById('layerCrewedBtn').classList.toggle('active', showCrewed);
+    CREWED_IDS.forEach(id => {
+        if (spacecraftMeshes[id]) spacecraftMeshes[id].visible = showCrewed;
+        if (labelSprites[id]) labelSprites[id].visible = showCrewed;
+    });
     if (realScaleActive && selectedObjectId) updateRealScalePositions(selectedObjectId);
 };
 window.toggleDwarfLayer = function() {
