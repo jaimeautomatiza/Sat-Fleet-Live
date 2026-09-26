@@ -1960,7 +1960,10 @@ async function handleDeepSpace(ctx, env) {
     if (cached) {
       const parsed = JSON.parse(cached);
       previousObjects = parsed.objects || {};
-      if (Date.now() - parsed.fetchedAt < DEEP_SPACE_TTL * 1000) {
+      // Margen de una hora completa por debajo del límite real — el cron pasa
+      // cada hora sin falta, así que siempre va a caer dentro de este margen
+      // y refrescar él solo, antes de que le dé tiempo a un visitante real.
+      if (Date.now() - parsed.fetchedAt < (DEEP_SPACE_TTL - 3600) * 1000) {
         return new Response(JSON.stringify({ objects: parsed.objects, _meta: { source: 'kv_cache' } }), {
           status: 200,
           headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8' }),

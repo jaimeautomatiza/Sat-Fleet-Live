@@ -1187,7 +1187,9 @@ const dotTexture = makeDotTexture();
 function makeSpacecraftMesh(id) {
     // Un sprite con sizeAttenuation:false se dibuja siempre al mismo tamaño
     // en pantalla, esté a 2 unidades o a 235 — así nunca desaparece por lejos.
-    const mat = new THREE.SpriteMaterial({ map: dotTexture, sizeAttenuation: false, depthTest: true, transparent: true, depthWrite: false });
+    // El color correcto de cada nave (morado normal, blanco tripulada, cian
+    // curiosidad) se decide aquí, en vez de usar una textura única para todas.
+    const mat = new THREE.SpriteMaterial({ map: getColoredDotTexture(bodyColorHex(id)), sizeAttenuation: false, depthTest: true, transparent: true, depthWrite: false });
     const sprite = new THREE.Sprite(mat);
     sprite.scale.set(0.018, 0.018, 1);
     sprite.userData = { id, isPlanet: false };
