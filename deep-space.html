@@ -592,6 +592,8 @@
         <input type="range" id="playbackScrubber" min="0" max="1000" value="0" oninput="onPlaybackScrub(this.value)">
     </div>
     <div id="playbackSpeedGroup">
+        <button class="pt-speed-btn" data-speed="1" onclick="setPlaybackSpeed(1)">1:1</button>
+        <button class="pt-speed-btn" data-speed="300" onclick="setPlaybackSpeed(300)">5m/s</button>
         <button class="pt-speed-btn" data-speed="900" onclick="setPlaybackSpeed(900)">15m/s</button>
         <button class="pt-speed-btn active" data-speed="3600" onclick="setPlaybackSpeed(3600)">1h/s</button>
         <button class="pt-speed-btn" data-speed="21600" onclick="setPlaybackSpeed(21600)">6h/s</button>
