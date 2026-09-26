@@ -1452,14 +1452,21 @@ function updateRealScalePositions(selfId) {
     let LOCAL_SCALE;
     if (isSpacecraft) {
         LOCAL_SCALE = AU_KM / 200; // por defecto, la escala interplanetaria de siempre
+        // Buscamos el objeto que MÁS OCUPA EN PANTALLA, no el más cercano —
+        // si no, una piedra de 6 km (Deimos) le gana a Marte por estar un
+        // poco más cerca, y la escala se vuelve absurda justo cuando más
+        // cerca estás del planeta grande.
         let masCercanoKm = Infinity;
         let radioDelMasCercano = 0;
+        let mayorAngulo = 0;
         Object.entries(dsObjectsData).forEach(([id, obj]) => {
             if (id === selfId || !REAL_RADII_KM[id]) return;
             const p = interpHeliocentric(obj.points, nowMs);
             if (!p) return;
             const d = toSceneDelta(p.x - selfReal.x, p.y - selfReal.y, p.z - selfReal.z).length();
-            if (d > 0 && d < masCercanoKm) { masCercanoKm = d; radioDelMasCercano = REAL_RADII_KM[id]; }
+            if (d <= 0) return;
+            const angulo = REAL_RADII_KM[id] / d; // proporción tamaño/distancia = cuánto ocupa
+            if (angulo > mayorAngulo) { mayorAngulo = angulo; masCercanoKm = d; radioDelMasCercano = REAL_RADII_KM[id]; }
         });
         // Solo si de verdad hay algo lo bastante cerca como para que se vea
         // aplastado con la escala normal — si no, se queda como estaba.
