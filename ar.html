@@ -158,8 +158,17 @@
             scrollbar-width: none;
         }
         #statusBar::-webkit-scrollbar { display: none; }
-        .ar-scrub::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#9c27b0; cursor:pointer; }
-        .ar-scrub::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#9c27b0; border:none; cursor:pointer; }
+        .ar-scrub::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--orange); cursor:pointer; }
+        .ar-scrub::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:var(--orange); border:none; cursor:pointer; }
+        .ar-speed-btn {
+            padding:3px 9px; border-radius:11px; font-size:0.62rem; font-weight:600;
+            border:1px solid rgba(255,255,255,0.12); background:transparent;
+            color:rgba(255,255,255,0.4); cursor:pointer; flex-shrink:0;
+            transition:all 0.15s ease;
+        }
+        .ar-speed-btn.active {
+            border-color:rgba(255,107,53,0.5); background:rgba(255,107,53,0.12); color:var(--orange);
+        }
 
         /* Con la barra de previsualización abierta, la de estado se aparta */
         body.ar-preview-open #statusBar { bottom: 140px; }
@@ -509,11 +518,13 @@
      align-items:center; gap:10px;">
     <button id="arPreviewPlayBtn" onclick="togglePreviewPlay()"
         style="width:32px;height:32px;border-radius:50%;border:none;flex-shrink:0;
-               background:#9c27b0;color:#fff;cursor:pointer;font-size:0.8rem;
+               background:#ff6b35;color:#fff;cursor:pointer;font-size:0.8rem;
                display:flex;align-items:center;justify-content:center;">▶</button>
     <input id="arPreviewScrub" class="ar-scrub" type="range" min="0" max="1000" value="0" oninput="onPreviewScrub(this.value)"
         style="flex:1;appearance:none;-webkit-appearance:none;height:4px;border-radius:2px;
                background:rgba(255,255,255,0.15);outline:none;">
+    <button class="ar-speed-btn" data-speed="1" onclick="setPreviewSpeed(1)">1:1</button>
+    <button class="ar-speed-btn active" data-speed="30" onclick="setPreviewSpeed(30)">30x</button>
     <span id="arPreviewTime" style="font-size:0.7rem;color:rgba(255,255,255,0.7);
           flex-shrink:0;min-width:74px;text-align:right;">—</span>
 </div>
@@ -1525,6 +1536,12 @@ window.onPreviewScrub = function(val) {
     updatePreviewUI();
 };
 
+window.setPreviewSpeed = function(v) {
+    previewSpeed = v;
+    document.querySelectorAll('.ar-speed-btn').forEach(b =>
+        b.classList.toggle('active', Number(b.dataset.speed) === v));
+};
+
 window.exitPreview = function() {
     arTimeOverride = null;
     previewPlaying = false;
@@ -1728,7 +1745,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Prevent scrolling
-document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+// Bloquea el desplazamiento de la página durante el AR — pero deja pasar
+// los gestos dentro de la barra de previsualización, o el control deslizante
+// no se podría arrastrar, solo tocar.
+document.addEventListener('touchmove', e => {
+    if (e.target && e.target.closest && e.target.closest('#arPreviewBar')) return;
+    e.preventDefault();
+}, { passive: false });
 </script>
 </body>
 </html>
