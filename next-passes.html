@@ -696,6 +696,32 @@ body.light-mode {
 
 .notif-toggle-btn:hover { transform: scale(1.03); }
 
+/* ── Alertas guardadas ── */
+.saved-alerts-title {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--notif-on-text);
+  margin: 0 0 8px 2px;
+}
+.saved-alert-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--notif-on-bg);
+  border: 1.5px solid var(--notif-on-border);
+  border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
+}
+.saved-alert-info { flex: 1; min-width: 0; }
+.saved-alert-name {
+  font-size: 0.86rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.saved-alert-when { font-size: 0.7rem; opacity: 0.65; margin-top: 2px; }
+.saved-alert-cancel {
+  flex-shrink: 0; background: transparent; border: none;
+  color: var(--notif-off-text); font-size: 1.1rem;
+  cursor: pointer; padding: 4px 6px; line-height: 1;
+}
+.saved-alert-cancel:hover { color: var(--red); }
+#savedAlertsSection { margin-bottom: 18px; }
+
 .notif-bell {
   display: inline-block;
   transition: transform 0.3s ease;
@@ -1089,6 +1115,12 @@ body.light-mode #aboutPanel-inner { color: rgba(0,0,0,0.65); }
     </div>
   </div>
 
+  <!-- Alertas guardadas — sobreviven al recálculo -->
+  <div id="savedAlertsSection" style="display:none;">
+      <div class="saved-alerts-title">Your alerts</div>
+      <div id="savedAlertsList"></div>
+  </div>
+
   <!-- Passes Container -->
   <div class="passes-container" id="passesContainer"></div>
 
@@ -1309,6 +1341,114 @@ async function requestNotifPermission() {
     }
 }
 
+// ═══ Alertas guardadas ═══
+// La alerta real vive en el servidor (cola de Cloudflare), pero el estado
+// visual se perdía en cada recálculo. Aquí guardamos lo justo para poder
+// repintarla sin depender de que el pase siga en la lista calculada.
+const SAVED_ALERTS_KEY = 'satfleet_pass_alerts';
+
+function loadSavedAlerts() {
+    try {
+        const raw = localStorage.getItem(SAVED_ALERTS_KEY);
+        if (!raw) return {};
+        const all = JSON.parse(raw);
+        // Limpiamos las que ya ocurrieron (con 15 min de cortesía)
+        const cutoff = Date.now() - 15 * 60 * 1000;
+        let changed = false;
+        for (const id in all) {
+            if (!all[id] || all[id].startMs < cutoff) { delete all[id]; changed = true; }
+        }
+        if (changed) localStorage.setItem(SAVED_ALERTS_KEY, JSON.stringify(all));
+        return all;
+    } catch (e) { return {}; }
+}
+
+function saveAlert(passId, pass) {
+    const all = loadSavedAlerts();
+    all[passId] = {
+        noradId:  pass.satellite.noradId,
+        satName:  pass.satellite.name,
+        startMs:  pass.startTime.getTime(),
+        maxElev:  pass.maxElevation,
+    };
+    try { localStorage.setItem(SAVED_ALERTS_KEY, JSON.stringify(all)); } catch (e) {}
+    renderSavedAlerts();
+}
+
+function forgetAlert(passId) {
+    const all = loadSavedAlerts();
+    delete all[passId];
+    try { localStorage.setItem(SAVED_ALERTS_KEY, JSON.stringify(all)); } catch (e) {}
+    renderSavedAlerts();
+}
+
+function renderSavedAlerts() {
+    const section = document.getElementById('savedAlertsSection');
+    const list    = document.getElementById('savedAlertsList');
+    if (!section || !list) return;
+
+    const all = loadSavedAlerts();
+    const ids = Object.keys(all).sort((a, b) => all[a].startMs - all[b].startMs);
+
+    if (ids.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+
+    list.innerHTML = ids.map(id => {
+        const a = all[id];
+        const d = new Date(a.startMs);
+        const when = d.toLocaleString([], { weekday:'short', hour:'2-digit', minute:'2-digit' });
+        const mins = Math.round((a.startMs - Date.now()) / 60000);
+        const rel  = mins <= 0 ? 'now' : mins < 60 ? `in ${mins} min` : `in ${Math.round(mins/60)} h`;
+        const elev = (typeof a.maxElev === 'number') ? ` · max ${a.maxElev.toFixed(0)}°` : '';
+        return `<div class="saved-alert-card">
+            <span style="font-size:1.1rem;">🔔</span>
+            <div class="saved-alert-info">
+                <div class="saved-alert-name">${a.satName}</div>
+                <div class="saved-alert-when">${when} · ${rel}${elev}</div>
+            </div>
+            <button class="saved-alert-cancel" onclick="cancelSavedAlert('${id}')" title="Cancel alert">✕</button>
+        </div>`;
+    }).join('');
+}
+
+// Cancelar desde la sección: reutiliza el mismo camino que el botón de la tarjeta
+window.cancelSavedAlert = async function(passId) {
+    const pass = calculatedPasses.find(p => buildPassId(p) === passId);
+    if (pass) { await toggleNotification(passId); return; }
+    // El pase ya no está en la lista calculada — cancelamos en el servidor a mano
+    const all = loadSavedAlerts();
+    const a = all[passId];
+    if (!a) return;
+    try {
+        const token = await getDeviceToken();
+        await fetch('https://worker.satfleetlive.com/api/notify/pass', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('satfleet_fb_token') || ''}`
+            },
+            body: JSON.stringify({
+                cancel: true,
+                playerId: token,
+                satelliteName: a.satName,
+                passTimeIso: new Date(a.startMs).toISOString(),
+            }),
+        });
+    } catch (e) { console.warn('Cancel error:', e); }
+    delete notifState[passId];
+    forgetAlert(passId);
+    showToast('🔕 Alert cancelled for ' + a.satName);
+};
+
+// Repinta las campanitas encendidas después de cada render de la lista
+function restoreNotifButtons() {
+    const all = loadSavedAlerts();
+    for (const id in all) {
+        notifState[id] = notifState[id] || { active: true, timers: [] };
+        updateToggleBtn(id, true);
+    }
+}
+
 function buildPassId(pass) {
     const t = Math.floor(pass.startTime.getTime() / 60000) * 60000;
     return `${pass.satellite.noradId}_${t}`;
@@ -1384,6 +1524,7 @@ async function toggleNotification(passId) {
             }
         } catch(e) { console.warn('Cancel error:', e); }
         notifState[passId] = { active: false, timers: [] };
+        forgetAlert(passId);
         updateToggleBtn(passId, false);
         removePills(passId);
         showToast('🔕 Alert cancelled for ' + pass.satellite.name);
@@ -1437,6 +1578,7 @@ async function toggleNotification(passId) {
         ].filter(t => t.fireAt > now);
 
         notifState[passId] = { active: true, timers: fakeTimers };
+        saveAlert(passId, pass);
         updateToggleBtn(passId, true);
         renderPills(passId, fakeTimers);
         showToast(`🔔 Push alert set! You'll be notified before ${pass.satellite.name} passes.`);
@@ -2413,6 +2555,8 @@ html.push(`<div class="pass-card${isTrain ? ' is-train' : ''}" data-pass-index="
     });
 
               container.innerHTML = html.join('');
+              restoreNotifButtons(); // las campanitas guardadas vuelven a salir encendidas
+              renderSavedAlerts();
 
             // ── Banner Premium al final si el usuario es Free ──
             if (!premium && totalPasses > FREE_PASS_LIMIT) {
