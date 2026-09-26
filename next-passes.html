@@ -1669,10 +1669,32 @@ function removePills(passId) {
         } catch(e) {}
     }
 
+    // iOS descarta en silencio las peticiones de ubicación que nacen al
+    // cargar la página. Si falla así, reintentamos al primer toque.
+    if (navigator.geolocation && !window._geoRetryArmed) {
+        window._geoRetryArmed = true;
+        const armRetry = () => {
+            if (window._geoGranted) return;
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    window._geoGranted = true;
+                    userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    try { localStorage.setItem('userLocation', JSON.stringify(userLocation)); } catch(e) {}
+                    updateLocationInfo();
+                },
+                () => {},
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+            );
+        };
+        window.addEventListener('pointerdown', armRetry, { once: true });
+        window.addEventListener('touchstart', armRetry, { once: true, passive: true });
+    }
+
     // 2. Pedir GPS real
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
+                window._geoGranted = true;
                 userLocation = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude

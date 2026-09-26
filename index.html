@@ -4395,13 +4395,39 @@ function getUserLocation() {
         } catch(e) {}
     }
 
+    // iOS descarta en silencio las peticiones de ubicación que nacen al
+    // cargar la página, sin un toque del usuario. Si falla así, reintentamos
+    // una vez en cuanto toque cualquier parte de la web.
+    if (navigator.geolocation && !window._geoRetryArmed) {
+        window._geoRetryArmed = true;
+        const armRetry = () => {
+            if (window._geoGranted) return;
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    window._geoGranted = true;
+                    userLocation.lat = position.coords.latitude;
+                    userLocation.lng = position.coords.longitude;
+                    localStorage.setItem('userLocation', JSON.stringify(userLocation));
+                    updateUserLocationMarker();
+                    if (showOnlyVisible) filterVisibleSatellites();
+                    if (is3DMode && cesiumViewer) addUserLocationToCesium();
+                },
+                () => {},
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+            );
+        };
+        window.addEventListener('pointerdown', armRetry, { once: true });
+        window.addEventListener('touchstart', armRetry, { once: true, passive: true });
+    }
+
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
+                window._geoGranted = true;
                 userLocation.lat = position.coords.latitude;
                 userLocation.lng = position.coords.longitude;
                 localStorage.setItem('userLocation', JSON.stringify(userLocation));
-                console.log('✅ Ubicación GPS obtenida:', userLocation);
+                console.log('Ubicación GPS obtenida:', userLocation);
                 updateUserLocationMarker();
                 if (showOnlyVisible) filterVisibleSatellites();
                 // Actualizar marcador en Cesium si estamos en 3D

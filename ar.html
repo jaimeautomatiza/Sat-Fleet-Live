@@ -823,7 +823,21 @@ function startCompass() {
         }, 1500);
     }
 
-    requestPerm();
+    // iOS solo concede el giroscopio si el permiso nace de un toque real.
+    // Si lo pedimos al cargar, lo deniega en silencio y parece que el
+    // dispositivo no tiene sensores.
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        const btn = document.createElement('button');
+        btn.textContent = 'Enable compass';
+        btn.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            z-index:2000;padding:14px 22px;border-radius:24px;border:1.5px solid rgba(255,107,53,0.6);
+            background:rgba(10,10,10,0.92);color:#ff6b35;font-size:0.9rem;font-weight:600;
+            cursor:pointer;backdrop-filter:blur(10px);`;
+        btn.onclick = async () => { btn.remove(); await requestPerm(); };
+        document.body.appendChild(btn);
+    } else {
+        requestPerm();
+    }
 }
 
 function handleOrientation(e) {
