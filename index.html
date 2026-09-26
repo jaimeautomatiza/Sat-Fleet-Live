@@ -372,15 +372,17 @@
         }
 
         /* Botón 3D */
+        /* Deliberadamente discreto: la app es 3D por defecto, el 2D es
+           una salida secundaria para quien la busque. */
         #toggleViewBtn {
             height: 32px;
-            padding: 0 13px;
+            padding: 0 11px;
             border-radius: 16px;
-            border: 1.5px solid rgba(33, 150, 243, 0.5);
-            background: rgba(33, 150, 243, 0.08);
-            color: var(--primary-blue);
-            font-size: 0.78rem;
-            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.72rem;
+            font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
             flex-shrink: 0;
@@ -388,10 +390,13 @@
         }
 
         #toggleViewBtn:hover {
-            background: var(--primary-blue);
-            color: #fff;
-            border-color: var(--primary-blue);
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.7);
+            border-color: rgba(255, 255, 255, 0.25);
         }
+
+        body.light-mode #toggleViewBtn { color: rgba(0, 0, 0, 0.3); border-color: rgba(0, 0, 0, 0.12); }
+        body.light-mode #toggleViewBtn:hover { color: rgba(0, 0, 0, 0.65); border-color: rgba(0, 0, 0, 0.25); background: rgba(0, 0, 0, 0.04); }
 
         /* Botón Only Visible */
         #visibilityToggle {
@@ -2726,6 +2731,7 @@ body.light-mode .rocket-filter-chip {
     </button>
     <div class="overflow-divider"></div>
     <a class="overflow-item gold" href="account.html" style="font-weight:600;"><img src="images/account.svg" style="width: 18px; height: 18px; filter: invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt="Account"> Account / Premium</a>
+    <button class="overflow-item" id="overflowViewBtn" onclick="toggleView(); closeOverflowMenu()" style="opacity:0.45; font-size:0.8rem;">2D</button>
 </div>
 
 <!-- Loading -->
@@ -2808,6 +2814,7 @@ body.light-mode .rocket-filter-chip {
         <img src="images/planet-switcher.svg" class="explore-icon" alt="">
         Explore
     </button>
+    <button id="toggleViewBtn" onclick="toggleView()">2D</button>
 
     <!-- Elevation controls (visible solo cuando Only Visible activo) -->
     <div class="visibility-filter-controls" id="visibilityControls">
@@ -2928,14 +2935,18 @@ let cesiumUpdateInterval = null;
             map = L.map('map').setView([0, 0], 2);
 
             // Tiles para tema oscuro
-            const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '©OpenStreetMap, ©CartoDB',
-                subdomains: 'abcd',
+            // Esri World Dark Gray Canvas — sin clave ni cuota. CARTO pasó a
+            // exigir API key el 23/09/2026 y estampa las tiles sin ella.
+            // Ojo: Esri invierte la ruta ({z}/{y}/{x}) y solo tiene tiles
+            // reales hasta el zoom 16; más allá, Leaflet las escala.
+            const darkTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles ©Esri — Esri, HERE, Garmin, ©OpenStreetMap',
+                maxNativeZoom: 16,
                 maxZoom: 19
             });
 
             // Tiles para tema claro
-            const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            const lightTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
                 attribution: '©OpenStreetMap contributors',
                 maxZoom: 19
             });
@@ -7035,6 +7046,20 @@ async function loadUpcomingLaunches() {
     }
 }
 
+// ÚNICA fuente de verdad sobre si un lanzamiento está en directo.
+// La usan el widget, el mapa 2D y el mapa 3D — si esta regla cambia,
+// cambia en los tres a la vez y no se pueden desincronizar.
+// Confiamos en webcast_live sin tope de tiempo: mientras el directo siga
+// abierto según Space Devs, lo damos por bueno.
+function isLaunchLiveNow(l, nowMs) {
+    const diffMs = new Date(l.net).getTime() - nowMs;
+    if (l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure') return false;
+    if (l.webcast_live === true) return true;
+    if (l.status?.abbrev === 'In Flight') return true;
+    if (l.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -2700000) return true;
+    return false;
+}
+
 function renderLaunchWidget(launches) {
     const widget = document.getElementById('launchesWidget');
     if (!widget) return;
@@ -7046,13 +7071,7 @@ function renderLaunchWidget(launches) {
 
     // Clasificar lanzamientos
     function isLaunchLive(l) {
-        const diffMs = new Date(l.net) - now;
-        const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
-        if (isFinished) return false;
-        if (diffMs < -2700000 && !l.webcast_live && l.status?.abbrev !== 'In Flight') return false;
-        return (l.webcast_live === true) ||
-               l.status?.abbrev === 'In Flight' ||
-               (l.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -2700000);
+        return isLaunchLiveNow(l, now.getTime());
     }
 
     const validLaunches = launches.filter(l => {
@@ -7145,7 +7164,9 @@ function renderLaunchWidget(launches) {
                             wrapper.style.cssText = 'width:100%;aspect-ratio:16/9;border-radius:7px;overflow:hidden;';
                             wrapper.onclick = (ev) => ev.stopPropagation();
                             const newIframe = document.createElement('iframe');
-                            newIframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+                            // playsinline=1 es imprescindible en iOS: sin él, Safari
+                            // se niega a reproducir dentro del iframe y se queda en negro.
+                            newIframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&playsinline=1&rel=0`;
                             newIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
                             newIframe.allowFullscreen = true;
                             newIframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
@@ -7336,7 +7357,9 @@ function renderLaunchWidget(launches) {
                     wrapper.onclick = (ev) => ev.stopPropagation();
 
                     const iframe = document.createElement('iframe');
-                    iframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&rel=0`;
+                    // playsinline=1 es imprescindible en iOS: sin él, Safari
+                    // se niega a reproducir dentro del iframe y se queda en negro.
+                    iframe.src = `https://www.youtube.com/embed/${vid}?autoplay=1&playsinline=1&rel=0`;
                     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
                     iframe.allowFullscreen = true;
                     iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
@@ -7656,14 +7679,7 @@ function drawRocketMarkers(launches) {
         const isInFlight = launch.status?.abbrev === 'In Flight';
         const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
         
-        let isLive = false;
-        if (!isFinished && diffMs > -2700000) {
-            if ((isWebcastLive || isInFlight)) {
-                isLive = true;
-            } else if (diffMs < 0 && diffMs > -2700000 && launch.status?.abbrev === 'Go') {
-                isLive = true;
-            }
-        }
+        const isLive = isLaunchLiveNow(launch, now.getTime());
 
         // Ocultar si han pasado más de 3 horas, SALVO que siga en directo o en vuelo
         if (diffMs < -2700000 && !isLive) return;
@@ -7772,14 +7788,13 @@ function drawRocketMarkers3D(launches) {
 
         // Siempre descartar si han pasado más de 3 horas, a no ser que siga en LIVE
         const initialDiff = new Date(launch.net) - now;
-        const initialLive = !isFinished && (isWebcastLive || isInFlight || (isGo && initialDiff < 0));
+        const initialLive = isLaunchLiveNow(launch, now.getTime());
         if (initialDiff < -2700000 && !initialLive) return;
 
         // Valores estáticos — sin CallbackProperty que fuercen re-renders cada frame
         const _nowMs     = Date.now();
         const _dMs0      = new Date(launch.net) - _nowMs;
-        const _isLiveNow = !isFinished && _dMs0 > -2700000 &&
-            ((isWebcastLive || isInFlight) || (isGo && _dMs0 < 0));
+        const _isLiveNow = isLaunchLiveNow(launch, _nowMs);
         const showLiveBadge = _isLiveNow;
         const _staticEyeZ   = new Cesium.Cartesian3(0.0, 0.0, _isLiveNow ? -50 : -20);
 

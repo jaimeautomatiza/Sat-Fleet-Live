@@ -1607,9 +1607,9 @@ function openLocationPicker() {
     setTimeout(() => {
         if (!pickerMap) {
             pickerMap = L.map('pickerMapContainer').setView([userLocation.lat, userLocation.lng], 3);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '©OpenStreetMap, ©CartoDB',
-                subdomains: 'abcd', maxZoom: 18
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles ©Esri — Esri, HERE, Garmin, ©OpenStreetMap',
+                maxNativeZoom: 16, maxZoom: 18
             }).addTo(pickerMap);
 
             // Creamos un icono azul personalizado para no depender de las imágenes por defecto de Leaflet
@@ -2502,8 +2502,8 @@ function renderMiniMap(mapId, passIndex) {
             dragging: false, scrollWheelZoom: false,
             touchZoom: false, doubleClickZoom: false, keyboard: false
         });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-            subdomains: 'abcd', maxZoom: 6
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles ©Esri', maxZoom: 6
         }).addTo(miniMap);
 
         const passStart = pass.startTime.getTime();
