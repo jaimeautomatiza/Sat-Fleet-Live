@@ -134,9 +134,11 @@
         }
 
         /* ===== STATUS BAR ===== */
+        /* Elevada sobre el botón de recarga nativo de la app de Android,
+           que ocupa unos 52px desde la esquina inferior izquierda. */
         #statusBar {
             position: fixed;
-            bottom: 24px;
+            bottom: 76px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(10,10,10,0.82);
@@ -156,6 +158,9 @@
             scrollbar-width: none;
         }
         #statusBar::-webkit-scrollbar { display: none; }
+
+        /* Con la barra de previsualización abierta, la de estado se aparta */
+        body.ar-preview-open #statusBar { bottom: 140px; }
 
         .status-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .status-label { font-size: 0.6rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -498,7 +503,7 @@
 <!-- STATUS BAR -->
 <div id="arPreviewBar" style="display:none; position:fixed; bottom:0; left:0; right:0;
      background:rgba(10,10,10,0.94); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-     border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 16px; z-index:900;
+     border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 16px 56px; z-index:900;
      align-items:center; gap:10px;">
     <button id="arPreviewPlayBtn" onclick="togglePreviewPlay()"
         style="width:34px;height:34px;border-radius:50%;border:none;flex-shrink:0;
@@ -1507,6 +1512,7 @@ function updatePreviewUI() {
     const bar = document.getElementById('arPreviewBar');
     if (!bar || !previewPass || previewPass.startMs === null) return;
     bar.style.display = 'flex';
+    document.body.classList.add('ar-preview-open');
 
     const live = (arTimeOverride === null);
     document.getElementById('arPreviewPlayBtn').textContent = live ? '▶' : (previewPlaying ? '❚❚' : '▶');
