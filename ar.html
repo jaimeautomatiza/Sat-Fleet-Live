@@ -158,6 +158,8 @@
             scrollbar-width: none;
         }
         #statusBar::-webkit-scrollbar { display: none; }
+        .ar-scrub::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#9c27b0; cursor:pointer; }
+        .ar-scrub::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:#9c27b0; border:none; cursor:pointer; }
 
         /* Con la barra de previsualización abierta, la de estado se aparta */
         body.ar-preview-open #statusBar { bottom: 140px; }
@@ -502,13 +504,14 @@
 
 <!-- STATUS BAR -->
 <div id="arPreviewBar" style="display:none; position:fixed; bottom:0; left:0; right:0;
-     background:rgba(10,10,10,0.94); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-     border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 16px 56px; z-index:900;
+     background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+     border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 14px 76px; z-index:900;
      align-items:center; gap:10px;">
     <button id="arPreviewPlayBtn" onclick="togglePreviewPlay()"
-        style="width:34px;height:34px;border-radius:50%;border:none;flex-shrink:0;
-               background:#2ab8c8;color:#fff;cursor:pointer;font-size:0.8rem;">▶</button>
-    <input id="arPreviewScrub" type="range" min="0" max="1000" value="0" oninput="onPreviewScrub(this.value)"
+        style="width:32px;height:32px;border-radius:50%;border:none;flex-shrink:0;
+               background:#9c27b0;color:#fff;cursor:pointer;font-size:0.8rem;
+               display:flex;align-items:center;justify-content:center;">▶</button>
+    <input id="arPreviewScrub" class="ar-scrub" type="range" min="0" max="1000" value="0" oninput="onPreviewScrub(this.value)"
         style="flex:1;appearance:none;-webkit-appearance:none;height:4px;border-radius:2px;
                background:rgba(255,255,255,0.15);outline:none;">
     <span id="arPreviewTime" style="font-size:0.7rem;color:rgba(255,255,255,0.7);
@@ -1245,6 +1248,11 @@ function drawFrame(ts) {
     } else if (ts - lastCalc > CALC_INTERVAL) {
         calcSatPositions();
         if (previewPass) autoSelectPreviewSat();
+        // El panel abierto también se refresca en modo normal
+        if (selectedSat) {
+            const fresh = visibleSats.find(s => String(s.noradId) === String(selectedSat.noradId));
+            if (fresh) { selectedSat = fresh; refreshPopupNumbers(fresh); }
+        }
         lastCalc = ts;
     }
     _lastPreviewTs = ts;
@@ -1478,7 +1486,7 @@ function autoSelectPreviewSat() {
     if (!previewPass) return;
     if (selectedSat && selectedSat.noradId === previewPass.noradId) {
         const fresh = visibleSats.find(s => String(s.noradId) === previewPass.noradId);
-        if (fresh) selectedSat = fresh;
+        if (fresh) { selectedSat = fresh; refreshPopupNumbers(fresh); }
         return;
     }
     const match = visibleSats.find(s => String(s.noradId) === previewPass.noradId);
@@ -1492,6 +1500,21 @@ window.togglePreviewPlay = function() {
     _lastPreviewTs = 0;
     updatePreviewUI();
 };
+
+let _scrubbing = false;
+(function bindScrubGuards() {
+    const attach = () => {
+        const sc = document.getElementById('arPreviewScrub');
+        if (!sc) { setTimeout(attach, 200); return; }
+        const on  = () => { _scrubbing = true;  previewPlaying = false; };
+        const off = () => { _scrubbing = false; };
+        sc.addEventListener('pointerdown', on);
+        sc.addEventListener('touchstart', on, { passive: true });
+        window.addEventListener('pointerup', off);
+        window.addEventListener('touchend', off);
+    };
+    attach();
+})();
 
 window.onPreviewScrub = function(val) {
     if (!previewPass || previewPass.startMs === null) return;
@@ -1521,7 +1544,9 @@ function updatePreviewUI() {
     document.getElementById('arPreviewTime').textContent =
         (live ? 'LIVE · ' : '') + new Date(ms).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
 
-    if (!live) {
+    // Mientras el dedo está sobre el control, no le reescribimos el valor:
+    // si no, cada fotograma lo devuelve a su sitio y se siente "pillado".
+    if (!live && !_scrubbing) {
         const span = previewPass.endMs - previewPass.startMs;
         const pct = ((arTimeOverride - previewPass.startMs) / span) * 1000;
         const sc = document.getElementById('arPreviewScrub');
@@ -1531,20 +1556,35 @@ function updatePreviewUI() {
 
 function showPopup(sat) {
     document.getElementById('satPopupName').textContent = sat.name;
-    document.getElementById('popupAlt').textContent = Math.round(sat.altitude).toLocaleString() + ' km';
-    document.getElementById('popupVel').textContent = Math.round(sat.velocity).toLocaleString() + ' km/h';
-    document.getElementById('popupEl').textContent  = sat.elevation.toFixed(1) + '°';
-    document.getElementById('popupAz').textContent  = sat.azimuth.toFixed(1) + '°';
+    refreshPopupNumbers(sat);
     document.getElementById('satPopup').classList.add('visible');
     calcOrbitPoints(sat);
 }
 
+// Solo los números, sin tocar el nombre ni reabrir el panel — se llama en
+// cada recálculo para que altura, velocidad y ángulos vayan en directo.
+function refreshPopupNumbers(sat) {
+    if (!sat) return;
+    const panel = document.getElementById('satPopup');
+    if (!panel || !panel.classList.contains('visible')) return;
+    document.getElementById('popupAlt').textContent = Math.round(sat.altitude).toLocaleString() + ' km';
+    document.getElementById('popupVel').textContent = Math.round(sat.velocity).toLocaleString() + ' km/h';
+    document.getElementById('popupEl').textContent  = sat.elevation.toFixed(1) + '°';
+    document.getElementById('popupAz').textContent  = sat.azimuth.toFixed(1) + '°';
+}
+
 function calcOrbitPoints(sat) {
     orbitPoints = [];
-    const now = new Date();
+    const now = arTimeOverride !== null ? new Date(arTimeOverride) : new Date();
     const stepMs  = 10 * 1000;
-    const startMs = -10 * 60 * 1000;
-    const endMs   =  90 * 60 * 1000;
+    // En previsualización cubrimos el pase entero desde su inicio; fuera de
+    // él, la ventana de siempre alrededor del momento actual.
+    let startMs = -10 * 60 * 1000;
+    let endMs   =  90 * 60 * 1000;
+    if (arTimeOverride !== null && previewPass && previewPass.endMs) {
+        startMs = previewPass.startMs - now.getTime() - 60000;
+        endMs   = previewPass.endMs   - now.getTime() + 60000;
+    }
     for (let t0 = startMs; t0 < endMs; t0 += stepMs) {
     const t = new Date(now.getTime() + t0);
         try {
@@ -1559,7 +1599,7 @@ function calcOrbitPoints(sat) {
             const { elevation, azimuth } = calcAzEl(
                 userLocation.lat, userLocation.lng, lat, lng, alt
             );
-            orbitPoints.push({ azimuth, elevation, t: i });
+            orbitPoints.push({ azimuth, elevation, t: t0 });
         } catch(e) {}
     }
 }
