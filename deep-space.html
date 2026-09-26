@@ -1422,6 +1422,9 @@ const RENDER_CAP = 300;                   // nadie se dibuja más lejos que esto
 const MIN_VISIBLE_RENDER_RADIUS = 0.01;   // por debajo de esto, es un punto, no una esfera
 const ABSOLUTE_CUTOFF_KM = 100 * AU_KM;   // más allá de esto, no se pinta nada — vacío real
 
+// Guarda la escala suavizada entre fotogramas — se reinicia al salir de 360°
+let _smoothedLocalScale = null;
+
 function updateRealScalePositions(selfId) {
     const nowMs = dsTimeOverride !== null ? dsTimeOverride : Date.now();
     const selfObj = dsObjectsData[selfId];
@@ -1464,6 +1467,22 @@ function updateRealScalePositions(selfId) {
             const escalaIdeal = masCercanoKm / (MIN_VISIBLE_RENDER_RADIUS * 5 / Math.tan(Math.atan(radioDelMasCercano / masCercanoKm)));
             if (escalaIdeal > 0 && escalaIdeal < LOCAL_SCALE) LOCAL_SCALE = escalaIdeal;
         }
+
+        // Cuando el objeto "más cercano" cambia de uno a otro (Marte y Deimos
+        // adelantándose entre sí, por ejemplo), la escala ideal salta de golpe
+        // — y con ella, todo lo dibujado. Nos movemos poco a poco hacia el
+        // valor nuevo en vez de saltar, así el cambio se ve como un zoom
+        // suave y no como un parpadeo.
+        if (_smoothedLocalScale === null || !isFinite(_smoothedLocalScale)) {
+            _smoothedLocalScale = LOCAL_SCALE;
+        } else {
+            // Interpolamos en escala logarítmica: lo que importa es el cambio
+            // proporcional (el doble de cerca), no la diferencia en km.
+            const logActual = Math.log(_smoothedLocalScale);
+            const logObjetivo = Math.log(LOCAL_SCALE);
+            _smoothedLocalScale = Math.exp(logActual + (logObjetivo - logActual) * 0.08);
+        }
+        LOCAL_SCALE = _smoothedLocalScale;
     } else {
         LOCAL_SCALE = REAL_RADII_KM[selfId] / SELF_TARGET_RADIUS;
     }
@@ -1624,6 +1643,7 @@ function exitRealScaleMode() {
     Object.values(planetGlows).forEach(g => g.visible = showPlanets);
     Object.values(dwarfGlows).forEach(g => g.visible = showDwarfs);
     Object.values(bgStarSprites).forEach(s => s.visible = false);
+    _smoothedLocalScale = null; // al salir, olvidamos la escala — la próxima vez se calcula limpia
 }
 
 function updateObjectPositions() {
