@@ -1439,7 +1439,34 @@ function updateRealScalePositions(selfId) {
     // bien, tengas o no algo cerca de verdad (Neptuno, por ejemplo, no tiene
     // ninguna luna en nuestro sistema, así que necesita esto para no acabar
     // siendo un punto microscópico e imposible de ver por mucho zoom).
-    const LOCAL_SCALE = isSpacecraft ? (AU_KM / 200) : (REAL_RADII_KM[selfId] / SELF_TARGET_RADIUS);
+    // Las naves no tienen tamaño propio con el que calcular esto, así que
+    // usan una escala interplanetaria fija... que aplasta cualquier cosa
+    // cercana hasta hacerla un punto. Si de verdad hay algo cerca (Orión
+    // pasando junto a la Luna, por ejemplo), la ajustamos a esa distancia
+    // real para poder verlo como el disco que es.
+    let LOCAL_SCALE;
+    if (isSpacecraft) {
+        LOCAL_SCALE = AU_KM / 200; // por defecto, la escala interplanetaria de siempre
+        let masCercanoKm = Infinity;
+        let radioDelMasCercano = 0;
+        Object.entries(dsObjectsData).forEach(([id, obj]) => {
+            if (id === selfId || !REAL_RADII_KM[id]) return;
+            const p = interpHeliocentric(obj.points, nowMs);
+            if (!p) return;
+            const d = toSceneDelta(p.x - selfReal.x, p.y - selfReal.y, p.z - selfReal.z).length();
+            if (d > 0 && d < masCercanoKm) { masCercanoKm = d; radioDelMasCercano = REAL_RADII_KM[id]; }
+        });
+        // Solo si de verdad hay algo lo bastante cerca como para que se vea
+        // aplastado con la escala normal — si no, se queda como estaba.
+        if (masCercanoKm < Infinity && radioDelMasCercano > 0) {
+            // Escala a la que ese cuerpo cercano queda con un radio dibujado
+            // cómodo (unas 5 veces el mínimo visible), sin pasarnos de cerca.
+            const escalaIdeal = masCercanoKm / (MIN_VISIBLE_RENDER_RADIUS * 5 / Math.tan(Math.atan(radioDelMasCercano / masCercanoKm)));
+            if (escalaIdeal > 0 && escalaIdeal < LOCAL_SCALE) LOCAL_SCALE = escalaIdeal;
+        }
+    } else {
+        LOCAL_SCALE = REAL_RADII_KM[selfId] / SELF_TARGET_RADIUS;
+    }
 
     // El protagonista: visible y a tamaño real si es un cuerpo natural;
     // oculto si es una nave (estás dentro, mirando hacia fuera, no te ves).
