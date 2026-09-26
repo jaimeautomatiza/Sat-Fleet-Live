@@ -934,7 +934,7 @@ function getBgStarSprite(id, hexColorString) {
     if (bgStarSprites[id]) return bgStarSprites[id];
     const mat = new THREE.SpriteMaterial({ map: getColoredDotTexture(hexColorString), sizeAttenuation: false, depthTest: true, transparent: true, depthWrite: false });
     const sprite = new THREE.Sprite(mat);
-    sprite.scale.set(0.008, 0.008, 1); // más discretas, para no competir con lo que tienes cerca
+    sprite.scale.set(0.014, 0.014, 1); // visibles de verdad, pero algo menores que las naves (0.018)
     sprite.userData = { id, isBgStar: true };
     sprite.visible = false;
     scene.add(sprite);
@@ -1470,7 +1470,12 @@ function updateRealScalePositions(selfId) {
         });
         // Solo si de verdad hay algo lo bastante cerca como para que se vea
         // aplastado con la escala normal — si no, se queda como estaba.
-        if (masCercanoKm < Infinity && radioDelMasCercano > 0) {
+        // Por encima de este límite, ya no ajustamos la escala para "acercar"
+        // nada — a esa distancia, un punto es lo que se vería de verdad, y
+        // seguir adaptándose haría que algo lejísimos siguiera pareciendo
+        // un disco indefinidamente.
+        const LIMITE_AJUSTE_KM = 2500000;
+        if (masCercanoKm < LIMITE_AJUSTE_KM && radioDelMasCercano > 0) {
             // Escala a la que ese cuerpo cercano queda con un radio dibujado
             // cómodo (unas 5 veces el mínimo visible), sin pasarnos de cerca.
             const escalaIdeal = masCercanoKm / (MIN_VISIBLE_RENDER_RADIUS * 25 / Math.tan(Math.atan(radioDelMasCercano / masCercanoKm)));
