@@ -515,18 +515,23 @@
 <div id="arPreviewBar" style="display:none; position:fixed; bottom:0; left:0; right:0;
      background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
      border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 14px 76px; z-index:900;
-     align-items:center; gap:10px;">
-    <button id="arPreviewPlayBtn" onclick="togglePreviewPlay()"
-        style="width:32px;height:32px;border-radius:50%;border:none;flex-shrink:0;
-               background:#ff6b35;color:#fff;cursor:pointer;font-size:0.8rem;
-               display:flex;align-items:center;justify-content:center;">▶</button>
-    <input id="arPreviewScrub" class="ar-scrub" type="range" min="0" max="1000" value="0" oninput="onPreviewScrub(this.value)"
-        style="flex:1;appearance:none;-webkit-appearance:none;height:4px;border-radius:2px;
-               background:rgba(255,255,255,0.15);outline:none;">
-    <button class="ar-speed-btn" data-speed="1" onclick="setPreviewSpeed(1)">1:1</button>
-    <button class="ar-speed-btn active" data-speed="30" onclick="setPreviewSpeed(30)">30x</button>
-    <span id="arPreviewTime" style="font-size:0.7rem;color:rgba(255,255,255,0.7);
-          flex-shrink:0;min-width:74px;text-align:right;">—</span>
+     flex-direction:column; gap:8px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;">
+        <span id="arPreviewTime" style="font-size:0.78rem;color:#fff;font-weight:600;">—</span>
+        <span style="display:flex;gap:4px;flex-shrink:0;">
+            <button class="ar-speed-btn" data-speed="1" onclick="setPreviewSpeed(1)">1:1</button>
+            <button class="ar-speed-btn active" data-speed="30" onclick="setPreviewSpeed(30)">30x</button>
+        </span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;width:100%;">
+        <button id="arPreviewPlayBtn" onclick="togglePreviewPlay()"
+            style="width:32px;height:32px;border-radius:50%;border:none;flex-shrink:0;
+                   background:#ff6b35;color:#fff;cursor:pointer;font-size:0.8rem;
+                   display:flex;align-items:center;justify-content:center;">▶</button>
+        <input id="arPreviewScrub" class="ar-scrub" type="range" min="0" max="1000" value="0" oninput="onPreviewScrub(this.value)"
+            style="flex:1;min-width:0;appearance:none;-webkit-appearance:none;height:4px;border-radius:2px;
+                   background:rgba(255,255,255,0.15);outline:none;">
+    </div>
 </div>
 
 <div id="statusBar">
