@@ -714,6 +714,20 @@ body.light-mode {
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .saved-alert-when { font-size: 0.7rem; opacity: 0.65; margin-top: 2px; }
+.saved-alert-ar {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 10px; border-radius: 9px; text-decoration: none;
+  font-size: 0.7rem; font-weight: 600; white-space: nowrap;
+  border: 1.5px solid var(--notif-off-border);
+  background: var(--notif-off-bg); color: var(--notif-off-text);
+  transition: all 0.18s ease;
+}
+.saved-alert-ar:hover { transform: scale(1.03); }
+.saved-alert-ar.live {
+  border-color: var(--notif-on-border);
+  background: var(--notif-on-bg);
+  color: var(--notif-on-text);
+}
 .saved-alert-cancel {
   flex-shrink: 0; background: transparent; border: none;
   color: var(--notif-off-text); font-size: 1.1rem;
@@ -1369,6 +1383,8 @@ function saveAlert(passId, pass) {
         noradId:  pass.satellite.noradId,
         satName:  pass.satellite.name,
         startMs:  pass.startTime.getTime(),
+        endMs:    pass.endTime ? pass.endTime.getTime()
+                               : pass.startTime.getTime() + (pass.duration || 5) * 60000,
         maxElev:  pass.maxElevation,
     };
     try { localStorage.setItem(SAVED_ALERTS_KEY, JSON.stringify(all)); } catch (e) {}
@@ -1400,13 +1416,23 @@ function renderSavedAlerts() {
         const mins = Math.round((a.startMs - Date.now()) / 60000);
         const rel  = mins <= 0 ? 'now' : mins < 60 ? `in ${mins} min` : `in ${Math.round(mins/60)} h`;
         const elev = (typeof a.maxElev === 'number') ? ` · max ${a.maxElev.toFixed(0)}°` : '';
+        // El mismo botón cambia de papel según lo cerca que esté el pase:
+        // en vivo si ya está ocurriendo o falta poco, simulado si falta más.
+        const endMs = a.endMs || (a.startMs + 5 * 60000);
+        const live  = (Date.now() >= a.startMs - 10 * 60000) && (Date.now() <= endMs);
+        const arUrl = `ar.html?norad=${encodeURIComponent(a.noradId)}&start=${a.startMs}&end=${endMs}`;
+        const arIcon = live
+            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/><circle cx="12" cy="12" r="3"/></svg>`
+            : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+
         return `<div class="saved-alert-card">
-            <span style="font-size:1.1rem;">🔔</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <div class="saved-alert-info">
                 <div class="saved-alert-name">${a.satName}</div>
                 <div class="saved-alert-when">${when} · ${rel}${elev}</div>
             </div>
-            <button class="saved-alert-cancel" onclick="cancelSavedAlert('${id}')" title="Cancel alert">✕</button>
+            <a class="saved-alert-ar${live ? ' live' : ''}" href="${arUrl}" title="${live ? 'View in AR now' : 'Preview this pass in AR'}">${arIcon}${live ? 'View in AR' : 'Preview'}</a>
+            <button class="saved-alert-cancel" onclick="cancelSavedAlert('${id}')" title="Cancel alert"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>`;
     }).join('');
 }
@@ -1593,9 +1619,9 @@ function updateToggleBtn(passId, active) {
     const btn = document.querySelector(`.notif-toggle-btn[data-pass="${passId}"]`);
     if (!btn) return;
     btn.className = 'notif-toggle-btn' + (active ? ' active' : '');
-    btn.innerHTML = active
-        ? `<span class="notif-bell">🔔</span> Alert set`
-        : `<span class="notif-bell">🔕</span> Notify me`;
+    const bellOn  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:5px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+    const bellOff = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:5px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+    btn.innerHTML = active ? `${bellOn}Alert set` : `${bellOff}Notify me`;
 }
 
 function renderPills(passId, timers) {
@@ -2536,7 +2562,7 @@ html.push(`<div class="pass-card${isTrain ? ' is-train' : ''}" data-pass-index="
                     </button>
                     ${!isPast ? (premium ? `
                     <button class="notif-toggle-btn" data-pass="${passId}" onclick="toggleNotification('${passId}')">
-                        <span class="notif-bell">🔕</span> Notify me
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:5px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>Notify me
                     </button>` : `
                     <button class="notif-toggle-btn" onclick="showPremiumModal('Push alerts notify you 10 and 2 minutes before any satellite passes. Upgrade to Premium to use them.')" style="border-color:rgba(156,39,176,0.3); color:rgba(192,132,252,0.5);">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -2812,6 +2838,7 @@ function renderMiniMap(mapId, passIndex) {
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
+            renderSavedAlerts(); // no espera al cálculo: se pinta ya con lo guardado
             getUserLocation();
             updateNotifPermBtn();
 

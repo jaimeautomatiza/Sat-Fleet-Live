@@ -496,6 +496,20 @@
 </div>
 
 <!-- STATUS BAR -->
+<div id="arPreviewBar" style="display:none; position:fixed; bottom:0; left:0; right:0;
+     background:rgba(10,10,10,0.94); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+     border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 16px; z-index:900;
+     align-items:center; gap:10px;">
+    <button id="arPreviewPlayBtn" onclick="togglePreviewPlay()"
+        style="width:34px;height:34px;border-radius:50%;border:none;flex-shrink:0;
+               background:#2ab8c8;color:#fff;cursor:pointer;font-size:0.8rem;">▶</button>
+    <input id="arPreviewScrub" type="range" min="0" max="1000" value="0" oninput="onPreviewScrub(this.value)"
+        style="flex:1;appearance:none;-webkit-appearance:none;height:4px;border-radius:2px;
+               background:rgba(255,255,255,0.15);outline:none;">
+    <span id="arPreviewTime" style="font-size:0.7rem;color:rgba(255,255,255,0.7);
+          flex-shrink:0;min-width:74px;text-align:right;">—</span>
+</div>
+
 <div id="statusBar">
     <div class="status-item">
         <span class="status-label">Visible</span>
@@ -588,6 +602,38 @@ let drawnSats = [];
 
 // Popup
 let selectedSat = null;
+
+// ── Previsualización de un pase ──
+// Cuando llegas desde una alerta de next-passes, el AR entra en este modo:
+// en vez de "dónde está ahora", reproduce el recorrido del pase sobre tu
+// cielo real, para que sepas hacia dónde mirar.
+let arTimeOverride = null;   // null = tiempo real
+let previewPass    = null;   // { noradId, startMs, endMs }
+let previewPlaying = false;
+let previewSpeed   = 30;     // segundos simulados por segundo real
+let _lastPreviewTs = 0;
+
+(function readPreviewParams() {
+    try {
+        const p = new URLSearchParams(location.search);
+        const norad = p.get('norad');
+        const start = parseInt(p.get('start'), 10);
+        const end   = parseInt(p.get('end'), 10);
+        if (norad && start && end && end > start) {
+            previewPass = { noradId: String(norad), startMs: start, endMs: end };
+            // Si el pase está ocurriendo ahora, arrancamos en vivo; si no,
+            // nos colocamos al principio del pase en modo simulado.
+            const now = Date.now();
+            if (now >= start && now <= end) {
+                arTimeOverride = null;
+            } else {
+                arTimeOverride = start;
+            }
+        } else if (norad) {
+            previewPass = { noradId: String(norad), startMs: null, endMs: null };
+        }
+    } catch (e) {}
+})();
 // Filter
 let arFilters = new Set(['all']);
 
@@ -922,12 +968,16 @@ function updateQualityIndicator() {
 // CALCULATE SATELLITE POSITIONS
 // ═══════════════════════════════════════════════
 function calcSatPositions() {
-    const now = new Date();
+    const now = arTimeOverride !== null ? new Date(arTimeOverride) : new Date();
     const results = [];
+    // En previsualización solo calculamos el satélite del pase: así podemos
+    // recalcular en cada fotograma sin coste, y es lo único que importa aquí.
+    const onlyThis = (arTimeOverride !== null && previewPass) ? previewPass.noradId : null;
 
     for (const sat of allSatellites) {
+        if (onlyThis && String(sat.noradId) !== onlyThis) continue;
         // Filtro de tipo — igual que index.html
-        if (!arFilters.has('all') && !arFilters.has('visible')) {
+        if (!onlyThis && !arFilters.has('all') && !arFilters.has('visible')) {
             if (!arFilters.has(getSatType(sat.name))) continue;
         }
 
@@ -948,7 +998,7 @@ function calcSatPositions() {
                 satLat, satLng, alt
             );
 
-            if (elevation < -5) continue;
+            if (elevation < -5 && !onlyThis) continue; // en previsualización lo seguimos aunque esté bajo el horizonte
 
             // Only Visible — misma lógica que index.html
             if (arFilters.has('visible')) {
@@ -1173,11 +1223,26 @@ function drawFrame(ts) {
 
     ctx.clearRect(0, 0, W, H);
 
-    // Recalc satellite positions periodically
-    if (ts - lastCalc > CALC_INTERVAL) {
+    // Previsualización: el reloj simulado avanza y recalculamos cada fotograma
+    // (barato, porque solo estamos siguiendo un satélite).
+    if (arTimeOverride !== null && previewPlaying && previewPass) {
+        const dt = _lastPreviewTs ? (ts - _lastPreviewTs) : 16;
+        arTimeOverride += dt * previewSpeed;
+        if (arTimeOverride >= previewPass.endMs) {
+            arTimeOverride = previewPass.endMs;
+            previewPlaying = false;
+            updatePreviewUI();
+        }
         calcSatPositions();
+        autoSelectPreviewSat();
+        updatePreviewUI();
+        lastCalc = ts;
+    } else if (ts - lastCalc > CALC_INTERVAL) {
+        calcSatPositions();
+        if (previewPass) autoSelectPreviewSat();
         lastCalc = ts;
     }
+    _lastPreviewTs = ts;
 
     if (!cameraActive) {
         drawNightSky(ts);
@@ -1191,6 +1256,10 @@ function drawFrame(ts) {
 }
 
 let starField = null;
+
+if (previewPass && previewPass.startMs !== null) {
+    setTimeout(updatePreviewUI, 300);
+}
 function initStarField() {
     if (starField) return;
     starField = [];
@@ -1397,6 +1466,62 @@ function handleTap(e) {
 }
 
 let orbitPoints = [];
+
+// Deja seleccionado el satélite del pase en cuanto aparece en los cálculos,
+// para que se dibuje resaltado y con su órbita, sin que el usuario lo toque.
+function autoSelectPreviewSat() {
+    if (!previewPass) return;
+    if (selectedSat && selectedSat.noradId === previewPass.noradId) {
+        const fresh = visibleSats.find(s => String(s.noradId) === previewPass.noradId);
+        if (fresh) selectedSat = fresh;
+        return;
+    }
+    const match = visibleSats.find(s => String(s.noradId) === previewPass.noradId);
+    if (match) { selectedSat = match; orbitPoints = calcOrbitPoints(match); }
+}
+
+window.togglePreviewPlay = function() {
+    if (!previewPass || previewPass.startMs === null) return;
+    if (arTimeOverride === null) arTimeOverride = previewPass.startMs;
+    previewPlaying = !previewPlaying;
+    _lastPreviewTs = 0;
+    updatePreviewUI();
+};
+
+window.onPreviewScrub = function(val) {
+    if (!previewPass || previewPass.startMs === null) return;
+    const span = previewPass.endMs - previewPass.startMs;
+    arTimeOverride = previewPass.startMs + (val / 1000) * span;
+    calcSatPositions();
+    autoSelectPreviewSat();
+    updatePreviewUI();
+};
+
+window.exitPreview = function() {
+    arTimeOverride = null;
+    previewPlaying = false;
+    updatePreviewUI();
+};
+
+function updatePreviewUI() {
+    const bar = document.getElementById('arPreviewBar');
+    if (!bar || !previewPass || previewPass.startMs === null) return;
+    bar.style.display = 'flex';
+
+    const live = (arTimeOverride === null);
+    document.getElementById('arPreviewPlayBtn').textContent = live ? '▶' : (previewPlaying ? '❚❚' : '▶');
+
+    const ms = live ? Date.now() : arTimeOverride;
+    document.getElementById('arPreviewTime').textContent =
+        (live ? 'LIVE · ' : '') + new Date(ms).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+    if (!live) {
+        const span = previewPass.endMs - previewPass.startMs;
+        const pct = ((arTimeOverride - previewPass.startMs) / span) * 1000;
+        const sc = document.getElementById('arPreviewScrub');
+        if (sc) sc.value = Math.max(0, Math.min(1000, Math.round(pct)));
+    }
+}
 
 function showPopup(sat) {
     document.getElementById('satPopupName').textContent = sat.name;
