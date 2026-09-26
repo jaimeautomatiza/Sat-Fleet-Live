@@ -1473,7 +1473,7 @@ function updateRealScalePositions(selfId) {
         if (masCercanoKm < Infinity && radioDelMasCercano > 0) {
             // Escala a la que ese cuerpo cercano queda con un radio dibujado
             // cómodo (unas 5 veces el mínimo visible), sin pasarnos de cerca.
-            const escalaIdeal = masCercanoKm / (MIN_VISIBLE_RENDER_RADIUS * 5 / Math.tan(Math.atan(radioDelMasCercano / masCercanoKm)));
+            const escalaIdeal = masCercanoKm / (MIN_VISIBLE_RENDER_RADIUS * 25 / Math.tan(Math.atan(radioDelMasCercano / masCercanoKm)));
             if (escalaIdeal > 0 && escalaIdeal < LOCAL_SCALE) LOCAL_SCALE = escalaIdeal;
         }
 
