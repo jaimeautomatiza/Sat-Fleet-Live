@@ -656,8 +656,11 @@ let _lastPreviewTs = 0;
             previewPass = { noradId: String(norad), startMs: start, endMs: end };
             // Si el pase está ocurriendo ahora, arrancamos en vivo; si no,
             // nos colocamos al principio del pase en modo simulado.
+            // Mismo criterio que el botón de next-passes: desde 10 minutos
+            // antes ya entramos en vivo, para que el usuario pueda apuntar y
+            // ver llegar el satélite en lugar de una simulación.
             const now = Date.now();
-            if (now >= start && now <= end) {
+            if (now >= start - 10 * 60 * 1000 && now <= end) {
                 arTimeOverride = null;
             } else {
                 arTimeOverride = start;
