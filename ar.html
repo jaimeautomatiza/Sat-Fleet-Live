@@ -526,8 +526,15 @@
      border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 14px 76px; z-index:900;
      flex-direction:column; gap:8px;">
     <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;">
-        <span id="arPreviewTime" style="font-size:0.78rem;color:#fff;font-weight:600;">—</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+            <span id="arPreviewTime" style="font-size:0.78rem;color:#fff;font-weight:600;">—</span>
+            <button id="arLiveBtn" onclick="exitPreview()" style="display:none;
+                padding:3px 9px;border-radius:11px;font-size:0.62rem;font-weight:700;
+                border:1px solid rgba(255,107,53,0.5);background:rgba(255,107,53,0.12);
+                color:#ff6b35;cursor:pointer;">LIVE</button>
+        </span>
         <span style="display:flex;gap:4px;flex-shrink:0;">
+            <button class="ar-speed-btn" id="arAllBtn" onclick="toggleShowAll()">All</button>
             <button class="ar-speed-btn" data-speed="1" onclick="setPreviewSpeed(1)">1:1</button>
             <button class="ar-speed-btn active" data-speed="30" onclick="setPreviewSpeed(30)">30x</button>
         </span>
@@ -643,6 +650,7 @@ let selectedSat = null;
 let arTimeOverride = null;   // null = tiempo real
 let previewPass    = null;   // { noradId, startMs, endMs }
 let previewPlaying = false;
+let showAllInPreview = false;
 let previewSpeed   = 30;     // segundos simulados por segundo real
 let _lastPreviewTs = 0;
 
@@ -1027,7 +1035,9 @@ function calcSatPositions() {
     const results = [];
     // En previsualización solo calculamos el satélite del pase: así podemos
     // recalcular en cada fotograma sin coste, y es lo único que importa aquí.
-    const onlyThis = (arTimeOverride !== null && previewPass) ? previewPass.noradId : null;
+    // Si vienes de un pase concreto, ese es el único que importa — también
+    // en vivo. Se puede soltar el filtro con el botón "All".
+    const onlyThis = (previewPass && !showAllInPreview) ? previewPass.noradId : null;
 
     for (const sat of allSatellites) {
         if (onlyThis && String(sat.noradId) !== onlyThis) continue;
@@ -1583,6 +1593,14 @@ window.backToPasses = function() {
     }
 };
 
+window.toggleShowAll = function() {
+    showAllInPreview = !showAllInPreview;
+    const b = document.getElementById('arAllBtn');
+    if (b) b.classList.toggle('active', showAllInPreview);
+    calcSatPositions();
+    autoSelectPreviewSat();
+};
+
 window.setPreviewSpeed = function(v) {
     previewSpeed = v;
     document.querySelectorAll('.ar-speed-btn').forEach(b =>
@@ -1592,6 +1610,9 @@ window.setPreviewSpeed = function(v) {
 window.exitPreview = function() {
     arTimeOverride = null;
     previewPlaying = false;
+    _lastPreviewTs = 0;
+    calcSatPositions();
+    autoSelectPreviewSat();
     updatePreviewUI();
 };
 
@@ -1605,6 +1626,15 @@ function updatePreviewUI() {
 
     const live = (arTimeOverride === null);
     document.getElementById('arPreviewPlayBtn').textContent = live ? '▶' : (previewPlaying ? '❚❚' : '▶');
+
+    // Solo ofrecemos volver a LIVE si el pase está ocurriendo de verdad
+    // (o a punto): si ya terminó, no hay nada en vivo que mirar.
+    const liveBtn = document.getElementById('arLiveBtn');
+    if (liveBtn) {
+        const ahora = Date.now();
+        const enVentana = ahora >= previewPass.startMs - 10 * 60 * 1000 && ahora <= previewPass.endMs;
+        liveBtn.style.display = (!live && enVentana) ? 'inline-block' : 'none';
+    }
 
     const ms = live ? Date.now() : arTimeOverride;
     document.getElementById('arPreviewTime').textContent =
