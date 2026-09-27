@@ -512,6 +512,15 @@
 </div>
 
 <!-- STATUS BAR -->
+ <button id="arBackBtn" onclick="backToPasses()" style="display:none;
+    position:fixed; top:calc(var(--bar) + 10px); left:12px; z-index:1500;
+    display:none; align-items:center; gap:6px; padding:7px 12px; border-radius:18px;
+    border:1px solid rgba(255,107,53,0.45); background:rgba(10,10,10,0.85);
+    color:#ff6b35; font-size:0.72rem; font-weight:600; cursor:pointer;
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Passes
+</button>
 <div id="arPreviewBar" style="display:none; position:fixed; bottom:0; left:0; right:0;
      background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
      border-top:1px solid rgba(255,255,255,0.1); padding:10px 14px 14px 76px; z-index:900;
@@ -1525,7 +1534,7 @@ function autoSelectPreviewSat() {
         return;
     }
     const match = visibleSats.find(s => String(s.noradId) === previewPass.noradId);
-    if (match) { selectedSat = match; orbitPoints = calcOrbitPoints(match); }
+    if (match) { selectedSat = match; calcOrbitPoints(match); }
 }
 
 window.togglePreviewPlay = function() {
@@ -1560,6 +1569,17 @@ window.onPreviewScrub = function(val) {
     updatePreviewUI();
 };
 
+// Vuelve a la página de pases. Si llegamos navegando desde ahí, el historial
+// la devuelve tal cual la dejamos (posición y pases ya calculados). Si se
+// entró directo desde una notificación, no hay historial y la abrimos limpia.
+window.backToPasses = function() {
+    if (document.referrer && document.referrer.includes('next-passes')) {
+        history.back();
+    } else {
+        location.href = 'next-passes.html';
+    }
+};
+
 window.setPreviewSpeed = function(v) {
     previewSpeed = v;
     document.querySelectorAll('.ar-speed-btn').forEach(b =>
@@ -1577,6 +1597,8 @@ function updatePreviewUI() {
     if (!bar || !previewPass || previewPass.startMs === null) return;
     bar.style.display = 'flex';
     document.body.classList.add('ar-preview-open');
+    const back = document.getElementById('arBackBtn');
+    if (back) back.style.display = 'inline-flex';
 
     const live = (arTimeOverride === null);
     document.getElementById('arPreviewPlayBtn').textContent = live ? '▶' : (previewPlaying ? '❚❚' : '▶');
