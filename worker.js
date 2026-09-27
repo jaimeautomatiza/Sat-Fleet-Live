@@ -452,7 +452,10 @@ async function handleNotifyPass(request, env) {
 
   const title = `${satelliteName} passes soon!`;
   const body  = `Max ${maxElevation}° · ${direction}${magStr ? ' · ' + magStr : ''}`;
-  const url   = 'https://satfleetlive.com'; // mismo destino que ya usa Android por defecto
+  // Al tocar el aviso, llevamos a la página de pases: ahí está la alerta
+  // guardada, con su cuenta atrás y el botón para abrir el AR. Mandar a la
+  // home obligaría al usuario a buscar por dónde entrar.
+  const url   = 'https://satfleetlive.com/next-passes.html';
 
   for (const { ms, label } of alerts) {
     const fireAt = passTime - ms;

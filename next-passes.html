@@ -1398,6 +1398,23 @@ function forgetAlert(passId) {
     renderSavedAlerts();
 }
 
+// El AR necesita sensores y pantalla táctil — mismo criterio que el botón
+// del index, para que sea coherente en toda la web.
+const AR_CAPABLE = (navigator.maxTouchPoints > 0 && 'DeviceOrientationEvent' in window);
+
+// Un único botón que cambia de papel según lo cerca que esté el pase:
+// en vivo si ya está ocurriendo o falta poco, simulado si falta más.
+function buildArButton(a) {
+    if (!AR_CAPABLE) return '';
+    const endMs = a.endMs || (a.startMs + 5 * 60000);
+    const live  = (Date.now() >= a.startMs - 10 * 60000) && (Date.now() <= endMs);
+    const url   = `ar.html?norad=${encodeURIComponent(a.noradId)}&start=${a.startMs}&end=${endMs}`;
+    const icon  = live
+        ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/><circle cx="12" cy="12" r="3"/></svg>`
+        : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+    return `<a class="saved-alert-ar${live ? ' live' : ''}" href="${url}" title="${live ? 'View in AR now' : 'Preview this pass in AR'}">${icon}${live ? 'View in AR' : 'Preview in AR'}</a>`;
+}
+
 function renderSavedAlerts() {
     const section = document.getElementById('savedAlertsSection');
     const list    = document.getElementById('savedAlertsList');
@@ -1416,22 +1433,13 @@ function renderSavedAlerts() {
         const mins = Math.round((a.startMs - Date.now()) / 60000);
         const rel  = mins <= 0 ? 'now' : mins < 60 ? `in ${mins} min` : `in ${Math.round(mins/60)} h`;
         const elev = (typeof a.maxElev === 'number') ? ` · max ${a.maxElev.toFixed(0)}°` : '';
-        // El mismo botón cambia de papel según lo cerca que esté el pase:
-        // en vivo si ya está ocurriendo o falta poco, simulado si falta más.
-        const endMs = a.endMs || (a.startMs + 5 * 60000);
-        const live  = (Date.now() >= a.startMs - 10 * 60000) && (Date.now() <= endMs);
-        const arUrl = `ar.html?norad=${encodeURIComponent(a.noradId)}&start=${a.startMs}&end=${endMs}`;
-        const arIcon = live
-            ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/><circle cx="12" cy="12" r="3"/></svg>`
-            : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
-
         return `<div class="saved-alert-card">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <div class="saved-alert-info">
                 <div class="saved-alert-name">${a.satName}</div>
                 <div class="saved-alert-when">${when} · ${rel}${elev}</div>
             </div>
-            <a class="saved-alert-ar${live ? ' live' : ''}" href="${arUrl}" title="${live ? 'View in AR now' : 'Preview this pass in AR'}">${arIcon}${live ? 'View in AR' : 'Preview'}</a>
+            ${buildArButton(a)}
             <button class="saved-alert-cancel" onclick="cancelSavedAlert('${id}')" title="Cancel alert"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>`;
     }).join('');
@@ -1841,6 +1849,9 @@ function updatePickerCoords() {
 function confirmLocation() {
     const latlng = pickerMarker.getLatLng();
     userLocation = { lat: latlng.lat, lng: latlng.lng };
+    // El AR lee esta misma clave: si no la guardamos, el preview calcularía
+    // desde la ubicación real del móvil y no desde la que acabas de elegir.
+    try { localStorage.setItem('userLocation', JSON.stringify(userLocation)); } catch(e) {}
     updateLocationInfo();
     closeLocationPicker();
     // Reset de pases ya calculados
@@ -1851,7 +1862,7 @@ function confirmLocation() {
 
 function useMyGPS() {
     if (!navigator.geolocation) {
-        alert('Geolocation not available on this device.');
+        showToast('Geolocation not available on this device.');
         return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -1862,7 +1873,7 @@ function useMyGPS() {
             pickerMap.setView([lat, lng], 6);
             updatePickerCoords();
         },
-        () => alert('Could not get GPS location.'),
+        () => showToast('Could not get GPS location.'),
         { timeout: 8000, enableHighAccuracy: true }
     );
 }
@@ -2582,6 +2593,11 @@ html.push(`<div class="pass-card${isTrain ? ' is-train' : ''}" data-pass-index="
                     <button class="show-map-btn" onclick="showOnMap('${pass.satellite.noradId}')">
                         Show on Map
                     </button>
+                    ${!isPast ? buildArButton({
+                        noradId: pass.satellite.noradId,
+                        startMs: pass.startTime.getTime(),
+                        endMs:   pass.endTime ? pass.endTime.getTime() : pass.startTime.getTime() + 5*60000
+                    }) : ''}
                     ${!isPast ? (premium ? `
                     <button class="notif-toggle-btn" data-pass="${passId}" onclick="toggleNotification('${passId}')">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-1px;margin-right:5px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="2" y1="2" x2="22" y2="22"/></svg>Notify me
@@ -2860,7 +2876,29 @@ function renderMiniMap(mapId, passIndex) {
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            renderSavedAlerts(); // no espera al cálculo: se pinta ya con lo guardado
+            renderSavedAlerts();
+            // Sin esto, las cuentas atrás y el estado del botón AR se quedan
+            // congelados en el momento del render: un pase puede llegar y
+            // pasar con la pestaña abierta sin que nada cambie en pantalla.
+            setInterval(() => {
+                renderSavedAlerts();
+                document.querySelectorAll('.saved-alert-ar').forEach(el => {
+                    const u = new URL(el.getAttribute('href'), location.href);
+                    const s = parseInt(u.searchParams.get('start'), 10);
+                    const e = parseInt(u.searchParams.get('end'), 10);
+                    if (!s || !e) return;
+                    const live = (Date.now() >= s - 10 * 60000) && (Date.now() <= e);
+                    if (el.classList.contains('live') === live) return;
+                    el.classList.toggle('live', live);
+                    // El texto y el icono también tienen que cambiar, o el
+                    // botón diría "Preview" con aspecto de estar en vivo.
+                    const icon = live
+                        ? `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 0 0-10 10 10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/><circle cx="12" cy="12" r="3"/></svg>`
+                        : `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+                    el.innerHTML = icon + (live ? 'View in AR' : 'Preview in AR');
+                    el.title = live ? 'View in AR now' : 'Preview this pass in AR';
+                });
+            }, 30000);// no espera al cálculo: se pinta ya con lo guardado
             getUserLocation();
             updateNotifPermBtn();
 

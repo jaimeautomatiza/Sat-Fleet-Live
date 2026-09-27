@@ -725,7 +725,12 @@ function initLocation() {
             document.getElementById('statusGPS').textContent = 'OK';
         } catch(e) {}
     }
-    if (navigator.geolocation) {
+    // En previsualización respetamos la ubicación con la que se calculó el
+    // pase: si la machacáramos con el GPS real, el recorrido dibujado no
+    // coincidiría con lo que decía la tarjeta.
+    // ...salvo que no tengamos ninguna guardada: entonces algo es mejor que
+    // calcular desde el valor por defecto sin avisar.
+    if (navigator.geolocation && (!previewPass || !cached)) {
         navigator.geolocation.getCurrentPosition(pos => {
             userLocation.lat = pos.coords.latitude;
             userLocation.lng = pos.coords.longitude;

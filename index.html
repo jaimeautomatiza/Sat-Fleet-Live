@@ -1440,6 +1440,7 @@ body.light-mode .rocket-filter-chip {
             #visibilityControls,
             #launchesBtn,
             #accountBtn,
+            #arBtn,
             #exploreBtn { display: none !important; }
 
             /* Buscador: flexible pero con límites razonables */
@@ -5994,6 +5995,14 @@ function closeExploreOnOutside(e) {
 
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', function () {
+            // El AR necesita sensores de orientación y una pantalla táctil.
+            // Lo decidimos por capacidad del dispositivo, no por ancho de
+            // pantalla: así un iPad lo ve esté en vertical u horizontal, y
+            // un portátil táctil sin giroscopio no.
+            if (navigator.maxTouchPoints > 0 && 'DeviceOrientationEvent' in window) {
+                const arBtn = document.getElementById('arBtn');
+                if (arBtn) arBtn.style.display = '';
+            }
             initMap();
             updateVisibilityLockUI();
 
