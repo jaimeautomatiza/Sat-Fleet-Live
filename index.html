@@ -6157,6 +6157,187 @@ async function loadTrajectoryProfileData(profileMeta) {
     }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// GENERADOR DE TRAYECTORIAS — red de seguridad
+// Cuando ningún perfil curado encaja, construimos uno al vuelo con
+// los datos que ya trae el feed: coordenadas del pad, tipo de órbita
+// y familia del cohete. Devuelve la MISMA estructura que un JSON, así
+// que el resto del código no nota la diferencia.
+// ═══════════════════════════════════════════════════════════════
+
+// Inclinación típica por tipo de órbita. No es el valor exacto de cada
+// misión (el feed no lo da), pero acierta la GEOMETRÍA: hacia dónde sale.
+const _ORBIT_INCLINATION = {
+    'sso': 97.5, 'po': 97.5, 'ssto': 97.5,
+    'gto': 27.0, 'gto*': 27.0, 'sso-gto': 27.0, 'geo': 10.0, 'meo': 55.0,
+    'iss': 51.6, 'leo': null,   // null = usamos la latitud del pad
+    'heo': 63.4, 'tli': 30.0, 'hco': 28.5, 'bgto': 27.0
+};
+
+// Curvas de ascenso por familia, normalizadas: fracción del tiempo total
+// frente a fracción de la altitud y del alcance. La forma de un ascenso a
+// órbita es muy parecida entre cohetes; lo que cambia es la escala.
+const _ASCENT_SHAPE = [
+    { f: 0.00, alt: 0.000, dr: 0.000 },
+    { f: 0.03, alt: 0.008, dr: 0.000 },
+    { f: 0.06, alt: 0.038, dr: 0.002 },
+    { f: 0.09, alt: 0.088, dr: 0.008 },
+    { f: 0.12, alt: 0.165, dr: 0.021 },
+    { f: 0.15, alt: 0.270, dr: 0.043 },
+    { f: 0.18, alt: 0.390, dr: 0.075 },
+    { f: 0.21, alt: 0.500, dr: 0.115 },
+    { f: 0.25, alt: 0.610, dr: 0.170 },
+    { f: 0.30, alt: 0.710, dr: 0.240 },
+    { f: 0.35, alt: 0.790, dr: 0.320 },
+    { f: 0.40, alt: 0.860, dr: 0.405 },
+    { f: 0.45, alt: 0.910, dr: 0.495 },
+    { f: 0.50, alt: 0.950, dr: 0.590 },
+    { f: 0.60, alt: 0.990, dr: 0.790 },
+    { f: 0.70, alt: 1.000, dr: 1.000 },
+    { f: 0.80, alt: 0.998, dr: 1.230 },
+    { f: 0.90, alt: 0.996, dr: 1.480 },
+    { f: 1.00, alt: 0.994, dr: 1.750 }
+];
+
+// Parámetros por familia: cuánto dura el ascenso, a qué altura inserta,
+// cuándo separa etapas. Lo que no esté aquí usa el caso genérico.
+const _VEHICLE_DEFAULTS = {
+    'falcon 9':      { insertT: 540, insertAltKm: 200, sepT: 150, drDeg: 12.0 },
+    'falcon heavy':  { insertT: 600, insertAltKm: 200, sepT: 160, drDeg: 13.0 },
+    'electron':      { insertT: 540, insertAltKm: 200, sepT: 150, drDeg: 11.0 },
+    'atlas v':       { insertT: 900, insertAltKm: 190, sepT: 250, drDeg: 15.0 },
+    'vulcan':        { insertT: 900, insertAltKm: 190, sepT: 300, drDeg: 15.0 },
+    'ariane':        { insertT: 900, insertAltKm: 200, sepT: 145, drDeg: 15.0 },
+    'starship':      { insertT: 540, insertAltKm: 275, sepT: 160, drDeg: 13.0 },
+    'new glenn':     { insertT: 780, insertAltKm: 200, sepT: 200, drDeg: 14.0 },
+    '_default':      { insertT: 600, insertAltKm: 200, sepT: 160, drDeg: 12.0 }
+};
+
+// El azimut de salida sale de la inclinación objetivo y de la latitud del
+// pad. Es la relación de siempre: sin(azimut) = cos(inc) / cos(lat).
+function _computeLaunchAzimuth(inclinationDeg, padLat) {
+    const rad = Math.PI / 180;
+    const cosLat = Math.cos(padLat * rad);
+    if (Math.abs(cosLat) < 1e-6) return 0;
+
+    let ratio = Math.cos(inclinationDeg * rad) / cosLat;
+    // Si la inclinación pedida es menor que la latitud del pad, no es
+    // alcanzable directamente: nos quedamos con el rumbo más al este posible.
+    ratio = Math.max(-1, Math.min(1, ratio));
+
+    let az = Math.asin(ratio) / rad;      // 0-90 hacia el noreste
+    if (inclinationDeg > 90) az = 180 - az; // retrógradas (SSO) salen al sur
+    if (az < 0) az += 360;
+    return az;
+}
+
+function generateTrajectoryProfile(launch) {
+    const padLat = parseFloat(launch.pad?.latitude);
+    const padLon = parseFloat(launch.pad?.longitude);
+    if (!isFinite(padLat) || !isFinite(padLon)) return null;
+
+    const orbitAbbrev = (launch.mission?.orbit?.abbrev || 'LEO').toLowerCase();
+    const vehicleName = (launch.rocket?.configuration?.name || '').toLowerCase();
+
+    // Inclinación: la típica del tipo de órbita, o la latitud del pad si no
+    // la conocemos (una órbita nunca puede inclinarse menos que su pad).
+    let inclination = _ORBIT_INCLINATION[orbitAbbrev];
+    if (inclination == null) inclination = Math.max(Math.abs(padLat), 28.5);
+    if (inclination < Math.abs(padLat)) inclination = Math.abs(padLat);
+
+    const azimuth = _computeLaunchAzimuth(inclination, padLat);
+
+    let cfg = _VEHICLE_DEFAULTS['_default'];
+    for (const key in _VEHICLE_DEFAULTS) {
+        if (key !== '_default' && vehicleName.includes(key)) { cfg = _VEHICLE_DEFAULTS[key]; break; }
+    }
+
+    const rad = Math.PI / 180;
+    const azRad = azimuth * rad;
+    const cosLatPad = Math.max(0.05, Math.cos(padLat * rad));
+
+    const anchorPoints = [];
+    const totalT = cfg.insertT;
+
+    for (const s of _ASCENT_SHAPE) {
+        const t = Math.round(s.f * totalT);
+        const altKm = s.alt * cfg.insertAltKm;
+        const drDeg = s.dr * cfg.drDeg;   // alcance recorrido, en grados de arco
+
+        // Proyectamos ese alcance sobre el azimut. La longitud se corrige por
+        // la latitud: cerca de los polos, un grado de longitud es más corto.
+        const latOff = drDeg * Math.cos(azRad);
+        const lonOff = drDeg * Math.sin(azRad) / cosLatPad;
+
+        anchorPoints.push({
+            t,
+            latOffsetDeg: +latOff.toFixed(4),
+            lonOffsetDeg: +lonOff.toFixed(4),
+            altKm: +altKm.toFixed(1),
+            segment: t <= cfg.sepT ? 'ascent_stage1' : 'stage2_insertion',
+            confidence: 'generated'
+        });
+    }
+
+    // Un punto extra justo en la separación, para que el cambio de segmento
+    // sea limpio y el modelo de la segunda etapa aparezca donde toca.
+    const sepFrac = cfg.sepT / totalT;
+    const sepShape = _ASCENT_SHAPE.reduce((a, b) =>
+        Math.abs(b.f - sepFrac) < Math.abs(a.f - sepFrac) ? b : a);
+    const sepDr = sepShape.dr * cfg.drDeg;
+    anchorPoints.push({
+        t: cfg.sepT,
+        latOffsetDeg: +(sepDr * Math.cos(azRad)).toFixed(4),
+        lonOffsetDeg: +(sepDr * Math.sin(azRad) / cosLatPad).toFixed(4),
+        altKm: +(sepShape.alt * cfg.insertAltKm).toFixed(1),
+        segment: 'stage2_insertion',
+        confidence: 'generated'
+    });
+
+    anchorPoints.sort((a, b) => a.t - b.t);
+
+    return {
+        profileId: 'generated-' + String(launch.id),
+        version: 1,
+        _generated: true,
+        vehicle: launch.rocket?.configuration?.name || 'Unknown',
+        missionFamily: 'Generated – ' + (launch.mission?.orbit?.name || 'Unknown orbit'),
+        description: 'Trayectoria estimada automáticamente a partir de la posición del pad, el tipo de órbita y la familia del cohete. No procede de telemetría real.',
+        launchSite: {
+            name: launch.pad?.name || 'Unknown',
+            locationName: launch.pad?.location?.name || '',
+            lat: padLat,
+            lon: padLon,
+            confidence: 'confirmed'
+        },
+        targetOrbit: {
+            type: launch.mission?.orbit?.name || 'Low Earth Orbit',
+            orbitAbbrev: (launch.mission?.orbit?.abbrev || 'LEO'),
+            inclinationDeg: +inclination.toFixed(1),
+            confidence: 'estimated'
+        },
+        guidance: {
+            verticalRiseSeconds: 12,
+            pitchStartSeconds: 12,
+            azimuthDeg: +azimuth.toFixed(1),
+            confidence: 'estimated'
+        },
+        events: [
+            { id: 'liftoff',   t: 0,          label: 'Liftoff' },
+            { id: 'max_q',     t: Math.round(cfg.sepT * 0.5), label: 'Max-Q' },
+            { id: 'meco',      t: cfg.sepT - 1, label: 'MECO' },
+            { id: 'stage_sep', t: cfg.sepT,   label: 'Stage Sep' },
+            { id: 'seco1',     t: totalT,     label: 'SECO-1' }
+        ],
+        anchorPoints,
+        notes: [
+            'Perfil generado automáticamente, sin telemetría real detrás.',
+            `Azimut ${azimuth.toFixed(1)}° calculado a partir de una inclinación estimada de ${inclination.toFixed(1)}° y la latitud del pad (${padLat.toFixed(3)}°).`,
+            'La dirección de salida es fiable; la forma exacta del ascenso es aproximada.'
+        ]
+    };
+}
+
 // Encuentra el perfil que mejor encaja con un lanzamiento concreto
 async function findTrajectoryProfile(launch) {
     const index = await loadTrajectoryIndex();
@@ -6223,8 +6404,11 @@ async function findTrajectoryProfile(launch) {
         if (score > bestScore) { bestScore = score; bestData = data; }
     }
 
-    // Mínimo de puntuación para considerar una coincidencia válida
-    return bestScore >= 5 ? bestData : null;
+    // Mínimo de puntuación para considerar una coincidencia válida.
+    // Tus perfiles curados ganan SIEMPRE que pasen el umbral; el generador
+    // solo entra cuando no hay ninguno que encaje.
+    if (bestScore >= 5) return bestData;
+    return generateTrajectoryProfile(launch);
 }
 
 // Interpola la posición (lat/lng/alt) en un instante T entre los anchorPoints
@@ -6500,6 +6684,7 @@ function _drawRocketTraj3D(stage1, booster, stage2, coastArc, gtoBurn, sideBoost
 // Variables globales del sistema de animación de vuelo
 let _flightTmrs = {};   // { launchId: intervalId }
 let _flightEnts = {};   // { launchId: [{entity, pts, type, sepT}] }
+let _scheduledNet = {}; // { cdKey: hora de despegue con la que se programó el temporizador }
 
 // Segmentos del cohete principal (trayectoria central)
 const _MAIN_SEGS = new Set([
@@ -6955,12 +7140,25 @@ if (elapsed >= 0 && statusPermiteVuelo && !_flightTmrs[lid]) {
     _startFlight(launch);
 }
 
-        // Próximos 2 horas → programar inicio exacto en T=0
+        // Próximas 2 horas → programar inicio exacto en T=0
         const cdKey = 'cd_' + lid;
+        const netMs = new Date(launch.net).getTime();
+
+        // Si el despegue se retrasa (o se adelanta), el feed actualiza "net".
+        // Cancelamos el temporizador viejo para reprogramarlo con la hora
+        // nueva: si no, el cohete despegaría antes que en el directo.
+        if (_flightTmrs[cdKey] && _scheduledNet[cdKey] !== netMs) {
+            clearTimeout(_flightTmrs[cdKey]);
+            delete _flightTmrs[cdKey];
+            delete _scheduledNet[cdKey];
+        }
+
         if (elapsed < 0 && elapsed > -7200 && !_flightTmrs[cdKey]) {
-            const ms = new Date(launch.net).getTime() - now;
+            const ms = netMs - now;
+            _scheduledNet[cdKey] = netMs;
             _flightTmrs[cdKey] = setTimeout(() => {
                 delete _flightTmrs[cdKey];
+                delete _scheduledNet[cdKey];
                 _startFlight(launch);
             }, ms);
         }
