@@ -6169,7 +6169,7 @@ async function loadTrajectoryProfileData(profileMeta) {
 // misión (el feed no lo da), pero acierta la GEOMETRÍA: hacia dónde sale.
 const _ORBIT_INCLINATION = {
     'sso': 97.5, 'po': 97.5, 'ssto': 97.5,
-    'gto': 27.0, 'gto*': 27.0, 'sso-gto': 27.0, 'geo': 10.0, 'meo': 55.0,
+    'meo': 55.0,   // GTO y GEO se calculan según la latitud del pad, más abajo
     'iss': 51.6, 'leo': null,   // null = usamos la latitud del pad
     'heo': 63.4, 'tli': 30.0, 'hco': 28.5, 'bgto': 27.0
 };
@@ -6231,6 +6231,24 @@ function _computeLaunchAzimuth(inclinationDeg, padLat) {
     return az;
 }
 
+// Avanza una distancia angular desde el pad siguiendo un rumbo, sobre la
+// esfera. Sumar grados de latitud y longitud a pelo deforma el recorrido
+// cuanto más largo es: por eso las trayectorias polares se veían torcidas.
+function _greatCircleOffset(padLat, distDeg, azRad) {
+    const rad = Math.PI / 180;
+    const lat1 = padLat * rad;
+    const d    = distDeg * rad;
+
+    const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(d) + Math.cos(lat1) * Math.sin(d) * Math.cos(azRad)
+    );
+    const dLon = Math.atan2(
+        Math.sin(azRad) * Math.sin(d) * Math.cos(lat1),
+        Math.cos(d) - Math.sin(lat1) * Math.sin(lat2)
+    );
+    return { latOff: (lat2 / rad) - padLat, lonOff: dLon / rad };
+}
+
 function generateTrajectoryProfile(launch) {
     const padLat = parseFloat(launch.pad?.latitude);
     const padLon = parseFloat(launch.pad?.longitude);
@@ -6239,10 +6257,54 @@ function generateTrajectoryProfile(launch) {
     const orbitAbbrev = (launch.mission?.orbit?.abbrev || 'LEO').toLowerCase();
     const vehicleName = (launch.rocket?.configuration?.name || '').toLowerCase();
 
-    // Inclinación: la típica del tipo de órbita, o la latitud del pad si no
-    // la conocemos (una órbita nunca puede inclinarse menos que su pad).
+    // Inclinación: la típica del tipo de órbita, o una estimación a partir
+    // de la latitud del pad (una órbita nunca se inclina menos que su pad).
+    const missionName = (launch.name || '').toLowerCase();
+    const padText = ((launch.pad?.location?.name || '') + ' ' + (launch.pad?.name || '')).toLowerCase();
+
+    // Corredores de lanzamiento: algunos sitios solo pueden tirar hacia
+    // ciertos rumbos porque no se puede sobrevolar territorio habitado.
+    // Ojo con las subcadenas: "slc-4" también casa con "SLC-40" (Florida).
+    const forcedSouth = /vandenberg|california|slc-4e|slc-4w|slc-6/.test(padText);
+    const forcedNorth = /plesetsk|vostochny/.test(padText);
+
     let inclination = _ORBIT_INCLINATION[orbitAbbrev];
-    if (inclination == null) inclination = Math.max(Math.abs(padLat), 28.5);
+
+    if (missionName.includes('starlink')) {
+        inclination = forcedSouth ? 97.0 : 53.0;   // es el lanzamiento más frecuente
+    }
+    else if (['gto', 'gto*', 'sso-gto', 'geo', 'bgto'].includes(orbitAbbrev)) {
+        // A la mínima inclinación que permita el pad: por eso Kourou, casi en
+        // el ecuador, sale prácticamente al este y Cabo Cañaveral no.
+        inclination = Math.max(Math.abs(padLat) - 1.5, 5.5);
+    }
+    else if (inclination == null) {
+        if (forcedSouth)      inclination = 97.0;
+        else if (forcedNorth) inclination = Math.max(Math.abs(padLat) + 20, 62.8);
+        else                  inclination = Math.abs(padLat) + 12;
+    }
+
+    if (forcedSouth && inclination < 90) inclination = 97.0;
+    if (inclination < Math.abs(padLat)) inclination = Math.abs(padLat);
+
+    // Starlink va a inclinaciones conocidas según el grupo, y es el
+    // lanzamiento más frecuente con diferencia.
+    if (missionName.includes('starlink')) {
+        inclination = forcedSouth ? 97.0 : 53.0;
+    }
+    // Una transferencia geoestacionaria se hace a la mínima inclinación que
+    // permita el pad, no a un valor fijo: por eso Kourou sale casi al este.
+    else if (['gto', 'gto*', 'sso-gto', 'geo', 'bgto'].includes(orbitAbbrev)) {
+        inclination = Math.max(Math.abs(padLat) - 1.5, 5.5);
+    }
+    // Órbita baja sin más datos: desde un pad con corredor sur, asumimos
+    // polar; si no, algo por encima de la latitud (nunca justo la latitud,
+    // porque eso daría exactamente rumbo este y casi ningún vuelo lo hace).
+    else if (inclination == null) {
+        inclination = forcedSouth ? 97.0 : Math.abs(padLat) + 12;
+    }
+
+    if (forcedSouth && inclination < 90) inclination = 97.0;
     if (inclination < Math.abs(padLat)) inclination = Math.abs(padLat);
 
     const azimuth = _computeLaunchAzimuth(inclination, padLat);
@@ -6266,8 +6328,7 @@ function generateTrajectoryProfile(launch) {
 
         // Proyectamos ese alcance sobre el azimut. La longitud se corrige por
         // la latitud: cerca de los polos, un grado de longitud es más corto.
-        const latOff = drDeg * Math.cos(azRad);
-        const lonOff = drDeg * Math.sin(azRad) / cosLatPad;
+        const { latOff, lonOff } = _greatCircleOffset(padLat, drDeg, azRad);
 
         anchorPoints.push({
             t,
@@ -6281,17 +6342,32 @@ function generateTrajectoryProfile(launch) {
 
     // Un punto extra justo en la separación, para que el cambio de segmento
     // sea limpio y el modelo de la segunda etapa aparezca donde toca.
+    // El punto de separación se INTERPOLA en su fracción exacta, no se coge
+    // el más cercano de la tabla: si no, el tramo de primera etapa termina
+    // en un sitio y el de segunda empieza en otro, dejando un hueco visible.
     const sepFrac = cfg.sepT / totalT;
-    const sepShape = _ASCENT_SHAPE.reduce((a, b) =>
-        Math.abs(b.f - sepFrac) < Math.abs(a.f - sepFrac) ? b : a);
-    const sepDr = sepShape.dr * cfg.drDeg;
+    let sA = _ASCENT_SHAPE[0], sB = _ASCENT_SHAPE[_ASCENT_SHAPE.length - 1];
+    for (let i = 0; i < _ASCENT_SHAPE.length - 1; i++) {
+        if (_ASCENT_SHAPE[i].f <= sepFrac && _ASCENT_SHAPE[i + 1].f >= sepFrac) {
+            sA = _ASCENT_SHAPE[i]; sB = _ASCENT_SHAPE[i + 1]; break;
+        }
+    }
+    const k = (sB.f === sA.f) ? 0 : (sepFrac - sA.f) / (sB.f - sA.f);
+    const sepDr  = (sA.dr  + (sB.dr  - sA.dr)  * k) * cfg.drDeg;
+    const sepAlt = (sA.alt + (sB.alt - sA.alt) * k) * cfg.insertAltKm;
+    const _sepOff = _greatCircleOffset(padLat, sepDr, azRad);
+    const sepLat = +_sepOff.latOff.toFixed(4);
+    const sepLon = +_sepOff.lonOff.toFixed(4);
+
+    // Dos puntos con las MISMAS coordenadas: uno cierra la primera etapa y
+    // otro abre la segunda, así los dos tramos se tocan sin hueco.
     anchorPoints.push({
-        t: cfg.sepT,
-        latOffsetDeg: +(sepDr * Math.cos(azRad)).toFixed(4),
-        lonOffsetDeg: +(sepDr * Math.sin(azRad) / cosLatPad).toFixed(4),
-        altKm: +(sepShape.alt * cfg.insertAltKm).toFixed(1),
-        segment: 'stage2_insertion',
-        confidence: 'generated'
+        t: cfg.sepT, latOffsetDeg: sepLat, lonOffsetDeg: sepLon,
+        altKm: +sepAlt.toFixed(1), segment: 'ascent_stage1', confidence: 'generated'
+    });
+    anchorPoints.push({
+        t: cfg.sepT, latOffsetDeg: sepLat, lonOffsetDeg: sepLon,
+        altKm: +sepAlt.toFixed(1), segment: 'stage2_insertion', confidence: 'generated'
     });
 
     anchorPoints.sort((a, b) => a.t - b.t);
@@ -6325,7 +6401,7 @@ function generateTrajectoryProfile(launch) {
         events: [
             { id: 'liftoff',   t: 0,          label: 'Liftoff' },
             { id: 'max_q',     t: Math.round(cfg.sepT * 0.5), label: 'Max-Q' },
-            { id: 'meco',      t: cfg.sepT - 1, label: 'MECO' },
+            { id: 'meco',      t: cfg.sepT,   label: 'MECO' },
             { id: 'stage_sep', t: cfg.sepT,   label: 'Stage Sep' },
             { id: 'seco1',     t: totalT,     label: 'SECO-1' }
         ],
