@@ -7088,17 +7088,21 @@ async function loadUpcomingLaunches() {
     }
 }
 
-// ÚNICA fuente de verdad sobre si un lanzamiento está en directo.
-// La usan el widget, el mapa 2D y el mapa 3D — si esta regla cambia,
-// cambia en los tres a la vez y no se pueden desincronizar.
-// Confiamos en webcast_live sin tope de tiempo: mientras el directo siga
-// abierto según Space Devs, lo damos por bueno.
 function isLaunchLiveNow(l, nowMs) {
     const diffMs = new Date(l.net).getTime() - nowMs;
-    if (l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure') return false;
+    const ab = (l.status?.abbrev || '').toLowerCase();
+
+    // Estados finales: ahí sí ha terminado, pase lo que pase.
+    if (ab === 'success' || ab === 'failure' || ab === 'partial failure') return false;
+
     if (l.webcast_live === true) return true;
-    if (l.status?.abbrev === 'In Flight') return true;
-    if (l.status?.abbrev === 'Go' && diffMs < 0 && diffMs > -2700000) return true;
+
+    // Ya despegó y aún no hay resultado final. Cubrimos cualquier estado
+    // intermedio que use la API (In Flight, Payload Deployed...), porque en
+    // vuelos largos como Starship el despliegue ocurre horas antes del final.
+    if (diffMs < 0 && (ab.includes('flight') || ab.includes('deploy'))) return true;
+
+    if (ab === 'go' && diffMs < 0 && diffMs > -2700000) return true;
     return false;
 }
 
