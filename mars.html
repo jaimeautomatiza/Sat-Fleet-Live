@@ -349,6 +349,20 @@
         .bar-logo-text { display:none; }
         .bar-logo img { width:32px; height:32px; }
         #guidesBtn, #launchesBtn, #nextPassesBtn, #accountBtn, #exploreBtn { display:none !important; }
+        }
+
+        /* Dispositivos táctiles: misma interfaz sea cual sea el tamaño o la
+           orientación. Un iPad, un móvil en horizontal y uno en vertical se
+           comportan igual, en vez de decidirlo por ancho de pantalla. */
+        body.is-touch #guidesBtn,
+        body.is-touch #launchesBtn,
+        body.is-touch #nextPassesBtn,
+        body.is-touch #accountBtn,
+        body.is-touch #exploreBtn { display:none !important; }
+
+        body.is-touch #overflowBtn { display:flex !important; }
+
+        @media (max-width: 0px) {
         #marsSearch { max-width: none; }
         #overflowBtn { flex-shrink: 0; }
         #overflowBtn { display:flex; }
@@ -552,6 +566,14 @@
 </style>
 </head>
 <body>
+<script>
+// La interfaz se decide por capacidad táctil, no por ancho de pantalla: así
+// un iPad se comporta como un móvil y girar el teléfono no cambia nada.
+if (navigator.maxTouchPoints > 0) document.documentElement.classList.add('is-touch-html');
+document.addEventListener('DOMContentLoaded', () => {
+    if (navigator.maxTouchPoints > 0) document.body.classList.add('is-touch');
+});
+</script>
 
 <div id="cesiumContainer"></div>
 
@@ -658,11 +680,11 @@
     <button class="overflow-item gold" onclick="window.location.href='/blogs/'">
         <img src="images/book.svg" style="width:16px;height:16px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
     </button>
-    <button class="overflow-item orange" onclick="window.location.href='launches.html'">
-        <img src="images/rocket.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
-    </button>
     <button class="overflow-item" style="color:#2196f3;" onclick="window.location.href='next-passes.html'">
         <img src="images/telescope.svg" style="width:16px;height:16px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
+    </button>
+    <button class="overflow-item orange" onclick="window.location.href='launches.html'">
+        <img src="images/rocket.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
     </button>
     <button class="overflow-item" id="overflowArBtn" onclick="window.location.href='ar.html'; closeOverflowMenu()" style="color:#ff6b35;">
         <img src="images/ar.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> AR Sky (Beta)

@@ -1768,6 +1768,37 @@ body.light-mode .rocket-filter-chip {
         .explore-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; display:inline-block; }
 
         /* ===== MÓVIL: botón ⋯ menú overflow ===== */
+                /* ===== Dispositivos táctiles: misma interfaz sea cual sea el tamaño
+           o la orientación. Un iPad, un móvil en horizontal y un móvil en
+           vertical se comportan igual: todo al menú ⋯ ===== */
+        body.is-touch #guidesBtn,
+        body.is-touch #nextPassesBtn,
+        body.is-touch #themeBtn,
+        body.is-touch #toggleViewBtn,
+        body.is-touch #visibilityToggle,
+        body.is-touch #visibilityControls,
+        body.is-touch #launchesBtn,
+        body.is-touch #accountBtn,
+        body.is-touch #arBtn,
+        body.is-touch #exploreBtn { display: none !important; }
+
+        body.is-touch #overflowBtn {
+            display: flex !important;
+            flex-shrink: 0;
+            height: 34px;
+            width: 34px;
+            margin-left: 2px;
+        }
+
+        body.is-touch #barStats { display: none !important; }
+        body.is-touch .bar-sep { display: none !important; }
+
+        body.is-touch #barSearch {
+            flex: 1 1 0;
+            min-width: 0;
+            max-width: 999px;
+        }
+
         #overflowBtn {
             display: none;
             height: 34px;
@@ -6001,14 +6032,10 @@ function closeExploreOnOutside(e) {
 
         // Inicializar aplicación
         document.addEventListener('DOMContentLoaded', function () {
-            // El AR necesita sensores de orientación y una pantalla táctil.
-            // Lo decidimos por capacidad del dispositivo, no por ancho de
-            // pantalla: así un iPad lo ve esté en vertical u horizontal, y
-            // un portátil táctil sin giroscopio no.
-            if (navigator.maxTouchPoints > 0 && 'DeviceOrientationEvent' in window) {
-                const arBtn = document.getElementById('arBtn');
-                if (arBtn) arBtn.style.display = '';
-            }
+            // La interfaz se decide por capacidad táctil, no por ancho: así un
+            // iPad se comporta como un móvil, y girar el teléfono no cambia
+            // nada. El ancho seguía dando tres comportamientos distintos.
+            if (navigator.maxTouchPoints > 0) document.body.classList.add('is-touch');
             initMap();
             updateVisibilityLockUI();
 
@@ -6506,6 +6533,7 @@ function _drawRocketTraj3D(stage1, booster, stage2, coastArc, gtoBurn, sideBoost
 // Variables globales del sistema de animación de vuelo
 let _flightTmrs = {};   // { launchId: intervalId }
 let _flightEnts = {};   // { launchId: [{entity, pts, type, sepT}] }
+let _scheduledNet = {}; // { cdKey: hora de despegue con la que se programó el temporizador }
 
 // Segmentos del cohete principal (trayectoria central)
 const _MAIN_SEGS = new Set([
