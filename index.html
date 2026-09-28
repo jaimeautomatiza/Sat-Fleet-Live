@@ -4237,7 +4237,7 @@ if (btnFloat && !isPovActive) {
                 const foundLaunch = allLaunches.find(l => {
                 const diffMs = new Date(l.net) - now;
                 const isWebcastLive = l.webcast_live === true;
-                const isInFlight    = l.status?.abbrev === 'In Flight';
+                const isInFlight    = /flight|deploy/.test((l.status?.abbrev || '').toLowerCase());
                 const isFinished    = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
     // Descartar si terminó oficialmente o si pasaron más de 3 horas sin estar en directo
     if (isFinished) return false;
@@ -5388,10 +5388,16 @@ filtered.forEach(sat => {
                     if (!latTarget || l.pad?.latitude !== latTarget || l.pad?.longitude !== lngTarget) return false;
                     const diff = new Date(l.net) - now;
                     const finished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
-                    return !finished && diff > -2700000;
+                    // Un vuelo largo (Starship son 10 horas) se sale de los 45
+                    // minutos pero sigue en curso: lo mantenemos si está en directo.
+                    return !finished && (diff > -2700000 || isLaunchLiveNow(l, now.getTime()));
                 }).sort((a, b) => new Date(a.net) - new Date(b.net));
-                
-                const launchToShow = samePad[0] || clickedLaunch;
+
+                // Si el cohete que has pulsado está en directo, ese es el que
+                // quieres ver: no lo sustituimos por el siguiente del pad.
+                const launchToShow = isLaunchLiveNow(clickedLaunch, now.getTime())
+                    ? clickedLaunch
+                    : (samePad[0] || clickedLaunch);
                 showRocketInfo3D(launchToShow);
                 
                 const lat = parseFloat(launchToShow.pad?.latitude);
@@ -6948,9 +6954,9 @@ async function checkAndStartFlightAnimations() {
         if (isFinished) { _stopFlight(lid); continue; }
 
         // Lanzamiento en vuelo → arrancar animación
-        const statusPermiteVuelo = launch.status?.abbrev === 'In Flight' ||
-                           launch.status?.abbrev === 'Go' ||
-                           launch.webcast_live === true;
+        const ab = (launch.status?.abbrev || '').toLowerCase();
+        const statusPermiteVuelo = ab.includes('flight') || ab.includes('deploy') ||
+                           ab === 'go' || launch.webcast_live === true;
 if (elapsed >= 0 && statusPermiteVuelo && !_flightTmrs[lid]) {
     _startFlight(launch);
 }
@@ -7033,7 +7039,7 @@ async function loadUpcomingLaunches() {
                     const diffMs = new Date(l.net) - now;
                     const isFinished = l.status?.abbrev === 'Success' || l.status?.abbrev === 'Failure';
                     if (isFinished) return false; // Si ya terminó, fuera.
-                    if (l.webcast_live === true || l.status?.abbrev === 'In Flight') return true; // Si hay directo o vuela, se queda.
+                    if (isLaunchLiveNow(l, now.getTime())) return true; // Si hay directo o vuela (incluido "Deployed"), se queda.
                     return diffMs > -2700000; // Si no, aplicamos los 45 mins.
                 })
                 .map(l => new Date(l.net) - now)
@@ -7581,11 +7587,10 @@ function rocketMatchesFilter(launch) {
     if (activeRocketFilters.has('all')) return true;
     const now = new Date();
     const diffMs = new Date(launch.net) - now;
-    const isWebcastLive = launch.webcast_live === true;
-    const isInFlight = launch.status?.abbrev === 'In Flight';
-    const isFinished = launch.status?.abbrev === 'Success' || launch.status?.abbrev === 'Failure';
-    const isGo = launch.status?.abbrev === 'Go';
-    const isLive = !isFinished && (isWebcastLive || isInFlight || (isGo && diffMs < 0 && diffMs > -2700000));
+    // Cuarta copia de la misma regla que se nos escapó al unificar: aquí
+    // "Deployed" no contaba como en vuelo, así que Starship desaparecía del
+    // filtro LIVE en cuanto la API cambiaba de estado.
+    const isLive = isLaunchLiveNow(launch, now.getTime());
     const isToday = diffMs > -2700000 && diffMs < 86400000;
     
     const vName = (launch.rocket?.configuration?.name || '').toLowerCase();
@@ -7857,8 +7862,10 @@ function drawRocketMarkers3D(launches) {
                 outlineWidth: 2,
                 style: Cesium.LabelStyle.FILL_AND_OUTLINE,
                 verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                pixelOffset: new Cesium.Cartesian2(0, -52),
-                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 3000000)
+                pixelOffset: new Cesium.Cartesian2(0, -70),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 3000000),
+                eyeOffset: new Cesium.Cartesian3(0, 0, -100),
+                disableDepthTestDistance: Number.POSITIVE_INFINITY
             }
         });
 
@@ -7906,10 +7913,17 @@ function fmtCountdown(ms) {
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
 }
 
-// Redibujar cohetes cuando se cambia a modo 2D
-// (ya existe toggleView — solo hay que llamar a drawRocketMarkers al volver a 2D)
+// Formato largo para el tiempo transcurrido desde el despegue.
+function fmtElapsed(ms) {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return `${h}h ${m}m ${sec}s`;
+    if (m > 0) return `${m}m ${sec}s`;
+    return `${sec}s`;
+}
 
-// Mostrar información de un cohete al clickar en 3D reutilizando el panel
 function showRocketInfo3D(launch) {
     // Marcar el cohete como seleccionado y limpiar satélite
     currentSelectedRocket = launch;
@@ -7942,7 +7956,7 @@ function showRocketInfo3D(launch) {
     
     let isLive = false;
     if (!isFinished) {
-        if (isWebcastLive || isInFlight) {
+        if (isLaunchLiveNow(launch, Date.now())) {
             isLive = true;
         } else if (diffMs < 0 && diffMs > -2700000) {
             isLive = true;
@@ -7955,8 +7969,16 @@ function showRocketInfo3D(launch) {
     const location = launch.pad?.location?.name || '';
     const padText  = pad + (location ? ' · ' + location : '');
     
-    // Solo mostramos la cuenta atrás si NO estamos en directo
-    let cdText = isLive ? '🔴 LIVE NOW' : (diffMs < 86400000 ? 'T- ' + fmtCountdown(diffMs) : 'T- ' + Math.floor(diffMs / 86400000) + 'd');
+    // T− mientras falta, T+ desde el despegue. En vuelos largos (Starship son
+    // ~10 horas) saber cuánto lleva volando dice mucho más que un LIVE fijo.
+    const deployed = /deploy/.test((launch.status?.abbrev || '').toLowerCase());
+    let cdText;
+    if (diffMs >= 0) {
+        cdText = diffMs < 86400000 ? 'T- ' + fmtCountdown(diffMs) : 'T- ' + Math.floor(diffMs / 86400000) + 'd';
+    } else {
+        cdText = 'T+ ' + fmtElapsed(-diffMs) + (isLive ? ' · LIVE' : '');
+    }
+    if (deployed) cdText += ' · Payload deployed';
 
     // --- Desktop panel ---
     const nameEl = document.getElementById('satelliteName');
@@ -7967,6 +7989,27 @@ function showRocketInfo3D(launch) {
 
     document.getElementById('satelliteAltitude').textContent  = cdText;
     document.getElementById('satelliteAltitude').style.color  = isLive ? '#ff4444' : '#ff6b35';
+
+    // El contador se refresca cada segundo mientras el panel siga abierto
+    // con este mismo cohete; si cambias de cohete o lo cierras, se detiene.
+    if (window._rocketCdTimer) clearInterval(window._rocketCdTimer);
+    window._rocketCdTimer = setInterval(() => {
+        const el = document.getElementById('satelliteAltitude');
+        if (!el || !currentSelectedRocket || String(currentSelectedRocket.id) !== String(launch.id)) {
+            clearInterval(window._rocketCdTimer);
+            window._rocketCdTimer = null;
+            return;
+        }
+        const d = launchDate - new Date();
+        let txt;
+        if (d >= 0) {
+            txt = d < 86400000 ? 'T- ' + fmtCountdown(d) : 'T- ' + Math.floor(d / 86400000) + 'd';
+        } else {
+            txt = 'T+ ' + fmtElapsed(-d) + (isLive ? ' · LIVE' : '');
+        }
+        if (deployed) txt += ' · Payload deployed';
+        el.textContent = txt;
+    }, 1000);
     document.getElementById('satelliteVelocity').textContent  = mission;
     document.getElementById('satelliteLatitude').textContent  = padText;
     document.getElementById('satelliteLongitude').textContent = "Launch Pad";
@@ -8086,7 +8129,7 @@ function updateRocketImagesLive() {
             
             let isLive = false;
             if (!isFinished) {
-                if (isWebcastLive || isInFlight) isLive = true;
+                if (isLaunchLiveNow(launch, Date.now())) isLive = true;
                 else if (isGo && diffMs < 0 && diffMs > -2700000) isLive = true;
             }
             
