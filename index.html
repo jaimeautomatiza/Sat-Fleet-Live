@@ -3429,7 +3429,7 @@ function updateTleSatellitePositions() {
     // estás viendo, no al de la carga inicial. Lo limitamos a una vez por
     // segundo: recorrer 16.000 satélites en cada fotograma sería caro.
     const _now = Date.now();
-    if (_now - _lastStatsUpdate > 1000) { _lastStatsUpdate = _now; updateStats(); }
+    if (_now - _lastStatsUpdate > 3000) { _lastStatsUpdate = _now; updateStats(); }
 }
 
 window.onPlaybackScrub = function(val) {
@@ -4110,8 +4110,14 @@ function refreshSatelliteInfoNumbers() {
         // Actualizar estadísticas de satélites
 function updateStats() {
 
-    // Total de satélites cargados — según modo activo
-    const totalVisible = is3DMode ? cesiumEntities.length : satelliteMarkers.length;
+    // Total realmente en pantalla. En Playback los satélites que aún no
+    // existían en esa fecha se ocultan pero su entidad sigue creada, así
+    // que contar entidades daría siempre el mismo número.
+    const totalVisible = is3DMode
+        ? (tleTimeOverride !== null
+            ? primitiveDataArray.filter(d => d.point && d.point.show).length
+            : cesiumEntities.length)
+        : satelliteMarkers.length;
     const totalEl = document.getElementById('totalSatCount');
     if (totalEl) totalEl.textContent = totalVisible.toLocaleString();
 
@@ -5507,7 +5513,7 @@ function updateCesiumPositions() {
     // Sin esto, el contador se quedaba con el valor de la carga inicial
     // para siempre, aunque los satélites llevaran horas moviéndose.
     const _nowS = Date.now();
-    if (_nowS - _lastStatsUpdate > 3000) { _lastStatsUpdate = _nowS; updateStats(); }
+    if (_nowS - _lastStatsUpdate > 10000) { _lastStatsUpdate = _nowS; updateStats(); }
 }
 
 // Marcador de ubicación del usuario en el globo 3D
