@@ -1,787 +1,534 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-THHVVZCJ4B');
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+gtag('js',new Date());gtag('config','G-THHVVZCJ4B');
+</script>
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/images/logo.png">
-    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="/images/logo.png">
+<title>Satellite &amp; Space Tracking Guides | SatFleet Live</title>
+<meta name="description" content="Free guides to track satellites, the ISS and Starlink, follow rocket launches, and explore the Moon, Mars and deep space in real time with SatFleet Live.">
+<meta name="author" content="SatFleet Live">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="theme-color" content="#060a13">
+<link rel="canonical" href="https://satfleetlive.com/blogs/">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
 <link rel="manifest" href="/manifest.json">
 
-    <!-- SEO -->
-    <title>Satellite Tracking Guides | SatFleetLive</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore in-depth satellite tracking guides. Learn how to track satellites in real time, understand TLE data, and discover the best free satellite tracking tools.">
-    <meta name="keywords" content="satellite tracking guides, how to track satellites, real-time satellite tracker, free satellite tracking tools, satellite tracking website">
-    <meta name="author" content="SatFleetLive">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://satfleetlive.com/blogs/">
+<meta property="og:site_name" content="SatFleet Live">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Satellite &amp; Space Tracking Guides | SatFleet Live">
+<meta property="og:description" content="Free guides to track satellites, follow rocket launches and explore the Moon, Mars and deep space in real time.">
+<meta property="og:url" content="https://satfleetlive.com/blogs/">
+<meta property="og:image" content="https://satfleetlive.com/images/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Satellite &amp; Space Tracking Guides | SatFleet Live">
+<meta name="twitter:description" content="Free guides to track satellites, follow rocket launches and explore the Moon, Mars and deep space in real time.">
+<meta name="twitter:image" content="https://satfleetlive.com/images/logo.png">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Satellite Tracking Guides | SatFleetLive">
-    <meta property="og:description" content="Explore in-depth satellite tracking guides. Learn how to track satellites in real time, understand TLE data, and discover the best free satellite tracking tools.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://satfleetlive.com/blogs/">
-    <meta property="og:image" content="/images/logo.png">
+<!-- Schema.org: when you add a guide, add it to this list too (next position number) -->
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"CollectionPage","@id":"https://satfleetlive.com/blogs/#page","name":"Satellite and Space Tracking Guides","url":"https://satfleetlive.com/blogs/","description":"Free guides on real-time satellite tracking, ISS and Starlink sightings, rocket launches, the Moon, Mars, deep space, TLE data and orbits.","isPartOf":{"@type":"WebSite","name":"SatFleet Live","url":"https://satfleetlive.com/"},"publisher":{"@type":"Organization","name":"SatFleet Live","url":"https://satfleetlive.com","logo":"https://satfleetlive.com/images/logo.png"},"breadcrumb":{"@id":"https://satfleetlive.com/blogs/#crumbs"},"mainEntity":{"@id":"https://satfleetlive.com/blogs/#list"}},
+{"@type":"BreadcrumbList","@id":"https://satfleetlive.com/blogs/#crumbs","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://satfleetlive.com/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://satfleetlive.com/blogs/"}]},
+{"@type":"ItemList","@id":"https://satfleetlive.com/blogs/#list","itemListElement":[
+{"@type":"ListItem","position":1,"url":"https://satfleetlive.com/blogs/how-to-track-satellites/","name":"How to Track Satellites in Real Time"},
+{"@type":"ListItem","position":2,"url":"https://satfleetlive.com/blogs/what-is-satfleet-live/","name":"What Is SatFleet Live?"},
+{"@type":"ListItem","position":3,"url":"https://satfleetlive.com/blogs/best-free-satellite-tracker/","name":"Best Free Satellite Tracker Online"},
+{"@type":"ListItem","position":4,"url":"https://satfleetlive.com/blogs/3d-satellite-tracking/","name":"3D Satellite Tracking"},
+{"@type":"ListItem","position":5,"url":"https://satfleetlive.com/blogs/iss-pass-tonight/","name":"ISS Pass Tonight"},
+{"@type":"ListItem","position":6,"url":"https://satfleetlive.com/blogs/next-passes-predict-satellites/","name":"Next Passes: Predict Satellite Overheads"},
+{"@type":"ListItem","position":7,"url":"https://satfleetlive.com/blogs/best-time-to-see-satellites-tonight/","name":"Best Time to See Satellites Tonight"},
+{"@type":"ListItem","position":8,"url":"https://satfleetlive.com/blogs/how-to-spot-a-starlink-train/","name":"How to Spot a Starlink Train Tonight"},
+{"@type":"ListItem","position":9,"url":"https://satfleetlive.com/blogs/starlink-satellites/","name":"Starlink Satellites"},
+{"@type":"ListItem","position":10,"url":"https://satfleetlive.com/blogs/tiangong-space-station/","name":"Tiangong Space Station"},
+{"@type":"ListItem","position":11,"url":"https://satfleetlive.com/blogs/why-are-satellites-so-bright/","name":"Why Are Satellites So Bright?"},
+{"@type":"ListItem","position":12,"url":"https://satfleetlive.com/blogs/spacex-launch-schedule/","name":"SpaceX Launch Schedule"},
+{"@type":"ListItem","position":13,"url":"https://satfleetlive.com/blogs/spacex-starship/","name":"SpaceX Starship"},
+{"@type":"ListItem","position":14,"url":"https://satfleetlive.com/blogs/how-satellite-orbits-work/","name":"How Satellite Orbits Work"},
+{"@type":"ListItem","position":15,"url":"https://satfleetlive.com/blogs/what-is-a-tle/","name":"What Is a TLE and How to Read It"},
+{"@type":"ListItem","position":16,"url":"https://satfleetlive.com/blogs/how-many-satellites-in-orbit/","name":"How Many Satellites Are in Orbit?"},
+{"@type":"ListItem","position":17,"url":"https://satfleetlive.com/blogs/space-debris/","name":"What Is Space Debris?"},
+{"@type":"ListItem","position":18,"url":"https://satfleetlive.com/blogs/how-to-use-ar-to-spot-satellites/","name":"How to Use AR to Spot Satellites"},
+{"@type":"ListItem","position":19,"url":"https://satfleetlive.com/blogs/real-scale-view-explained/","name":"Real Scale View Explained"},
+{"@type":"ListItem","position":20,"url":"https://satfleetlive.com/blogs/satellite-time-travel/","name":"Satellite Time Travel"},
+{"@type":"ListItem","position":21,"url":"https://satfleetlive.com/blogs/watch-rocket-launch-live/","name":"Watch a Rocket Launch Live"},
+{"@type":"ListItem","position":22,"url":"https://satfleetlive.com/blogs/how-rocket-launch-trajectories-work/","name":"How Rocket Launch Trajectories Work"},
+{"@type":"ListItem","position":23,"url":"https://satfleetlive.com/blogs/artemis-2-mission-tracker/","name":"Artemis 2 Mission Tracker"},
+{"@type":"ListItem","position":24,"url":"https://satfleetlive.com/blogs/moon-phase-tonight/","name":"Moon Phase Tonight"},
+{"@type":"ListItem","position":25,"url":"https://satfleetlive.com/blogs/how-far-is-mars-from-earth/","name":"How Far Is Mars From Earth?"},
+{"@type":"ListItem","position":26,"url":"https://satfleetlive.com/blogs/curiosity-vs-perseverance/","name":"Curiosity vs Perseverance: Comparing NASA's Mars Rovers"},
+{"@type":"ListItem","position":27,"url":"https://satfleetlive.com/blogs/what-is-deep-space-tracking/","name":"What Is Deep Space Tracking?"},
+{"@type":"ListItem","position":28,"url":"https://satfleetlive.com/blogs/where-is-voyager-1-now/","name":"Where Is Voyager 1 Now?"},
+{"@type":"ListItem","position":29,"url":"https://satfleetlive.com/blogs/james-webb-telescope-location/","name":"Where Is the James Webb Space Telescope? Location Explained"},
+{"@type":"ListItem","position":30,"url":"https://satfleetlive.com/blogs/where-is-the-tesla-roadster-now/","name":"Where Is the Tesla Roadster Now?"},
+{"@type":"ListItem","position":31,"url":"https://satfleetlive.com/blogs/is-pluto-a-planet/","name":"Is Pluto a Planet?"}
+]}]}
+</script>
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Satellite Tracking Guides | SatFleetLive">
-    <meta name="twitter:description" content="Explore in-depth satellite tracking guides. Learn how to track satellites in real time, understand TLE data, and discover the best free satellite tracking tools.">
-    <meta name="twitter:image" content="/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 
-    <!-- Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Blog",
-      "name": "Satellite Tracking Guides – SatFleetLive",
-      "description": "In-depth guides on how to track satellites in real time, understand TLE data, and use free satellite tracking tools.",
-      "url": "https://satfleetlive.com/blogs/",
-      "publisher": {
-        "@type": "Organization",
-        "name": "SatFleetLive",
-        "url": "https://satfleetlive.com"
-      }
-    }
-    </script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060a13;--surface:#0d1424;--line:#1b2740;--text:#e9eef8;--muted:#94a3bf;
+  --violet:#a855f7;--blue:#3ea6ff;--amber:#f5c542;--green:#3ddc97;
+  --display:'Space Grotesk','Segoe UI',system-ui,sans-serif;
+  --body:'Inter','Segoe UI',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:400 1rem/1.65 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 1.5rem}
+.skip{position:absolute;left:-999px;top:0;background:var(--blue);color:#001;padding:.5rem 1rem;z-index:100}
+.skip:focus{left:1rem;top:1rem}
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+/* header */
+.top{position:sticky;top:0;z-index:50;background:rgba(6,10,19,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:.7rem;font:700 1.15rem var(--display)}
+.brand img{width:32px;height:32px;border-radius:50%}
+.top nav{display:flex;align-items:center;gap:1.5rem;font-size:.92rem;color:var(--muted)}
+.top nav a:hover{color:var(--text)}
+.btn{display:inline-block;padding:.65rem 1.3rem;border-radius:999px;font-weight:600;font-size:.92rem;border:1px solid var(--line);transition:background .2s,border-color .2s}
+.btn.solid{background:var(--violet);border-color:var(--violet);color:#fff}
+.btn.solid:hover{background:#b97bf8}
+.btn.ghost:hover{border-color:var(--blue);color:var(--blue)}
 
-        :root {
-            --primary-purple: #9c27b0;
-            --primary-blue: #2196f3;
-            --dark-bg: #1a1a1a;
-            --dark-secondary: #2d2d2d;
-            --dark-tertiary: #3d3d3d;
-            --text-primary-dark: #ffffff;
-            --text-secondary-dark: #cccccc;
-        }
+/* hero */
+.hero{padding:4rem 0 3rem;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:2rem;align-items:center}
+.crumbs{font-size:.85rem;color:var(--muted);margin-bottom:1.25rem}
+.crumbs a:hover{color:var(--text)}
+h1{font:700 clamp(2.4rem,5.5vw,4rem)/1.05 var(--display);letter-spacing:-.02em;margin-bottom:1.25rem}
+.lede{color:var(--muted);font-size:1.12rem;max-width:34rem;margin-bottom:1.75rem}
+.facts{display:flex;gap:2rem;flex-wrap:wrap;font-size:.92rem;color:var(--muted)}
+.facts strong{display:block;font:700 1.6rem/1.2 var(--display);color:var(--text)}
+.orbit{width:100%;max-width:420px;justify-self:end;filter:drop-shadow(0 0 60px rgba(168,85,247,.25))}
+.ring{fill:none;stroke:var(--line);stroke-width:1.2}
+.spin{transform-origin:0 0;animation:spin 40s linear infinite}
+.spin.b{animation-duration:62s;animation-direction:reverse}
+.spin.c{animation-duration:90s}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-primary-dark);
-            overflow-x: hidden;
-        }
+/* about */
+.about{padding:1rem 1.5rem 3.5rem}
+.about p{color:var(--muted);max-width:42rem;margin:.75rem 0 1.5rem}
+.about p a{color:var(--blue)}.about p a:hover{text-decoration:underline}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.tile{border:1px solid var(--line);border-radius:14px;padding:1.1rem 1.25rem;display:flex;flex-direction:column;gap:.25rem;transition:border-color .2s}
+.tile:hover{border-color:var(--blue)}
+.tile strong{font:700 1.05rem var(--display)}
+.tile span{color:var(--muted);font-size:.9rem}
+@media(max-width:800px){.tiles{grid-template-columns:1fr}}
 
-        /* ── HEADER ── */
-        .header {
-            background-color: var(--dark-secondary);
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+/* browse */
+.browse{padding:1rem 0 4rem}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding:1.25rem 0;border-block:1px solid var(--line);margin-bottom:2rem}
+h2{font:700 1.5rem var(--display);letter-spacing:-.01em}
+.filters{display:flex;gap:.5rem;flex-wrap:wrap}
+.chip{font:500 .88rem var(--body);color:var(--muted);background:none;border:1px solid var(--line);border-radius:999px;padding:.4rem .95rem;cursor:pointer;transition:all .2s}
+.chip:hover{color:var(--text);border-color:var(--muted)}
+.chip[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+#q{font:400 .92rem var(--body);background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:.5rem 1.1rem;width:100%;max-width:240px}
+#q::placeholder{color:var(--muted)}
+.status{font-size:.88rem;color:var(--muted);margin-bottom:1rem}
 
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            text-decoration: none;
-        }
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.6rem;display:flex;flex-direction:column;gap:.7rem;transition:border-color .2s}
+.card[hidden]{display:none}
+.card:hover{border-color:var(--c)}
+.card[data-cat=start]{--c:var(--blue)}
+.card[data-cat=spot]{--c:var(--violet)}
+.card[data-cat=launch]{--c:var(--amber)}
+.card[data-cat=science]{--c:var(--green)}
+.card[data-cat=moonmars]{--c:#ff6b5b}
+.card[data-cat=deep]{--c:#22d3ee}
+.meta{display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted)}
+.cat{display:flex;align-items:center;gap:.5rem;color:var(--c);font-weight:600}
+.cat::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--c)}
+.card h3{font:700 1.25rem/1.28 var(--display);letter-spacing:-.01em}
+.card h3 a::after{content:'';position:absolute;inset:0;border-radius:16px}
+.card:hover h3{color:var(--c)}
+.card p.d{color:var(--muted);font-size:.95rem;flex:1}
+.tags{display:flex;gap:.5rem;flex-wrap:wrap;list-style:none}
+.tags li{font-size:.78rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:.1rem .55rem}
+.tags li.new{color:var(--bg);background:var(--green);border-color:var(--green);font-weight:600}
+.card.feature{grid-column:1/-1;padding:2.2rem;background:linear-gradient(120deg,var(--surface),#151033)}
+.card.feature h3{font-size:clamp(1.5rem,3vw,2.1rem);max-width:36rem}
+.card.feature p.d{font-size:1.05rem;max-width:44rem;flex:0}
+#empty{color:var(--muted);padding:2rem 0}
 
-        .logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
+/* cta */
+.cta{border:1px solid var(--line);border-radius:20px;padding:3rem 2rem;text-align:center;margin-bottom:4rem;background:radial-gradient(ellipse at 50% 120%,rgba(62,166,255,.14),transparent 65%),var(--surface)}
+.cta p{color:var(--muted);max-width:34rem;margin:.75rem auto 1.5rem}
+.cta .btn{margin:.25rem}
 
-        .logo img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            border-radius: 50%;
-        }
+footer{border-top:1px solid var(--line);padding:2rem 0;font-size:.85rem;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+footer a{margin-left:1.25rem}footer a:first-child{margin-left:0}
+footer a:hover{color:var(--blue)}
 
-        .logo-placeholder {
-            width: 40px;
-            height: 40px;
-            background-color: var(--primary-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .site-title {
-            font-size: 1.5rem;
-            font-weight: 650;
-            color: var(--primary-purple);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
-            text-decoration: none;
-        }
-
-        .header-nav {
-            display: flex;
-            gap: 0.75rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .nav-btn {
-            background: none;
-            border: 2px solid var(--primary-purple);
-            color: var(--primary-purple);
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .nav-btn:hover {
-            background-color: var(--primary-purple);
-            color: white;
-        }
-
-        .nav-btn.blue {
-            border-color: var(--primary-blue);
-            color: var(--primary-blue);
-        }
-
-        .nav-btn.blue:hover {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-
-        /* ── HERO ── */
-        .blog-hero {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d1b33 50%, #1a1a2e 100%);
-            border-bottom: 2px solid var(--primary-purple);
-            padding: 3.5rem 1.5rem 2.5rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .blog-hero::before {
-            content: '📚';
-            position: absolute;
-            font-size: 10rem;
-            opacity: 0.04;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-
-        .blog-hero .breadcrumb {
-            font-size: 0.85rem;
-            color: var(--text-secondary-dark);
-            margin-bottom: 1rem;
-        }
-
-        .blog-hero .breadcrumb a {
-            color: var(--primary-blue);
-            text-decoration: none;
-        }
-
-        .blog-hero .breadcrumb a:hover { text-decoration: underline; }
-
-        .blog-hero h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #ffffff;
-            line-height: 1.25;
-            max-width: 700px;
-            margin: 0 auto 1rem;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-        }
-
-        .blog-hero h1 span { color: var(--primary-purple); }
-
-        .blog-hero .intro {
-            max-width: 640px;
-            margin: 0 auto;
-            color: var(--text-secondary-dark);
-            font-size: 1.05rem;
-            line-height: 1.7;
-        }
-
-        /* ── MAIN LAYOUT ── */
-        .blog-container {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 3rem 1.5rem 4rem;
-        }
-
-        /* ── SECTION HEADING ── */
-        .section-heading {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary-purple);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .section-heading::after {
-            content: '';
-            flex: 1;
-            height: 2px;
-            background: linear-gradient(to right, var(--primary-purple), transparent);
-            border-radius: 2px;
-        }
-
-        /* ── ARTICLE CARDS ── */
-        .article-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            margin-bottom: 3rem;
-        }
-
-        .article-card {
-            background-color: var(--dark-secondary);
-            border-radius: 12px;
-            padding: 1.5rem 1.75rem;
-            display: flex;
-            gap: 1.25rem;
-            align-items: flex-start;
-            text-decoration: none;
-            border: 1px solid var(--dark-tertiary);
-            transition: border-color 0.3s ease, background 0.3s ease, transform 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .article-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background-color: var(--primary-purple);
-            border-radius: 4px 0 0 4px;
-            transition: width 0.3s ease;
-        }
-
-        .article-card:hover {
-            border-color: var(--primary-purple);
-            background-color: rgba(156, 39, 176, 0.07);
-            transform: translateY(-2px);
-        }
-
-        .article-card:hover::before {
-            width: 6px;
-        }
-
-        .article-card-icon {
-            font-size: 2rem;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .article-card-body {
-            flex: 1;
-        }
-
-        .article-card-meta {
-            font-size: 0.78rem;
-            color: var(--primary-purple);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 0.4rem;
-        }
-
-        .article-card h2 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
-            transition: color 0.2s;
-        }
-
-        .article-card:hover h2 {
-            color: #e1aaed;
-        }
-
-        .article-card p {
-            font-size: 0.95rem;
-            color: var(--text-secondary-dark);
-            line-height: 1.65;
-            margin-bottom: 0.9rem;
-        }
-
-        .article-card-footer {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .read-more {
-            font-size: 0.88rem;
-            color: var(--primary-blue);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            transition: gap 0.2s;
-        }
-
-        .article-card:hover .read-more {
-            gap: 0.5rem;
-        }
-
-        .article-tag {
-            font-size: 0.78rem;
-            background-color: rgba(156,39,176,0.15);
-            color: var(--primary-purple);
-            border: 1px solid rgba(156,39,176,0.3);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-weight: 500;
-        }
-
-        /* ── BACK TO MAP CTA ── */
-        .back-cta {
-            background: linear-gradient(135deg, rgba(156,39,176,0.15), rgba(33,150,243,0.1));
-            border: 1px solid rgba(156,39,176,0.35);
-            border-radius: 14px;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .back-cta h2 {
-            font-size: 1.3rem;
-            color: #ffffff;
-            margin-bottom: 0.6rem;
-        }
-
-        .back-cta p {
-            color: var(--text-secondary-dark);
-            font-size: 0.97rem;
-            margin-bottom: 1.25rem;
-            line-height: 1.6;
-        }
-
-        .cta-btn {
-            display: inline-block;
-            background-color: var(--primary-purple);
-            color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            border: 2px solid var(--primary-purple);
-            margin: 0.3rem;
-        }
-
-        .cta-btn:hover {
-            background-color: transparent;
-            color: var(--primary-purple);
-        }
-
-        .cta-btn.blue {
-            background-color: var(--primary-blue);
-            border-color: var(--primary-blue);
-        }
-
-        .cta-btn.blue:hover {
-            background-color: transparent;
-            color: var(--primary-blue);
-        }
-
-        /* ── FOOTER ── */
-        .footer {
-            background-color: var(--dark-secondary);
-            padding: 1.5rem 1rem;
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-secondary-dark);
-            border-top: 1px solid var(--dark-tertiary);
-        }
-
-        .footer a { color: #4da6ff; text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
-        .footer-row { margin-bottom: 0.4rem; }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 640px) {
-            .blog-hero h1 { font-size: 1.6rem; }
-            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
-            .header-nav { justify-content: center; }
-            .blog-container { padding: 2rem 1rem 3rem; }
-            .article-card { flex-direction: column; gap: 0.75rem; padding: 1.25rem; }
-            .article-card-icon { font-size: 1.5rem; }
-            .article-card h2 { font-size: 1.1rem; }
-        }
-    </style>
+@media(max-width:800px){
+  .hero .wrap{grid-template-columns:1fr}
+  .orbit{max-width:280px;justify-self:center}
+  .top nav a:not(.btn){display:none}
+  .grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.spin{animation:none}html{scroll-behavior:auto}}
+</style>
 </head>
 
 <body>
+<a class="skip" href="#guides">Skip to guides</a>
 
-    <!-- ── HEADER ── -->
-    <header class="header">
-        <a class="logo-section" href="/">
-            <div class="logo">
-                <img src="/images/logo.png" alt="SatFleet Live Logo"
-                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
-            </div>
-            <span class="site-title">SatFleet Live</span>
-        </a>
-        <nav class="header-nav">
-            <a href="/" class="nav-btn">🌍 Live Map</a>
-            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
-        </nav>
-    </header>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/images/logo.png" alt="SatFleet Live logo" width="32" height="32">SatFleet Live</a>
+    <nav aria-label="Main">
+      <a href="/next-passes.html">Next passes</a>
+      <a class="btn solid" href="/">Open live map</a>
+    </nav>
+  </div>
+</header>
 
-    <!-- ── HERO ── -->
-    <div class="blog-hero">
-        <p class="breadcrumb">
-            <a href="/">Home</a> &rsaquo; Satellite Tracking Guides
-        </p>
-        <h1>Satellite <span>Tracking</span> Guides</h1>
-        <p class="intro">
-            Everything you need to know about tracking satellites in real time. Step-by-step guides, tool comparisons, and expert tips — all free, all in one place.
-        </p>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> / Guides</nav>
+        <h1>Satellite and space tracking guides</h1>
+        <p class="lede">Find the ISS, follow rocket launches, explore the Moon and Mars, and learn how orbits and TLE data work. Practical guides, all free, written around the live tracker you can open in your browser.</p>
+        <div class="facts">
+          <span><strong id="count">31</strong>free guides</span>
+          <span><strong>14,000+</strong>satellites tracked live</span>
+          <span><strong>0</strong>sign-ups needed</span>
+        </div>
+      </div>
+      <svg class="orbit" viewBox="0 0 420 420" role="img" aria-label="Satellites orbiting Earth">
+        <defs><radialGradient id="e" cx="35%" cy="35%"><stop offset="0" stop-color="#3ea6ff"/><stop offset="1" stop-color="#1c1147"/></radialGradient></defs>
+        <circle cx="210" cy="210" r="46" fill="url(#e)"/>
+        <g transform="translate(210 210) rotate(-24) scale(1 .5)">
+          <circle class="ring" r="110"/><circle class="ring" r="150"/><circle class="ring" r="195"/>
+          <g class="spin"><circle cx="110" r="6" fill="#3ea6ff"/></g>
+          <g class="spin b"><circle cx="150" r="5" fill="#a855f7"/><circle cx="-150" r="4" fill="#a855f7"/></g>
+          <g class="spin c"><circle cx="195" r="5" fill="#3ddc97"/></g>
+        </g>
+      </svg>
     </div>
+  </section>
 
-    <!-- ── CONTENT ── -->
-    <main class="blog-container">
-
-        <div class="section-heading">📖 All Guides</div>
-
-        <div class="article-grid">
-
-            <!-- Article — What Is SatFleet Live -->
-<a href="/blogs/what-is-satfleet-live/" class="article-card">
-    <div class="article-card-icon">🛰️</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 9 min read</div>
-        <h2>What Is SatFleet Live? A Complete Guide to Every Feature</h2>
-        <p>
-            The full breakdown of everything SatFleet Live can do — 14,000+ satellites on a live 2D map and 3D globe, rocket launches with embedded streams, Next Passes, AR Sky View, visibility filters, and more. All free, no account needed.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Guide</span>
-            <span class="article-tag">SatFleet Live · Features</span>
-        </div>
+  <section class="about wrap" aria-labelledby="about">
+    <h2 id="about">What is SatFleet Live?</h2>
+    <p>SatFleet Live is a free space tracker that runs in your browser. It follows more than 14,000 satellites in real time, and goes beyond Earth orbit to rocket launches, the Moon, Mars and deep space. No account and no download. <a href="/blogs/what-is-satfleet-live/">See every feature</a>.</p>
+    <div class="tiles">
+      <a class="tile" href="/"><strong>Live satellite map</strong><span>14,000+ satellites on a 2D map and a 3D globe.</span></a>
+      <a class="tile" href="/launches.html"><strong>Rocket launches</strong><span>Upcoming launches with live streams.</span></a>
+      <a class="tile" href="/next-passes.html"><strong>Next passes</strong><span>When the ISS and Starlink fly over you.</span></a>
+      <a class="tile" href="/moon.html"><strong>Moon</strong><span>Explore the lunar surface, including the Apollo 11 site.</span></a>
+      <a class="tile" href="/mars.html"><strong>Mars</strong><span>Follow the Perseverance, Curiosity and Ingenuity rovers.</span></a>
+      <a class="tile" href="/deep-space.html"><strong>Deep space</strong><span>Voyager 1, the James Webb telescope and other distant craft.</span></a>
     </div>
-</a>
+  </section>
 
-            <!-- Article — Tiangong Space Station -->
-<a href="/blogs/tiangong-space-station/" class="article-card">
-    <div class="article-card-icon">🇨🇳</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 8 min read</div>
-        <h2>Tiangong Space Station: China's Heavenly Palace in Orbit</h2>
-        <p>
-            China's permanently crewed space station has been orbiting Earth since 2022 — and at magnitude −3, it's brighter than Jupiter. Full guide to its modules, orbit, crew rotations, and how to spot it with the naked eye tonight.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Observation</span>
-            <span class="article-tag">Tiangong · CSS</span>
-        </div>
+  <section class="browse wrap" id="guides" aria-labelledby="all">
+    <div class="bar">
+      <h2 id="all">All guides</h2>
+      <div class="filters" role="group" aria-label="Filter guides by topic">
+        <button class="chip" data-f="all" aria-pressed="true">All</button>
+        <button class="chip" data-f="start" aria-pressed="false">Getting started</button>
+        <button class="chip" data-f="spot" aria-pressed="false">Spotting satellites</button>
+        <button class="chip" data-f="launch" aria-pressed="false">Launches</button>
+        <button class="chip" data-f="moonmars" aria-pressed="false">Moon &amp; Mars</button>
+        <button class="chip" data-f="deep" aria-pressed="false">Deep space</button>
+        <button class="chip" data-f="science" aria-pressed="false">Orbits &amp; data</button>
+      </div>
+      <input id="q" type="search" placeholder="Search guides" aria-label="Search guides">
     </div>
-</a>
-<!-- Article - SpaceX Starship-->
-<a href="/blogs/spacex-starship/" class="article-card">
-    <div class="article-card-icon">🔥</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 10 min read</div>
-        <h2>SpaceX Starship: Everything You Need to Know About Its Next Flights</h2>
-        <p>
-            121 metres tall. 33 Raptor engines. The most powerful rocket ever built — and it's fully reusable. Full guide to Starship's flight history from IFT-1 to today, Super Heavy specs, the Mechazilla booster catch, and how to watch the next test live.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Launches</span>
-            <span class="article-tag">Starship · SpaceX</span>
-        </div>
+    <p class="status" aria-live="polite">Showing <span id="shown">31</span> guides</p>
+
+    <div class="grid">
+<!--
+  NEW GUIDE TEMPLATE: copy this block, paste it above and adjust.
+  data-cat = start | spot | launch | moonmars | deep | science
+  <article class="card" data-cat="spot">
+    <p class="meta"><span class="cat">Spotting satellites</span><span>6 min read</span></p>
+    <h3><a href="/blogs/your-slug/">Guide title</a></h3>
+    <p class="d">Two-sentence description with the main keyword.</p>
+    <ul class="tags"><li>Tag</li><li>Tag</li></ul>
+  </article>
+-->
+      <article class="card feature" data-cat="start">
+        <p class="meta"><span class="cat">Getting started</span><span>5 min read</span></p>
+        <h3><a href="/blogs/how-to-track-satellites/">How to Track Satellites in Real Time</a></h3>
+        <p class="d">A complete beginner's guide to real-time satellite tracking. Learn how to use a free satellite tracker online, follow the ISS, Starlink, GPS satellites and thousands more directly from your browser, no sign-up required.</p>
+        <ul class="tags"><li>Start here</li><li>Beginner</li><li>Real-time tracker</li></ul>
+      </article>
+
+      <article class="card" data-cat="start">
+        <p class="meta"><span class="cat">Getting started</span><span>9 min read</span></p>
+        <h3><a href="/blogs/what-is-satfleet-live/">What Is SatFleet Live? A Complete Guide to Every Feature</a></h3>
+        <p class="d">Everything SatFleet Live can do: 14,000+ satellites on a 2D map and 3D globe, rocket launches with embedded streams, Next Passes, AR Sky View and visibility filters. Free, no account needed.</p>
+        <ul class="tags"><li>Features</li><li>Platform</li></ul>
+      </article>
+
+      <article class="card" data-cat="start">
+        <p class="meta"><span class="cat">Getting started</span><span>5 min read</span></p>
+        <h3><a href="/blogs/best-free-satellite-tracker/">Best Free Satellite Tracker Online in 2025</a></h3>
+        <p class="d">The best free satellite tracking websites compared, what makes SatFleet Live stand out, and how to track satellites online with no registration.</p>
+        <ul class="tags"><li>Comparison</li><li>Free tools</li></ul>
+      </article>
+
+      <article class="card" data-cat="start">
+        <p class="meta"><span class="cat">Getting started</span><span>6 min read</span></p>
+        <h3><a href="/blogs/3d-satellite-tracking/">3D Satellite Tracking: See Every Orbit in Real Time</a></h3>
+        <p class="d">Explore 14,000+ satellites on an interactive 3D globe, free in your browser. How the 3D mode works and what makes it different from a flat map.</p>
+        <ul class="tags"><li class="new">New</li><li>3D globe</li></ul>
+      </article>
+
+      <article class="card" data-cat="start">
+        <p class="meta"><span class="cat">Getting started</span></p>
+        <h3><a href="/blogs/real-scale-view-explained/">Real Scale View Explained</a></h3>
+        <p class="d">What real scale view is, how to switch it on and why seeing orbits and bodies at true proportions changes how you read the map.</p>
+        <ul class="tags"><li>Real scale</li><li>Features</li></ul>
+      </article>
+
+      <article class="card" data-cat="start">
+        <p class="meta"><span class="cat">Getting started</span></p>
+        <h3><a href="/blogs/satellite-time-travel/">Satellite Time Travel</a></h3>
+        <p class="d">Move forward and backward in time to see where satellites were and where they will be.</p>
+        <ul class="tags"><li>Time travel</li><li>Features</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span><span>8 min read</span></p>
+        <h3><a href="/blogs/iss-pass-tonight/">ISS Pass Tonight: When &amp; Where to See the Space Station</a></h3>
+        <p class="d">The ISS is the third-brightest object in the night sky. What it looks like, why it is only visible at dusk and dawn, and how to get the exact pass time and direction for your location tonight.</p>
+        <ul class="tags"><li>ISS</li><li>Space station</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span></p>
+        <h3><a href="/blogs/how-to-use-ar-to-spot-satellites/">How to Use AR to Spot Satellites</a></h3>
+        <p class="d">Point your phone at the sky and see which satellites are overhead. How AR Sky View works and how to line it up with a real pass.</p>
+        <ul class="tags"><li>AR Sky View</li><li>Mobile</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span><span>5 min read</span></p>
+        <h3><a href="/blogs/next-passes-predict-satellites/">Next Passes: How to Predict Satellite Overheads</a></h3>
+        <p class="d">Predict when satellites pass overhead with SatFleet Live. Step-by-step ISS sighting plans, Starlink trains, how to read pass data and tips for naked-eye observation.</p>
+        <ul class="tags"><li>Pass prediction</li><li>ISS</li><li>Starlink</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span><span>7 min read</span></p>
+        <h3><a href="/blogs/best-time-to-see-satellites-tonight/">Best Time to See Satellites Tonight (2026 Guide)</a></h3>
+        <p class="d">The best window is the 90 minutes after sunset or before sunrise. Timing, seasonal variations and how to find exact pass times for your location.</p>
+        <ul class="tags"><li>Naked eye</li><li>Timing</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span><span>6 min read</span></p>
+        <h3><a href="/blogs/how-to-spot-a-starlink-train/">How to Spot a Starlink Train Tonight</a></h3>
+        <p class="d">What a Starlink train looks like, when the visibility window opens after a launch, how to find a train in Next Passes and the tips that separate seeing it from missing it.</p>
+        <ul class="tags"><li>Starlink</li><li>Trains</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span><span>7 min read</span></p>
+        <h3><a href="/blogs/starlink-satellites/">Starlink Satellites: How Many, How Fast &amp; How to See Them</a></h3>
+        <p class="d">Over 7,000 Starlink satellites orbit Earth right now. How high they fly, how fast they move and how to spot them from your backyard tonight.</p>
+        <ul class="tags"><li>Starlink</li><li>SpaceX</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span><span>8 min read</span></p>
+        <h3><a href="/blogs/tiangong-space-station/">Tiangong Space Station: China's Heavenly Palace in Orbit</a></h3>
+        <p class="d">China's crewed station has orbited since 2022 and reaches magnitude −3, brighter than Jupiter. Modules, orbit, crew rotations and how to spot it tonight.</p>
+        <ul class="tags"><li>Tiangong</li><li>Space station</li></ul>
+      </article>
+
+      <article class="card" data-cat="spot">
+        <p class="meta"><span class="cat">Spotting satellites</span><span>6 min read</span></p>
+        <h3><a href="/blogs/why-are-satellites-so-bright/">Why Are Satellites So Bright? Flares and Visibility Explained</a></h3>
+        <p class="d">Why some satellites outshine the stars, what causes flares, why they vanish mid-pass and how to predict brightness with a visual magnitude scale.</p>
+        <ul class="tags"><li>Flares</li><li>Brightness</li></ul>
+      </article>
+
+      <article class="card" data-cat="launch">
+        <p class="meta"><span class="cat">Launches</span><span>9 min read</span></p>
+        <h3><a href="/blogs/spacex-launch-schedule/">SpaceX Launch Schedule: How to Follow Every Launch Live</a></h3>
+        <p class="d">Falcon 9 flies every few days and Starship is rewriting the rules. SatFleet Live shows every upcoming SpaceX mission with a LIVE badge. The 2026 schedule, Falcon 9 stats and how to watch.</p>
+        <ul class="tags"><li>SpaceX</li><li>Falcon 9</li></ul>
+      </article>
+
+      <article class="card" data-cat="launch">
+        <p class="meta"><span class="cat">Launches</span><span>10 min read</span></p>
+        <h3><a href="/blogs/spacex-starship/">SpaceX Starship: Everything You Need to Know About Its Next Flights</a></h3>
+        <p class="d">121 metres tall, 33 Raptor engines, fully reusable. Flight history from IFT-1 to today, Super Heavy specs, the Mechazilla booster catch and how to watch the next test live.</p>
+        <ul class="tags"><li>Starship</li><li>SpaceX</li></ul>
+      </article>
+
+      <article class="card" data-cat="launch">
+        <p class="meta"><span class="cat">Launches</span></p>
+        <h3><a href="/blogs/watch-rocket-launch-live/">Watch a Rocket Launch Live</a></h3>
+        <p class="d">Where and how to watch upcoming rocket launches live, and how to follow them on the SatFleet Live map.</p>
+        <ul class="tags"><li>Live streams</li><li>Launches</li></ul>
+      </article>
+
+      <article class="card" data-cat="launch">
+        <p class="meta"><span class="cat">Launches</span></p>
+        <h3><a href="/blogs/how-rocket-launch-trajectories-work/">How Rocket Launch Trajectories Work</a></h3>
+        <p class="d">Why rockets fly the paths they do: launch azimuth, the gravity turn and how a trajectory decides which orbit a payload reaches.</p>
+        <ul class="tags"><li>Trajectories</li><li>Orbits</li></ul>
+      </article>
+
+      <article class="card" data-cat="moonmars">
+        <p class="meta"><span class="cat">Moon &amp; Mars</span></p>
+        <h3><a href="/blogs/artemis-2-mission-tracker/">Artemis 2 Mission Tracker</a></h3>
+        <p class="d">Follow NASA's Artemis 2 crewed mission around the Moon and see where it is on the map.</p>
+        <ul class="tags"><li>Artemis</li><li>Moon</li></ul>
+      </article>
+
+      <article class="card" data-cat="moonmars">
+        <p class="meta"><span class="cat">Moon &amp; Mars</span></p>
+        <h3><a href="/blogs/moon-phase-tonight/">Moon Phase Tonight</a></h3>
+        <p class="d">What phase the Moon is in tonight, how it changes through the month and how to see it on the SatFleet Live Moon map.</p>
+        <ul class="tags"><li>Moon phases</li><li>Observing</li></ul>
+      </article>
+
+      <article class="card" data-cat="moonmars">
+        <p class="meta"><span class="cat">Moon &amp; Mars</span></p>
+        <h3><a href="/blogs/how-far-is-mars-from-earth/">How Far Is Mars From Earth?</a></h3>
+        <p class="d">The distance to Mars changes constantly. Why it varies, how it is measured and how to see the current distance live.</p>
+        <ul class="tags"><li>Mars</li><li>Distance</li></ul>
+      </article>
+
+      <article class="card" data-cat="moonmars">
+        <p class="meta"><span class="cat">Moon &amp; Mars</span></p>
+        <h3><a href="/blogs/curiosity-vs-perseverance/">Curiosity vs Perseverance: Comparing NASA's Mars Rovers</a></h3>
+        <p class="d">Two NASA rovers compared: where they landed, what they study and how to follow both on the Mars map.</p>
+        <ul class="tags"><li>Mars rovers</li><li>NASA</li></ul>
+      </article>
+
+      <article class="card" data-cat="deep">
+        <p class="meta"><span class="cat">Deep space</span></p>
+        <h3><a href="/blogs/what-is-deep-space-tracking/">What Is Deep Space Tracking?</a></h3>
+        <p class="d">How spacecraft far beyond Earth orbit are tracked, and how SatFleet Live shows their positions.</p>
+        <ul class="tags"><li>Deep space</li><li>Tracking</li></ul>
+      </article>
+
+      <article class="card" data-cat="deep">
+        <p class="meta"><span class="cat">Deep space</span></p>
+        <h3><a href="/blogs/where-is-voyager-1-now/">Where Is Voyager 1 Now?</a></h3>
+        <p class="d">The current position of humanity's most distant spacecraft, how far it is from Earth and how it is tracked.</p>
+        <ul class="tags"><li>Voyager 1</li><li>Interstellar</li></ul>
+      </article>
+
+      <article class="card" data-cat="deep">
+        <p class="meta"><span class="cat">Deep space</span></p>
+        <h3><a href="/blogs/james-webb-telescope-location/">Where Is the James Webb Space Telescope? Location Explained</a></h3>
+        <p class="d">JWST does not orbit Earth. Where it actually sits, why it is that far away and how to follow its position.</p>
+        <ul class="tags"><li>JWST</li><li>L2</li></ul>
+      </article>
+
+      <article class="card" data-cat="deep">
+        <p class="meta"><span class="cat">Deep space</span></p>
+        <h3><a href="/blogs/where-is-the-tesla-roadster-now/">Where Is the Tesla Roadster Now?</a></h3>
+        <p class="d">Track the Falcon Heavy Tesla Roadster in solar orbit: its current position, distance and where it is heading.</p>
+        <ul class="tags"><li>Tesla Roadster</li><li>SpaceX</li></ul>
+      </article>
+
+      <article class="card" data-cat="deep">
+        <p class="meta"><span class="cat">Deep space</span></p>
+        <h3><a href="/blogs/is-pluto-a-planet/">Is Pluto a Planet?</a></h3>
+        <p class="d">Why Pluto was reclassified as a dwarf planet in 2006 and where it sits in the solar system today.</p>
+        <ul class="tags"><li>Pluto</li><li>Dwarf planets</li></ul>
+      </article>
+
+      <article class="card" data-cat="science">
+        <p class="meta"><span class="cat">Orbits &amp; data</span><span>6 min read</span></p>
+        <h3><a href="/blogs/how-satellite-orbits-work/">How Satellite Orbits Work: A Beginner's Guide</a></h3>
+        <p class="d">The three main orbit types, LEO, MEO and GEO, and how altitude changes speed, coverage, latency and tracking. Real examples with the ISS, Starlink, GPS and weather satellites.</p>
+        <ul class="tags"><li>LEO</li><li>MEO</li><li>GEO</li></ul>
+      </article>
+
+      <article class="card" data-cat="science">
+        <p class="meta"><span class="cat">Orbits &amp; data</span><span>6 min read</span></p>
+        <h3><a href="/blogs/what-is-a-tle/">What Is a TLE and How to Read It</a></h3>
+        <p class="d">The Two-Line Element format behind every satellite tracker. Read each field, decode a real ISS TLE and see how SGP4 turns two lines of text into a live position.</p>
+        <ul class="tags"><li>TLE data</li><li>SGP4</li></ul>
+      </article>
+
+      <article class="card" data-cat="science">
+        <p class="meta"><span class="cat">Orbits &amp; data</span><span>7 min read</span></p>
+        <h3><a href="/blogs/how-many-satellites-in-orbit/">How Many Satellites Are in Orbit? The Full 2026 Count</a></h3>
+        <p class="d">Over 14,500 active satellites orbit Earth and the number keeps climbing. Breakdown by category, country and altitude, and how Starlink changed everything.</p>
+        <ul class="tags"><li>Data</li><li>2026</li></ul>
+      </article>
+
+      <article class="card" data-cat="science">
+        <p class="meta"><span class="cat">Orbits &amp; data</span><span>8 min read</span></p>
+        <h3><a href="/blogs/space-debris/">What Is Space Debris? Origins, Risks &amp; Cleanup (2026)</a></h3>
+        <p class="d">Over 32,000 tracked fragments share orbit with active satellites, plus 500,000+ too small to track. Where debris comes from, why Kessler syndrome is real and which missions aim to fix it.</p>
+        <ul class="tags"><li>Space safety</li><li>Kessler</li></ul>
+      </article>
     </div>
-</a>
+    <p id="empty" hidden>No guides match your search. Try another keyword or choose All.</p>
+  </section>
 
-<!-- Article - SpaceX Launch Schedule-->
-<a href="/blogs/spacex-launch-schedule/" class="article-card">
-    <div class="article-card-icon">🚀</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 9 min read</div>
-        <h2>SpaceX Launch Schedule: How to Follow Every Launch Live</h2>
-        <p>
-            Falcon 9 launches every few days, Starship is rewriting the rules — and SatFleet Live shows every upcoming SpaceX mission on the map with a LIVE badge the moment the rocket goes to the pad. Full guide to the 2026 schedule, Falcon 9 stats, and how to watch the webcast.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Launches</span>
-            <span class="article-tag">SpaceX · Falcon 9</span>
-        </div>
+  <section class="wrap">
+    <div class="cta">
+      <h2>Ready to track satellites live?</h2>
+      <p>Open the SatFleet Live map and follow over 14,000 satellites in real time. No account, no download, completely free.</p>
+      <a class="btn solid" href="/">Open live map</a>
+      <a class="btn ghost" href="/next-passes.html">Check next passes</a>
     </div>
-</a>
-          <!-- Article 10 — Starlink satellites-->
-           
-            <a href="/blogs/starlink-satellites/" class="article-card">
-    <div class="article-card-icon">🟢</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 7 min read</div>
-        <h2>Starlink Satellites: How Many, How Fast & How to See Them</h2>
-        <p>Over 7,000 Starlink satellites orbit Earth right now. Here's exactly how high they fly, how fast they move, and how to spot them from your backyard tonight.</p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Observation</span>
-            <span class="article-tag">Starlink · SpaceX</span>
-        </div>
-    </div>
-</a>
+  </section>
+</main>
 
-            <!-- Article 9 — ISS Pass Tonight -->
-<a href="/blogs/iss-pass-tonight/" class="article-card">
-    <div class="article-card-icon">⭐</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 8 min read</div>
-        <h2>ISS Pass Tonight — When & Where to See the Space Station</h2>
-        <p>
-            The ISS is the third-brightest object in the night sky and passes over you several times a week. Learn exactly what it looks like, why it's only visible at dusk and dawn, how to get the precise pass time and direction for your location tonight, and what to expect during those 3–6 minutes of the flyover.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Observation</span>
-            <span class="article-tag">ISS · Space Station</span>
-        </div>
-    </div>
-</a>
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 SatFleet Live</span>
+    <span>
+      <a href="https://celestrak.org" target="_blank" rel="noopener">Data: CelesTrak / NORAD</a>
+      <a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a>
+      <a href="mailto:jaime.automatiza@gmail.com">Contact</a>
+      <a href="/privacy-policy">Privacy policy</a>
+    </span>
+  </div>
+</footer>
 
-            <!-- Article 8 — How to Spot a Starlink Train -->
-<a href="/blogs/how-to-spot-a-starlink-train/" class="article-card">
-    <div class="article-card-icon">🟢</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 6 min read</div>
-        <h2>How to Spot a Starlink Train Tonight</h2>
-        <p>
-            Everything you need to see a Starlink satellite train with the naked eye — what it looks like, when the visibility window opens after a launch, how to identify a train cluster in Next Passes, and the tips that make the difference between seeing it and missing it.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Observation</span>
-            <span class="article-tag">Starlink · Trains</span>
-        </div>
-    </div>
-</a>
-
-            <!-- Article 7 — 3D Satellite Tracking -->
-<a href="/blogs/3d-satellite-tracking/" class="article-card">
-    <div class="article-card-icon">🌐</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 6 min read</div>
-        <h2>3D Satellite Tracking: See Every Orbit in Real Time</h2>
-        <p>
-            Explore 14,000+ satellites on an interactive 3D globe — free, in your browser, no download required. Learn how SatFleetLive's 3D mode works, how to navigate the globe, and what makes a 3D tracker fundamentally different from a flat map.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">🆕 New</span>
-            <span class="article-tag">3D · Globe</span>
-        </div>
-    </div>
-</a>
-
-<!-- Article — How Many Satellites Are in Orbit -->
-<a href="/blogs/how-many-satellites-in-orbit/" class="article-card">
-    <div class="article-card-icon">🛰️</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 7 min read</div>
-        <h2>How Many Satellites Are in Orbit? The Full 2026 Count</h2>
-        <p>
-            Over 14,500 active satellites orbit Earth right now — and the number is still climbing. Full breakdown by category, country, and altitude, plus how the Starlink megaconstellation changed everything.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Data</span>
-            <span class="article-tag">Satellites · 2026</span>
-        </div>
-    </div>
-</a>
-            <!-- Article 1 -->
-            <a href="/blogs/how-to-track-satellites/" class="article-card">
-                <div class="article-card-icon">🛰️</div>
-                <div class="article-card-body">
-                    <div class="article-card-meta">Guide · 5 min read</div>
-                    <h2>How to Track Satellites in Real Time</h2>
-                    <p>
-                        A complete beginner's guide to real-time satellite tracking. Learn how to use a free satellite tracker online, follow the ISS, Starlink, GPS satellites, and thousands more — directly from your browser, no sign-up required.
-                    </p>
-                    <div class="article-card-footer">
-                        <span class="read-more">Read guide →</span>
-                        <span class="article-tag">Beginner</span>
-                        <span class="article-tag">Real-time tracker</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Article 2 -->
-            <a href="/blogs/best-free-satellite-tracker/" class="article-card">
-                <div class="article-card-icon">📡</div>
-                <div class="article-card-body">
-                    <div class="article-card-meta">Guide · 5 min read</div>
-                    <h2>Best Free Satellite Tracker Online in 2025</h2>
-                    <p>
-                        Discover the best free satellite tracking websites available right now. We compare the top tools, explain what makes SatFleet Live stand out, and show you how to track satellites online for free with no registration needed.
-                    </p>
-                    <div class="article-card-footer">
-                        <span class="read-more">Read guide →</span>
-                        <span class="article-tag">Comparison</span>
-                        <span class="article-tag">Free tools</span>
-                    </div>
-                </div>
-            </a>
-            <!-- Article Best Time to See Satellites Tonight -->
-<a href="/blogs/best-time-to-see-satellites-tonight/" class="article-card">
-    <div class="article-card-icon">🌅</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Observing Guide · 7 min read</div>
-        <h2>Best Time to See Satellites Tonight (2026 Guide)</h2>
-        <p>
-            The best time to see satellites is during the 90 minutes after sunset or before sunrise — when the sky is dark but satellites are still lit by the Sun. Full guide to timing windows, seasonal variations, and how to find exact pass times for your location tonight.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Observing</span>
-            <span class="article-tag">Naked eye</span>
-        </div>
-    </div>
-</a>      
-
-            <!-- Article — Space Debris -->
-<a href="/blogs/space-debris/" class="article-card">
-    <div class="article-card-icon">☄️</div>
-    <div class="article-card-body">
-        <div class="article-card-meta">Guide · 8 min read</div>
-        <h2>What Is Space Debris? Origins, Risks & Cleanup (2026)</h2>
-        <p>
-            Over 32,000 tracked fragments orbit Earth alongside active satellites — plus 500,000+ too small to track. Full guide to where debris comes from, why Kessler syndrome is a real threat, and what missions are trying to fix it.
-        </p>
-        <div class="article-card-footer">
-            <span class="read-more">Read guide →</span>
-            <span class="article-tag">Space Safety</span>
-            <span class="article-tag">Debris · Kessler</span>
-        </div>
-    </div>
-</a>
-
-            <!-- Article 3 -->
-            <a href="/blogs/what-is-a-tle/" class="article-card">
-                <div class="article-card-icon">🔢</div>
-                <div class="article-card-body">
-                    <div class="article-card-meta">Guide · 6 min read</div>
-                    <h2>What is a TLE and How to Read It</h2>
-                    <p>
-                        Understand the Two-Line Element format that powers every satellite tracker online. Learn to read each field, interpret real TLE data from the ISS, and discover how SGP4 turns two lines of text into a real-time satellite position.
-                    </p>
-                    <div class="article-card-footer">
-                        <span class="read-more">Read guide →</span>
-                        <span class="article-tag">Technical</span>
-                        <span class="article-tag">TLE data</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Article 4 -->
-            <a href="/blogs/how-satellite-orbits-work/" class="article-card">
-                <div class="article-card-icon">🌍</div>
-                <div class="article-card-body">
-                    <div class="article-card-meta">Guide · 6 min read</div>
-                    <h2>How Satellite Orbits Work: A Beginner's Guide</h2>
-                    <p>
-                        Discover the three main satellite orbit types — LEO, MEO, and GEO — and understand how altitude affects speed, coverage, latency, and tracking. Includes real examples with the ISS, Starlink, GPS, and geostationary weather satellites.
-                    </p>
-                    <div class="article-card-footer">
-                        <span class="read-more">Read guide →</span>
-                        <span class="article-tag">Beginner</span>
-                        <span class="article-tag">LEO · MEO · GEO</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Article 5 -->
-            <a href="/blogs/next-passes-predict-satellites/" class="article-card">
-                <div class="article-card-icon">🔭</div>
-                <div class="article-card-body">
-                    <div class="article-card-meta">Guide · 5 min read</div>
-                    <h2>Next Passes: How to Predict Satellite Overheads</h2>
-                    <p>
-                        Learn how to predict when satellites will pass overhead using SatFleet Live. Includes step-by-step guides for planning an ISS sighting, spotting Starlink trains, interpreting pass data, and tips for a successful naked-eye observation.
-                    </p>
-                    <div class="article-card-footer">
-                        <span class="read-more">Read guide →</span>
-                        <span class="article-tag">Observation</span>
-                        <span class="article-tag">ISS · Starlink</span>
-                    </div>
-                </div>
-            </a>
-
-            <!-- Article 6 -->
-            <a href="/blogs/why-are-satellites-so-bright/" class="article-card">
-                <div class="article-card-icon">✨</div>
-                <div class="article-card-body">
-                    <div class="article-card-meta">Guide · 6 min read</div>
-                    <h2>Why Are Satellites So Bright? Flares and Visibility Explained</h2>
-                    <p>
-                        Discover why some satellites outshine the stars, what causes satellite flares, why they sometimes vanish mid-pass, and why freshly launched Starlink trains are so spectacular. Includes a visual magnitude scale and tips to predict brightness before a pass.
-                    </p>
-                    <div class="article-card-footer">
-                        <span class="read-more">Read guide →</span>
-                        <span class="article-tag">Observation</span>
-                        <span class="article-tag">Flares · Brightness</span>
-                    </div>
-                </div>
-            </a>
-
-        </div>
-
-        <!-- Back to map CTA -->
-        <div class="back-cta">
-            <h2>Ready to track satellites live?</h2>
-            <p>Open the SatFleet Live map and follow over 14,000 satellites in real time — no account, no download, completely free.</p>
-            <a href="/" class="cta-btn">🌍 Open Live Map</a>
-            <a href="/next-passes.html" class="cta-btn blue">📍 Next Passes</a>
-        </div>
-
-    </main>
-
-    <!-- ── FOOTER ── -->
-    <footer class="footer">
-        <div class="footer-row">© 2026 SatFleetLive</div>
-        <div class="footer-row">
-            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
-            <a href="https://www.wikidata.org" target="_blank">Wikidata</a> |
-            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
-            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
-        </div>
-    </footer>
-
+<script>
+(function(){
+  var cards=[].slice.call(document.querySelectorAll('.card')),
+      chips=[].slice.call(document.querySelectorAll('.chip')),
+      q=document.getElementById('q'),n=document.getElementById('shown'),
+      empty=document.getElementById('empty'),cat='all';
+  document.getElementById('count').textContent=cards.length;
+  function apply(){
+    var t=q.value.trim().toLowerCase(),v=0;
+    cards.forEach(function(c){
+      var ok=(cat==='all'||c.dataset.cat===cat)&&(!t||c.textContent.toLowerCase().indexOf(t)>-1);
+      c.hidden=!ok;if(ok)v++;
+    });
+    n.textContent=v;empty.hidden=v>0;
+  }
+  chips.forEach(function(b){b.addEventListener('click',function(){
+    cat=b.dataset.f;chips.forEach(function(x){x.setAttribute('aria-pressed',x===b)});apply();
+  })});
+  q.addEventListener('input',apply);
+  apply();
+})();
+</script>
 </body>
 </html>

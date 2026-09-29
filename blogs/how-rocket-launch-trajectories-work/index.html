@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- SEO -->
+    <title>Why You Can't Track a Rocket's Exact Path (And How It's Estimated) | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Planes broadcast their position. Rockets don't. Here's why no launch trajectory is public data, how trackers estimate the path instead, and where the real data starts.">
+    <meta name="keywords" content="rocket launch trajectory, why can't you track a rocket, launch azimuth, rocket flight path data, how rocket trackers work, launch trajectory estimate, rocket ascent path">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/how-rocket-launch-trajectories-work/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Why You Can't Track a Rocket's Exact Path">
+    <meta property="og:description" content="Planes broadcast their position. Rockets don't. Here's why launch trajectories aren't public data — and how they're estimated instead.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/how-rocket-launch-trajectories-work/">
+    <meta property="og:image" content="/images/logo.png">
+    <meta property="article:published_time" content="2026-09-29">
+    <meta property="article:modified_time" content="2026-09-29">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Why You Can't Track a Rocket's Exact Path">
+    <meta name="twitter:description" content="Planes broadcast their position. Rockets don't. Here's what trackers actually show you instead.">
+    <meta name="twitter:image" content="/images/logo.png">
+
+    <!-- Schema.org Article -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "Why You Can't Track a Rocket's Exact Path (And How It's Estimated)",
+      "description": "Planes broadcast their position. Rockets don't. Here's why no launch trajectory is public data, how trackers estimate the path instead, and where the real data starts.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "SatFleet Live",
+        "url": "https://satfleetlive.com",
+        "logo": { "@type": "ImageObject", "url": "https://satfleetlive.com/images/logo.png" }
+      },
+      "datePublished": "2026-09-29",
+      "dateModified": "2026-09-29",
+      "url": "https://satfleetlive.com/blogs/how-rocket-launch-trajectories-work/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://satfleetlive.com/blogs/how-rocket-launch-trajectories-work/" }
+    }
+    </script>
+
+    <!-- Schema.org FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why can't you track a rocket like you track a plane?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Aircraft carry transponders that broadcast their position continuously on open frequencies, which is why flight trackers work. Rockets carry telemetry systems that send data to the launch operator on private, often encrypted links. That data is not published, so there is nothing for a public tracker to receive. The physics is not the obstacle — the data simply is not shared." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does SpaceX publish launch trajectory data?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. SpaceX shows altitude and velocity as on-screen graphics during its webcasts, but does not release the underlying numbers as a downloadable dataset, and never releases latitude and longitude. Some enthusiast projects extract the on-screen figures using optical character recognition, which recovers speed and altitude but still cannot reconstruct a ground track." }
+        },
+        {
+          "@type": "Question",
+          "name": "So what is a rocket tracker actually showing me?",
+          "acceptedAnswer": { "@type": "Answer", "text": "An estimate, built from data that is public: the exact coordinates of the launch pad, the target orbit type, the rocket family and the scheduled liftoff time. From those, a plausible ascent path can be calculated. A good tracker will label it as estimated rather than presenting it as measured telemetry." }
+        },
+        {
+          "@type": "Question",
+          "name": "What is launch azimuth?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Launch azimuth is the compass direction a rocket heads in at liftoff, measured in degrees where 0 is north, 90 is east and 180 is south. It is not chosen freely: it follows from the inclination of the target orbit and the latitude of the launch pad, through a direct trigonometric relationship. This is why polar missions from California head south and space station missions from Florida head northeast." }
+        },
+        {
+          "@type": "Question",
+          "name": "When does real tracking data start after a launch?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Once the payload is in orbit and has been catalogued, which typically takes hours to a few days. From that point it appears in the public TLE catalogue and can be tracked accurately like any other satellite. The gap is the ascent itself — roughly the first eight to ten minutes, which is precisely the part with no public data." }
+        },
+        {
+          "@type": "Question",
+          "name": "Are military launches trackable at all?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Partially. Classified payloads are often withheld from the public satellite catalogue entirely, so even the orbital phase may be unavailable. In those cases amateur observers sometimes locate the spacecraft independently by watching the sky and sharing observations, but there is no official data at any stage." }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Schema.org Breadcrumb -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://satfleetlive.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://satfleetlive.com/blogs/" },
+        { "@type": "ListItem", "position": 3, "name": "How Rocket Launch Trajectories Work", "item": "https://satfleetlive.com/blogs/how-rocket-launch-trajectories-work/" }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --ink: #14171c;
+            --muted: #5b6270;
+            --line: #e4e6ea;
+            --paper: #ffffff;
+            --panel: #f7f8fa;
+            --slate: #3f5a73;
+            --slate-soft: #eef3f7;
+            --blue: #1d5fae;
+        }
+        body { font-family: -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--paper); color: var(--ink); }
+
+        header.site-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--paper); z-index: 100;
+        }
+        .logo-link { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+        .logo-link img { width: 32px; height: 32px; border-radius: 50%; }
+        .logo-link span { color: var(--ink); font-weight: 700; font-size: 1.05rem; }
+        .site-nav { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .site-nav a { color: var(--muted); border: 1px solid var(--line); padding: 0.4rem 0.85rem; border-radius: 6px; text-decoration: none; font-size: 0.82rem; }
+        .site-nav a:hover { border-color: var(--slate); color: var(--slate); }
+
+        .hero { padding: 3.5rem 1.5rem 2.5rem; max-width: 800px; margin: 0 auto; }
+        .breadcrumb { font-size: 0.82rem; color: var(--muted); margin-bottom: 1.3rem; }
+        .breadcrumb a { color: var(--blue); text-decoration: none; }
+        .kicker { display: inline-block; background: var(--slate-soft); color: var(--slate); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.3rem 0.7rem; border-radius: 4px; margin-bottom: 1.1rem; }
+        h1 { font-size: 2.3rem; line-height: 1.22; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 1rem; }
+        .subhead { font-size: 1.12rem; color: var(--muted); line-height: 1.6; max-width: 620px; }
+        .meta-row { display: flex; gap: 1.2rem; margin-top: 1.5rem; font-size: 0.85rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; }
+
+        main { max-width: 800px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+        .toc { background: var(--panel); border-radius: 10px; padding: 1.3rem 1.5rem; margin: 1rem 0 3rem; }
+        .toc-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; margin-bottom: 0.7rem; }
+        .toc a { display: block; color: var(--blue); text-decoration: none; font-size: 0.94rem; line-height: 1.9; }
+        .toc a:hover { text-decoration: underline; }
+
+        article p { line-height: 1.8; margin-bottom: 1.25rem; font-size: 1.05rem; color: #2b2f36; }
+        article strong { color: var(--ink); }
+        article a { color: var(--blue); }
+        article h2 { font-size: 1.5rem; font-weight: 800; margin: 2.6rem 0 1.1rem; letter-spacing: -0.01em; }
+        article h3 { font-size: 1.1rem; font-weight: 700; margin: 1.6rem 0 0.7rem; color: var(--slate); }
+
+        .diagram { background: var(--panel); border-radius: 12px; padding: 2rem 1.5rem; margin: 1.8rem 0; text-align: center; }
+        .diagram svg { max-width: 100%; height: auto; }
+        .diagram-caption { font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem; }
+
+        .callout { border-left: 3px solid var(--slate); background: var(--slate-soft); border-radius: 0 10px 10px 0; padding: 1.1rem 1.4rem; margin: 1.8rem 0; }
+        .callout-label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--slate); margin-bottom: 0.4rem; }
+        .callout p { margin: 0; color: #2f4356; font-size: 0.98rem; }
+
+        .fact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.9rem; margin: 1.6rem 0 2rem; }
+        .fact { background: var(--panel); border-radius: 10px; padding: 1.1rem 1.2rem; }
+        .fact .v { font-size: 1.3rem; font-weight: 800; color: var(--slate); }
+        .fact .k { font-size: 0.78rem; color: var(--muted); margin-top: 0.2rem; }
+
+        table.dt { width: 100%; border-collapse: collapse; margin: 1.6rem 0 2rem; font-size: 0.94rem; }
+        table.dt thead th { text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 2px solid var(--line); padding: 0.6rem 0.8rem; }
+        table.dt td { padding: 0.7rem 0.8rem; border-bottom: 1px solid var(--line); color: #2b2f36; }
+        table.dt td:first-child { font-weight: 600; color: var(--ink); }
+
+        .faq { border-bottom: 1px solid var(--line); padding: 1.2rem 0; }
+        .faq summary { cursor: pointer; font-weight: 700; font-size: 1.02rem; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+        .faq summary::-webkit-details-marker { display: none; }
+        .faq summary::after { content: '+'; color: var(--slate); font-size: 1.4rem; line-height: 1; }
+        .faq[open] summary::after { content: '−'; }
+        .faq p { margin: 0.8rem 0 0; color: var(--muted); font-size: 0.98rem; }
+
+        .related { margin: 3rem 0 2rem; }
+        .related-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 700; margin-bottom: 1rem; }
+        .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .related-card { border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.2rem; text-decoration: none; display: block; }
+        .related-card:hover { border-color: var(--slate); }
+        .related-card strong { display: block; color: var(--ink); font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .related-card span { color: var(--muted); font-size: 0.85rem; }
+
+        .cta { text-align: center; background: var(--ink); color: #fff; border-radius: 14px; padding: 2.4rem; margin: 3rem 0 1rem; }
+        .cta h2 { margin: 0 0 0.6rem !important; }
+        .cta p { color: #b8bcc4; margin-bottom: 1.3rem; }
+        .cta-btn { display: inline-block; background: var(--slate); color: #fff; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 700; }
+
+        footer { text-align: center; padding: 2rem 1rem; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); }
+        footer a { color: var(--blue); text-decoration: none; }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.7rem; }
+            .related-grid { grid-template-columns: 1fr; }
+            .site-nav { display: none; }
+            table.dt { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <a class="logo-link" href="/">
+            <img src="/images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+            <span>SatFleet Live</span>
+        </a>
+        <nav class="site-nav">
+            <a href="/">Live Map</a>
+            <a href="/launches.html">Launches</a>
+            <a href="/moon.html">Moon</a>
+            <a href="/deep-space.html">Deep Space</a>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <p class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/blogs/">Blog</a> &rsaquo; How Rocket Launch Trajectories Work</p>
+        <span class="kicker">Launches · How Tracking Works</span>
+        <h1>Why You Can't Track a Rocket's Exact Path</h1>
+        <p class="subhead">You can follow any airliner in the world in real time. You cannot do the same for a rocket, and the reason has nothing to do with difficulty — it is that nobody publishes the data.</p>
+        <div class="meta-row">
+            <span>SatFleetLive</span>
+            <span>September 2026</span>
+            <span>7 min read</span>
+        </div>
+    </div>
+
+    <main>
+        <nav class="toc">
+            <div class="toc-title">Contents</div>
+            <a href="#planes-vs-rockets">Planes Broadcast. Rockets Don't.</a>
+            <a href="#what-is-public">What Is Actually Public</a>
+            <a href="#azimuth">The One Number That Matters: Azimuth</a>
+            <a href="#estimating">How an Estimated Path Is Built</a>
+            <a href="#where-real-starts">Where Real Data Begins</a>
+            <a href="#honest">Why Honesty Matters Here</a>
+            <a href="#faq">Frequently Asked Questions</a>
+        </nav>
+
+        <article>
+            <p>
+                Open a flight tracker and you can watch every airliner over the Atlantic, each one reporting its own position several times a second. Open a rocket tracker during a launch and you see something that looks similar — a vehicle climbing along a curve, altitude ticking upward.
+            </p>
+
+            <p>
+                <strong>One of those is measured. The other is calculated.</strong> Understanding the difference explains a lot about what space tracking can and cannot do.
+            </p>
+
+            <h2 id="planes-vs-rockets">Planes Broadcast. Rockets Don't.</h2>
+
+            <p>
+                Aircraft carry transponders that continuously announce their identity, position, altitude and heading on open radio frequencies. Anyone with a cheap receiver can pick them up. That openness is deliberate — it exists for collision avoidance and air traffic control, and public flight trackers are simply a by-product of it.
+            </p>
+
+            <p>
+                Rockets carry telemetry too, and far more of it. Hundreds of channels stream back engine pressures, tank levels, guidance state and position. But that stream goes <strong>to the launch operator, on private links</strong>, often encrypted. There is no equivalent of an open transponder, no requirement to share, and no third party receiving it.
+            </p>
+
+            <div class="callout">
+                <span class="callout-label">The core point</span>
+                <p>The obstacle is not technical difficulty. The data exists and is extremely precise. It is simply not released, because nothing obliges anyone to release it.</p>
+            </div>
+
+            <h2 id="what-is-public">What Is Actually Public</h2>
+
+            <p>
+                It is worth being specific about what a tracker does have to work with, because it is more than nothing:
+            </p>
+
+            <table class="dt">
+                <thead>
+                    <tr><th>Available</th><th>Not available</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Exact pad coordinates</td><td>Position during ascent</td></tr>
+                    <tr><td>Scheduled liftoff time</td><td>Actual velocity profile</td></tr>
+                    <tr><td>Rocket type and configuration</td><td>Ground track</td></tr>
+                    <tr><td>Target orbit category</td><td>Exact orbital inclination</td></tr>
+                    <tr><td>Payload mass class, often</td><td>Guidance and steering data</td></tr>
+                </tbody>
+            </table>
+
+            <p>
+                Notice the asymmetry. Everything about <em>where it starts</em> and <em>where it is going</em> is public. Everything about <em>how it gets there</em> is not.
+            </p>
+
+            <h3>What about the on-screen numbers in webcasts?</h3>
+
+            <p>
+                SpaceX and others display altitude and velocity as overlay graphics during launch broadcasts. Some enthusiast projects extract those numbers with optical character recognition, reading them off the video frame by frame.
+            </p>
+
+            <p>
+                That is genuinely clever, and it recovers real measured values. But it recovers <strong>speed and height only</strong> — never latitude and longitude. You can reconstruct how fast the rocket was going. You still cannot say which country it was above.
+            </p>
+
+            <h2 id="azimuth">The One Number That Matters: Azimuth</h2>
+
+            <p>
+                If you only knew one thing about a launch, this would be the one worth knowing, because it determines almost everything visible about the path.
+            </p>
+
+            <p>
+                <strong>Launch azimuth is the compass direction the rocket heads in at liftoff.</strong> Zero degrees is due north, ninety is due east, one hundred and eighty is due south. And crucially, it is not a free choice.
+            </p>
+
+            <p>
+                Azimuth follows from two things: the inclination of the orbit the rocket is aiming for, and the latitude of the pad it leaves from. The relationship between them is fixed trigonometry, not judgement.
+            </p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 400 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram showing three launch azimuths from a pad: northeast, east and south">
+                    <circle cx="200" cy="150" r="6" fill="#14171c"/>
+                    <text x="200" y="172" font-size="10" fill="#5b6270" text-anchor="middle">launch pad</text>
+                    <line x1="200" y1="150" x2="290" y2="60" stroke="#3f5a73" stroke-width="2.2"/>
+                    <line x1="200" y1="150" x2="330" y2="150" stroke="#3f5a73" stroke-width="2.2"/>
+                    <line x1="200" y1="150" x2="168" y2="200" stroke="#3f5a73" stroke-width="2.2"/>
+                    <text x="296" y="54" font-size="10" fill="#3f5a73">45° — space station orbit</text>
+                    <text x="336" y="154" font-size="10" fill="#3f5a73">90° — geostationary transfer</text>
+                    <text x="20" y="200" font-size="10" fill="#3f5a73">190° — polar / sun-synchronous</text>
+                    <path d="M 230 150 A 30 30 0 0 0 221 129" fill="none" stroke="#9aa4ae" stroke-width="1.2"/>
+                </svg>
+                <p class="diagram-caption">The same pad, three different missions, three completely different directions.</p>
+            </div>
+
+            <p>
+                There is also a hard limit built into the geometry: <strong>a rocket cannot reach an orbital inclination lower than the latitude of its launch pad</strong> without an expensive extra manoeuvre. This is why launch sites near the equator are so valuable for geostationary missions — Kourou in French Guiana sits at about 5 degrees north, so its rockets head almost due east and waste very little energy.
+            </p>
+
+            <h3>Why safety corridors override the maths</h3>
+
+            <p>
+                One more constraint, and it is the reason the simple formula alone is not enough. Rockets cannot fly over populated areas during ascent, because debris from a failure has to fall somewhere harmless.
+            </p>
+
+            <p>
+                Vandenberg in California, for example, launches almost exclusively toward the south over the open Pacific. A mission from there to a low-inclination orbit would mathematically want to head east — straight across the United States, which is not permitted. The corridor wins.
+            </p>
+
+            <h2 id="estimating">How an Estimated Path Is Built</h2>
+
+            <p>
+                Given all that, a reasonable ascent estimate comes together from four ingredients:
+            </p>
+
+            <div class="fact-grid">
+                <div class="fact"><div class="v">Origin</div><div class="k">Exact pad coordinates</div></div>
+                <div class="fact"><div class="v">Direction</div><div class="k">Azimuth from orbit and latitude</div></div>
+                <div class="fact"><div class="v">Shape</div><div class="k">Typical climb profile by rocket family</div></div>
+                <div class="fact"><div class="v">Timing</div><div class="k">Staging and burn times, publicly known</div></div>
+            </div>
+
+            <p>
+                The shape is the softest of the four. Ascent profiles are broadly similar within a rocket family — a Falcon 9 to low orbit climbs in much the same arc every time — but payload mass and mission specifics shift it. Staging times, by contrast, are well known and stable.
+            </p>
+
+            <p>
+                The result gets the direction right, the timing close and the general region correct. It does not get the exact ground track right, and no amount of cleverness will fix that without data nobody has.
+            </p>
+
+            <h2 id="where-real-starts">Where Real Data Begins</h2>
+
+            <p>
+                Here is the reassuring part. The gap is narrow.
+            </p>
+
+            <p>
+                Ascent lasts roughly eight to ten minutes. After that, once the payload separates and settles into orbit, it gets catalogued — and from then on it appears in the public <a href="/blogs/what-is-a-tle/">TLE orbital catalogue</a>, tracked accurately for as long as it exists.
+            </p>
+
+            <div class="fact-grid">
+                <div class="fact"><div class="v">~10 min</div><div class="k">Estimated (ascent)</div></div>
+                <div class="fact"><div class="v">Years</div><div class="k">Measured (orbit)</div></div>
+            </div>
+
+            <p>
+                So a tracker covers essentially the entire life of anything launched, with real data, except the first few minutes. Crewed missions beyond Earth orbit are sometimes an exception in a good way: NASA published the post-flight navigation trajectory for <a href="/blogs/artemis-2-mission-tracker/">Artemis II</a>, which is why that mission can be replayed exactly rather than estimated.
+            </p>
+
+            <h2 id="honest">Why Honesty Matters Here</h2>
+
+            <p>
+                Plenty of visualisations draw a confident line across a map during a launch and say nothing about where it came from. It looks authoritative. It is a guess.
+            </p>
+
+            <p>
+                A tracker that labels an estimate as an estimate is not admitting weakness — it is telling you which parts you can rely on. On <a href="/launches.html">SatFleet Live</a>, ascent paths are marked as estimated trajectories, while orbital positions come from the real catalogue and <a href="/blogs/satellite-time-travel/">historical replays</a> use archived data from the date in question.
+            </p>
+
+            <div class="callout">
+                <span class="callout-label">Rule of thumb</span>
+                <p>If a space tracker never tells you where its numbers come from, assume the most impressive-looking parts are the least measured.</p>
+            </div>
+
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <details class="faq">
+                <summary>Why can't you track a rocket like you track a plane?</summary>
+                <p>Aircraft carry transponders that broadcast their position continuously on open frequencies, which is why flight trackers work. Rockets carry telemetry systems that send data to the launch operator on private, often encrypted links. That data is not published, so there is nothing for a public tracker to receive. The physics is not the obstacle — the data simply is not shared.</p>
+            </details>
+
+            <details class="faq">
+                <summary>Does SpaceX publish launch trajectory data?</summary>
+                <p>No. SpaceX shows altitude and velocity as on-screen graphics during its webcasts, but does not release the underlying numbers as a downloadable dataset, and never releases latitude and longitude. Some enthusiast projects extract the on-screen figures using optical character recognition, which recovers speed and altitude but still cannot reconstruct a ground track.</p>
+            </details>
+
+            <details class="faq">
+                <summary>So what is a rocket tracker actually showing me?</summary>
+                <p>An estimate, built from data that is public: the exact coordinates of the launch pad, the target orbit type, the rocket family and the scheduled liftoff time. From those, a plausible ascent path can be calculated. A good tracker will label it as estimated rather than presenting it as measured telemetry.</p>
+            </details>
+
+            <details class="faq">
+                <summary>What is launch azimuth?</summary>
+                <p>Launch azimuth is the compass direction a rocket heads in at liftoff, measured in degrees where 0 is north, 90 is east and 180 is south. It is not chosen freely: it follows from the inclination of the target orbit and the latitude of the launch pad, through a direct trigonometric relationship. This is why polar missions from California head south and space station missions from Florida head northeast.</p>
+            </details>
+
+            <details class="faq">
+                <summary>When does real tracking data start after a launch?</summary>
+                <p>Once the payload is in orbit and has been catalogued, which typically takes hours to a few days. From that point it appears in the public TLE catalogue and can be tracked accurately like any other satellite. The gap is the ascent itself — roughly the first eight to ten minutes, which is precisely the part with no public data.</p>
+            </details>
+
+            <details class="faq">
+                <summary>Are military launches trackable at all?</summary>
+                <p>Partially. Classified payloads are often withheld from the public satellite catalogue entirely, so even the orbital phase may be unavailable. In those cases amateur observers sometimes locate the spacecraft independently by watching the sky and sharing observations, but there is no official data at any stage.</p>
+            </details>
+
+            <div class="related">
+                <div class="related-title">Related</div>
+                <div class="related-grid">
+                    <a href="/blogs/watch-rocket-launch-live/" class="related-card">
+                        <strong>How to Watch a Launch Live</strong>
+                        <span>Find the stream, follow the map, know what happens when.</span>
+                    </a>
+                    <a href="/blogs/what-is-a-tle/" class="related-card">
+                        <strong>What Is a TLE?</strong>
+                        <span>The orbital data format that takes over once ascent ends.</span>
+                    </a>
+                    <a href="/blogs/artemis-2-mission-tracker/" class="related-card">
+                        <strong>Artemis II Mission Tracker</strong>
+                        <span>A rare case where the real trajectory was published.</span>
+                    </a>
+                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
+                        <strong>How Satellite Orbits Work</strong>
+                        <span>Inclination, altitude and why orbits look the way they do.</span>
+                    </a>
+                    <a href="/blogs/satellite-time-travel/" class="related-card">
+                        <strong>Satellite Time Travel</strong>
+                        <span>Replay any date using archived orbital data.</span>
+                    </a>
+                    <a href="/blogs/spacex-starship/" class="related-card">
+                        <strong>SpaceX Starship Explained</strong>
+                        <span>The vehicle rewriting what a launch profile looks like.</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="cta">
+                <h2>Follow the Next Launch</h2>
+                <p>Live schedule, estimated ascent paths clearly labelled, and real orbital tracking once the payload arrives.</p>
+                <a href="/launches.html" class="cta-btn">Open Launch Tracker</a>
+            </div>
+
+        </article>
+    </main>
+
+    <footer>
+        <div>© 2026 SatFleetLive</div>
+        <div style="margin-top:0.4rem;">
+            Source: <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy">Privacy Policy</a>
+        </div>
+    </footer>
+
+</body>
+</html>

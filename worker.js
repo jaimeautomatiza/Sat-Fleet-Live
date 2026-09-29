@@ -1956,20 +1956,20 @@ async function computeDeepSpaceObjects(refDate, previousObjects, env, isLive = t
   return { objects, anySuccess };
 }
 
-async function handleDeepSpace(ctx, env) {
+async function handleDeepSpace(ctx, env, fromCron = false) {
   let previousObjects = {};
   try {
     const cached = await env.LAUNCHES_KV.get(KV_KEY_DEEP_SPACE);
     if (cached) {
       const parsed = JSON.parse(cached);
       previousObjects = parsed.objects || {};
-      // Margen de una hora completa por debajo del límite real — el cron pasa
-      // cada hora sin falta, así que siempre va a caer dentro de este margen
-      // y refrescar él solo, antes de que le dé tiempo a un visitante real.
-      if (Date.now() - parsed.fetchedAt < (DEEP_SPACE_TTL - 3600) * 1000) {
+      const ageMs = Date.now() - parsed.fetchedAt;
+      // Visitante real: siempre recibe lo guardado, al instante, aunque tenga horas.
+      // Solo el cron (fromCron) decide refrescar, cuando pasan 5 horas.
+      if (!fromCron || ageMs < (DEEP_SPACE_TTL - 3600) * 1000) {
         return new Response(JSON.stringify({ objects: parsed.objects, _meta: { source: 'kv_cache' } }), {
           status: 200,
-          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8' }),
+          headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'X-Cache-Age-Minutes': String(Math.round(ageMs / 60000)) }),
         });
       }
     }
@@ -1995,7 +1995,7 @@ async function handleDeepSpace(ctx, env) {
   }
 
   const payload = { objects, fetchedAt: Date.now() };
-  ctx.waitUntil(env.LAUNCHES_KV.put(KV_KEY_DEEP_SPACE, JSON.stringify(payload), { expirationTtl: DEEP_SPACE_TTL + 3600 }));
+  ctx.waitUntil(env.LAUNCHES_KV.put(KV_KEY_DEEP_SPACE, JSON.stringify(payload), { expirationTtl: 7 * 24 * 3600 }));
 
   return new Response(JSON.stringify({ objects, _meta: { source: 'fresh_fetch' } }), {
     status: 200,
@@ -2069,7 +2069,7 @@ export default {
       // esto solo dispara trabajo de verdad cuando hace falta, pero lo
       // hace EL PROPIO WORKER, nunca un usuario real esperando en directo.
       const fakeCtx = { waitUntil: (p) => ctx.waitUntil(p) };
-      await handleDeepSpace(fakeCtx, env);
+      await handleDeepSpace(fakeCtx, env, true);
       return;
     }
     const fakeCtx = { waitUntil: (p) => ctx.waitUntil(p) };

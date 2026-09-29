@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-THHVVZCJ4B');
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- SEO -->
+    <title>Satellite Time Travel: Where Was the ISS on Any Date? | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rewind the sky. See where the ISS, Starlink, the Moon or any spacecraft was on a past date with SatFleet Live's satellite time travel — free for yesterday and today.">
+    <meta name="keywords" content="satellite time travel, where was the ISS when I was born, past satellite positions, satellite position history, satellite playback, historical satellite tracker, rewind satellite orbit">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/satellite-time-travel/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Satellite Time Travel: Where Was the ISS on Any Date? | SatFleet Live">
+    <meta property="og:description" content="Rewind the sky and watch where the ISS, Starlink or any spacecraft was on a past date — the only free tracker that replays orbits, the Moon, Mars and deep space.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/satellite-time-travel/">
+    <meta property="og:image" content="/images/logo.png">
+    <meta property="article:published_time" content="2026-09-29">
+    <meta property="article:modified_time" content="2026-09-29">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Satellite Time Travel: Where Was the ISS on Any Date?">
+    <meta name="twitter:description" content="Rewind the sky and watch where the ISS, Starlink or any spacecraft was on a past date — free on SatFleet Live.">
+    <meta name="twitter:image" content="/images/logo.png">
+
+    <!-- Schema.org Article -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "Satellite Time Travel: See Where Any Satellite Was in the Past",
+      "description": "Rewind the sky. See where the ISS, Starlink, the Moon or any spacecraft was on a past date with SatFleet Live's satellite time travel.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "SatFleet Live",
+        "url": "https://satfleetlive.com",
+        "logo": { "@type": "ImageObject", "url": "https://satfleetlive.com/images/logo.png" }
+      },
+      "datePublished": "2026-09-29",
+      "dateModified": "2026-09-29",
+      "url": "https://satfleetlive.com/blogs/satellite-time-travel/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://satfleetlive.com/blogs/satellite-time-travel/" }
+    }
+    </script>
+
+    <!-- Schema.org FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can I see where the ISS was when I was born?",
+          "acceptedAnswer": { "@type": "Answer", "text": "For the Space Station itself, only within the archive window — SatFleet Live stores a rolling 30 days of Earth satellite orbital data, so you can rewind to any point in the last month. Going back years is not possible for Earth satellites, because the orbital elements that describe them are only published day by day and are not archived publicly at that depth. For the Moon, Mars, the planets and interplanetary spacecraft it is different: those positions are calculated from NASA/JPL ephemeris data, so you can travel back to 1957 and see exactly where they were on your birthday." }
+        },
+        {
+          "@type": "Question",
+          "name": "How far back can satellite time travel go?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It depends on the object. Earth satellites go back 30 days, limited by the rolling TLE archive. The Moon, Mars, the planets, dwarf planets, major moons and deep space missions go back to 4 October 1957 — the launch of Sputnik 1 — because their positions come from NASA/JPL Horizons ephemeris rather than from orbital elements." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is satellite time travel free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Today and yesterday are free for everyone, with no account needed. Travelling further back than yesterday — the full 30-day Earth satellite archive, plus Moon, Mars and deep space history — is part of SatFleet Premium, which supports the independent developer behind the app." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the replay real data or a simulation?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It is real data. Earth satellite replays use the actual TLE orbital elements published on that date, propagated with the same SGP4 model used for live tracking. Moon, Mars and deep space replays query NASA/JPL Horizons for the true position of each body at the requested moment. Nothing is interpolated from a generic model or invented." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I replay a rocket launch or a space mission?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, for missions that NASA publishes trajectory data for. Artemis II, for example, can be replayed across its full flight in April 2026, watching the Orion capsule leave Earth, loop around the Moon and come back. Historic hardware such as the Apollo 10 lunar module Snoopy is also in the deep space catalogue." }
+        },
+        {
+          "@type": "Question",
+          "name": "Does the lighting change when I travel back in time?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The day and night sides of Earth, the Moon and Mars are recalculated for the exact date and time you are viewing, so sunrise lines, shadows and lunar phase all match what was really happening at that moment." }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Schema.org Breadcrumb -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://satfleetlive.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://satfleetlive.com/blogs/" },
+        { "@type": "ListItem", "position": 3, "name": "Satellite Time Travel", "item": "https://satfleetlive.com/blogs/satellite-time-travel/" }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-purple: #9c27b0;
+            --primary-blue: #2196f3;
+            --dark-bg: #1a1a1a;
+            --dark-secondary: #2d2d2d;
+            --dark-tertiary: #3d3d3d;
+            --text-primary-dark: #ffffff;
+            --text-secondary-dark: #cccccc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary-dark);
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            background-color: var(--dark-secondary);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-section { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+        .logo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
+        .logo-placeholder { width: 40px; height: 40px; background-color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; }
+        .site-title { font-size: 1.5rem; font-weight: 650; color: var(--primary-purple); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); text-decoration: none; }
+        .header-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 2px solid var(--primary-purple); color: var(--primary-purple); padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .nav-btn:hover { background-color: var(--primary-purple); color: white; }
+        .nav-btn.blue { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .nav-btn.blue:hover { background-color: var(--primary-blue); color: white; }
+
+        /* HERO */
+        .article-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #221b2e 50%, #1a1a2e 100%);
+            border-bottom: 2px solid var(--primary-purple);
+            padding: 3.5rem 1.5rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .article-hero::before { content: '⏱'; position: absolute; font-size: 10rem; opacity: 0.04; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .breadcrumb { font-size: 0.85rem; color: var(--text-secondary-dark); margin-bottom: 1rem; }
+        .breadcrumb a { color: var(--primary-blue); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .article-hero h1 { font-size: 2.2rem; font-weight: 700; color: #ffffff; line-height: 1.25; max-width: 780px; margin: 0 auto 1rem; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+        .article-hero h1 span { color: var(--primary-purple); }
+        .article-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary-dark); margin-top: 1rem; }
+
+        /* LAYOUT */
+        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+        /* TOC */
+        .toc { background-color: var(--dark-secondary); border-left: 4px solid var(--primary-purple); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+        .toc-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+        .toc ol { margin-left: 1.2rem; }
+        .toc li { margin-bottom: 0.4rem; }
+        .toc a { color: var(--primary-blue); text-decoration: none; font-size: 0.95rem; }
+        .toc a:hover { text-decoration: underline; color: #64b5f6; }
+
+        /* ARTICLE */
+        .article-body p { color: var(--text-secondary-dark); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
+        .article-body strong { color: #ffffff; }
+        .article-body a { color: var(--primary-blue); text-decoration: none; }
+        .article-body a:hover { text-decoration: underline; }
+        .article-body h2 { font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-purple); scroll-margin-top: 80px; }
+        .article-body h3 { font-size: 1.15rem; font-weight: 600; color: var(--primary-purple); margin: 1.75rem 0 0.75rem; }
+        .article-body ul { margin: 0 0 1.25rem 1.4rem; color: var(--text-secondary-dark); line-height: 1.8; }
+        .article-body ul li { margin-bottom: 0.5rem; }
+
+        /* HIGHLIGHT BOX */
+        .highlight-box { background: linear-gradient(135deg, rgba(156,39,176,0.12), rgba(33,150,243,0.08)); border: 1px solid rgba(156,39,176,0.35); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0; }
+        .highlight-box p { margin-bottom: 0 !important; color: #e0d0e8 !important; }
+        .highlight-label { font-size: 0.78rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block; }
+
+        /* FEATURE GRID */
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem; }
+        .feature-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1.1rem 1.25rem; border-top: 3px solid var(--primary-purple); }
+        .feature-card .feature-icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+        .feature-card h3 { font-size: 1rem; color: #ffffff; margin: 0 0 0.5rem !important; }
+        .feature-card p { font-size: 0.92rem; color: var(--text-secondary-dark); line-height: 1.6; margin: 0 !important; }
+
+        /* COMPARISON TABLE */
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; font-size: 0.95rem; }
+        .comparison-table thead tr { background-color: var(--primary-purple); color: white; }
+        .comparison-table th { padding: 0.85rem 1rem; text-align: left; font-weight: 600; }
+        .comparison-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--dark-tertiary); color: var(--text-secondary-dark); vertical-align: middle; }
+        .comparison-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.03); }
+        .comparison-table tbody tr:hover { background-color: rgba(156,39,176,0.08); }
+        .check { color: #00d26a; font-weight: 700; }
+        .cross { color: #ff6b6b; }
+        .highlight-row td { color: #ffffff; font-weight: 600; }
+        .highlight-row td:first-child { color: var(--primary-purple); }
+
+        /* STEP LIST */
+        .step-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 1.25rem 0 1.75rem; }
+        .step-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.25rem; }
+        .step-list li::before { content: counter(step-counter); background-color: var(--primary-purple); color: white; font-weight: 700; font-size: 0.9rem; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+        .step-list li span { color: var(--text-secondary-dark); line-height: 1.7; font-size: 0.98rem; }
+        .step-list li strong { color: #ffffff; display: block; margin-bottom: 0.2rem; }
+
+        /* FAQ */
+        .faq-item { background-color: var(--dark-secondary); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; }
+        .faq-question { width: 100%; background: none; border: none; color: #ffffff; font-size: 1rem; font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background 0.2s; font-family: inherit; }
+        .faq-question:hover { background-color: rgba(156,39,176,0.12); }
+        .faq-arrow { color: var(--primary-purple); font-size: 1.1rem; transition: transform 0.3s ease; flex-shrink: 0; }
+        .faq-question.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary-dark); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display: block; }
+        .faq-answer a { color: var(--primary-blue); text-decoration: none; }
+        .faq-answer a:hover { text-decoration: underline; }
+
+        /* RELATED ARTICLES */
+        .related-articles { margin: 2.5rem 0 1.5rem; }
+        .related-title { font-size: 1rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        .related-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem; text-decoration: none; border: 1px solid var(--dark-tertiary); transition: border-color 0.3s, background 0.3s; margin-bottom: 0.85rem; }
+        .related-card:hover { border-color: var(--primary-purple); background-color: rgba(156,39,176,0.08); }
+        .related-icon { font-size: 1.8rem; flex-shrink: 0; }
+        .related-text strong { display: block; color: #ffffff; font-size: 0.98rem; margin-bottom: 0.2rem; }
+        .related-text span { color: var(--text-secondary-dark); font-size: 0.87rem; }
+
+        /* CTA */
+        .cta-banner { background: linear-gradient(135deg, rgba(156,39,176,0.2), rgba(33,150,243,0.15)); border: 1px solid rgba(156,39,176,0.4); border-radius: 14px; padding: 2rem; text-align: center; margin: 3rem 0 2rem; }
+        .cta-banner h2 { font-size: 1.4rem; color: #ffffff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; }
+        .cta-banner p { color: var(--text-secondary-dark); margin-bottom: 1.25rem; font-size: 1rem; }
+        .cta-btn { display: inline-block; background-color: var(--primary-purple); color: white; padding: 0.75rem 2rem; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: 2px solid var(--primary-purple); }
+        .cta-btn:hover { background-color: transparent; color: var(--primary-purple); }
+
+        /* FOOTER */
+        .footer { background-color: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 12px; color: var(--text-secondary-dark); border-top: 1px solid var(--dark-tertiary); }
+        .footer a { color: #4da6ff; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* RESPONSIVE */
+        @media (max-width: 640px) {
+            .article-hero h1 { font-size: 1.55rem; }
+            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
+            .header-nav { justify-content: center; }
+            .blog-container { padding: 1.75rem 1rem 3rem; }
+            .article-body h2 { font-size: 1.3rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .comparison-table { font-size: 0.85rem; }
+            .comparison-table th, .comparison-table td { padding: 0.6rem 0.75rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/images/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/" class="nav-btn">🌍 Live Map</a>
+            <a href="/moon.html" class="nav-btn">🌕 Moon</a>
+            <a href="/mars.html" class="nav-btn">🔴 Mars</a>
+            <a href="/deep-space.html" class="nav-btn">🌌 Deep Space</a>
+            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero">
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Blog</a> &rsaquo; Satellite Time Travel
+        </p>
+        <h1><span>Satellite Time Travel</span>: See Where Any Satellite Was in the Past</h1>
+        <div class="article-meta">
+            <span>✍️ SatFleetLive</span>
+            <span>📅 Updated September 2026</span>
+            <span>⏱️ 8 min read</span>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title">📋 Contents</div>
+            <ol>
+                <li><a href="#what-is">What Is Satellite Time Travel?</a></li>
+                <li><a href="#how-far">How Far Back Can You Go?</a></li>
+                <li><a href="#real-data">Real Data, Not a Simulation</a></li>
+                <li><a href="#beyond-earth">Beyond Earth: Moon, Mars &amp; Deep Space</a></li>
+                <li><a href="#how-to">How to Use Satellite Time Travel</a></li>
+                <li><a href="#discover">Five Things Worth Rewinding</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <p>
+                Every satellite tracker shows you where things are <em>now</em>. Very few let you ask a different question: <strong>where was it then?</strong> Where was the Space Station during last week's meteor shower? What did the sky above your city look like the night Starship flew? Where was Voyager 1 on the day you were born?
+            </p>
+
+            <p>
+                <a href="/">SatFleet Live</a> includes a feature called <strong>Playback</strong> — satellite time travel — that answers exactly that. You pick a date, hit play, and the whole sky rewinds: orbits, spacecraft, planets, sunlight and shadows, all reconstructed from real archived data rather than guessed from a model.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">In short</span>
+                <p>Earth satellites can be rewound up to <strong>30 days</strong>. The Moon, Mars, the planets and interplanetary spacecraft can be rewound all the way to <strong>4 October 1957</strong> — the day Sputnik 1 launched and the Space Age began. Today and yesterday are free for everyone.</p>
+            </div>
+
+            <h2 id="what-is">What Is Satellite Time Travel?</h2>
+
+            <p>
+                Satellite time travel means replaying the position of objects in space at a chosen moment in the past, instead of only watching them live. On SatFleet Live it works across every map in the app: the <a href="/">Earth satellite globe</a>, the <a href="/moon.html">Moon tracker</a>, the <a href="/mars.html">Mars tracker</a> and the <a href="/deep-space.html">Deep Space map</a>.
+            </p>
+
+            <p>
+                Once you are in Playback, a timeline appears at the bottom of the screen. You can scrub through it with your finger, play it at real speed, or speed it up to one day, one week or even one year per second, depending on which map you are on. Everything on screen follows that clock — not just the dots, but the whole scene.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🛰️</span>
+                    <h3>Orbits rewind</h3>
+                    <p>Over 16,000 satellites move to the positions they actually held on that date, using the orbital data published that day.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🌗</span>
+                    <h3>Sunlight is recalculated</h3>
+                    <p>The day and night sides of Earth, the Moon and Mars match the real sun angle for the moment you are viewing.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🚀</span>
+                    <h3>Missions replay</h3>
+                    <p>Spacecraft with published trajectories, such as Artemis II, can be followed across their entire flight.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🔭</span>
+                    <h3>Rovers move</h3>
+                    <p>On Mars, Curiosity and Perseverance sit where they actually were on the sol you selected.</p>
+                </div>
+            </div>
+
+            <h2 id="how-far">How Far Back Can You Go?</h2>
+
+            <p>
+                This is where satellite tracking gets genuinely interesting, because the answer is different depending on what you are looking at — and the reason is worth understanding.
+            </p>
+
+            <h3>Earth satellites: 30 days</h3>
+
+            <p>
+                Satellites orbiting Earth are tracked using <a href="/blogs/what-is-a-tle/">TLE data</a>, a compact description of an orbit published daily by CelesTrak and NORAD. The catch is that a TLE describes the orbit <em>as measured on that day</em>. Orbits drift — atmospheric drag, station-keeping burns, collision avoidance manoeuvres — so a TLE from three months ago cannot accurately tell you where a satellite was three months ago.
+            </p>
+
+            <p>
+                SatFleet Live solves this by taking a snapshot of the entire catalogue every night and storing it. That rolling archive is what powers Earth satellite playback, and it currently reaches back <strong>30 days</strong>. Within that window, positions are as accurate as live tracking. Beyond it, the data simply does not exist in public form.
+            </p>
+
+            <h3>Moon, Mars and deep space: back to 1957</h3>
+
+            <p>
+                Everything outside Earth orbit works differently. The Moon, the planets, dwarf planets, major moons and interplanetary spacecraft are not tracked with TLEs at all — their positions come from <strong>NASA/JPL Horizons</strong>, an ephemeris system that can calculate where a body was, or will be, at essentially any moment.
+            </p>
+
+            <p>
+                That means Deep Space playback reaches back to <strong>4 October 1957</strong>, the launch of Sputnik 1. You can watch Voyager 1 creep outward across decades, see the planets line up on a date that mattered to you, or follow a mission from launch to arrival.
+            </p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Map</th>
+                        <th>How far back</th>
+                        <th>Data source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Earth satellites</td>
+                        <td>30 days</td>
+                        <td>Archived TLE snapshots</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>Deep Space</td>
+                        <td>Since 1957</td>
+                        <td>NASA/JPL Horizons</td>
+                    </tr>
+                    <tr>
+                        <td>Moon orbiters</td>
+                        <td>Since 2009</td>
+                        <td>NASA/JPL Horizons</td>
+                    </tr>
+                    <tr>
+                        <td>Mars orbiters &amp; rovers</td>
+                        <td>Since each arrival</td>
+                        <td>NASA/JPL Horizons</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 id="real-data">Real Data, Not a Simulation</h2>
+
+            <p>
+                It is worth being precise about this, because plenty of space visualisations are animations dressed up as data.
+            </p>
+
+            <p>
+                When you rewind an Earth satellite, SatFleet Live loads the <strong>actual orbital elements published on that date</strong> and propagates them with SGP4 — the same model used for live tracking. When you rewind the Moon, Mars or a deep space probe, the app queries <strong>NASA/JPL Horizons for the true position</strong> of that body at that instant. Nothing is interpolated from a generic orbit or invented to look plausible.
+            </p>
+
+            <div class="highlight-box">
+                <span class="highlight-label">Why it matters</span>
+                <p>If a spacecraft performed a manoeuvre, changed altitude or was nudged off course, the replay shows it. That is the difference between reconstructing history and animating an idealised orbit.</p>
+            </div>
+
+            <h2 id="beyond-earth">Beyond Earth: Moon, Mars &amp; Deep Space</h2>
+
+            <p>
+                Earth satellite playback is useful. Deep space playback is where it becomes something you lose an hour to.
+            </p>
+
+            <h3>Replay a real Moon mission</h3>
+
+            <p>
+                Artemis II flew from 1 to 11 April 2026, carrying four astronauts around the Moon and back. In Deep Space playback you can select that window and watch the Orion capsule leave Earth orbit, arc around the far side of the Moon and return — following the trajectory data NASA itself published. Historic hardware is in there too, including <em>Snoopy</em>, the Apollo 10 lunar module still drifting somewhere in solar orbit.
+            </p>
+
+            <h3>Watch the Moon's phase change</h3>
+
+            <p>
+                On the <a href="/moon.html">Moon tracker</a>, playback also drives the lighting and the phase indicator. Scrub through a month and you watch the terminator sweep across the surface exactly as it did, with the phase matching what was visible from Earth that night.
+            </p>
+
+            <h3>Follow a rover across Mars</h3>
+
+            <p>
+                Mars playback converts your chosen date into the correct Martian sol, so Curiosity and Perseverance appear at the positions they had actually reached by then. Combined with the <a href="/blogs/curiosity-vs-perseverance/">rover trail data</a>, you can trace years of driving in a few seconds.
+            </p>
+
+            <h2 id="how-to">How to Use Satellite Time Travel</h2>
+
+            <ol class="step-list">
+                <li><span><strong>Open any map</strong> Go to the live satellite globe, or switch to the Moon, Mars or Deep Space tracker.</span></li>
+                <li><span><strong>Tap Playback</strong> The button sits at the bottom of the screen, next to Explore.</span></li>
+                <li><span><strong>Pick a date</strong> A calendar shows which dates are available. Free dates are open; earlier ones carry a lock.</span></li>
+                <li><span><strong>Press Go</strong> The app loads the archived data for that moment. Deep space dates can take a few seconds, since they are calculated fresh from NASA.</span></li>
+                <li><span><strong>Play, scrub or speed up</strong> Use the timeline to move through time at anything from real speed to one year per second.</span></li>
+            </ol>
+
+            <div class="highlight-box">
+                <span class="highlight-label">Free vs Premium</span>
+                <p><strong>Today and yesterday are free</strong>, with no account needed. Going further back — the full 30-day Earth satellite archive, plus Moon, Mars and deep space history all the way to 1957 — is part of SatFleet Premium, which keeps an independently built app running without ads.</p>
+            </div>
+
+            <h2 id="discover">Five Things Worth Rewinding</h2>
+
+            <ul>
+                <li><strong>A launch you missed.</strong> Rewind to the moment a rocket lifted off and watch its payload settle into orbit. Pair it with our guide on <a href="/blogs/watch-rocket-launch-live/">how to watch a rocket launch live</a>.</li>
+                <li><strong>A Starlink train.</strong> Newly deployed satellites fly in a tight line before dispersing. Rewind a few days and you can see the formation break apart — the effect explained in <a href="/blogs/how-to-spot-a-starlink-train/">how to spot a Starlink train</a>.</li>
+                <li><strong>The night sky over your city.</strong> Set your location, pick a night you remember, and see what was passing overhead.</li>
+                <li><strong>A planetary alignment.</strong> In Deep Space, speed up to one month per second and watch the planets fall in and out of line across years.</li>
+                <li><strong>Voyager's long haul.</strong> Start in 1977 and run it forward. Nothing conveys the scale of the solar system quite like watching the fastest thing humans ever launched take decades to cross it — as covered in <a href="/blogs/where-is-voyager-1-now/">where is Voyager 1 now</a>.</li>
+            </ul>
+
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false" onclick="toggleFAQ(this)">
+                    Can I see where the ISS was when I was born?
+                    <span class="faq-arrow">▾</span>
+                </button>
+                <div class="faq-answer">
+                    For the Space Station itself, only within the archive window — SatFleet Live stores a rolling 30 days of Earth satellite orbital data, so you can rewind to any point in the last month. Going back years is not possible for Earth satellites, because the orbital elements that describe them are only published day by day and are not archived publicly at that depth. For the Moon, Mars, the planets and interplanetary spacecraft it is different: those positions are calculated from NASA/JPL ephemeris data, so you <em>can</em> travel back to 1957 and see exactly where they were on your birthday.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false" onclick="toggleFAQ(this)">
+                    How far back can satellite time travel go?
+                    <span class="faq-arrow">▾</span>
+                </button>
+                <div class="faq-answer">
+                    It depends on the object. Earth satellites go back 30 days, limited by the rolling TLE archive. The Moon, Mars, the planets, dwarf planets, major moons and deep space missions go back to 4 October 1957 — the launch of Sputnik 1 — because their positions come from <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener">NASA/JPL Horizons</a> ephemeris rather than from orbital elements.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false" onclick="toggleFAQ(this)">
+                    Is satellite time travel free?
+                    <span class="faq-arrow">▾</span>
+                </button>
+                <div class="faq-answer">
+                    Today and yesterday are free for everyone, with no account needed. Travelling further back than yesterday — the full 30-day Earth satellite archive, plus Moon, Mars and deep space history — is part of SatFleet Premium, which supports the independent developer behind the app.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false" onclick="toggleFAQ(this)">
+                    Is the replay real data or a simulation?
+                    <span class="faq-arrow">▾</span>
+                </button>
+                <div class="faq-answer">
+                    It is real data. Earth satellite replays use the actual TLE orbital elements published on that date, propagated with the same SGP4 model used for live tracking. Moon, Mars and deep space replays query NASA/JPL Horizons for the true position of each body at the requested moment. Nothing is interpolated from a generic model or invented.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false" onclick="toggleFAQ(this)">
+                    Can I replay a rocket launch or a space mission?
+                    <span class="faq-arrow">▾</span>
+                </button>
+                <div class="faq-answer">
+                    Yes, for missions that NASA publishes trajectory data for. <a href="/blogs/artemis-2-mission-tracker/">Artemis II</a>, for example, can be replayed across its full flight in April 2026, watching the Orion capsule leave Earth, loop around the Moon and come back. Historic hardware such as the Apollo 10 lunar module Snoopy is also in the deep space catalogue.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false" onclick="toggleFAQ(this)">
+                    Does the lighting change when I travel back in time?
+                    <span class="faq-arrow">▾</span>
+                </button>
+                <div class="faq-answer">
+                    Yes. The day and night sides of Earth, the Moon and Mars are recalculated for the exact date and time you are viewing, so sunrise lines, shadows and <a href="/blogs/moon-phase-tonight/">lunar phase</a> all match what was really happening at that moment.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" aria-expanded="false" onclick="toggleFAQ(this)">
+                    Why does deep space playback take longer to load?
+                    <span class="faq-arrow">▾</span>
+                </button>
+                <div class="faq-answer">
+                    Because it is calculated on demand. Earth satellite data is archived nightly and served instantly, but deep space positions are requested from NASA/JPL Horizons for the exact window you asked for, across more than forty bodies. The first load for a given date takes a few seconds; after that it is cached and opens immediately for everyone.
+                </div>
+            </div>
+
+            <!-- RELATED -->
+            <div class="related-articles">
+                <div class="related-title">📖 Related Articles</div>
+
+                <a href="/blogs/artemis-2-mission-tracker/" class="related-card">
+                    <span class="related-icon">🌕</span>
+                    <div class="related-text">
+                        <strong>Artemis II: Track the Mission That Took Humans Back to the Moon</strong>
+                        <span>Replay the full flight with real NASA trajectory data, hour by hour.</span>
+                    </div>
+                </a>
+
+                <a href="/blogs/where-is-the-tesla-roadster-now/" class="related-card">
+                    <span class="related-icon">🚗</span>
+                    <div class="related-text">
+                        <strong>Where Is Elon Musk's Tesla Roadster Right Now?</strong>
+                        <span>There is a car orbiting the Sun. Here is exactly where it is today.</span>
+                    </div>
+                </a>
+
+                <a href="/blogs/how-rocket-launch-trajectories-work/" class="related-card">
+                    <span class="related-icon">📐</span>
+                    <div class="related-text">
+                        <strong>Why Nobody Can Tell You a Rocket's Exact Path</strong>
+                        <span>Launch trajectories are not public data. Here is how they are estimated instead.</span>
+                    </div>
+                </a>
+
+                <a href="/blogs/moon-phase-tonight/" class="related-card">
+                    <span class="related-icon">🌗</span>
+                    <div class="related-text">
+                        <strong>Moon Phase Tonight: What You'll See and Why</strong>
+                        <span>Tonight's phase, how it is calculated, and what it looks like from your location.</span>
+                    </div>
+                </a>
+
+                <a href="/blogs/watch-rocket-launch-live/" class="related-card">
+                    <span class="related-icon">🚀</span>
+                    <div class="related-text">
+                        <strong>How to Watch a Rocket Launch Live</strong>
+                        <span>Find the stream, follow the rocket on a map, and know what happens when.</span>
+                    </div>
+                </a>
+
+                <a href="/blogs/what-is-a-tle/" class="related-card">
+                    <span class="related-icon">🔢</span>
+                    <div class="related-text">
+                        <strong>What Is a TLE and How to Read It</strong>
+                        <span>The orbital data format behind every satellite tracker — and behind playback.</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-banner">
+                <h2>Rewind the Sky Right Now</h2>
+                <p>Today and yesterday are free, no sign-up needed. Pick a date, press play, and watch the orbits run backwards.</p>
+                <a href="/" class="cta-btn">🛰️ Open Satellite Playback</a>
+            </div>
+
+        </article>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">© 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
+            <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank">NASA/JPL Horizons</a> |
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+
+</body>
+</html>

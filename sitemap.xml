@@ -115,7 +115,7 @@
     <priority>0.8</priority>
 </url>
 <url>
-    <loc>https://satfleetlive.com/blogs/spacex-schedule/</loc>
+    <loc>https://satfleetlive.com/blogs/spacex-launch-schedule/</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -177,6 +177,42 @@
 <url>
     <loc>https://satfleetlive.com/blogs/real-scale-view-explained/</loc>
     <lastmod>2026-09-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/satellite-time-travel/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/artemis-2-mission-tracker/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/where-is-the-tesla-roadster-now/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/how-rocket-launch-trajectories-work/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/moon-phase-tonight/</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+</url>
+<url>
+    <loc>https://satfleetlive.com/blogs/watch-rocket-launch-live/</loc>
+    <lastmod>2026-09-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
 </url>
