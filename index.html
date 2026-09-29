@@ -2742,7 +2742,7 @@ body.light-mode .rocket-filter-chip {
     <button class="overflow-item purple" onclick="toggleFiltersPanel(); closeOverflowMenu()">
         <img src="images/layer.svg" style="width:14px;height:14px;filter:invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%);"> Layers
     </button>
-    <button class="overflow-item green" id="overflowVisibility" onclick="toggleVisibility(); closeOverflowMenu()">Only Visible</button>
+    <button class="overflow-item green" id="overflowVisibility" onclick="toggleVisibility(); closeOverflowMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Only Visible</button>
     <div class="overflow-divider"></div>
     <button class="overflow-item gold" onclick="window.location.href='/blogs/'">
         <img src="images/book.svg" style="width:16px;height:16px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
@@ -2824,7 +2824,7 @@ body.light-mode .rocket-filter-chip {
         <img src="images/layer.svg" class="layer-icon" alt="">
         Layers
     </button>
-    <button class="bar-btn" id="visibilityToggle" onclick="toggleVisibility()">Only Visible</button>
+    <button class="bar-btn" id="visibilityToggle" onclick="toggleVisibility()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:5px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Only Visible</button>
     <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">
         <img src="images/book.svg" style="width:14px;height:14px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
     </button>
@@ -3201,7 +3201,16 @@ function parseTleTextToSatrecs(text) {
         if (!line1 || !line2) continue;
         try {
             const satrec = satellite.twoline2satrec(line1, line2);
-            const noradId = line1.substring(2, 7).trim();
+            // Desde julio de 2026 los objetos nuevos superan los 5 dígitos y el
+            // formato TLE los codifica con una letra inicial (Alpha-5): 100000
+            // se escribe "A0000". Lo revertimos para que el identificador
+            // coincida con el que usa la vista en vivo.
+            let noradId = line1.substring(2, 7).trim();
+            if (/^[A-Z]/i.test(noradId)) {
+                const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // sin I ni O, igual que el worker
+                const idx = L.indexOf(noradId[0].toUpperCase());
+                if (idx >= 0) noradId = String((idx + 10) * 10000 + parseInt(noradId.slice(1), 10));
+            }
             out.push({ name, satrec, noradId });
         } catch (e) { continue; }
     }
@@ -3416,6 +3425,11 @@ function updateTleSatellitePositions() {
         }
     });
     refreshSatelliteInfoNumbers();
+    // El contador de satélites sobre ti también corresponde al momento que
+    // estás viendo, no al de la carga inicial. Lo limitamos a una vez por
+    // segundo: recorrer 16.000 satélites en cada fotograma sería caro.
+    const _now = Date.now();
+    if (_now - _lastStatsUpdate > 1000) { _lastStatsUpdate = _now; updateStats(); }
 }
 
 window.onPlaybackScrub = function(val) {
@@ -4979,51 +4993,39 @@ function clickPremiumUpgrade() {
     window.location.href = 'account.html';
 }
 
-        // Mostrar candado en botones de visibilidad para usuarios Free
-        function updateVisibilityLockUI() {
-            if (isPremiumUser()) return;
-            const btn = document.getElementById('visibilityToggle');
-            if (btn) btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;opacity:0.7;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Only Visible`;
-            const overflowBtn = document.getElementById('overflowVisibility');
-            if (overflowBtn) overflowBtn.innerHTML = `Only Visible <span style="font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(156,39,176,0.2);border:1px solid rgba(156,39,176,0.4);color:#c084fc;letter-spacing:0.4px;margin-left:4px;vertical-align:middle;">Premium</span>`;
-            const mobileBtn = document.getElementById('mobileVisibilityToggle');
-            if (mobileBtn) mobileBtn.innerHTML = `Show Only Visible <span style="font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(156,39,176,0.2);border:1px solid rgba(156,39,176,0.4);color:#c084fc;letter-spacing:0.4px;margin-left:4px;vertical-align:middle;">Premium</span>`;
-        }
+        // Only Visible es una función libre: ya no marca candado ni Premium.
+        // La función se mantiene porque se llama desde el arranque.
+        function updateVisibilityLockUI() { }
 
-        // Toggle visibilidad (Desktop)
+        // Toggle visibilidad (Desktop) — función libre
         function toggleVisibility() {
-            // ── Bloqueo Premium ──
-            if (!isPremiumUser()) {
-                showPremiumModal('The "Only Visible" filter shows you only the satellites that are visible from your location right now. Upgrade to Premium to use it.');
-                return;
-            }
-            // ─────────────────────
             showOnlyVisible = !showOnlyVisible;
             const toggleBtn = document.getElementById('visibilityToggle');
             const controls = document.getElementById('visibilityControls');
             const overflowBtn = document.getElementById('overflowVisibility');
+            // SVG en línea con currentColor: el icono sigue el color del texto
+            // automáticamente, así que cambia con el botón sin filtros por estado.
+            const eyeBar = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:5px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+            const eyeMenu = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+
             if (showOnlyVisible) {
                 toggleBtn.classList.add('active');
-                toggleBtn.textContent = 'Showing Visible';
+                toggleBtn.innerHTML = eyeBar + 'Showing Visible';
                 controls.style.display = 'flex';
-                if (overflowBtn) { overflowBtn.textContent = 'Showing Visible'; overflowBtn.classList.add('green'); }
+                if (overflowBtn) { overflowBtn.innerHTML = eyeMenu + 'Showing Visible'; overflowBtn.classList.add('green'); }
                 getUserLocation();
             } else {
                 toggleBtn.classList.remove('active');
-                toggleBtn.textContent = 'Only Visible';
+                toggleBtn.innerHTML = eyeBar + 'Only Visible';
                 controls.style.display = 'none';
-                if (overflowBtn) { overflowBtn.textContent = 'Only Visible'; overflowBtn.classList.remove('green'); }
+                if (overflowBtn) { overflowBtn.innerHTML = eyeMenu + 'Only Visible'; overflowBtn.classList.remove('green'); }
             }
 
             filterVisibleSatellites();
         }
 
-        // Toggle visibilidad (Mobile)
+        // Toggle visibilidad (Mobile) — función libre
         function toggleMobileVisibility() {
-            if (!isPremiumUser()) {
-                showPremiumModal('The "Only Visible" filter shows you only the satellites that are visible from your location right now. Upgrade to Premium to use it.');
-                return;
-            }
             showOnlyVisible = !showOnlyVisible;
             const toggleBtn = document.getElementById('mobileVisibilityToggle');
             const controls = document.getElementById('mobileVisibilityControls');
@@ -5502,6 +5504,10 @@ function updateCesiumPositions() {
 // Le decimos a Cesium que renderice este fotograma porque los satélites se han movido
     cesiumViewer.scene.requestRender();
     refreshSatelliteInfoNumbers(); // el panel abierto (si hay uno) se refresca con estos mismos datos recién calculados
+    // Sin esto, el contador se quedaba con el valor de la carga inicial
+    // para siempre, aunque los satélites llevaran horas moviéndose.
+    const _nowS = Date.now();
+    if (_nowS - _lastStatsUpdate > 3000) { _lastStatsUpdate = _nowS; updateStats(); }
 }
 
 // Marcador de ubicación del usuario en el globo 3D
@@ -5733,6 +5739,7 @@ function requestWorkerCalc() {
 }
 
 let _lastRenderTs = 0;
+let _lastStatsUpdate = 0;
 let _lastWorkerUpdateProcessed = 0;
 let _lastPositionsTs = 0;
 
