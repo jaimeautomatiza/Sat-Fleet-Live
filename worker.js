@@ -2056,6 +2056,62 @@ async function handleDeepSpacePlayback(request, ctx, env) {
 // ROUTER PRINCIPAL
 // ═══════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════
+// HANDLER: /api/data/:id — basura espacial y reentradas (repo satfleet-data)
+// ═══════════════════════════════════════════════════════════════
+// Mismo patrón que /api/rover-trail: los datos ya vienen listos desde tu
+// repositorio de GitHub, y aquí solo hacemos de intermediario con caché de
+// Cloudflare. No usa KV, así que no gasta lecturas ni escrituras de KV.
+
+const DATA_BASE = 'https://jaimeautomatiza.github.io/satfleet-data/data';
+const DATA_FILES = {
+  debris:    { file: 'debris.json',    ttl: 12 * 3600 }, // el archivo cambia cada 12 h
+  reentries: { file: 'reentries.json', ttl:  1 * 3600 }, // cambia cada 6 h, pero una predicción cercana importa: refresco más a menudo
+};
+
+async function handleDataFile(request, ctx) {
+  const id  = new URL(request.url).pathname.split('/').pop();
+  const cfg = DATA_FILES[id];
+  if (!cfg) {
+    return new Response(JSON.stringify({ error: 'Unknown dataset' }), {
+      status: 404,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const cache    = caches.default;
+  const cacheKey = `https://internal.satfleetlive/cache/data-${id}`;
+  const hit = await cache.match(cacheKey);
+  if (hit) return wrapCached(hit);
+
+  try {
+    const upstream = await fetch(`${DATA_BASE}/${cfg.file}`, {
+      headers: { 'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com)', 'Accept': 'application/json' },
+    });
+    if (!upstream.ok) throw new Error(`HTTP ${upstream.status}`);
+
+    const buf = await upstream.arrayBuffer();
+    // Comprobación mínima: un JSON de estos siempre empieza por "{".
+    // Si GitHub devolviera una página de error, NO la guardamos en caché.
+    if (new Uint8Array(buf)[0] !== 123) throw new Error('La respuesta no parece un JSON válido');
+
+    const resp = new Response(buf, {
+      status: 200,
+      headers: makeHeaders({
+        'Content-Type':  'application/json; charset=utf-8',
+        'Cache-Control': `s-maxage=${cfg.ttl}, max-age=${cfg.ttl}`,
+      }),
+    });
+    ctx.waitUntil(cache.put(cacheKey, resp.clone()));
+    return resp;
+  } catch (err) {
+    return new Response(JSON.stringify({ error: 'Data unreachable: ' + err.message }), {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+}
+
 export default {
   async scheduled(event, env, ctx) {
     // Tres tareas comparten el mismo "despertador" de Cron Triggers,
@@ -2264,6 +2320,7 @@ export default {
       return handleDeepSpacePlayback(request, ctx, env);
     }
     if (pathname.startsWith('/api/rover-trail/')) return handleRoverTrail(request, ctx, env);
+    if (pathname.startsWith('/api/data/')) return handleDataFile(request, ctx);
 
     return new Response(JSON.stringify({ error: 'Not Found', path: pathname }), {
       status: 404,
