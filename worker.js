@@ -16,13 +16,27 @@
 // CONFIG
 // ═══════════════════════════════════════════════════════════════
 
-const CELESTRAK_URL   = 'https://jaimeautomatiza.github.io/tle-proxy/data/tle.json';
-const CELESTRAK_META_URL = 'https://jaimeautomatiza.github.io/tle-proxy/data/meta.json';
+// ── Fuentes originales (antes las descargaba GitHub Actions) ──
+const CELESTRAK_GP_URL = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=json';
+const SPACETRACK_BASE  = 'https://www.space-track.org';
+
+// ── Claves KV de los datasets (sin expirationTtl: si una API falla se sigue sirviendo el último dato válido) ──
+const KV_KEY_TLE         = 'tle_active_v1';
+const KV_KEY_TLE_META    = 'tle_meta_v1';
+const KV_KEY_DEBRIS      = 'debris_v1';
+const KV_KEY_REENTRIES   = 'reentries_v1';
+const KV_KEY_ROVER_PREFIX = 'rover_trail_v1_';
+
+// ── Crons (deben coincidir EXACTAMENTE con los Cron Triggers de wrangler.toml / dashboard) ──
+const TLE_CRON        = '7 */2 * * *';   // fetch-tle.yml
+const DEBRIS_CRON     = '41 */12 * * *'; // fecth-debris.yml
+const REENTRIES_CRON  = '17 */6 * * *';  // fetch-reentries.yml
+const ROVER_CRON      = '23 */6 * * *';  // fetch-rover-trail.yml
 const SPACEDEVS_BASE  = 'https://ll.thespacedevs.com/2.3.0';
 const SPACEDEVS_URL   = `${SPACEDEVS_BASE}/launches/upcoming/?limit=100&mode=detailed&format=json`;
 const THROTTLE_URL    = `${SPACEDEVS_BASE}/api-throttle/`;
 
-const TLE_TTL         = 12 * 3600;   // 12 horas (Cache API)
+const TLE_TTL         = 1800;        // 30 min (Cache API + navegador); el KV se refresca cada 2 h
 const TLE_STALE       = 3600;
 
 // TTLs en segundos para el KV (se ajustan dinámicamente)
@@ -33,7 +47,7 @@ const TTL_DEFAULT     = 60 * 60;     // 1 hora — lanzamiento lejano
 const KV_KEY_LAUNCHES = 'launches_v3';
 const KV_KEY_META     = 'launches_meta_v3';  // { lastFetch, throttleInfo, ttlUsed }
 
-const CACHE_KEY_TLE   = 'https://internal.satfleetlive/cache/tle-v3';
+const CACHE_KEY_TLE   = 'https://internal.satfleetlive/cache/tle-v4';
 
 // ═══════════════════════════════════════════════════════════════
 // ORBITADORES LUNARES/PLANETARIOS — JPL Horizons
@@ -509,12 +523,9 @@ async function handleTleSingle(request, env) {
 
   // 2. Si no está en KV, buscamos en el JSON completo del proxy (ya cacheado por Cloudflare)
   try {
-    const bulkRes = await fetch(CELESTRAK_URL, {
-      headers: { 'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com)', 'Accept': 'application/json' },
-    });
-    if (!bulkRes.ok) throw new Error(`Proxy returned ${bulkRes.status}`);
-
-    const allSats = await bulkRes.json();
+    const bulkRaw = await env.LAUNCHES_KV.get(KV_KEY_TLE);
+    if (!bulkRaw) throw new Error('TLE data not available yet');
+    const allSats = JSON.parse(bulkRaw);
     const sat = allSats.find(s => String(s.NORAD_CAT_ID) === String(noradId));
 
     if (!sat) return new Response('Not found', { status: 404, headers: makeHeaders({ 'Content-Type': 'text/plain' }) });
@@ -897,14 +908,9 @@ function ommToTle(obj) {
 async function archiveTleSnapshot(env) {
   let gpData;
   try {
-    const res = await fetch(CELESTRAK_URL, {
-      headers: {
-        'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com; contact: jaime.automatiza@gmail.com)',
-        'Accept': 'application/json',
-      },
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    gpData = JSON.parse(await res.text());
+    const raw = await env.LAUNCHES_KV.get(KV_KEY_TLE);
+    if (!raw) throw new Error('KV sin datos TLE todavía');
+    gpData = JSON.parse(raw);
   } catch (e) {
     console.error('TLE archive: no se pudo obtener CelesTrak, se reintenta mañana:', e.message);
     return;
@@ -995,92 +1001,10 @@ async function handleTleArchiveIndex(env) {
 // ═══════════════════════════════════════════════════════════════
 
 async function handleTle(ctx, env) {
-  const cache = caches.default;
-  const hit = await cache.match(CACHE_KEY_TLE);
-  if (hit) return wrapCached(hit);
-
-  const cooldownUntil = await env.LAUNCHES_KV.get('celestrak:cooldown');
-  if (cooldownUntil && Date.now() < parseInt(cooldownUntil)) {
-    return new Response('Esperando a que CelesTrak se recupere...', { status: 502, headers: makeHeaders({ 'Content-Type': 'text/plain' }) });
-  }
-
-  // Fetch TLE y meta en paralelo
-  let upstream, tleUpdatedAt = null;
-  try {
-    const [tleRes, metaRes] = await Promise.all([
-      fetch(CELESTRAK_URL, {
-        headers: {
-          'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com; contact: jaime.automatiza@gmail.com)',
-          'Accept':     'application/json',
-        },
-      }),
-      fetch(CELESTRAK_META_URL).catch(() => null),
-    ]);
-
-    upstream = tleRes;
-
-    // Leer la fecha de actualización del meta.json si está disponible
-    if (metaRes && metaRes.ok) {
-      try {
-        const meta = await metaRes.json();
-        tleUpdatedAt = meta.updated || null;
-      } catch(e) {}
-    }
-  } catch (err) {
-    ctx.waitUntil(env.LAUNCHES_KV.put('celestrak:cooldown', String(Date.now() + 300000), { expirationTtl: 300 }));
-    return new Response('Celestrak unreachable: ' + err.message, {
-      status: 502,
-      headers: makeHeaders({ 'Content-Type': 'text/plain' }),
-    });
-  }
-
-  if (!upstream.ok) {
-    ctx.waitUntil(env.LAUNCHES_KV.put('celestrak:cooldown', String(Date.now() + 300000), { expirationTtl: 300 }));
-    return new Response(`Celestrak returned HTTP ${upstream.status}`, {
-      status: 502,
-      headers: makeHeaders({ 'Content-Type': 'text/plain' }),
-    });
-  }
-
-  const rawText = await upstream.text();
-  let gpData;
-  try {
-    gpData = JSON.parse(rawText);
-  } catch(e) {
-    ctx.waitUntil(env.LAUNCHES_KV.put('celestrak:cooldown', String(Date.now() + 300000), { expirationTtl: 300 }));
-    return new Response('CelesTrak no devolvió un JSON válido. Probablemente bloqueo activo.', {
-      status: 502,
-      headers: makeHeaders({ 'Content-Type': 'text/plain' })
-    });
-  }
-
-  // Segunda barrera (la primera está en el workflow que genera tle.json):
-  // tiene que ser una LISTA con una cantidad razonable de satélites. Hoy hay
-  // ~16.000; con menos de 5.000 algo va mal, y es mejor no cachear ni servir
-  // esa respuesta para que el navegador use su copia local de reserva.
-  if (!Array.isArray(gpData) || gpData.length < 5000) {
-    ctx.waitUntil(env.LAUNCHES_KV.put('celestrak:cooldown', String(Date.now() + 300000), { expirationTtl: 300 }));
-    return new Response('tle.json no contiene una lista de satélites válida.', {
-      status: 502,
-      headers: makeHeaders({ 'Content-Type': 'text/plain' })
-    });
-  }
-
-  const body = JSON.stringify(gpData);
-
-  const resp = new Response(body, {
-    status: 200,
-    headers: makeHeaders({
-      'Content-Type':   'application/json; charset=utf-8',
-      'Cache-Control':  `s-maxage=${TLE_TTL}, max-age=${TLE_TTL}, stale-while-revalidate=3600`,
-      'Vary':           'Accept-Encoding',
-      // ← AQUÍ: visible en F12 → Network → /api/tle → Response Headers
-      ...(tleUpdatedAt ? { 'X-TLE-Updated': tleUpdatedAt } : {}),
-    }),
+  return serveFromKv(ctx, env, {
+    kvKey: KV_KEY_TLE, cacheKey: CACHE_KEY_TLE, ttl: TLE_TTL,
+    label: 'TLE', updatedFromKey: KV_KEY_TLE_META,
   });
-
-  ctx.waitUntil(cache.put(CACHE_KEY_TLE, resp.clone()));
-  return resp;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1604,12 +1528,10 @@ async function handleMarsOrbitersPlayback(request, ctx, env) {
 // ═══════════════════════════════════════════════════════════════
 // HANDLER: /api/rover-trail/:id — rastro real de los rovers de Marte
 // ═══════════════════════════════════════════════════════════════
-// Los datos ya vienen completos y actualizados desde tu propio repositorio
-// de GitHub (el mismo patrón que /api/tle) — aquí solo hacemos de
-// intermediario con caché, para que mars.html nunca llame a GitHub directo.
+// Los rastros los genera el cron del propio Worker (fetchRoverTrailsToKv) y
+// se guardan en KV; aquí solo se leen, con caché de Cloudflare por delante.
 
-const ROVER_TRAIL_BASE = 'https://jaimeautomatiza.github.io/tle-proxy/data';
-const ROVER_TRAIL_TTL  = 6 * 3600; // mismo ritmo que tu workflow de GitHub Actions
+const ROVER_TRAIL_TTL  = 1800;
 const ROVER_IDS        = ['curiosity', 'perseverance'];
 
 async function handleRoverTrail(request, ctx, env) {
@@ -1620,34 +1542,11 @@ async function handleRoverTrail(request, ctx, env) {
       headers: makeHeaders({ 'Content-Type': 'application/json' }),
     });
   }
-
-  const cache = caches.default;
-  const cacheKey = `https://internal.satfleetlive/cache/rover-trail-${roverId}`;
-  const hit = await cache.match(cacheKey);
-  if (hit) return wrapCached(hit);
-
-  try {
-    const upstream = await fetch(`${ROVER_TRAIL_BASE}/${roverId}-trail.json`, {
-      headers: { 'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com)', 'Accept': 'application/json' },
-    });
-    if (!upstream.ok) throw new Error(`HTTP ${upstream.status}`);
-
-    const body = await upstream.text();
-    const resp = new Response(body, {
-      status: 200,
-      headers: makeHeaders({
-        'Content-Type':  'application/json; charset=utf-8',
-        'Cache-Control': `s-maxage=${ROVER_TRAIL_TTL}, max-age=${ROVER_TRAIL_TTL}`,
-      }),
-    });
-    ctx.waitUntil(cache.put(cacheKey, resp.clone()));
-    return resp;
-  } catch (err) {
-    return new Response(JSON.stringify({ error: 'Rover trail unreachable: ' + err.message, points: [] }), {
-      status: 502,
-      headers: makeHeaders({ 'Content-Type': 'application/json' }),
-    });
-  }
+  return serveFromKv(ctx, env, {
+    kvKey: KV_KEY_ROVER_PREFIX + roverId,
+    cacheKey: `https://internal.satfleetlive/cache/rover-trail-v2-${roverId}`,
+    ttl: ROVER_TRAIL_TTL, label: 'Rover trail',
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2081,19 +1980,15 @@ async function handleDeepSpacePlayback(request, ctx, env) {
 // ═══════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════
-// HANDLER: /api/data/:id — basura espacial y reentradas (repo satfleet-data)
+// HANDLER: /api/data/:id — basura espacial y reentradas (desde KV)
 // ═══════════════════════════════════════════════════════════════
-// Mismo patrón que /api/rover-trail: los datos ya vienen listos desde tu
-// repositorio de GitHub, y aquí solo hacemos de intermediario con caché de
-// Cloudflare. No usa KV, así que no gasta lecturas ni escrituras de KV.
 
-const DATA_BASE = 'https://jaimeautomatiza.github.io/satfleet-data/data';
 const DATA_FILES = {
-  debris:    { file: 'debris.json',    ttl: 12 * 3600 }, // el archivo cambia cada 12 h
-  reentries: { file: 'reentries.json', ttl:  1 * 3600 }, // cambia cada 6 h, pero una predicción cercana importa: refresco más a menudo
+  debris:    { kvKey: KV_KEY_DEBRIS,    ttl: 3600, label: 'Debris' },    // el KV se refresca cada 12 h
+  reentries: { kvKey: KV_KEY_REENTRIES, ttl:  600, label: 'Reentries' }, // el KV se refresca cada 6 h; una predicción cercana importa
 };
 
-async function handleDataFileOLD(request, ctx) {
+async function handleDataFile(request, ctx, env) {
   const id  = new URL(request.url).pathname.split('/').pop();
   const cfg = DATA_FILES[id];
   if (!cfg) {
@@ -2102,122 +1997,294 @@ async function handleDataFileOLD(request, ctx) {
       headers: makeHeaders({ 'Content-Type': 'application/json' }),
     });
   }
+  return serveFromKv(ctx, env, {
+    kvKey: cfg.kvKey,
+    cacheKey: `https://internal.satfleetlive/cache/data-v2-${id}`,
+    ttl: cfg.ttl, label: cfg.label,
+  });
+}
 
-  const cache    = caches.default;
-  const cacheKey = `https://internal.satfleetlive/cache/data-${id}`;
+// Lector genérico KV → Response, con caché de Cloudflare por delante para no
+// gastar una lectura de KV (y hasta ~10 MB) por cada visitante.
+async function serveFromKv(ctx, env, { kvKey, cacheKey, ttl, label, updatedFromKey }) {
+  const cache = caches.default;
   const hit = await cache.match(cacheKey);
   if (hit) return wrapCached(hit);
 
+  let body, updated = null;
   try {
-    const upstream = await fetch(`${DATA_BASE}/${cfg.file}`, {
-      headers: { 'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com)', 'Accept': 'application/json' },
-    });
-    if (!upstream.ok) throw new Error(`HTTP ${upstream.status}`);
-
-    const buf = await upstream.arrayBuffer();
-    // Comprobación mínima: un JSON de estos siempre empieza por "{".
-    // Si GitHub devolviera una página de error, NO la guardamos en caché.
-    if (new Uint8Array(buf)[0] !== 123) throw new Error('La respuesta no parece un JSON válido');
-
-    const resp = new Response(buf, {
-      status: 200,
-      headers: makeHeaders({
-        'Content-Type':  'application/json; charset=utf-8',
-        'Cache-Control': `s-maxage=${cfg.ttl}, max-age=${cfg.ttl}`,
-      }),
-    });
-    ctx.waitUntil(cache.put(cacheKey, resp.clone()));
-    return resp;
+    body = await env.LAUNCHES_KV.get(kvKey, { type: 'stream' });
+    if (body && updatedFromKey) {
+      try { updated = JSON.parse(await env.LAUNCHES_KV.get(updatedFromKey)).updated || null; } catch (e) {}
+    }
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Data unreachable: ' + err.message }), {
+    return new Response(JSON.stringify({ error: `${label}: KV error — ${err.message}` }), {
       status: 502,
-      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+      headers: makeHeaders({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }),
     });
   }
+  if (!body) {
+    // Aún no se ha ejecutado el cron por primera vez (o nunca tuvo éxito). No se cachea.
+    return new Response(JSON.stringify({ error: `${label}: datos aún no disponibles` }), {
+      status: 503,
+      headers: makeHeaders({ 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Retry-After': '300' }),
+    });
+  }
+
+  const resp = new Response(body, {
+    status: 200,
+    headers: makeHeaders({
+      'Content-Type':  'application/json; charset=utf-8',
+      'Cache-Control': `s-maxage=${ttl}, max-age=${ttl}`,
+      ...(updated ? { 'X-TLE-Updated': updated } : {}),
+    }),
+  });
+  ctx.waitUntil(cache.put(cacheKey, resp.clone()));
+  return resp;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HANDLER NUEVO: /api/data/:id — con copia de reserva
+// COLECTORES (CRON) — sustituyen a los workflows de GitHub Actions
 // ═══════════════════════════════════════════════════════════════
-// Igual que antes, pero además guarda una segunda copia "de reserva"
-// que dura 7 días. Si GitHub falla o devuelve un archivo roto, servimos
-// la copia de reserva en vez de dar error (y avisamos con la cabecera
-// X-Data-Stale para que la web pueda enseñar un aviso).
-const DATA_STALE_TTL = 7 * 24 * 3600; // la copia de reserva dura 7 días
+// Regla común: se descarga, se valida y SOLO entonces se hace put() en KV.
+// Cualquier error/timeout/respuesta rara → se registra y se conserva el
+// último dato válido que ya hubiera en KV.
 
-async function handleDataFile(request, ctx) {
-  const id  = new URL(request.url).pathname.split('/').pop();
-  const cfg = DATA_FILES[id];
-  if (!cfg) {
-    return new Response(JSON.stringify({ error: 'Unknown dataset' }), {
-      status: 404,
-      headers: makeHeaders({ 'Content-Type': 'application/json' }),
-    });
-  }
+const COLLECTOR_UA = 'SatFleetLive/3.0 (https://satfleetlive.com; contact: jaime.automatiza@gmail.com)';
+const KV_MAX_BYTES = 24 * 1024 * 1024; // KV admite 25 MiB por valor; dejamos margen
+const MIN_OBJECTS  = 5000;             // red de seguridad contra respuestas truncadas
 
-  const cache    = caches.default;
-  const cacheKey = `https://internal.satfleetlive/cache/data-${id}`;
-  const staleKey = `https://internal.satfleetlive/cache/data-${id}-stale`;
+async function putKvChecked(env, key, text) {
+  const bytes = new TextEncoder().encode(text).length;
+  if (bytes > KV_MAX_BYTES) throw new Error(`el valor pesa ${(bytes / 1048576).toFixed(1)} MB, cerca del límite de KV (25 MiB)`);
+  await env.LAUNCHES_KV.put(key, text);
+  return bytes;
+}
 
-  // 1. ¿Tenemos una copia fresca guardada? La servimos directamente.
-  const hit = await cache.match(cacheKey);
-  if (hit) return wrapCached(hit);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-  // 2. No hay copia fresca: pedimos el archivo a GitHub.
+// ── 1. TLE de CelesTrak (fetch-tle.yml) ─────────────────────────
+async function fetchTleToKv(env) {
   try {
-    const upstream = await fetch(`${DATA_BASE}/${cfg.file}`, {
-      headers: { 'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com)', 'Accept': 'application/json' },
-    });
-    if (!upstream.ok) throw new Error(`HTTP ${upstream.status}`);
-
-    const buf   = await upstream.arrayBuffer();
-    const bytes = new Uint8Array(buf);
-
-    // Comprobación barata: tiene que empezar por "{" y terminar por "}"
-    // (ignorando espacios y saltos de línea del final). Así detectamos
-    // páginas de error y también archivos cortados a medias.
-    let end = bytes.length - 1;
-    while (end > 0 && (bytes[end] === 10 || bytes[end] === 13 || bytes[end] === 32 || bytes[end] === 9)) end--;
-    if (bytes[0] !== 123 || bytes[end] !== 125) throw new Error('La respuesta no parece un JSON completo');
-
-    // Copia fresca (dura lo normal: 12 h la basura, 1 h las reentradas)
-    const resp = new Response(buf, {
-      status: 200,
-      headers: makeHeaders({
-        'Content-Type':  'application/json; charset=utf-8',
-        'Cache-Control': `s-maxage=${cfg.ttl}, max-age=${cfg.ttl}`,
-      }),
-    });
-    // Copia de reserva (dura 7 días)
-    const reserve = new Response(buf, {
-      status: 200,
-      headers: makeHeaders({
-        'Content-Type':  'application/json; charset=utf-8',
-        'Cache-Control': `s-maxage=${DATA_STALE_TTL}`,
-      }),
-    });
-    ctx.waitUntil(Promise.all([
-      cache.put(cacheKey, resp.clone()),
-      cache.put(staleKey, reserve),
-    ]));
-    return resp;
-
-  } catch (err) {
-    // 3. GitHub falló: intentamos la copia de reserva antes de rendirnos.
-    try {
-      const stale = await cache.match(staleKey);
-      if (stale) {
-        const r = wrapCached(stale);
-        r.headers.set('X-Data-Stale', '1');
-        r.headers.set('Cache-Control', 'no-store'); // que el navegador vuelva a preguntar pronto
-        return r;
+    let text = null, lastErr = 'desconocido';
+    for (let i = 1; i <= 3; i++) {           // equivale a curl --retry 3 --retry-delay 10
+      try {
+        const res = await fetch(CELESTRAK_GP_URL, {
+          headers: { 'User-Agent': COLLECTOR_UA, 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(30000),
+        });
+        // CelesTrak avisa explícitamente: ante un 403 o 404, repetir la
+        // petición no cambia nada y puede acabar con la IP en su cortafuegos.
+        // Solo se reintenta ante fallos de red o errores 5xx.
+        if (res.status === 403 || res.status === 404 || res.status === 301) {
+          lastErr = 'HTTP ' + res.status + ' (no se reintenta: CelesTrak lo prohíbe)';
+          break;
+        }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        text = await res.text();
+        break;
+      } catch (e) {
+        lastErr = e.message;
+        if (i < 3) await sleep(10000);
       }
-    } catch (e) { /* si la reserva también falla, seguimos al error */ }
+    }
+    if (text === null) throw new Error('CelesTrak no responde: ' + lastErr);
 
-    return new Response(JSON.stringify({ error: 'Data unreachable: ' + err.message }), {
-      status: 502,
-      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    // Tiene que ser JSON, una LISTA, y con una cantidad razonable de satélites (hoy ~16.000).
+    let data;
+    try { data = JSON.parse(text); } catch (e) { throw new Error('la respuesta no es JSON válido'); }
+    if (!Array.isArray(data) || data.length < MIN_OBJECTS) {
+      throw new Error(`lista inválida (${Array.isArray(data) ? data.length : typeof data} objetos, mínimo ${MIN_OBJECTS})`);
+    }
+
+    const bytes = await putKvChecked(env, KV_KEY_TLE, text);
+    await env.LAUNCHES_KV.put(KV_KEY_TLE_META, JSON.stringify({
+      updated: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+      source: 'celestrak.org',
+      count: data.length,
+    }));
+    console.log(`TLE: ${data.length} satélites guardados (${(bytes / 1048576).toFixed(1)} MB)`);
+  } catch (err) {
+    console.error('TLE: fallo, se conservan los datos anteriores —', err.message);
+  }
+}
+
+// ── Space-Track: sesión por cookie (lo que hacía curl -c/-b) ────
+async function spaceTrackLogin(env) {
+  if (!env.SPACETRACK_USER || !env.SPACETRACK_PASS) throw new Error('faltan los secrets SPACETRACK_USER / SPACETRACK_PASS');
+  const res = await fetch(`${SPACETRACK_BASE}/ajaxauth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': COLLECTOR_UA },
+    body: new URLSearchParams({ identity: env.SPACETRACK_USER, password: env.SPACETRACK_PASS }).toString(),
+    signal: AbortSignal.timeout(30000),
+  });
+  await res.text().catch(() => {});
+  const setCookies = typeof res.headers.getSetCookie === 'function'
+    ? res.headers.getSetCookie()
+    : (res.headers.get('set-cookie') || '').split(/,(?=\s*[^;,]+=)/);
+  const cookie = setCookies.map(c => c.split(';')[0].trim()).filter(Boolean).join('; ');
+  // Con credenciales malas responde 200 {"Login":"Failed"}: se comprueba la cookie, no el HTTP.
+  if (!cookie.includes('chocolatechip')) throw new Error('el login no devolvió sesión; revisa las credenciales');
+  return cookie;
+}
+
+async function spaceTrackLogout(cookie) {
+  try {
+    const r = await fetch(`${SPACETRACK_BASE}/ajaxauth/logout`, {
+      headers: { 'Cookie': cookie, 'User-Agent': COLLECTOR_UA },
+      signal: AbortSignal.timeout(15000),
     });
+    await r.body?.cancel();
+  } catch (e) { /* cerrar sesión es cortesía, no debe romper nada */ }
+}
+
+// Login → una consulta → logout (siempre). Devuelve el JSON ya parseado.
+async function spaceTrackQuery(env, path, timeoutMs) {
+  const cookie = await spaceTrackLogin(env);
+  try {
+    const res = await fetch(`${SPACETRACK_BASE}/basicspacedata/query/${path}`, {
+      headers: { 'Cookie': cookie, 'User-Agent': COLLECTOR_UA, 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) throw new Error('Space-Track devolvió HTTP ' + res.status);
+    const text = await res.text();
+    try { return JSON.parse(text); } catch (e) { throw new Error('la respuesta no es JSON válido'); }
+  } finally {
+    await spaceTrackLogout(cookie);
+  }
+}
+
+// ── 2. Basura espacial (fecth-debris.yml) ───────────────────────
+const DEBRIS_FIELDS = 'NORAD_CAT_ID,OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,RCS_SIZE,COUNTRY_CODE';
+const DEBRIS_INT_FIELDS   = ['NORAD_CAT_ID', 'EPHEMERIS_TYPE', 'ELEMENT_SET_NO', 'REV_AT_EPOCH'];
+const DEBRIS_FLOAT_FIELDS = ['MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY', 'BSTAR', 'MEAN_MOTION_DOT', 'MEAN_MOTION_DDOT'];
+const DEBRIS_REQUIRED     = ['NORAD_CAT_ID', 'EPOCH', 'MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY'];
+const isEmptyVal = (v) => v === null || v === undefined || v === '';
+
+async function fetchDebrisToKv(env) {
+  try {
+    // DEBRIS, sin reentrar ya (DECAY_DATE null), con elementos de los últimos 30 días. %3E = '>'.
+    const raw = await spaceTrackQuery(env,
+      `class/gp/OBJECT_TYPE/DEBRIS/DECAY_DATE/null-val/EPOCH/%3Enow-30/predicates/${DEBRIS_FIELDS}/orderby/NORAD_CAT_ID%20asc/format/json`,
+      240000);
+    if (!Array.isArray(raw)) throw new Error('Space-Track no devolvió una lista (¿error o límite de uso?)');
+
+    // Space-Track entrega todo como texto: se pasa a número (mismo formato que tle.json).
+    const objects = new Map();
+    let skipped = 0;
+    for (const r of raw) {
+      let ok = true;
+      for (const k of DEBRIS_INT_FIELDS) {
+        if (!isEmptyVal(r[k])) { const n = Number(r[k]); if (Number.isInteger(n)) r[k] = n; else ok = false; }
+      }
+      for (const k of DEBRIS_FLOAT_FIELDS) {
+        if (!isEmptyVal(r[k])) { const n = Number(r[k]); if (Number.isFinite(n)) r[k] = n; else ok = false; }
+      }
+      if (!ok || DEBRIS_REQUIRED.some(k => isEmptyVal(r[k]))) { skipped++; continue; }
+      objects.set(r.NORAD_CAT_ID, r);
+    }
+
+    const final = [...objects.keys()].sort((a, b) => a - b).map(k => objects.get(k));
+    if (final.length < MIN_OBJECTS) throw new Error(`solo ${final.length} objetos válidos (mínimo esperado ${MIN_OBJECTS})`);
+
+    const bytes = await putKvChecked(env, KV_KEY_DEBRIS, JSON.stringify({
+      updated: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+      source: 'Space-Track.org (18th Space Defense Squadron)',
+      count: final.length,
+      objects: final,
+    }));
+    console.log(`Debris: ${final.length} objetos guardados (${(bytes / 1048576).toFixed(1)} MB). Descartados por datos incompletos: ${skipped}`);
+  } catch (err) {
+    console.error('Debris: fallo, se conservan los datos anteriores —', err.message);
+  }
+}
+
+// ── 3. Predicciones de reentrada (fetch-reentries.yml) ──────────
+async function fetchReentriesToKv(env) {
+  try {
+    const raw = await spaceTrackQuery(env,
+      'class/tip/DECAY_EPOCH/%3Enow/orderby/DECAY_EPOCH%20asc/format/json', 120000);
+    if (!Array.isArray(raw)) throw new Error('Space-Track no devolvió una lista (¿error o límite de uso?)');
+
+    // Un objeto recibe varios avisos según se afina la predicción: nos quedamos con el más reciente.
+    const latest = new Map();
+    for (const r of raw) {
+      const norad = parseInt(r.NORAD_CAT_ID, 10);
+      if (!norad) continue;
+      const item = {
+        norad,
+        decayEpoch:   r.DECAY_EPOCH,    // momento previsto (UTC)
+        window:       r.WINDOW,         // incertidumbre en minutos
+        lat:          r.LAT,            // dónde cruza los 10 km de altitud (NO el punto de impacto)
+        lon:          r.LON,
+        incl:         r.INCL,
+        direction:    r.DIRECTION,
+        rev:          r.REV,
+        nextReport:   r.NEXT_REPORT,    // horas hasta el próximo aviso
+        highInterest: r.HIGH_INTEREST,
+        msgEpoch:     r.MSG_EPOCH,
+        insertEpoch:  r.INSERT_EPOCH,
+      };
+      const prev = latest.get(norad);
+      if (!prev || (item.insertEpoch || '') > (prev.insertEpoch || '')) latest.set(norad, item);
+    }
+
+    const final = [...latest.values()].sort((a, b) => (a.decayEpoch || '') < (b.decayEpoch || '') ? -1 : (a.decayEpoch || '') > (b.decayEpoch || '') ? 1 : 0);
+    if (!final.length) {
+      console.warn('Reentries: Space-Track no devolvió ninguna reentrada prevista. Se conserva el dato anterior.');
+      return;
+    }
+
+    await putKvChecked(env, KV_KEY_REENTRIES, JSON.stringify({
+      updated: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+      source: 'Space-Track.org (18th Space Defense Squadron)',
+      count: final.length,
+      reentries: final,
+    }));
+    console.log(`Reentries: ${final.length} reentradas previstas guardadas`);
+  } catch (err) {
+    console.error('Reentries: fallo, se conservan los datos anteriores —', err.message);
+  }
+}
+
+// ── 4. Rastro de los rovers de Marte (update_rover_trail.py) ────
+const ROVER_SOURCES = {
+  perseverance: 'https://mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_waypoints.json',
+  curiosity:    'https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json',
+};
+
+async function fetchRoverTrailsToKv(env) {
+  for (const [roverId, url] of Object.entries(ROVER_SOURCES)) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'Accept': 'application/json', 'User-Agent': 'SatFleetLive-RoverProxy/1.0 (https://satfleetlive.com)' },
+        signal: AbortSignal.timeout(60000),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+
+      const points = [];
+      for (const f of (data && data.features) || []) {
+        const p = (f && f.properties) || {};
+        if (p.lat == null || p.lon == null) continue;
+        points.push({
+          lat: p.lat,
+          lng: p.lon,
+          sol: p.sol ?? null,
+          distTotalKm: p.dist_total_m ? Math.round(p.dist_total_m / 10) / 100 : null,
+        });
+      }
+      if (!points.length) throw new Error('la NASA no devolvió ningún punto válido');
+
+      await putKvChecked(env, KV_KEY_ROVER_PREFIX + roverId, JSON.stringify({
+        points,
+        updated: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+      }));
+      console.log(`Rover ${roverId}: ${points.length} puntos guardados`);
+    } catch (err) {
+      // Un rover que falla no impide actualizar el otro, ni toca su KV anterior.
+      console.error(`Rover ${roverId}: fallo, se conserva el dato anterior —`, err.message);
+    }
   }
 }
 
@@ -2225,6 +2292,14 @@ export default {
   async scheduled(event, env, ctx) {
     // Tres tareas comparten el mismo "despertador" de Cron Triggers,
     // diferenciadas por qué expresión cron ha disparado esta ejecución.
+    // Colectores de datos (antes GitHub Actions). Cada uno captura sus propios
+    // errores y NUNCA sobrescribe el KV si algo falla.
+    switch (event.cron) {
+      case TLE_CRON:       await fetchTleToKv(env);          return;
+      case DEBRIS_CRON:    await fetchDebrisToKv(env);       return;
+      case REENTRIES_CRON: await fetchReentriesToKv(env);    return;
+      case ROVER_CRON:     await fetchRoverTrailsToKv(env);  return;
+    }
     if (event.cron === TLE_ARCHIVE_CRON) {
       await archiveTleSnapshot(env);
       return;
@@ -2429,7 +2504,7 @@ export default {
       return handleDeepSpacePlayback(request, ctx, env);
     }
     if (pathname.startsWith('/api/rover-trail/')) return handleRoverTrail(request, ctx, env);
-    if (pathname.startsWith('/api/data/')) return handleDataFile(request, ctx);
+    if (pathname.startsWith('/api/data/')) return handleDataFile(request, ctx, env);
 
     return new Response(JSON.stringify({ error: 'Not Found', path: pathname }), {
       status: 404,
