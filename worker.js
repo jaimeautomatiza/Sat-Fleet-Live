@@ -98,7 +98,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
-  'Access-Control-Expose-Headers': 'X-TLE-Updated',
+  'Access-Control-Expose-Headers': 'X-TLE-Updated, X-Data-Stale',
 };
 
 const SEC_HEADERS = {
@@ -910,6 +910,13 @@ async function archiveTleSnapshot(env) {
     return;
   }
 
+  // No archivar un día si lo que llegó no es una lista razonable: una foto
+  // vacía quedaría 30 días en el calendario de Playback como un día "válido".
+  if (!Array.isArray(gpData) || gpData.length < 5000) {
+    console.error('TLE archive: tle.json no es una lista válida, hoy no se archiva.');
+    return;
+  }
+
   let text = '';
   let converted = 0;
   for (const obj of gpData) {
@@ -920,6 +927,11 @@ async function archiveTleSnapshot(env) {
     } catch (e) {
       continue;
     }
+  }
+
+  if (converted < 5000) {
+    console.error(`TLE archive: solo se convirtieron ${converted} objetos, hoy no se archiva.`);
+    return;
   }
 
   const dateKey = new Date().toISOString().slice(0, 10);
@@ -1037,6 +1049,18 @@ async function handleTle(ctx, env) {
   } catch(e) {
     ctx.waitUntil(env.LAUNCHES_KV.put('celestrak:cooldown', String(Date.now() + 300000), { expirationTtl: 300 }));
     return new Response('CelesTrak no devolvió un JSON válido. Probablemente bloqueo activo.', {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'text/plain' })
+    });
+  }
+
+  // Segunda barrera (la primera está en el workflow que genera tle.json):
+  // tiene que ser una LISTA con una cantidad razonable de satélites. Hoy hay
+  // ~16.000; con menos de 5.000 algo va mal, y es mejor no cachear ni servir
+  // esa respuesta para que el navegador use su copia local de reserva.
+  if (!Array.isArray(gpData) || gpData.length < 5000) {
+    ctx.waitUntil(env.LAUNCHES_KV.put('celestrak:cooldown', String(Date.now() + 300000), { expirationTtl: 300 }));
+    return new Response('tle.json no contiene una lista de satélites válida.', {
       status: 502,
       headers: makeHeaders({ 'Content-Type': 'text/plain' })
     });
@@ -2069,7 +2093,7 @@ const DATA_FILES = {
   reentries: { file: 'reentries.json', ttl:  1 * 3600 }, // cambia cada 6 h, pero una predicción cercana importa: refresco más a menudo
 };
 
-async function handleDataFile(request, ctx) {
+async function handleDataFileOLD(request, ctx) {
   const id  = new URL(request.url).pathname.split('/').pop();
   const cfg = DATA_FILES[id];
   if (!cfg) {
@@ -2105,6 +2129,91 @@ async function handleDataFile(request, ctx) {
     ctx.waitUntil(cache.put(cacheKey, resp.clone()));
     return resp;
   } catch (err) {
+    return new Response(JSON.stringify({ error: 'Data unreachable: ' + err.message }), {
+      status: 502,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HANDLER NUEVO: /api/data/:id — con copia de reserva
+// ═══════════════════════════════════════════════════════════════
+// Igual que antes, pero además guarda una segunda copia "de reserva"
+// que dura 7 días. Si GitHub falla o devuelve un archivo roto, servimos
+// la copia de reserva en vez de dar error (y avisamos con la cabecera
+// X-Data-Stale para que la web pueda enseñar un aviso).
+const DATA_STALE_TTL = 7 * 24 * 3600; // la copia de reserva dura 7 días
+
+async function handleDataFile(request, ctx) {
+  const id  = new URL(request.url).pathname.split('/').pop();
+  const cfg = DATA_FILES[id];
+  if (!cfg) {
+    return new Response(JSON.stringify({ error: 'Unknown dataset' }), {
+      status: 404,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
+  const cache    = caches.default;
+  const cacheKey = `https://internal.satfleetlive/cache/data-${id}`;
+  const staleKey = `https://internal.satfleetlive/cache/data-${id}-stale`;
+
+  // 1. ¿Tenemos una copia fresca guardada? La servimos directamente.
+  const hit = await cache.match(cacheKey);
+  if (hit) return wrapCached(hit);
+
+  // 2. No hay copia fresca: pedimos el archivo a GitHub.
+  try {
+    const upstream = await fetch(`${DATA_BASE}/${cfg.file}`, {
+      headers: { 'User-Agent': 'SatFleetLive/3.0 (https://satfleetlive.com)', 'Accept': 'application/json' },
+    });
+    if (!upstream.ok) throw new Error(`HTTP ${upstream.status}`);
+
+    const buf   = await upstream.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+
+    // Comprobación barata: tiene que empezar por "{" y terminar por "}"
+    // (ignorando espacios y saltos de línea del final). Así detectamos
+    // páginas de error y también archivos cortados a medias.
+    let end = bytes.length - 1;
+    while (end > 0 && (bytes[end] === 10 || bytes[end] === 13 || bytes[end] === 32 || bytes[end] === 9)) end--;
+    if (bytes[0] !== 123 || bytes[end] !== 125) throw new Error('La respuesta no parece un JSON completo');
+
+    // Copia fresca (dura lo normal: 12 h la basura, 1 h las reentradas)
+    const resp = new Response(buf, {
+      status: 200,
+      headers: makeHeaders({
+        'Content-Type':  'application/json; charset=utf-8',
+        'Cache-Control': `s-maxage=${cfg.ttl}, max-age=${cfg.ttl}`,
+      }),
+    });
+    // Copia de reserva (dura 7 días)
+    const reserve = new Response(buf, {
+      status: 200,
+      headers: makeHeaders({
+        'Content-Type':  'application/json; charset=utf-8',
+        'Cache-Control': `s-maxage=${DATA_STALE_TTL}`,
+      }),
+    });
+    ctx.waitUntil(Promise.all([
+      cache.put(cacheKey, resp.clone()),
+      cache.put(staleKey, reserve),
+    ]));
+    return resp;
+
+  } catch (err) {
+    // 3. GitHub falló: intentamos la copia de reserva antes de rendirnos.
+    try {
+      const stale = await cache.match(staleKey);
+      if (stale) {
+        const r = wrapCached(stale);
+        r.headers.set('X-Data-Stale', '1');
+        r.headers.set('Cache-Control', 'no-store'); // que el navegador vuelva a preguntar pronto
+        return r;
+      }
+    } catch (e) { /* si la reserva también falla, seguimos al error */ }
+
     return new Response(JSON.stringify({ error: 'Data unreachable: ' + err.message }), {
       status: 502,
       headers: makeHeaders({ 'Content-Type': 'application/json' }),
