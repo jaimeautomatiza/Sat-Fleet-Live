@@ -2154,8 +2154,28 @@ async function spaceTrackQuery(env, path, timeoutMs) {
   }
 }
 
+// Como spaceTrackQuery, pero con UNA sola sesión para varias consultas seguidas:
+// login → consulta 1 → consulta 2 → ... → logout.
+async function spaceTrackSession(env, fn) {
+  const cookie = await spaceTrackLogin(env);
+  try {
+    const query = async (path, timeoutMs) => {
+      const res = await fetch(`${SPACETRACK_BASE}/basicspacedata/query/${path}`, {
+        headers: { 'Cookie': cookie, 'User-Agent': COLLECTOR_UA, 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (!res.ok) throw new Error('Space-Track devolvió HTTP ' + res.status);
+      const text = await res.text();
+      try { return JSON.parse(text); } catch (e) { throw new Error('la respuesta no es JSON válido'); }
+    };
+    return await fn(query);
+  } finally {
+    await spaceTrackLogout(cookie);
+  }
+}
+
 // ── 2. Basura espacial (fecth-debris.yml) ───────────────────────
-const DEBRIS_FIELDS = 'NORAD_CAT_ID,OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,RCS_SIZE,COUNTRY_CODE';
+const DEBRIS_FIELDS = 'NORAD_CAT_ID,OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,OBJECT_TYPE,RCS_SIZE,COUNTRY_CODE';
 const DEBRIS_INT_FIELDS   = ['NORAD_CAT_ID', 'EPHEMERIS_TYPE', 'ELEMENT_SET_NO', 'REV_AT_EPOCH'];
 const DEBRIS_FLOAT_FIELDS = ['MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY', 'BSTAR', 'MEAN_MOTION_DOT', 'MEAN_MOTION_DDOT'];
 const DEBRIS_REQUIRED     = ['NORAD_CAT_ID', 'EPOCH', 'MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY'];
@@ -2163,9 +2183,12 @@ const isEmptyVal = (v) => v === null || v === undefined || v === '';
 
 async function fetchDebrisToKv(env) {
   try {
-    // DEBRIS, sin reentrar ya (DECAY_DATE null), con elementos de los últimos 30 días. %3E = '>'.
+    // Fragmentos (DEBRIS) y cuerpos de cohete (ROCKET BODY), sin reentrar ya
+    // (DECAY_DATE null) y con elementos de los últimos 30 días.
+    // %3E = '>', %20 = espacio. Van en una sola consulta y se distinguen luego
+    // por OBJECT_TYPE, que ahora se pide y se guarda como campo.
     const raw = await spaceTrackQuery(env,
-      `class/gp/OBJECT_TYPE/DEBRIS/DECAY_DATE/null-val/EPOCH/%3Enow-30/predicates/${DEBRIS_FIELDS}/orderby/NORAD_CAT_ID%20asc/format/json`,
+      `class/gp/OBJECT_TYPE/DEBRIS,ROCKET%20BODY/DECAY_DATE/null-val/EPOCH/%3Enow-30/predicates/${DEBRIS_FIELDS}/orderby/NORAD_CAT_ID%20asc/format/json`,
       240000);
     if (!Array.isArray(raw)) throw new Error('Space-Track no devolvió una lista (¿error o límite de uso?)');
 
@@ -2193,7 +2216,8 @@ async function fetchDebrisToKv(env) {
       count: final.length,
       objects: final,
     }));
-    console.log(`Debris: ${final.length} objetos guardados (${(bytes / 1048576).toFixed(1)} MB). Descartados por datos incompletos: ${skipped}`);
+    const nRb = final.reduce((a, o) => a + (o.OBJECT_TYPE === 'ROCKET BODY' ? 1 : 0), 0);
+    console.log(`Debris: ${final.length} objetos guardados — ${final.length - nRb} fragmentos + ${nRb} cuerpos de cohete (${(bytes / 1048576).toFixed(1)} MB). Descartados por datos incompletos: ${skipped}`);
   } catch (err) {
     console.error('Debris: fallo, se conservan los datos anteriores —', err.message);
   }
@@ -2202,17 +2226,61 @@ async function fetchDebrisToKv(env) {
 // ── 3. Predicciones de reentrada (fetch-reentries.yml) ──────────
 async function fetchReentriesToKv(env) {
   try {
-    const raw = await spaceTrackQuery(env,
-      'class/tip/DECAY_EPOCH/%3Enow/orderby/DECAY_EPOCH%20asc/format/json', 120000);
-    if (!Array.isArray(raw)) throw new Error('Space-Track no devolvió una lista (¿error o límite de uso?)');
+    // Libreta de nombres: lo que ya guardamos la última vez. Así solo preguntamos
+    // a Space-Track por los objetos que todavía no conocemos.
+    const known = new Map();
+    try {
+      const prevRaw = await env.LAUNCHES_KV.get(KV_KEY_REENTRIES);
+      if (prevRaw) {
+        for (const r of (JSON.parse(prevRaw).reentries || [])) {
+          if (r.name) known.set(r.norad, { name: r.name, objectType: r.objectType, country: r.country, launch: r.launch, rcs: r.rcs });
+        }
+      }
+    } catch (e) { /* sin libreta previa: se piden todos */ }
+
+    // Una sola sesión de Space-Track para las dos consultas.
+    const { raw, satcat } = await spaceTrackSession(env, async (query) => {
+      const raw = await query('class/tip/DECAY_EPOCH/%3Enow/orderby/DECAY_EPOCH%20asc/format/json', 120000);
+      if (!Array.isArray(raw)) throw new Error('Space-Track no devolvió una lista (¿error o límite de uso?)');
+
+      const missing = [...new Set(raw.map(r => parseInt(r.NORAD_CAT_ID, 10)).filter(n => n && !known.has(n)))];
+      const satcat = [];
+      if (missing.length) {
+        // Si esta segunda consulta falla, NO se pierde la lista de reentradas:
+        // se publican igualmente, solo que sin nombre (se reintenta en 6 h).
+        try {
+          for (let i = 0; i < missing.length; i += 150) {
+            const chunk = missing.slice(i, i + 150);
+            const rows = await query(
+              `class/satcat/NORAD_CAT_ID/${chunk.join(',')}/CURRENT/Y/predicates/NORAD_CAT_ID,OBJECT_NAME,OBJECT_TYPE,COUNTRY,LAUNCH,RCS_SIZE/format/json`,
+              60000);
+            if (Array.isArray(rows)) satcat.push(...rows);
+          }
+        } catch (e) {
+          console.warn('Reentries: no se pudieron obtener los nombres, se publica sin ellos —', e.message);
+        }
+      }
+      return { raw, satcat };
+    });
+
+    for (const s of satcat) {
+      const n = parseInt(s.NORAD_CAT_ID, 10);
+      if (n) known.set(n, { name: s.OBJECT_NAME || null, objectType: s.OBJECT_TYPE || null, country: s.COUNTRY || null, launch: s.LAUNCH || null, rcs: s.RCS_SIZE || null });
+    }
 
     // Un objeto recibe varios avisos según se afina la predicción: nos quedamos con el más reciente.
     const latest = new Map();
     for (const r of raw) {
       const norad = parseInt(r.NORAD_CAT_ID, 10);
       if (!norad) continue;
+      const info = known.get(norad) || {};
       const item = {
         norad,
+        name:         info.name       || null,   // NUEVO
+        objectType:   info.objectType || null,   // NUEVO: PAYLOAD / ROCKET BODY / DEBRIS
+        country:      info.country    || null,   // NUEVO
+        launch:       info.launch     || null,   // NUEVO
+        rcs:          info.rcs        || null,   // NUEVO
         decayEpoch:   r.DECAY_EPOCH,    // momento previsto (UTC)
         window:       r.WINDOW,         // incertidumbre en minutos
         lat:          r.LAT,            // dónde cruza los 10 km de altitud (NO el punto de impacto)
@@ -2241,7 +2309,7 @@ async function fetchReentriesToKv(env) {
       count: final.length,
       reentries: final,
     }));
-    console.log(`Reentries: ${final.length} reentradas previstas guardadas`);
+    console.log(`Reentries: ${final.length} reentradas previstas guardadas (${satcat.length} nombres nuevos)`);
   } catch (err) {
     console.error('Reentries: fallo, se conservan los datos anteriores —', err.message);
   }

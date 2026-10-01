@@ -690,6 +690,16 @@
             border-bottom-color: rgba(0,0,0,0.06);
         }
 
+        .satellite-norad {
+            font-size: 0.66rem;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            color: rgba(255,255,255,0.45);
+            margin-top: 2px;
+            line-height: 1.2;
+        }
+        body.light-mode .satellite-norad { color: rgba(0,0,0,0.45); }
+
         .satellite-name {
             font-size: 0.92rem;
             font-weight: 700;
@@ -783,6 +793,26 @@
         }
 
         /* ===== LEGEND — desktop (arriba izquierda, compacta) ===== */
+        /* Selector de modo: activos vs basura */
+        .mode-switch {
+            display: flex; gap: 4px; margin-bottom: 10px;
+            background: rgba(255,255,255,0.05); border-radius: 8px; padding: 3px;
+        }
+        .mode-btn {
+            flex: 1; padding: 7px 10px; border: none; border-radius: 6px;
+            background: transparent; color: rgba(255,255,255,0.55);
+            font-size: 0.76rem; font-weight: 600; cursor: pointer;
+            transition: background 0.2s, color 0.2s; font-family: inherit;
+        }
+        .mode-btn.active { background: rgba(156,39,176,0.35); color: #fff; }
+        body.light-mode .mode-btn { color: rgba(0,0,0,0.5); }
+        body.light-mode .mode-btn.active { background: rgba(156,39,176,0.25); color: #000; }
+        .debris-head {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; color: rgba(255,255,255,0.45);
+        }
+        body.light-mode .debris-head { color: rgba(0,0,0,0.45); }
+
         .legend {
             position: fixed;
             top: calc(var(--bar-height) + 12px);
@@ -1228,7 +1258,7 @@
 
 .layer-toggle-btn {
     padding: 6px 16px;
-    border-radius: 18px;
+    border-radius: 14px;
     border: 2px solid rgba(255,255,255,0.15);
     background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.5);
@@ -1255,6 +1285,64 @@ body.light-mode .layer-toggle-btn {
     box-shadow: 0 0 8px rgba(156, 39, 176, 0.3);
 }
 
+.layer-toggle-btn.reentries-btn.active {
+    border-color: #ff3b30;
+    background: rgba(255, 59, 48, 0.2);
+    color: #ff3b30;
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.3);
+}
+
+/* ===== LISTA DE RE-ENTRIES ===== */
+.re-list-wrap { margin-top: 10px; }
+.re-list-btn {
+    padding: 6px 14px; border-radius: 14px; cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.6); font-family: inherit; font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.3px; white-space: nowrap; transition: all 0.2s ease;
+    display: flex; align-items: center; gap: 6px;
+}
+.re-list-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); }
+.re-list-btn.active { border-color: #ff3b30; background: rgba(255,59,48,0.2); color: #ff3b30; }
+body.light-mode .re-list-btn { border-color: rgba(0,0,0,0.12); background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.5); }
+body.light-mode .re-list-btn:hover { background: rgba(0,0,0,0.08); color: rgba(0,0,0,0.85); }
+body.light-mode .re-list-btn.active { border-color: #ff3b30; background: rgba(255,59,48,0.12); color: #d92c20; }
+.re-summary { font-size: 0.72rem; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+.re-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.re-chip {
+    padding: 4px 12px; border-radius: 14px; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.6); font-size: 0.72rem; font-weight: 600;
+}
+.re-chip.active { border-color: #ff3b30; background: rgba(255,59,48,0.2); color: #ff3b30; }
+.re-search {
+    width: 100%; box-sizing: border-box; margin: 8px 0; padding: 6px 10px;
+    border-radius: 6px; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9);
+    font-size: 0.78rem; outline: none;
+}
+.re-search:focus { border-color: #ff3b30; }
+.re-list { max-height: min(260px, 32vh); overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
+.re-row {
+    cursor: pointer; padding: 7px 10px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.08); border-left: 4px solid var(--re-color, #d1d1d6);
+    background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.9);
+}
+.re-row:hover { background: rgba(255,255,255,0.1); }
+.re-row.sel { border-color: var(--re-color, #d1d1d6); background: rgba(255,255,255,0.12); }
+.re-row-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.re-name { font-size: 0.8rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.re-cd { font-size: 0.76rem; font-weight: 700; white-space: nowrap; color: var(--re-color, #d1d1d6); }
+.re-meta { font-size: 0.68rem; opacity: 0.7; line-height: 1.4; margin-top: 2px; }
+.re-badge { font-size: 0.56rem; font-weight: 800; padding: 1px 5px; border-radius: 6px; background: #ff3b30; color: #fff; vertical-align: middle; }
+.re-empty { font-size: 0.74rem; opacity: 0.6; padding: 8px 2px; }
+body.light-mode .re-summary { color: rgba(0,0,0,0.6); }
+body.light-mode .re-chip { border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.55); }
+body.light-mode .re-chip.active { border-color: #ff3b30; background: rgba(255,59,48,0.12); color: #d92c20; }
+body.light-mode .re-search { border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.04); color: rgba(0,0,0,0.85); }
+body.light-mode .re-row { border-color: rgba(0,0,0,0.08); border-left-color: var(--re-color, #999); background: rgba(0,0,0,0.03); color: rgba(0,0,0,0.85); }
+body.light-mode .re-row:hover { background: rgba(0,0,0,0.07); }
+body.light-mode .re-row.sel { background: rgba(0,0,0,0.09); }
+
 .layer-toggle-btn.rockets-btn.active {
     border-color: #ff6b35;
     background: rgba(255, 107, 53, 0.2);
@@ -1280,7 +1368,7 @@ body.light-mode .layer-sep { background: rgba(0,0,0,0.08); }
     border: 1.5px solid rgba(255,107,53,0.25);
     background: rgba(255,107,53,0.04);
     color: rgba(255,255,255,0.55);
-    border-radius: 12px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.76rem;
     font-weight: 500;
@@ -2407,7 +2495,10 @@ body.light-mode .rocket-filter-chip {
 <!-- Desktop Satellite Info Panel -->
 <div class="satellite-info" id="satelliteInfo">
     <div class="info-header">
-        <div class="satellite-name" id="satelliteName">Satellite Name</div>
+        <div style="min-width:0;">
+            <div class="satellite-name" id="satelliteName">Satellite Name</div>
+            <div class="satellite-norad" id="satelliteNorad"></div>
+        </div>
         <div style="display:flex; align-items:center;">
             <button class="collapse-btn" onclick="toggleSatelliteInfoCollapse()" title="Collapse">−</button>
             <button class="close-btn" onclick="closeSatelliteInfo()">×</button>
@@ -2454,6 +2545,18 @@ body.light-mode .rocket-filter-chip {
         <span class="legend-reopen" onclick="openLegend()">▶ Legend</span>
         <button class="legend-close" onclick="closeLegend()" title="Collapse">−</button>
     </div>
+    <div id="legendDebrisItems" style="display:none;">
+        <div class="legend-item"><div class="legend-color" style="background:#ff4d4d"></div><span>Fengyun 1C (2007)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffa726"></div><span>Cosmos 2251 (2009)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#29b6f6"></div><span>Iridium 33 (2009)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#ab47bc"></div><span>Cosmos 1408 (2021)</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Rocket bodies</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#8d9199"></div><span>Other debris</span></div>
+        <div class="legend-item" style="margin-top:6px;opacity:0.65;font-size:0.68rem;line-height:1.35;">
+            <span id="legendDebrisAge">Dot size = radar cross-section</span>
+        </div>
+    </div>
+    <div id="legendSatItems">
     <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>GPS / Navigation</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Station</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#00d26a"></div><span>Starlink / Internet</span></div>
@@ -2463,8 +2566,20 @@ body.light-mode .rocket-filter-chip {
     <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Geodetic / Tracking</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Technology / Exp.</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other / Misc</span></div>
+    </div><!-- /legendSatItems -->
+
+    <div id="legendReentryItems" style="display:none;">
+        <div class="legend-item legend-sep" style="width: 100%; height: 1px; background: rgba(128,128,128,0.3); margin: 6px 0;"></div>
+        <div class="legend-item" style="font-size: 0.72rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 2px;">Re-entries</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ff3b30; border-radius:1px; transform:rotate(45deg)"></div><span>In less than 6 hours</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#ff9500; border-radius:1px; transform:rotate(45deg)"></div><span>In less than 24 hours</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffd60a; border-radius:1px; transform:rotate(45deg)"></div><span>In less than 3 days</span></div>
+        <div class="legend-item"><div class="legend-color" style="background:#d1d1d6; border-radius:1px; transform:rotate(45deg)"></div><span>In more than 3 days</span></div>
+        <div class="legend-item" style="font-size:0.68rem; opacity:0.7; line-height:1.35; max-width:185px; align-items:flex-start;"><span>Shaded area = possible fall zone. Fainter = less precise time. Zones with uncertainty over ± 30 min only show when selected.</span></div>
+    </div>
     
-    <div class="legend-item" style="width: 100%; height: 1px; background: rgba(128,128,128,0.3); margin: 6px 0;"></div>
+    <div id="legendRocketItems">
+    <div class="legend-item legend-sep" style="width: 100%; height: 1px; background: rgba(128,128,128,0.3); margin: 6px 0;"></div>
     <div class="legend-item" style="font-size: 0.72rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 2px;">Rockets</div>
     <div class="legend-item"><img src="images/rockets/rocket_spacex.webp" style="width:10px;height:20px;object-fit:contain;"><span>SpaceX</span></div>
     <div class="legend-item"><img src="images/rockets/rocket_rocketlab.webp" style="width:10px;height:20px;object-fit:contain;"><span>Rocket Lab</span></div>
@@ -2477,6 +2592,7 @@ body.light-mode .rocket-filter-chip {
         <img src="images/live-streaming.svg" style="width:20px;height:20px;object-fit:contain;"> 
         <span style="color:#ff4400; font-weight:bold;">LIVE</span>
     </div>
+    </div><!-- /legendRocketItems -->
 </div>
 <!-- Filters Panel (flotante sobre el mapa) -->
 <div id="filtersPanel">
@@ -2485,8 +2601,38 @@ body.light-mode .rocket-filter-chip {
         <button class="filters-panel-close" onclick="closeFiltersPanel()">×</button>
     </div>
 
+    <!-- SELECTOR DE MODO: activos o basura (excluyentes) -->
+    <div class="mode-switch">
+        <button class="mode-btn active" id="modeActiveBtn" onclick="switchDataMode('active')">Active objects</button>
+        <button class="mode-btn" id="modeDebrisBtn" onclick="switchDataMode('debris')">Space debris</button>
+    </div>
+
+    <!-- SPACE DEBRIS -->
+    <div class="layer-section" id="debrisSection" style="display:none;">
+        <div class="layer-header"><span class="debris-head">Origin</span></div>
+        <div class="layer-filters-wrap">
+            <div class="filters-grid">
+                <button class="filter-chip active" data-debris-type="fengyun" onclick="toggleDebrisFilter('fengyun')">Fengyun 1C</button>
+                <button class="filter-chip active" data-debris-type="cosmos2251" onclick="toggleDebrisFilter('cosmos2251')">Cosmos 2251</button>
+                <button class="filter-chip active" data-debris-type="iridium33" onclick="toggleDebrisFilter('iridium33')">Iridium 33</button>
+                <button class="filter-chip active" data-debris-type="cosmos1408" onclick="toggleDebrisFilter('cosmos1408')">Cosmos 1408</button>
+                <button class="filter-chip active" data-debris-type="rocketbody" onclick="toggleDebrisFilter('rocketbody')">Rocket bodies</button>
+                <button class="filter-chip" data-debris-type="otherdeb" onclick="toggleDebrisFilter('otherdeb')">Other debris</button>
+            </div>
+        </div>
+        <div class="layer-header" style="margin-top:8px;"><span class="debris-head">Size</span></div>
+        <div class="layer-filters-wrap">
+            <div class="filters-grid">
+                <button class="filter-chip active" data-debris-size="all" onclick="setDebrisSize('all')">All</button>
+                <button class="filter-chip" data-debris-size="LARGE" onclick="setDebrisSize('LARGE')">Large</button>
+                <button class="filter-chip" data-debris-size="MEDIUM" onclick="setDebrisSize('MEDIUM')">Medium</button>
+                <button class="filter-chip" data-debris-size="SMALL" onclick="setDebrisSize('SMALL')">Small</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SATELLITES -->
-    <div class="layer-section">
+    <div class="layer-section" id="satelliteSection">
         <div class="layer-header">
             <button class="layer-toggle-btn satellites-btn active" id="satellitesLayerBtn" onclick="toggleSatellitesLayer()">Satellites</button>
         </div>
@@ -2508,6 +2654,15 @@ body.light-mode .rocket-filter-chip {
 
     <div class="layer-sep"></div>
 
+    <!-- REENTRIES -->
+    <div class="layer-section">
+        <div class="layer-header">
+            <button class="layer-toggle-btn reentries-btn" id="reentriesLayerBtn" onclick="toggleReentriesLayer()">Re-entries</button>
+        </div>
+    </div>
+
+    <div class="layer-sep"></div>
+
     <!-- ROCKETS -->
     <div class="layer-section">
         <div class="layer-header">
@@ -2516,7 +2671,7 @@ body.light-mode .rocket-filter-chip {
         <div class="layer-filters-wrap" id="rocketFiltersWrap">
             <div class="filters-grid">
                 <button class="rocket-filter-chip active" data-rtype="all" onclick="filterRockets('all')">All</button>
-                <button class="rocket-filter-chip" data-rtype="live" onclick="filterRockets('live')">🔴 Live</button>
+                <button class="rocket-filter-chip" data-rtype="live" onclick="filterRockets('live')">Live</button>
                 <button class="rocket-filter-chip" data-rtype="today" onclick="filterRockets('today')">Today</button>
                 <button class="rocket-filter-chip" data-rtype="spacex" onclick="filterRockets('spacex')">SpaceX</button>
                 <button class="rocket-filter-chip" data-rtype="rocketlab" onclick="filterRockets('rocketlab')">Rocket Lab</button>
@@ -2546,7 +2701,10 @@ body.light-mode .rocket-filter-chip {
             <div class="mobile-section-title">Satellite Information</div>
             <div class="mobile-satellite-info">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div class="mobile-satellite-name" id="mobileSatelliteName" style="margin-bottom: 0;">Select a satellite</div>
+                    <div style="min-width:0;">
+                        <div class="mobile-satellite-name" id="mobileSatelliteName" style="margin-bottom: 0;">Select a satellite</div>
+                        <div class="satellite-norad" id="mobileSatelliteNorad"></div>
+                    </div>
                 </div>
                 <div class="mobile-info-grid">
                     <div class="mobile-info-item">
@@ -2573,8 +2731,34 @@ body.light-mode .rocket-filter-chip {
         <div class="mobile-section">
             <div class="mobile-section-title">Layers & Filters</div>
 
+            <!-- SELECTOR DE MODO (móvil) -->
+            <div class="mode-switch">
+                <button class="mode-btn active" id="mobileModeActiveBtn" onclick="switchDataMode('active')">Active objects</button>
+                <button class="mode-btn" id="mobileModeDebrisBtn" onclick="switchDataMode('debris')">Space debris</button>
+            </div>
+
+            <!-- Space debris (móvil) -->
+            <div id="mobileDebrisSection" style="display:none; margin-bottom:10px;">
+                <div class="layer-header"><span class="debris-head">Origin</span></div>
+                <div class="mobile-filters">
+                    <button class="mobile-filter-btn active" data-debris-type="fengyun" onclick="toggleDebrisFilter('fengyun')">Fengyun 1C</button>
+                    <button class="mobile-filter-btn active" data-debris-type="cosmos2251" onclick="toggleDebrisFilter('cosmos2251')">Cosmos 2251</button>
+                    <button class="mobile-filter-btn active" data-debris-type="iridium33" onclick="toggleDebrisFilter('iridium33')">Iridium 33</button>
+                    <button class="mobile-filter-btn active" data-debris-type="cosmos1408" onclick="toggleDebrisFilter('cosmos1408')">Cosmos 1408</button>
+                    <button class="mobile-filter-btn active" data-debris-type="rocketbody" onclick="toggleDebrisFilter('rocketbody')">Rocket bodies</button>
+                    <button class="mobile-filter-btn" data-debris-type="otherdeb" onclick="toggleDebrisFilter('otherdeb')">Other debris</button>
+                </div>
+                <div class="layer-header" style="margin-top:8px;"><span class="debris-head">Size</span></div>
+                <div class="mobile-filters">
+                    <button class="mobile-filter-btn active" data-debris-size="all" onclick="setDebrisSize('all')">All</button>
+                    <button class="mobile-filter-btn" data-debris-size="LARGE" onclick="setDebrisSize('LARGE')">Large</button>
+                    <button class="mobile-filter-btn" data-debris-size="MEDIUM" onclick="setDebrisSize('MEDIUM')">Medium</button>
+                    <button class="mobile-filter-btn" data-debris-size="SMALL" onclick="setDebrisSize('SMALL')">Small</button>
+                </div>
+            </div>
+
             <!-- Satellites -->
-            <div style="margin-bottom:10px;">
+            <div id="mobileSatFiltersSection" style="margin-bottom:10px;">
                 <div class="layer-header">
                     <button class="layer-toggle-btn satellites-btn active" id="mobileSatellitesLayerBtn" onclick="toggleSatellitesLayer()">Satellites</button>
                 </div>
@@ -2589,6 +2773,15 @@ body.light-mode .rocket-filter-chip {
                     <button class="mobile-filter-btn active" data-type="geo" onclick="mobileFilterSatellites('geo')">Geodetic</button>
                     <button class="mobile-filter-btn active" data-type="tech" onclick="mobileFilterSatellites('tech')">Technology</button>
                     <button class="mobile-filter-btn" data-type="misc" onclick="mobileFilterSatellites('misc')">Other</button>
+                </div>
+            </div>
+
+            <div class="layer-sep"></div>
+
+            <!-- Reentries -->
+            <div style="margin-top:10px;">
+                <div class="layer-header">
+                    <button class="layer-toggle-btn reentries-btn" id="mobileReentriesLayerBtn" onclick="toggleReentriesLayer()">Re-entries</button>
                 </div>
             </div>
 
@@ -2937,8 +3130,24 @@ body.light-mode .rocket-filter-chip {
         let map;
         let satelliteMarkers = [];
         let allSatellites = [];
+        let rawActiveGpData = null;    // TLE de satélites activos, intacto mientras se ve basura
+        let parseActiveGpData = null;  // referencia a parseTLEWithType, definida al cargar
         const DEFAULT_FILTERS = ['gps', 'iss', 'comm', 'military', 'weather', 'geo', 'tech'];
         let activeFilters = new Set(DEFAULT_FILTERS);
+
+        // ===== MODO DE DATOS: 'active' (satélites) o 'debris' (basura) =====
+        // Son excluyentes: nunca hay 16.000 satélites y 10.000 fragmentos a la
+        // vez. Al cambiar de modo se sustituye el contenido de allSatellites y
+        // se reinicia el worker, así que TODO el resto del pipeline (pintado,
+        // clic, órbitas, Only Visible, stats) sigue funcionando sin tocarlo.
+        let dataMode = 'active';
+        let debrisRawData = null;                 // caché en memoria del JSON de basura
+        let debrisLoading = false;
+        let savedActiveFilters = null;            // filtros de satélites, para restaurarlos al volver
+        const DEBRIS_DEFAULT_FILTERS = ['fengyun', 'cosmos2251', 'iridium33', 'cosmos1408', 'rocketbody'];
+        let debrisFilters = new Set(DEBRIS_DEFAULT_FILTERS);
+        let debrisSizeFilter = 'all';             // 'all' | 'LARGE' | 'MEDIUM' | 'SMALL'
+        let debrisMeta = { updated: null, count: 0 };
         let isDarkMode = true;
         let currentOrbitPath = null;
 
@@ -2991,7 +3200,32 @@ let cesiumUpdateInterval = null;
 
 
         // Función para obtener color según tipo de satélite
+        // Clasifica un fragmento por su ORIGEN a partir del nombre que da
+        // Space-Track. Los tres eventos grandes tienen nombre propio; el resto
+        // cae en 'otherdeb'. Los cuerpos de cohete se detectan por "R/B".
+        function getDebrisType(name) {
+            const n = (name || '').toUpperCase();
+            if (n.includes('R/B') || n.includes('ROCKET BODY')) return 'rocketbody';
+            if (n.includes('FENGYUN 1C')) return 'fengyun';
+            if (n.includes('COSMOS 2251')) return 'cosmos2251';
+            if (n.includes('IRIDIUM 33'))  return 'iridium33';
+            if (n.includes('COSMOS 1408')) return 'cosmos1408';
+            return 'otherdeb';
+        }
+
+        function getDebrisColor(type) {
+            switch (type) {
+                case 'fengyun':    return '#ff4d4d';
+                case 'cosmos2251': return '#ffa726';
+                case 'iridium33':  return '#29b6f6';
+                case 'cosmos1408': return '#ab47bc';
+                case 'rocketbody': return '#ffffff';
+                default:           return '#8d9199';
+            }
+        }
+
         function getSatelliteColor(name) {
+            if (dataMode === 'debris') return getDebrisColor(getDebrisType(name));
             const type = getSatelliteType(name);
             switch (type) {
                 case 'gps': return 'var(--gps-color)';
@@ -3009,6 +3243,9 @@ let cesiumUpdateInterval = null;
 
         // Función para obtener tipo de satélite
         function getSatelliteType(name) {
+            // En modo basura, el "tipo" es el origen del fragmento: así los
+            // filtros, el pintado y las stats reutilizan el mismo camino.
+            if (dataMode === 'debris') return getDebrisType(name);
             const n = (name || '').toLowerCase().trim();
 
             // helper: coincide palabra completa o prefijo típico
@@ -3101,6 +3338,10 @@ let orbitNextRedrawMs = null;   // instante (tiempo de Playback) en que toca rep
 let cachedIsPremiumForCalendar = false;
 
 window.togglePlaybackDatePanel = async function() {
+    if (dataMode === 'debris') {
+        showToast('Playback is only available for active satellites');
+        return;
+    }
     const panel = document.getElementById('playbackDatePanel');
     const bd = document.getElementById('playbackBackdrop');
     const willOpen = !panel.classList.contains('open');
@@ -3240,6 +3481,7 @@ async function loadOneTleDay(dateStr) {
 
 async function loadTleDaysProgressively() {
     for (const dateStr of tleArchiveIndex) {
+        if (dateStr < new Date(tlePlaybackStartMs).toISOString().slice(0, 10)) continue; // el rango solo avanza desde el día elegido: los anteriores nunca se ven (y pueden ser de pago)
         if (tlePlaybackDays[dateStr] !== undefined) continue; // ya lo tenemos, no lo pidamos dos veces
         await loadOneTleDay(dateStr);
     }
@@ -3247,7 +3489,9 @@ async function loadTleDaysProgressively() {
 
 function updatePlaybackAvailableRange() {
     const label = document.getElementById('playbackLoadedLabel');
-    const remaining = tleArchiveIndex.length - tlePlaybackLoadedCount;
+    const startStr = tlePlaybackStartMs ? new Date(tlePlaybackStartMs).toISOString().slice(0, 10) : '';
+    const totalDays = tleArchiveIndex.filter(d => d >= startStr).length;
+    const remaining = totalDays - tlePlaybackLoadedCount;
     if (remaining > 0) {
         label.textContent = `Loading history in background… ${remaining} day${remaining === 1 ? '' : 's'} left`;
         label.style.opacity = '0.9';
@@ -3570,6 +3814,8 @@ window.exitTlePlayback = function() {
 
         const todoTLE = await fetchTLE();
         rawGpData = todoTLE; // Guardar para el worker
+        rawActiveGpData = todoTLE;              // copia estable: permite volver de basura a satélites
+        parseActiveGpData = parseTLEWithType;   // se reutiliza al volver, sin repetir la petición
         allSatellites = parseTLEWithType(todoTLE);
 
         if (is3DMode) {
@@ -4003,9 +4249,14 @@ function refreshSatelliteInfoNumbers() {
     // --- Desktop panel ---
     const nameEl = document.getElementById('satelliteName');
     nameEl.textContent = sat.name;
-    nameEl.style.cursor = 'pointer';
-    nameEl.style.textDecoration = 'underline';
-    nameEl.onclick = () => openSatelliteDetail(sat.noradId);
+    // La ficha de detalle solo existe para satélites activos: en basura el
+    // nombre no es clicable, porque esa página no encontraría nada.
+    const clickable = (dataMode !== 'debris');
+    nameEl.style.cursor = clickable ? 'pointer' : 'default';
+    nameEl.style.textDecoration = clickable ? 'underline' : 'none';
+    nameEl.onclick = clickable ? (() => openSatelliteDetail(sat.noradId)) : null;
+    const noradEl = document.getElementById('satelliteNorad');
+    if (noradEl) { noradEl.textContent = sat.noradId ? 'NORAD ID: ' + sat.noradId : ''; noradEl.style.display = ''; }
 
     document.getElementById('satelliteAltitude').textContent  = altText;
     document.getElementById('satelliteVelocity').textContent  = velText;
@@ -4015,9 +4266,11 @@ function refreshSatelliteInfoNumbers() {
     // --- Mobile panel ---
     const mobileNameEl = document.getElementById('mobileSatelliteName');
     mobileNameEl.textContent = sat.name;
-    mobileNameEl.style.cursor = 'pointer';
-    mobileNameEl.style.textDecoration = 'underline';
-    mobileNameEl.onclick = () => openSatelliteDetail(sat.noradId);
+    mobileNameEl.style.cursor = clickable ? 'pointer' : 'default';
+    mobileNameEl.style.textDecoration = clickable ? 'underline' : 'none';
+    mobileNameEl.onclick = clickable ? (() => openSatelliteDetail(sat.noradId)) : null;
+    const mobileNoradEl = document.getElementById('mobileSatelliteNorad');
+    if (mobileNoradEl) { mobileNoradEl.textContent = sat.noradId ? 'NORAD ID: ' + sat.noradId : ''; mobileNoradEl.style.display = ''; }
 
     document.getElementById('mobileSatelliteAltitude').textContent  = altText;
     document.getElementById('mobileSatelliteVelocity').textContent  = velText;
@@ -4201,7 +4454,9 @@ function closeSatelliteInfo() {
     if (cesiumViewer) cesiumViewer.scene.requestRender();
     
     // Si el POV NO está activo, volvemos a la vista general
-    if (!isPovActive && is3DMode && cesiumViewer && (currentSelectedSat || currentSelectedRocket)) {
+    const _eraReentrada = !!currentSelectedReentry;
+    currentSelectedReentry = null;
+    if (!isPovActive && is3DMode && cesiumViewer && (currentSelectedSat || currentSelectedRocket || _eraReentrada)) {
     cesiumViewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(0, 20, 25000000),
         duration: 1.5
@@ -5198,6 +5453,11 @@ const CESIUM_COLOR_MAP = {
 };
 
 function cssColorToCesium(cssColor) {
+    // Los colores de basura llegan ya en hexadecimal, no como var(--x-color),
+    // así que no están en el mapa: se pasan directos a Cesium.
+    if (typeof cssColor === 'string' && cssColor.charAt(0) === '#') {
+        return Cesium.Color.fromCssColorString(cssColor);
+    }
     const hex = CESIUM_COLOR_MAP[cssColor] || '#ff69b4';
     return Cesium.Color.fromCssColorString(hex);
 }
@@ -5333,7 +5593,13 @@ function loadSatellitesIn3D() {
 
     // Aplicar filtros
     let filtered = allSatellites;
-    if (!activeFilters.has('all')) {
+    if (dataMode === 'debris') {
+        // En basura mandan sus propios filtros: origen y tamaño radar.
+        filtered = allSatellites.filter(s => debrisFilters.has(getDebrisType(s.name)));
+        if (debrisSizeFilter !== 'all') {
+            filtered = filtered.filter(s => s.rcs === debrisSizeFilter);
+        }
+    } else if (!activeFilters.has('all')) {
         filtered = allSatellites.filter(s => activeFilters.has(getSatelliteType(s.name)));
     }
     if (showOnlyVisible) {
@@ -5368,13 +5634,20 @@ filtered.forEach(sat => {
 
         const cesiumColor = cssColorToCesium(getSatelliteColor(sat.name));
         const pos = Cesium.Cartesian3.fromDegrees(lng, lat, altMeters);
-        const point = satPointCollection.add({ position: pos, color: cesiumColor, pixelSize: 7,
+        // En basura el tamaño del punto refleja la sección radar: los cuerpos
+        // de cohete se ven claramente más gruesos que los fragmentos pequeños.
+        const pxSize = (dataMode === 'debris')
+            ? (sat.rcs === 'LARGE' ? 7 : sat.rcs === 'MEDIUM' ? 5 : 3.5)
+            : 7;
+        const point = satPointCollection.add({ position: pos, color: cesiumColor, pixelSize: pxSize,
             scaleByDistance: new Cesium.NearFarScalar(5e5, 1.6, 3e7, 0.4),
             distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 1.5e10),
             id: sat });
         // Por encima de 5.000 activos, ni se crean — cada una que existe
         // cuesta trabajo comprobarla cada fotograma, esté visible o no.
-        const label = (filtered.length > 5000) ? null : satLabelCollection.add({ position: pos, text: sat.name,
+        // Sin etiquetas en basura: "FENGYUN 1C DEB" repetido 3.000 veces no
+        // aporta nada y cada etiqueta cuesta trabajo en cada fotograma.
+        const label = (filtered.length > 5000 || dataMode === 'debris') ? null : satLabelCollection.add({ position: pos, text: sat.name,
             font: '10px sans-serif', fillColor: cesiumColor,
             outlineColor: Cesium.Color.BLACK, outlineWidth: 2,
             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
@@ -5447,6 +5720,11 @@ filtered.forEach(sat => {
                         duration: 1.5
                     });
                 }
+                return;
+            }
+            // Reentrada
+            if (pickedObject.id && pickedObject.id._reentryData) {
+                showReentryInfo3D(pickedObject.id._reentryData);
                 return;
             }
             // Satélite primitiva
@@ -5635,6 +5913,181 @@ if (allSatellites.length > 0) {
 }
 
 // ==================== WEB WORKER PARA 3D ====================
+
+// ==================== MODO BASURA ESPACIAL (solo 3D) ====================
+
+// Convierte el JSON de basura al mismo formato que usa allSatellites, más
+// dos campos propios: rcs (tamaño radar) y objType.
+function parseDebrisData(objects) {
+    const out = [];
+    for (const obj of objects) {
+        try {
+            const satrec = satellite.json2satrec(obj);
+            out.push({
+                name:    obj.OBJECT_NAME || ('OBJECT ' + obj.NORAD_CAT_ID),
+                type:    getDebrisType(obj.OBJECT_NAME),
+                satrec,
+                noradId: String(obj.NORAD_CAT_ID),
+                rcs:     obj.RCS_SIZE || 'SMALL',
+                objType: obj.OBJECT_TYPE || 'DEBRIS',
+                intlId:  obj.OBJECT_ID || '',
+                country: obj.COUNTRY_CODE || '',
+            });
+        } catch (e) {}
+    }
+    return out;
+}
+
+async function loadDebrisData() {
+    if (debrisRawData) return debrisRawData;
+    const res = await fetch('https://worker.satfleetlive.com/api/data/debris');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json || !Array.isArray(json.objects)) throw new Error('respuesta sin lista de objetos');
+    debrisRawData = json.objects;
+    debrisMeta = { updated: json.updated || null, count: json.count || json.objects.length };
+    return debrisRawData;
+}
+
+// Aviso flotante breve (no existía en la página y el código lo llamaba).
+function showToast(msg) {
+    let t = document.getElementById('appToast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'appToast';
+        t.style.cssText = 'position:fixed;left:50%;bottom:90px;transform:translateX(-50%);' +
+            'background:rgba(20,20,30,0.95);color:#fff;padding:10px 18px;border-radius:10px;' +
+            'font-size:0.85rem;z-index:100000;max-width:85vw;text-align:center;' +
+            'box-shadow:0 4px 16px rgba(0,0,0,0.4);border:1px solid rgba(156,39,176,0.6);' +
+            'opacity:0;transition:opacity 0.25s;pointer-events:none;';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+
+// Cambia entre satélites activos y basura. Son excluyentes: se sustituye el
+// contenido de allSatellites y se reinicia el worker con los nuevos datos.
+async function switchDataMode(mode) {
+    if (mode === dataMode || debrisLoading) return;
+    if (!is3DMode) return;                       // la basura es solo 3D
+
+    if (tleTimeOverride !== null) {
+        showToast('Playback is only available for active satellites');
+        return;
+    }
+
+    if (mode === 'debris') {
+        debrisLoading = true;
+        const btn = document.getElementById('modeDebrisBtn');
+        const btnM = document.getElementById('mobileModeDebrisBtn');
+        [btn, btnM].forEach(b => { if (b) b.textContent = 'Loading…'; });
+        try {
+            const objects = await loadDebrisData();
+            savedActiveFilters = new Set(activeFilters);   // para restaurar al volver
+            dataMode = 'debris';
+            allSatellites = parseDebrisData(objects);
+            rawGpData = objects;
+            initSatWorker(objects);
+        } catch (err) {
+            console.error('Debris:', err);
+            showToast('Could not load space debris. Try again later.');
+        } finally {
+            debrisLoading = false;
+            [btn, btnM].forEach(b => { if (b) b.textContent = 'Space debris'; });
+            syncModeUI();
+        }
+    } else {
+        dataMode = 'active';
+        if (savedActiveFilters) { activeFilters = new Set(savedActiveFilters); savedActiveFilters = null; }
+        if (rawActiveGpData) {
+            allSatellites = parseActiveGpData(rawActiveGpData);
+            rawGpData = rawActiveGpData;
+            initSatWorker(rawActiveGpData);
+        }
+        syncModeUI();
+    }
+}
+
+// Refleja el modo actual en los dos paneles (escritorio y móvil) y en la leyenda.
+function syncModeUI() {
+    const isDeb = dataMode === 'debris';
+    ['modeActiveBtn', 'mobileModeActiveBtn'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.classList.toggle('active', !isDeb);
+    });
+    ['modeDebrisBtn', 'mobileModeDebrisBtn'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.classList.toggle('active', isDeb);
+    });
+    ['satelliteSection', 'mobileSatFiltersSection'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.display = isDeb ? 'none' : '';
+    });
+    ['debrisSection', 'mobileDebrisSection'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.display = isDeb ? '' : 'none';
+    });
+    syncDebrisButtons();
+    renderLegend();
+}
+
+function toggleDebrisFilter(type) {
+    if (debrisFilters.has(type)) debrisFilters.delete(type); else debrisFilters.add(type);
+    if (debrisFilters.size === 0) debrisFilters.add(type);   // nunca vacío del todo
+    syncDebrisButtons();
+    if (dataMode === 'debris') loadSatellitesIn3D();
+}
+
+function setDebrisSize(size) {
+    debrisSizeFilter = size;
+    syncDebrisButtons();
+    if (dataMode === 'debris') loadSatellitesIn3D();
+}
+
+function syncDebrisButtons() {
+    document.querySelectorAll('[data-debris-type]').forEach(b => {
+        b.classList.toggle('active', debrisFilters.has(b.dataset.debrisType));
+    });
+    document.querySelectorAll('[data-debris-size]').forEach(b => {
+        b.classList.toggle('active', b.dataset.debrisSize === debrisSizeFilter);
+    });
+}
+
+// La leyenda cambia de contenido según el modo.
+function renderLegend() {
+    const panel = document.getElementById('legendPanel');
+    if (!panel) return;
+    const title = panel.querySelector('.legend-title');
+    const satItems = document.getElementById('legendSatItems');
+    const debItems = document.getElementById('legendDebrisItems');
+    const isDeb = dataMode === 'debris';
+    const reItems = document.getElementById('legendReentryItems');
+    const rkItems = document.getElementById('legendRocketItems');
+
+    // Leyenda dinámica solo en 3D; en 2D (pendiente de eliminar) se queda como estaba
+    const showSat = is3DMode ? showSatellites : true;
+    const showRk  = is3DMode ? showRockets : true;
+    const showRe  = is3DMode && showReentries;
+
+    if (title) title.textContent = isDeb ? 'Space Debris' : (showSat ? 'Satellite Types' : 'Legend');
+    if (satItems) satItems.style.display = (!isDeb && showSat) ? '' : 'none';
+    if (debItems) debItems.style.display = isDeb ? '' : 'none';
+    if (reItems)  reItems.style.display  = showRe ? '' : 'none';
+    if (rkItems)  rkItems.style.display  = showRk ? '' : 'none';
+
+    // El primer bloque visible no lleva línea separadora encima
+    let first = true;
+    [satItems, debItems, reItems, rkItems].forEach(b => {
+        if (!b || b.style.display === 'none') return;
+        const sep = b.querySelector('.legend-sep');
+        if (sep) sep.style.display = first ? 'none' : '';
+        first = false;
+    });
+    const age = document.getElementById('legendDebrisAge');
+    if (age && isDeb && debrisMeta.updated) {
+        const h = Math.round((Date.now() - new Date(debrisMeta.updated).getTime()) / 3600000);
+        age.textContent = `${debrisMeta.count.toLocaleString()} objects · updated ${h}h ago · positions are approximate`;
+    }
+}
 
 function initSatWorker(gpData) {
     // Si ya existe un worker, lo terminamos
@@ -5970,20 +6423,6 @@ window.toggleExploreMenu = function() {
         }, 10);
     }
 };
-function closeExploreMenu() {
-    document.getElementById('exploreMenu').classList.remove('open');
-    const barBtn = document.getElementById('exploreBtn');
-    const floatBtn = document.getElementById('exploreFloatBtn');
-    if (barBtn) barBtn.classList.remove('open');
-    if (floatBtn) floatBtn.classList.remove('open');
-}
-function closeExploreOnOutside(e) {
-    const menu = document.getElementById('exploreMenu');
-    const barBtn = document.getElementById('exploreBtn');
-    const floatBtn = document.getElementById('exploreFloatBtn');
-    const clickedTrigger = (barBtn && barBtn.contains(e.target)) || (floatBtn && floatBtn.contains(e.target));
-    if (!menu.contains(e.target) && !clickedTrigger) closeExploreMenu();
-}
         function closeExploreMenu() {
             document.getElementById('exploreMenu').classList.remove('open');
             const barBtn = document.getElementById('exploreBtn');
@@ -7551,6 +7990,7 @@ function toggleSatellitesLayer() {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('dimmed', !showSatellites);
     });
+    renderLegend();
 
     if (!showSatellites) {
         if (is3DMode && cesiumViewer) {
@@ -7575,6 +8015,649 @@ function toggleSatellitesLayer() {
     }
 }
 
+// ===== CAPA RE-ENTRIES (solo 3D) =====
+
+// ===== CAPA RE-ENTRIES (solo 3D) =====
+let showReentries = false;        // apagada por defecto: no se descarga nada hasta que se enciende
+let reentriesData = [];
+let reentriesFetchedAt = 0;
+let reentriesLoading = false;
+let reentryEntities3D = [];       // puntos + zonas "normales"
+let reentrySelEntities3D = [];    // zona de la reentrada que has seleccionado
+let currentSelectedReentry = null;
+let reentriesTimer = null;
+let reentriesTickTimer = null;
+let reentriesDrawSig = '';
+let reentryFilterHigh = false;
+let reentryFilterAllZones = false;
+let reentrySearchText = '';
+let reentryListOpen = false;      // la lista empieza cerrada: se abre con el botón "List"
+
+// ----- AJUSTES (aquí puedes tocar números si quieres cambiar el aspecto) -----
+const REENTRY_BELT_MIN = 30;      // si la incertidumbre es mayor que ± esto (minutos), no hay franja: se muestra la banda de latitudes
+const REENTRY_DEG_PER_MIN = 4.0;  // grados que recorre el objeto por minuto (una vuelta cada ~90 min)
+const EARTH_DEG_PER_MIN = 0.2507; // grados que gira la Tierra por minuto
+const REENTRY_ZONE_MIN_WIDTH_KM = 250;   // anchura mínima de la franja
+const REENTRY_ZONE_MAX_WIDTH_KM = 700;   // anchura máxima de la franja
+
+// El Worker da la fecha como "2026-10-03 14:22:00" (hora UTC, sin indicarlo): la convertimos a hora real
+function parseReentryTime(s) {
+    if (!s) return NaN;
+    const t = String(s).trim().replace(' ', 'T');
+    return Date.parse(/Z$/i.test(t) ? t : t + 'Z');
+}
+
+async function loadReentriesData() {
+    const res = await fetch('https://worker.satfleetlive.com/api/data/reentries');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json || !Array.isArray(json.reentries)) throw new Error('respuesta sin lista de reentradas');
+    reentriesData = json.reentries;
+    reentriesFetchedAt = Date.now();
+}
+
+// El COLOR depende de cuánto falta; el TAMAÑO del punto y la opacidad, de lo fiable que es la predicción
+function reentryColorBucket(msLeft) {
+    const h = msLeft / 3600000;
+    return h < 6 ? 0 : h < 24 ? 1 : h < 72 ? 2 : 3;
+}
+function reentryStyle(windowMin, msLeft) {
+    const color = ['#ff3b30', '#ff9500', '#ffd60a', '#d1d1d6'][reentryColorBucket(msLeft)];
+    // El rombo es igual para todos (mismo tamaño y sin transparencia).
+    // Lo que cambia con la incertidumbre es lo tenue que se ve la zona sombreada (ver reentryZoneFade).
+    return { color, size: 10, alpha: 1 };
+}
+
+// Cuánto se debilita la zona sombreada según lo imprecisa que es la hora (1 = intensa, menos = más tenue)
+function reentryZoneFade(windowMin) {
+    const w = Math.abs(parseFloat(windowMin));
+    if (!isFinite(w)) return 0.5;
+    if (w <= 180)  return 1;
+    if (w <= 1440) return 0.7;
+    return 0.45;
+}
+
+function reentryIsHigh(r) {
+    return String(r.highInterest || '').toUpperCase().startsWith('Y');
+}
+
+// ¿Pasa esta reentrada los filtros de la lista (alto interés y buscador)?
+function reentryPassesFilters(r) {
+    if (reentryFilterHigh && !reentryIsHigh(r)) return false;
+    if (reentrySearchText) {
+        const hay = [r.name, r.norad, r.country, r.objectType].join(' ').toLowerCase();
+        if (!hay.includes(reentrySearchText)) return false;
+    }
+    return true;
+}
+
+// ----- GEOMETRÍA DE LAS ZONAS -----
+// Rumbo (en grados, 0 = norte, 90 = este) con el que el objeto avanza sobre el suelo en el punto previsto
+function reentryHeading(r) {
+    const lat = parseFloat(r.lat), incl = parseFloat(r.incl);
+    const dir = String(r.direction || '').trim().toUpperCase();
+    if (!isFinite(lat) || !isFinite(incl) || !dir) return null;
+    const D = Math.PI / 180;
+    const s = Math.max(-1, Math.min(1, Math.cos(incl * D) / Math.max(Math.cos(lat * D), 1e-6)));
+    let az = Math.asin(s) / D;
+    if (dir[0] === 'D') az = 180 - az;       // descendente: va hacia el sur
+    else if (dir[0] !== 'A') return null;     // si no sabemos el sentido, no inventamos
+    return az;
+}
+
+// Punto por el que pasa el objeto X minutos antes (negativo) o después (positivo) del punto previsto
+function reentryPointAt(lat0, lon0, az, offsetMin) {
+    const D = Math.PI / 180;
+    const dist = offsetMin * REENTRY_DEG_PER_MIN * D;
+    const phi1 = lat0 * D, th = az * D;
+    const sinPhi2 = Math.sin(phi1) * Math.cos(dist) + Math.cos(phi1) * Math.sin(dist) * Math.cos(th);
+    const phi2 = Math.asin(Math.max(-1, Math.min(1, sinPhi2)));
+    const y = Math.sin(th) * Math.sin(dist) * Math.cos(phi1);
+    const x = Math.cos(dist) - Math.sin(phi1) * sinPhi2;
+    let lon = lon0 + Math.atan2(y, x) / D - EARTH_DEG_PER_MIN * offsetMin;   // la Tierra gira mientras tanto
+    lon = ((lon + 540) % 360) - 180;
+    return [lon, phi2 / D];
+}
+
+// Latitud máxima que alcanza la órbita (una órbita de 97.6° llega hasta 82.4°, igual que una de 82.4°)
+function reentryLatMax(inclDeg) {
+    return Math.max(1, Math.min(89.5, inclDeg <= 90 ? inclDeg : 180 - inclDeg));
+}
+
+// Textura degradada para la banda de latitudes.
+// Un objeto en órbita pasa más tiempo cerca de sus latitudes extremas (±inclinación) que cerca del ecuador,
+// así que por cada km² es más probable que caiga cerca de los bordes de la banda. Esto lo dibuja:
+// más opaco en los bordes, más tenue en el centro.
+function reentryBeltTexture(cssColor, inclDeg, selected, fade) {
+    const D = Math.PI / 180;
+    const c = Cesium.Color.fromCssColorString(cssColor);
+    const rgb = [c.red, c.green, c.blue].map(v => Math.round(v * 255)).join(',');
+    const latMax = reentryLatMax(inclDeg);
+    const sinMax = Math.sin(latMax * D);
+    const aMax = (selected ? 0.50 : 0.24) * (fade == null ? 1 : fade);
+    const H = 256;
+    const cv = document.createElement('canvas');
+    cv.width = 2; cv.height = H;
+    const ctx = cv.getContext('2d');
+    for (let y = 0; y < H; y++) {
+        const phi = latMax - ((y + 0.5) / H) * 2 * latMax;      // arriba = norte
+        const x = Math.sin(phi * D) / sinMax;
+        const g = 1 / Math.sqrt(Math.max(1 - x * x, 0.0001));  // densidad relativa por área
+        const a = aMax * Math.max(0.22, Math.min(1, g / 4));
+        ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+        ctx.fillRect(0, y, 2, 1);
+    }
+    return cv;
+}
+
+const REENTRY_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtReentryUtc(ms) {
+    const d = new Date(ms);
+    return REENTRY_MONTHS[d.getUTCMonth()] + ' ' + d.getUTCDate() + ' ' +
+        String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0');
+}
+// Entre cuándo puede ocurrir: del momento previsto menos la ventana al momento previsto más la ventana
+// (si el principio ya pasó, es "now": mientras siga en órbita no puede haber caído antes de ahora)
+function reentryRangeText(r) {
+    const t = parseReentryTime(r.decayEpoch), w = Math.abs(parseFloat(r.window));
+    if (!isFinite(t) || !isFinite(w)) return null;
+    const start = t - w * 60000, end = t + w * 60000;
+    return (start <= Date.now() ? 'now' : fmtReentryUtc(start)) + ' → ' + fmtReentryUtc(end) + ' UTC';
+}
+
+// ¿Esta reentrada tiene una ventana lo bastante corta como para dibujar una franja?
+function reentryHasStrip(r) {
+    const w = Math.abs(parseFloat(r.window));
+    return isFinite(w) && w <= REENTRY_BELT_MIN && reentryHeading(r) !== null &&
+           isFinite(parseFloat(r.lat)) && isFinite(parseFloat(r.lon));
+}
+
+// Crea la zona. Devuelve la lista de entidades creadas.
+//  - franja alargada siguiendo la órbita (ventana corta)
+//  - banda de latitudes (ventana larga), solo si allowBelt = true
+function buildReentryZone(r, cssColor, selected, allowBelt) {
+    const out = [];
+    const color = Cesium.Color.fromCssColorString(cssColor);
+    const lat = parseFloat(r.lat), lon = parseFloat(r.lon);
+
+    if (reentryHasStrip(r)) {
+        const w = Math.max(1, Math.abs(parseFloat(r.window)));
+        const az = reentryHeading(r);
+        const N = 40, flat = [];
+        for (let i = 0; i <= N; i++) {
+            const p = reentryPointAt(lat, lon, az, -w + (2 * w * i) / N);
+            flat.push(p[0], p[1]);
+        }
+        const widthKm = Math.min(REENTRY_ZONE_MAX_WIDTH_KM, REENTRY_ZONE_MIN_WIDTH_KM + w * 3);
+        const alpha = (w <= 10 ? 0.30 : w <= 20 ? 0.22 : 0.16) + (selected ? 0.10 : 0);
+        const e = cesiumViewer.entities.add({
+            corridor: {
+                positions: Cesium.Cartesian3.fromDegreesArray(flat),
+                width: widthKm * 1000,
+                cornerType: Cesium.CornerType.ROUNDED,
+                height: 0,
+                material: color.withAlpha(alpha),
+                outline: true,
+                outlineColor: color.withAlpha(selected ? 0.95 : 0.6)
+            }
+        });
+        e._reentryData = r;
+        out.push(e);
+    } else if (allowBelt) {
+        const incl = parseFloat(r.incl);
+        if (isFinite(incl)) {
+            const latMax = reentryLatMax(incl);
+            const e = cesiumViewer.entities.add({
+                rectangle: {
+                    coordinates: Cesium.Rectangle.fromDegrees(-180, -latMax, 180, latMax),
+                    height: 0,
+                    material: new Cesium.ImageMaterialProperty({
+                        image: reentryBeltTexture(cssColor, incl, selected, reentryZoneFade(r.window)),
+                        transparent: true
+                    })
+                }
+            });
+            e._reentryData = r;
+            out.push(e);
+            // Dos líneas finas marcando los bordes de la banda (las latitudes máximas)
+            [latMax, -latMax].forEach(la => {
+                const flat = [];
+                for (let lo = -180; lo <= 180; lo += 20) flat.push(lo, la, 5000);
+                const pl = cesiumViewer.entities.add({
+                    polyline: {
+                        positions: Cesium.Cartesian3.fromDegreesArrayHeights(flat),
+                        width: selected ? 2 : 1,
+                        arcType: Cesium.ArcType.RHUMB,
+                        material: color.withAlpha((selected ? 0.9 : 0.55) * Math.max(reentryZoneFade(r.window), 0.55))
+                    }
+                });
+                pl._reentryData = r;
+                out.push(pl);
+            });
+        }
+    }
+    return out;
+}
+
+// Icono de rombo para las reentradas (así no se confunden con el punto redondo de tu ubicación)
+const reentryIconCache = {};
+function reentryIcon(cssColor) {
+    if (!reentryIconCache[cssColor]) {
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">' +
+            '<polygon points="16,2 30,16 16,30 2,16" fill="' + cssColor + '" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/>' +
+            '</svg>';
+        reentryIconCache[cssColor] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+    return reentryIconCache[cssColor];
+}
+
+function clearReentryMarkers3D() {
+    reentryEntities3D.forEach(e => { try { cesiumViewer.entities.remove(e); } catch (err) {} });
+    reentryEntities3D = [];
+    reentriesDrawSig = '';
+}
+
+function clearSelectedReentryZone() {
+    reentrySelEntities3D.forEach(e => { try { cesiumViewer.entities.remove(e); } catch (err) {} });
+    reentrySelEntities3D = [];
+    if (cesiumViewer) cesiumViewer.scene.requestRender();
+}
+
+function drawSelectedReentryZone(r) {
+    clearSelectedReentryZone();
+    if (!cesiumViewer || !r) return;
+    const t = parseReentryTime(r.decayEpoch);
+    const st = reentryStyle(r.window, t - Date.now());
+    reentrySelEntities3D = buildReentryZone(r, st.color, true, true);
+    cesiumViewer.scene.requestRender();
+}
+
+function drawReentryMarkers3D(force) {
+    if (!cesiumViewer || !cesiumViewer.entities) return;
+    if (!showReentries) { clearReentryMarkers3D(); return; }
+
+    const nowMs = Date.now();
+    const items = [];
+    reentriesData.forEach(r => {
+        const lat = parseFloat(r.lat), lon = parseFloat(r.lon);
+        const t = parseReentryTime(r.decayEpoch);
+        // Fuera las que ya han pasado o vienen sin posición
+        if (!isFinite(lat) || !isFinite(lon) || !isFinite(t) || t < nowMs) return;
+        if (!reentryPassesFilters(r)) return;
+        items.push({ r, lat, lon, t });
+    });
+
+    // Si nada ha cambiado desde la última vez, no repintamos (evita parpadeos cada minuto)
+    const sig = items.map(it => [it.r.norad, it.r.decayEpoch, it.r.window, it.r.lat, it.r.lon, reentryColorBucket(it.t - nowMs)].join('|')).join(';') + '#' + reentryFilterAllZones;
+    if (!force && sig === reentriesDrawSig) return;
+
+    clearReentryMarkers3D();
+    reentriesDrawSig = sig;
+
+    items.forEach(({ r, lat, lon, t }) => {
+        const st  = reentryStyle(r.window, t - nowMs);
+        const col = Cesium.Color.fromCssColorString(st.color).withAlpha(st.alpha);
+
+        // 1) La zona (debajo del punto)
+        buildReentryZone(r, st.color, false, reentryFilterAllZones).forEach(z => reentryEntities3D.push(z));
+
+        // 2) El marcador con la mejor estimación: un rombo (tu ubicación es un círculo, así no se confunden)
+        const iconPx = st.size * 2;
+        const entity = cesiumViewer.entities.add({
+            id: 'reentry_' + r.norad,
+            position: Cesium.Cartesian3.fromDegrees(lon, lat, 10000),
+            billboard: {
+                image: reentryIcon(st.color),
+                width: iconPx,
+                height: iconPx,
+                color: Cesium.Color.WHITE.withAlpha(st.alpha),
+                scaleByDistance: new Cesium.NearFarScalar(5e5, 1.6, 3e7, 0.6)
+            },
+            label: {
+                text: r.name || ('NORAD ' + r.norad),
+                font: '11px sans-serif',
+                fillColor: col,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                pixelOffset: new Cesium.Cartesian2(0, -(iconPx * 0.8 + 2)),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 6000000)
+            }
+        });
+        entity._reentryData = r;
+        reentryEntities3D.push(entity);
+    });
+    cesiumViewer.scene.requestRender();
+}
+
+// Cada minuto: repinta (quita las ya caídas) y, si los datos tienen más de 10 min, los vuelve a pedir.
+// Cada segundo: actualiza las cuentas atrás de la lista.
+function startReentriesTimer() {
+    if (!reentriesTimer) {
+        reentriesTimer = setInterval(async () => {
+            if (!showReentries || !is3DMode) return;
+            if (Date.now() - reentriesFetchedAt > 10 * 60 * 1000) {
+                try { await loadReentriesData(); } catch (e) { /* si falla, se queda lo que ya teníamos */ }
+            }
+            if (showReentries) { drawReentryMarkers3D(); renderReentryList(); }
+        }, 60 * 1000);
+    }
+    if (!reentriesTickTimer) {
+        reentriesTickTimer = setInterval(() => {
+            document.querySelectorAll('[data-re-end]').forEach(el => {
+                el.textContent = fmtReentryCountdown(parseFloat(el.getAttribute('data-re-end')) - Date.now());
+            });
+        }, 1000);
+    }
+}
+
+function stopReentriesTimer() {
+    if (reentriesTimer) { clearInterval(reentriesTimer); reentriesTimer = null; }
+    if (reentriesTickTimer) { clearInterval(reentriesTickTimer); reentriesTickTimer = null; }
+}
+
+// ----- LISTA DE RE-ENTRIES (dentro del panel de capas, debajo del botón) -----
+function reEsc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Crea (una sola vez) el hueco de la lista debajo del botón Re-entries, en escritorio y en móvil
+function ensureReentryListUI() {
+    ['reentriesLayerBtn', 'mobileReentriesLayerBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (!btn || !btn.parentElement || !btn.parentElement.parentElement) return;
+        const host = btn.parentElement.parentElement;
+        if (host.querySelector('.re-list-wrap')) return;
+        // Botón "List" al lado de Re-entries (solo visible con la capa encendida)
+        const lb = document.createElement('button');
+        lb.className = 're-list-btn';
+        lb.setAttribute('data-re-listbtn', '');
+        lb.style.display = 'none';
+        lb.textContent = 'List';
+        lb.onclick = toggleReentryList;
+        btn.insertAdjacentElement('afterend', lb);
+
+        const wrap = document.createElement('div');
+        wrap.className = 're-list-wrap';
+        wrap.style.display = 'none';
+        wrap.innerHTML =
+            '<div class="re-summary" data-re-summary></div>' +
+            '<input class="re-search" type="text" placeholder="Search name, NORAD, country…" oninput="setReentrySearch(this)">' +
+            '<div class="re-list" data-re-list></div>';
+        host.appendChild(wrap);
+    });
+}
+
+function syncReentryChips() {
+    // Botón "List": solo visible con la capa encendida; muestra cuántas reentradas hay y una flechita
+    const nowMs = Date.now();
+    const count = reentriesData.filter(r => { const t = parseReentryTime(r.decayEpoch); return isFinite(t) && t >= nowMs; }).length;
+    document.querySelectorAll('[data-re-listbtn]').forEach(b => {
+        b.style.display = showReentries ? '' : 'none';
+        b.classList.toggle('active', reentryListOpen);
+        b.textContent = 'List' + (count ? ' (' + count + ')' : '') + (reentryListOpen ? ' ▴' : ' ▾');
+    });
+    document.querySelectorAll('.re-list-wrap').forEach(w => { w.style.display = (showReentries && reentryListOpen) ? '' : 'none'; });
+}
+function toggleReentryList() {
+    reentryListOpen = !reentryListOpen;
+    syncReentryChips();
+    if (reentryListOpen) renderReentryList();
+}
+function setReentrySearch(inputEl) {
+    reentrySearchText = String(inputEl.value || '').trim().toLowerCase();
+    document.querySelectorAll('.re-search').forEach(i => { if (i !== inputEl) i.value = inputEl.value; });
+    drawReentryMarkers3D(); renderReentryList();
+}
+
+function fmtReentryAgo(ms) {
+    if (!isFinite(ms) || ms < 0) return null;
+    const m = Math.round(ms / 60000);
+    if (m < 60) return m + ' min ago';
+    if (m < 2880) return Math.round(m / 60) + ' h ago';
+    return Math.round(m / 1440) + ' d ago';
+}
+
+function reentryPointText(r) {
+    const lat = parseFloat(r.lat), lon = parseFloat(r.lon);
+    return (isFinite(lat) && isFinite(lon))
+        ? Math.abs(lat).toFixed(1) + '°' + (lat >= 0 ? 'N' : 'S') + ', ' + Math.abs(lon).toFixed(1) + '°' + (lon >= 0 ? 'E' : 'W')
+        : '—';
+}
+
+function renderReentryList() {
+    const lists = document.querySelectorAll('[data-re-list]');
+    if (!lists.length) return;
+    const nowMs = Date.now();
+    const typeNames = { 'PAYLOAD': 'Satellite', 'ROCKET BODY': 'Rocket body', 'DEBRIS': 'Debris' };
+
+    const upcoming = reentriesData.filter(r => { const t = parseReentryTime(r.decayEpoch); return isFinite(t) && t >= nowMs; });
+    const shown = upcoming.filter(reentryPassesFilters);
+
+    let summary = upcoming.length + ' predicted';
+    if (upcoming.length) summary += ' · next ' + fmtReentryCountdown(parseReentryTime(upcoming[0].decayEpoch) - nowMs).replace('T- ', 'in ');
+    if (shown.length !== upcoming.length) summary += ' · showing ' + shown.length;
+
+    let html = '';
+    shown.forEach(r => {
+        const t = parseReentryTime(r.decayEpoch);
+        const st = reentryStyle(r.window, t - nowMs);
+        const sel = currentSelectedReentry && currentSelectedReentry.norad === r.norad;
+        const name = r.name || ('NORAD ' + r.norad);
+        const type = typeNames[String(r.objectType || '').toUpperCase()] || 'Unknown type';
+
+        const orbit = [];
+        const incl = parseFloat(r.incl);
+        if (isFinite(incl)) orbit.push('Incl. ' + incl.toFixed(1) + '°');
+        const d = String(r.direction || '').trim().toUpperCase();
+        if (d) orbit.push(d[0] === 'A' ? 'Ascending' : d[0] === 'D' ? 'Descending' : r.direction);
+        if (r.rev) orbit.push('Rev ' + r.rev);
+
+        const upd = [];
+        const ago = fmtReentryAgo(nowMs - parseReentryTime(r.msgEpoch));
+        if (ago) upd.push('Updated ' + ago);
+        const nr = parseFloat(r.nextReport);
+        if (isFinite(nr) && nr > 0) upd.push('next report ~' + (nr < 1 ? Math.round(nr * 60) + ' min' : Math.round(nr) + ' h'));
+
+        html +=
+            '<div class="re-row' + (sel ? ' sel' : '') + '" style="--re-color:' + st.color + '" onclick="selectReentryFromList(' + Number(r.norad) + ')">' +
+              '<div class="re-row-top">' +
+                '<span class="re-name">' + reEsc(name) + (reentryIsHigh(r) ? ' <span class="re-badge">HIGH INTEREST</span>' : '') + '</span>' +
+                '<span class="re-cd" data-re-end="' + t + '">' + fmtReentryCountdown(t - nowMs) + '</span>' +
+              '</div>' +
+              '<div class="re-meta">' + reEsc(type + (r.country ? ' · ' + r.country : '')) + ' · Uncertainty ' + fmtReentryWindow(r.window) + '</div>' +
+              '<div class="re-meta">Predicted point ' + reentryPointText(r) + (orbit.length ? ' · ' + reEsc(orbit.join(' · ')) : '') + '</div>' +
+              (reentryRangeText(r) ? '<div class="re-meta">Could happen: ' + reEsc(reentryRangeText(r)) + '</div>' : '') +
+              (upd.length ? '<div class="re-meta">' + reEsc(upd.join(' · ')) + '</div>' : '') +
+            '</div>';
+    });
+    if (!html) html = '<div class="re-empty">' + (upcoming.length ? 'No re-entries match your filters' : 'No re-entries predicted right now') + '</div>';
+
+    lists.forEach(list => { const sc = list.scrollTop; list.innerHTML = html; list.scrollTop = sc; });
+    document.querySelectorAll('[data-re-summary]').forEach(el => { el.textContent = summary; });
+}
+
+function selectReentryFromList(norad) {
+    const r = reentriesData.find(x => Number(x.norad) === Number(norad));
+    if (!r) return;
+    if (window.innerWidth <= 768 && typeof closeMobilePanel === 'function') closeMobilePanel();
+    showReentryInfo3D(r);
+}
+
+function syncReentriesButtons(label) {
+    ['reentriesLayerBtn', 'mobileReentriesLayerBtn'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.toggle('active', showReentries);
+        el.textContent = label || 'Re-entries';
+    });
+    ensureReentryListUI();
+    syncReentryChips();
+    renderLegend();
+}
+
+async function toggleReentriesLayer() {
+    if (reentriesLoading) return;
+
+    // Apagar
+    if (showReentries) {
+        showReentries = false;
+        stopReentriesTimer();
+        clearReentryMarkers3D();
+        clearSelectedReentryZone();
+        if (currentSelectedReentry && !currentSelectedSat && !currentSelectedRocket) closeSatelliteInfo(); else currentSelectedReentry = null;
+        syncReentriesButtons();
+        if (cesiumViewer) cesiumViewer.scene.requestRender();
+        return;
+    }
+
+    // Encender: solo en 3D y nunca durante el Playback
+    if (!is3DMode || !cesiumViewer) { showToast('Re-entries are only available in 3D view'); return; }
+
+    reentriesLoading = true;
+    syncReentriesButtons('Loading…');
+    try {
+        await loadReentriesData();
+    } catch (err) {
+        console.error('Re-entries:', err);
+        showToast('Could not load re-entries. Try again later.');
+        reentriesLoading = false;
+        syncReentriesButtons();
+        return;
+    }
+    reentriesLoading = false;
+    showReentries = true;
+    syncReentriesButtons();
+    drawReentryMarkers3D(true);
+    renderReentryList();
+    startReentriesTimer();
+    if (!reentryEntities3D.length) showToast('No re-entries predicted right now');
+}
+
+// ----- Panel de información al pulsar un punto o una fila de la lista -----
+function fmtReentryCountdown(ms) {
+    if (ms <= 0) return 'Predicted time reached';
+    if (ms < 86400000) return 'T- ' + fmtCountdown(ms);
+    return 'T- ' + Math.floor(ms / 86400000) + 'd ' + Math.floor((ms % 86400000) / 3600000) + 'h';
+}
+
+function fmtReentryWindow(min) {
+    const m = Math.abs(parseFloat(min));
+    if (!isFinite(m)) return '—';
+    if (m < 180)  return '± ' + Math.round(m) + ' min';
+    if (m < 2880) return '± ' + (Math.round(m / 6) / 10) + ' h';
+    return '± ' + (Math.round(m / 144) / 10) + ' days';
+}
+
+function reentryTypeText(r) {
+    const names = { 'PAYLOAD': 'Satellite', 'ROCKET BODY': 'Rocket body', 'DEBRIS': 'Debris' };
+    let t = names[String(r.objectType || '').toUpperCase()] || 'Unknown type';
+    if (r.country) t += ' · ' + r.country;
+    if (reentryIsHigh(r)) t += ' · High interest';
+    return t;
+}
+
+function showReentryInfo3D(r) {
+    if (isPovActive) togglePovMode();
+    currentSelectedReentry = r;
+    currentSelectedRocket = null;
+    currentSelectedSat = null;
+
+    clearRocketTrajectory();
+    if (currentOrbit3D && cesiumViewer) { cesiumViewer.entities.remove(currentOrbit3D); currentOrbit3D = null; }
+
+    // Una reentrada no tiene vista 360, ni vídeo, ni simulación de vuelo
+    const povFloat = document.getElementById('povBtnFloat');
+    if (povFloat) povFloat.style.display = 'none';
+    ['rocketVideoContainer', 'simulateFlightContainer', 'trajectoryDisclaimer'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+
+    const name = r.name || ('Object ' + r.norad);
+    const lat = parseFloat(r.lat), lon = parseFloat(r.lon);
+    const t = parseReentryTime(r.decayEpoch);
+    const pointText = reentryPointText(r);
+
+    const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+    ['satelliteName', 'mobileSatelliteName'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = name; el.style.cursor = 'default'; el.style.textDecoration = 'none'; el.onclick = null; }
+    });
+    ['satelliteNorad', 'mobileSatelliteNorad'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = 'NORAD ID: ' + r.norad; el.style.display = ''; }
+    });
+
+    setText('satelliteVelocity',        fmtReentryWindow(r.window));
+    setText('mobileSatelliteVelocity',  fmtReentryWindow(r.window));
+    setText('satelliteLatitude',        reentryTypeText(r));
+    setText('mobileSatelliteLatitude',  reentryTypeText(r));
+    setText('satelliteLongitude',       pointText);
+    setText('mobileSatelliteLongitude', pointText);
+
+    ['#satelliteInfo .info-label', '#mobileSatelliteSection .info-label'].forEach(sel => {
+        const labels = document.querySelectorAll(sel);
+        if (labels.length >= 4) {
+            labels[0].textContent = 'Re-entry in';
+            labels[1].textContent = 'Uncertainty';
+            labels[2].textContent = 'Type';
+            labels[3].textContent = 'Predicted point';
+        }
+    });
+
+    // Cuenta atrás en vivo mientras este panel siga abierto con este objeto
+    const paintCountdown = () => {
+        const txt = fmtReentryCountdown(t - Date.now());
+        setText('satelliteAltitude', txt);
+        setText('mobileSatelliteAltitude', txt);
+    };
+    paintCountdown();
+    ['satelliteAltitude', 'mobileSatelliteAltitude'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.color = '#ff3b30';
+    });
+    if (window._reentryCdTimer) clearInterval(window._reentryCdTimer);
+    window._reentryCdTimer = setInterval(() => {
+        const open = document.getElementById('satelliteInfo').classList.contains('active');
+        if (!open || currentSelectedReentry !== r || currentSelectedSat || currentSelectedRocket) {
+            clearInterval(window._reentryCdTimer);
+            window._reentryCdTimer = null;
+            // El panel se cerró (o eligieron otra cosa): quitamos la zona resaltada y el marcado de la lista
+            if (currentSelectedReentry === r) currentSelectedReentry = null;
+            clearSelectedReentryZone();
+            renderReentryList();
+            return;
+        }
+        paintCountdown();
+    }, 1000);
+
+    document.getElementById('mobileSatelliteSection').style.display = 'block';
+    document.getElementById('satelliteInfo').classList.add('active');
+    if (window.innerWidth <= 768) {
+        const _legM = document.getElementById('legendPanel');
+        if (_legM) { _legM.style.opacity = '0'; _legM.style.pointerEvents = 'none'; }
+    }
+
+    // Dibuja la zona de esta reentrada bien visible y marca su fila en la lista
+    drawSelectedReentryZone(r);
+    renderReentryList();
+
+    if (isFinite(lat) && isFinite(lon) && cesiumViewer) {
+        // Cámara lo bastante alta para ver la zona entera
+        const w = Math.abs(parseFloat(r.window));
+        let altM = 22000000;
+        if (isFinite(w) && w <= REENTRY_BELT_MIN) {
+            altM = Math.min(22000000, Math.max(3000000, w * REENTRY_DEG_PER_MIN * 111000 * 2 * 1.4));
+        }
+        cesiumViewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(lon, lat, altM),
+            duration: 1.5
+        });
+    }
+    if (cesiumViewer) cesiumViewer.scene.requestRender();
+}
+
 // ===== CAPA ROCKETS =====
 function toggleRocketsLayer() {
     showRockets = !showRockets;
@@ -7587,6 +8670,7 @@ function toggleRocketsLayer() {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('dimmed', !showRockets);
     });
+    renderLegend();
 
     if (!showRockets) {
         rocketMarkers.forEach(m => { try { map.removeLayer(m); } catch(e) {} });
@@ -8027,6 +9111,8 @@ function showRocketInfo3D(launch) {
     nameEl.style.cursor = 'pointer';
     nameEl.style.textDecoration = 'underline';
     nameEl.onclick = () => window.location.href = 'launches.html?id=' + launch.id;
+    const noradEl = document.getElementById('satelliteNorad');
+    if (noradEl) { noradEl.textContent = ''; noradEl.style.display = 'none'; }
 
     document.getElementById('satelliteAltitude').textContent  = cdText;
     document.getElementById('satelliteAltitude').style.color  = isLive ? '#ff4444' : '#ff6b35';
@@ -8070,6 +9156,8 @@ function showRocketInfo3D(launch) {
     mobileNameEl.style.cursor = 'pointer';
     mobileNameEl.style.textDecoration = 'underline';
     mobileNameEl.onclick = () => window.location.href = 'launches.html';
+    const mobileNoradEl = document.getElementById('mobileSatelliteNorad');
+    if (mobileNoradEl) { mobileNoradEl.textContent = ''; mobileNoradEl.style.display = 'none'; }
 
     document.getElementById('mobileSatelliteAltitude').textContent  = cdText;
     document.getElementById('mobileSatelliteAltitude').style.color  = isLive ? '#ff4444' : '#ff6b35';
