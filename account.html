@@ -616,6 +616,8 @@
             padding-top: 24px;
         }
 
+        .plan-buy { margin-top: 18px; }
+
         /* ── FREE: calm, muted ── */
         .plan-free {
             background: rgba(255,255,255,0.025);
@@ -915,6 +917,12 @@
                 </div>
                 <p class="plan-tag">Look further ahead, replay more history and get alerted.</p>
 
+                <!-- Purchase button (free users), right under the price -->
+                <div class="plan-buy" id="upgradeSection">
+                    <button class="plan-cta" onclick="upgradePremium()">Start 7-day free trial</button>
+                    <p class="fine">7 days free, then €2.99/month (VAT included). Renews automatically. Cancel anytime from Manage subscription. <a href="/terms-of-service">Terms of service</a></p>
+                </div>
+
                 <p class="list-intro">Everything in Free, plus:</p>
                 <ul class="feat-list">
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Push notifications</strong> when passes and launches are coming up</span></li>
@@ -922,18 +930,12 @@
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>See <strong>unlimited passes</strong>, not just 5</span></li>
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Browse the <strong>full satellite catalog</strong></span></li>
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Follow each pass on a <strong>trajectory mini-map</strong></span></li>
-                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Focus the map with the <strong>Only Visible</strong> filter</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Show only the satellites you can see right now with the <strong>Only Visible</strong> filter</span></li>
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Simulate Flight</strong> and <strong>Preview Trajectory</strong></span></li>
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Replay Earth satellites from a <strong>full 30-day archive</strong></span></li>
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Explore <strong>Moon, Mars and Deep Space</strong> history</span></li>
                     <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Follow <strong>all upcoming launches</strong>, not just the first 3</span></li>
                 </ul>
-
-                <!-- Purchase button (free users) -->
-                <div class="plan-foot" id="upgradeSection">
-                    <button class="plan-cta" onclick="upgradePremium()">Start 7-day free trial</button>
-                    <p class="fine">7 days free, then €2.99/month (VAT included). Renews automatically. Cancel anytime from Manage subscription. <a href="/terms-of-service">Terms of service</a></p>
-                </div>
 
                 <!-- Current plan (Premium users) -->
                 <div class="plan-foot" id="premiumActiveSection" style="display:none;">
@@ -1437,6 +1439,20 @@ window.showDeleteModal = showDeleteModal;
 window.hideDeleteModal = hideDeleteModal;
 window.deleteAccount = deleteAccount;
 </script>
-<div id="legalFooter"><a href="/privacy-policy">Privacy Policy</a><span>|</span><button type="button" onclick="openCookieSettings()">Cookies</button></div>
+<div id="legalFooter"><a href="/privacy-policy">Privacy Policy</a><span>|</span><button type="button" id="cookieSettingsBtn">Cookies</button></div>
+<script>
+// Abre el panel de cookies si cookie-consent.js lo expone; si no, lleva a la política de privacidad
+(function () {
+    var btn = document.getElementById('cookieSettingsBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        if (typeof window.openCookieSettings === 'function') {
+            window.openCookieSettings();
+        } else {
+            window.location.href = '/privacy-policy';
+        }
+    });
+})();
+</script>
 </body>
 </html>
