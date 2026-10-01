@@ -956,7 +956,9 @@ function addRoverEntity(site, w, h) {
                 const p = getRoverPositionAtTime(site.id, orbiterTimeOverride);
                 return p ? Cesium.Cartesian3.fromDegrees(p.lng, p.lat, 0, marsEllipsoid) : undefined;
             }
-            return Cesium.Cartesian3.fromDegrees(site.lng, site.lat, 0, marsEllipsoid);
+            const pts = roverTrailData[site.id];
+            const last = (pts && pts.length) ? pts[pts.length - 1] : site;
+            return Cesium.Cartesian3.fromDegrees(last.lng, last.lat, 0, marsEllipsoid);
         }, false),
         billboard: {
             image: ROVER_ICON,
@@ -1084,6 +1086,42 @@ function getRoverPositionAtTime(roverId, timeMs) {
     return best;
 }
 
+// Distancia total recorrida por un rover en un instante.
+// timeMs = null significa "ahora mismo" (último dato de la NASA).
+function getRoverDistanceKm(roverId, timeMs) {
+    const points = roverTrailData[roverId];
+    if (!points || !points.length) return null;
+    if (timeMs === null) return roverDistances[roverId] ?? null;
+
+    const landingMs = ROVER_LANDING_MS[roverId];
+    if (!landingMs) return null;
+    const targetSol = (timeMs - landingMs) / SOL_MS;
+
+    let km = 0; // antes del primer trayecto, 0 km
+    for (const p of points) {
+        if (p.sol > targetSol) break;
+        if (p.distTotalKm != null) km = p.distTotalKm;
+    }
+    return km;
+}
+
+// Reescribe el texto del panel con la distancia correcta para el momento actual.
+function refreshRoverDistanceInfo() {
+    const site = currentSelectedSite;
+    if (!site || !roverTrailData[site.id]) return;
+    const km = getRoverDistanceKm(site.id, orbiterTimeOverride);
+    if (km == null) return;
+
+    const kmText = km < 10 ? km.toFixed(2) : km.toFixed(1);
+    const label = orbiterTimeOverride !== null
+        ? ' Distance driven by this date: ~'
+        : ' Distance driven so far: ~';
+    const text = site.desc + label + kmText + ' km.';
+
+    const el = document.getElementById('siteInfoDesc');
+    if (el.textContent !== text) el.textContent = text; // solo toca la pantalla si cambia
+}
+
 let roverTrailEntities = {};
 
 let roverTrailData = {};             // datos siempre cargados en segundo plano
@@ -1127,7 +1165,10 @@ async function loadRoverTrail(roverId) {
         if (withDist.length) roverDistances[roverId] = withDist[withDist.length - 1].distTotalKm;
 
         // Si este rover está seleccionado ahora mismo, refresca la línea con los datos nuevos
-        if (currentSelectedSite && currentSelectedSite.id === roverId) drawRoverTrail(roverId);
+        if (currentSelectedSite && currentSelectedSite.id === roverId) {
+            drawRoverTrail(roverId);
+            refreshRoverDistanceInfo();
+        }
     } catch (e) {
         console.warn('[SatFleet Mars] No se pudo cargar el rastro de ' + roverId + ':', e.message);
     }
@@ -1167,11 +1208,8 @@ function showSiteInfo(site) {
 }
     document.getElementById('siteInfoMeta').textContent = site.agency + ' · ' + site.year + ' · ' + site.location;
 
-    let desc = site.desc;
-    if (roverDistances[site.id] != null) {
-        desc += ' Distance driven so far: ~' + roverDistances[site.id].toFixed(1) + ' km.';
-    }
-    document.getElementById('siteInfoDesc').textContent = desc;
+    document.getElementById('siteInfoDesc').textContent = site.desc;
+    refreshRoverDistanceInfo();
     document.getElementById('siteInfoPanel').classList.add('active');
 
     if (isMarsPovActive) {
@@ -1942,6 +1980,7 @@ window.startMarsPlayback = async function() {
 };
 
 function updatePlaybackDateLabel() {
+    refreshRoverDistanceInfo();
     const d = new Date(orbiterTimeOverride);
     document.getElementById('playbackDateLabel').innerHTML = d.toUTCString().slice(0, 22) + '<br>UTC';
     const pct = (orbiterTimeOverride - playbackStartMs) / (playbackEndMs - playbackStartMs) * 1000;
@@ -2023,6 +2062,7 @@ window.exitMarsPlayback = function() {
     playbackPlaying = false;
     if (playbackTickId) cancelAnimationFrame(playbackTickId);
     orbiterTimeOverride = null;
+    refreshRoverDistanceInfo();
     playbackData = null;
     document.getElementById('playbackTimeline').classList.remove('active');
     renderMarsOrbiters();
