@@ -1267,6 +1267,8 @@ async function handleStripeCheckout(request, env) {
     `metadata[app_user_id]=${enc(uid)}`,
     `subscription_data[metadata][app_user_id]=${enc(uid)}`,
     `subscription_data[trial_period_days]=7`,
+    `consent_collection[terms_of_service]=required`,
+    `custom_text[terms_of_service_acceptance][message]=${enc('I agree to the [Terms of Service](https://satfleetlive.com/terms-of-service) and ask for Premium access to start immediately, accepting the withdrawal conditions described there.')}`,
   ].join('&');
 
   try {
