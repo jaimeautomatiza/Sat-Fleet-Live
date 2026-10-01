@@ -2,36 +2,9 @@
 <html lang="es">
 
 <head>
+<script src="/cookie-consent.js"></script>
 
-    <!-- Google tag (gtag.js) — carga solo con consentimiento -->
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-
-        function loadGA() {
-            var s = document.createElement('script');
-            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-THHVVZCJ4B';
-            s.async = true;
-            document.head.appendChild(s);
-            gtag('js', new Date());
-            gtag('config', 'G-THHVVZCJ4B');
-        }
-
-        if (localStorage.getItem('cookieConsent') === 'yes') {
-            loadGA();
-        }
-
-        function acceptCookies() {
-            localStorage.setItem('cookieConsent', 'yes');
-            document.getElementById('cookieBanner').style.display = 'none';
-            loadGA();
-        }
-
-        function rejectCookies() {
-            localStorage.setItem('cookieConsent', 'no');
-            document.getElementById('cookieBanner').style.display = 'none';
-        }
-    </script>
+    
 
     <!-- Favicon principal y compatibilidad general -->
          <link rel="icon" type="image/png" href="images/logo.png">
@@ -9340,36 +9313,9 @@ function stopSimulation(launch) {
 
     </script>
     
-<!-- Banner de cookies -->
-<div id="cookieBanner" style="
-    display:flex;
-    position:fixed; bottom:0; left:0; right:0;
-    background:rgba(15,15,15,0.97);
-    backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px);
-    color:#fff; padding:12px 20px;
-    align-items:center; justify-content:space-between;
-    gap:12px; z-index:9999; font-size:0.8rem;
-    border-top:1px solid rgba(156,39,176,0.3);
-    flex-wrap:wrap;">
-  <span style="color:rgba(255,255,255,0.7);">
-    We use analytics cookies to improve the experience.
-    <a href="/privacy-policy" style="color:#9c27b0;">Privacy Policy</a>
-  </span>
-  <div style="display:flex;gap:8px;flex-shrink:0;">
-    <button onclick="rejectCookies()" style="padding:6px 16px;background:transparent;border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.65);border-radius:19px;cursor:pointer;font-size:0.78rem;">Reject</button>
-    <button onclick="acceptCookies()" style="padding:6px 16px;background:#9c27b0;border:none;color:#fff;border-radius:19px;cursor:pointer;font-size:0.78rem;font-weight:600;">Accept</button>
-  </div>
-</div>
 
-<script>
-  (function() {
-    var consent = localStorage.getItem('cookieConsent');
-    if (consent === 'yes' || consent === 'no') {
-      document.getElementById('cookieBanner').style.display = 'none';
-    }
-  })();
-</script>
+
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, onIdTokenChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
