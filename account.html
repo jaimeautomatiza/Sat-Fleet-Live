@@ -35,6 +35,7 @@
             color: var(--text);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         /* Ambient glow */
@@ -49,6 +50,18 @@
             background: radial-gradient(ellipse, rgba(156,39,176,0.08) 0%, transparent 68%);
             pointer-events: none;
             z-index: 0;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0;
         }
 
         /* ── TOP BAR ── */
@@ -111,11 +124,12 @@
         }
 
         /* ── MAIN ── */
+        /* Bottom padding leaves room for the fixed 22 px legal footer bar */
         main {
             position: relative;
             z-index: 1;
             min-height: 100vh;
-            padding: 96px 20px 60px;
+            padding: 96px 20px calc(48px + 22px + env(safe-area-inset-bottom, 0px));
             display: flex;
             align-items: flex-start;
             justify-content: center;
@@ -358,7 +372,7 @@
         ════════════════ */
         #stateLoggedIn {
             width: 100%;
-            max-width: 640px;
+            max-width: 900px;
             animation: fadeUp 0.35s ease;
         }
 
@@ -368,7 +382,8 @@
             border: 1px solid var(--border);
             border-radius: 18px;
             padding: 26px 28px 22px;
-            margin-bottom: 14px;
+            margin: 0 auto 18px;
+            max-width: 640px;
             position: relative;
             overflow: hidden;
         }
@@ -385,7 +400,7 @@
             display: flex;
             align-items: center;
             gap: 16px;
-            margin-bottom: 22px;
+            margin-bottom: 4px;
         }
 
         .user-avatar {
@@ -403,17 +418,21 @@
             color: var(--purple-light);
         }
 
+        .user-info { min-width: 0; }
+
         .user-info h2 {
             font-size: 0.97rem;
             font-weight: 700;
             margin-bottom: 2px;
             letter-spacing: -0.01em;
+            overflow-wrap: anywhere;
         }
 
         .user-email {
             font-size: 0.78rem;
             color: var(--text3);
             margin-bottom: 7px;
+            overflow-wrap: anywhere;
         }
 
         .plan-badge {
@@ -440,84 +459,32 @@
             color: var(--purple-light);
         }
 
-        /* Upgrade CTA */
-        .upgrade-btn {
+        .logout-btn {
             width: 100%;
-            padding: 13px 18px;
-            background: linear-gradient(135deg, rgba(156,39,176,0.2) 0%, rgba(123,31,162,0.15) 100%);
-            border: 1px solid rgba(156,39,176,0.4);
-            border-radius: 11px;
-            color: var(--purple-light);
-            font-size: 0.9rem;
-            font-weight: 700;
+            margin-top: 14px;
+            padding: 9px;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 9px;
+            color: var(--text3);
+            font-size: 0.78rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.18s;
             font-family: inherit;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            letter-spacing: -0.01em;
+            transition: all 0.18s;
+            letter-spacing: 0.01em;
         }
 
-        .upgrade-btn:hover {
-            background: linear-gradient(135deg, rgba(156,39,176,0.3) 0%, rgba(123,31,162,0.22) 100%);
-            border-color: rgba(156,39,176,0.6);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(156,39,176,0.2);
+        .logout-btn:hover {
+            border-color: rgba(239,68,68,0.3);
+            color: #f87171;
+            background: rgba(239,68,68,0.05);
         }
 
-        .upgrade-btn .upgrade-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .upgrade-btn .upgrade-icon {
-            width: 32px;
-            height: 32px;
-            background: rgba(156,39,176,0.2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .upgrade-btn .upgrade-icon svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--purple-light);
-        }
-
-        .upgrade-btn .upgrade-label {
-            text-align: left;
-        }
-
-        .upgrade-btn .upgrade-title {
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: var(--purple-light);
-            line-height: 1.2;
-        }
-
-        .upgrade-btn .upgrade-sub {
-            font-size: 0.72rem;
-            font-weight: 400;
-            color: rgba(192,132,252,0.6);
-            margin-top: 1px;
-        }
-
-        .upgrade-btn .upgrade-price {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--purple-light);
-            white-space: nowrap;
-        }
-
-        /* Premium active */
+        /* Premium active (shown inside the Premium card) */
         .premium-active {
-            background: rgba(0,210,106,0.06);
-            border: 1px solid rgba(0,210,106,0.18);
+            background: rgba(0,210,106,0.07);
+            border: 1px solid rgba(0,210,106,0.22);
             border-radius: 11px;
             padding: 13px 16px;
             display: flex;
@@ -555,196 +522,272 @@
 
         .premium-active-sub {
             font-size: 0.74rem;
-            color: rgba(0,210,106,0.5);
-        }
-
-        .logout-btn {
-            width: 100%;
-            margin-top: 14px;
-            padding: 9px;
-            background: none;
-            border: 1px solid rgba(255,255,255,0.07);
-            border-radius: 9px;
-            color: var(--text3);
-            font-size: 0.78rem;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.18s;
-            letter-spacing: 0.01em;
-        }
-
-        .logout-btn:hover {
-            border-color: rgba(239,68,68,0.3);
-            color: #f87171;
-            background: rgba(239,68,68,0.05);
+            color: rgba(0,210,106,0.65);
+            line-height: 1.4;
         }
 
         /* ════════════════
-           COMPARISON TABLE
+           PLAN CARDS
         ════════════════ */
-        .comparison-card {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            overflow: hidden;
-        }
-
-        .comparison-title {
-            padding: 20px 24px 16px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--text3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .comparison-header {
+        .plans {
             display: grid;
-            grid-template-columns: 1fr 110px 110px;
-            background: rgba(255,255,255,0.02);
-            border-bottom: 1px solid var(--border-subtle);
+            grid-template-columns: minmax(0, 1fr);
+            gap: 16px;
         }
 
-        .col-label {
-            padding: 12px 24px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text3);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+        .plan-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding: 26px 24px 22px;
         }
 
-        .col-free-h {
-            padding: 12px 0;
-            font-size: 0.75rem;
+        .plan-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            column-gap: 8px;
+            margin-top: 10px;
+        }
+
+        .price-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .price-per {
+            font-size: 0.78rem;
+            color: var(--text2);
+        }
+
+        .plan-tag {
+            margin-top: 8px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--text2);
+        }
+
+        .list-intro {
+            margin: 22px 0 14px;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text2);
-            text-align: center;
-            border-left: 1px solid var(--border-subtle);
         }
 
-        .col-premium-h {
-            padding: 12px 0;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--purple-light);
-            text-align: center;
-            border-left: 1px solid var(--border-subtle);
-            background: rgba(156,39,176,0.05);
+        .feat-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
         }
 
-        .section-label {
-            padding: 9px 24px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: var(--text3);
-            text-transform: uppercase;
-            letter-spacing: 1.1px;
-            background: rgba(255,255,255,0.015);
-            border-bottom: 1px solid var(--border-subtle);
+        .feat-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.86rem;
+            line-height: 1.4;
         }
 
-        .comp-row {
-            display: grid;
-            grid-template-columns: 1fr 110px 110px;
-            border-bottom: 1px solid var(--border-subtle);
-            transition: background 0.12s;
+        .ic {
+            width: 15px;
+            height: 15px;
+            flex: none;
+            margin-top: 2px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
-        .comp-row:last-child { border-bottom: none; }
-        .comp-row:hover { background: rgba(255,255,255,0.012); }
+        .plan-foot {
+            margin-top: auto;
+            padding-top: 24px;
+        }
 
-        .comp-row .feat {
-            padding: 11px 24px;
-            font-size: 0.81rem;
-            color: var(--text2);
+        /* ── FREE: calm, muted ── */
+        .plan-free {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+        }
+
+        .plan-free .plan-name { color: rgba(240,240,245,0.8); }
+        .plan-free .price-amount { color: rgba(240,240,245,0.7); }
+
+        .plan-free .feat-list.included li { color: rgba(240,240,245,0.72); }
+        .plan-free .feat-list.included .ic { color: rgba(240,240,245,0.4); }
+
+        .locked-head {
             display: flex;
             align-items: center;
-            line-height: 1.35;
+            gap: 8px;
+            margin: 22px 0 12px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(240,240,245,0.5);
         }
 
-        .comp-row .feat.highlight {
-            color: var(--text);
-            font-weight: 500;
-        }
+        .locked-head .ic { margin-top: 0; width: 14px; height: 14px; }
 
-        .comp-row .cell {
-            padding: 11px 0;
-            text-align: center;
+        .feat-list.locked li { color: rgba(240,240,245,0.5); }
+        .feat-list.locked .ic { color: rgba(192,132,252,0.6); }
+
+        .current-plan {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-left: 1px solid var(--border-subtle);
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-
-        .comp-row .cell.premium-col {
-            background: rgba(156,39,176,0.03);
-        }
-
-        /* Check / Cross SVG icons */
-        .icon-check {
-            width: 16px;
-            height: 16px;
-            stroke: var(--green);
-            fill: none;
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .icon-cross {
-            width: 14px;
-            height: 14px;
-            stroke: rgba(255,255,255,0.2);
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-        }
-
-        .icon-lock {
-            width: 13px;
-            height: 13px;
-            stroke: var(--purple-light);
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            opacity: 0.7;
-        }
-
-        .cell-partial {
-            font-size: 0.73rem;
+            gap: 8px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 0.84rem;
             font-weight: 600;
             color: var(--text2);
         }
 
-        .cell-partial-premium {
-            font-size: 0.73rem;
-            font-weight: 600;
+        .current-plan .ic { margin-top: 0; }
+
+        /* ── PREMIUM: dominant ── */
+        .plan-premium {
+            border: 1px solid transparent;
+            border-radius: 20px;
+            padding: 30px 26px 24px;
+            background:
+                linear-gradient(165deg, #2b1237 0%, #16111f 52%, #0f0f17 100%) padding-box,
+                linear-gradient(140deg, #e0a3ff 0%, #9c27b0 45%, #7b1fa2 100%) border-box;
+            box-shadow:
+                0 28px 70px rgba(156,39,176,0.28),
+                0 0 56px rgba(156,39,176,0.18);
+        }
+
+        .plan-premium .plan-name { color: #fff; }
+        .plan-premium .price-amount { color: #fff; }
+        .plan-premium .price-per { color: rgba(240,240,245,0.68); }
+        .plan-premium .plan-tag { color: rgba(240,240,245,0.78); }
+        .plan-premium .list-intro { color: var(--purple-light); }
+
+        .plan-premium .feat-list li { color: rgba(240,240,245,0.86); }
+        .plan-premium .feat-list li strong { color: #fff; font-weight: 600; }
+        .plan-premium .feat-list .ic { color: var(--purple-light); }
+
+        .plan-ribbon {
+            position: absolute;
+            top: 26px;
+            right: -1px;
+            padding: 6px 14px 6px 20px;
+            background: linear-gradient(135deg, #b43ad0, #7b1fa2);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 9px 50%);
+            box-shadow: 0 4px 14px rgba(156,39,176,0.4);
+        }
+
+        .plan-cta {
+            width: 100%;
+            padding: 15px 18px;
+            background: linear-gradient(135deg, #b43ad0 0%, var(--purple-dark) 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.005em;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 8px 26px rgba(156,39,176,0.42);
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+
+        .plan-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 32px rgba(156,39,176,0.55);
+        }
+
+        .plan-cta:focus-visible,
+        .fine a:focus-visible,
+        .logout-btn:focus-visible,
+        .auth-tab:focus-visible,
+        .btn-primary:focus-visible,
+        .btn-google:focus-visible,
+        .bar-back:focus-visible {
+            outline: 2px solid var(--purple-light);
+            outline-offset: 2px;
+        }
+
+        .fine {
+            margin-top: 12px;
+            font-size: 0.76rem;
+            line-height: 1.55;
+            color: rgba(240,240,245,0.62);
+            text-align: center;
+        }
+
+        .fine a {
             color: var(--purple-light);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            white-space: nowrap;
+        }
+
+        .fine a:hover { color: #e0b8ff; }
+
+        /* Desktop: side by side */
+        @media (min-width: 720px) {
+            .plans {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+                align-items: stretch;
+                gap: 20px;
+            }
+            .plan-free    { grid-column: 1; grid-row: 1; }
+            .plan-premium { grid-column: 2; grid-row: 1; }
         }
 
         /* Mobile */
         @media (max-width: 520px) {
-            main { padding: 80px 12px 50px; }
+            main { padding: 80px 12px calc(40px + 22px + env(safe-area-inset-bottom, 0px)); }
             .auth-card { padding: 28px 20px 24px; }
             .user-card { padding: 20px 18px 18px; }
-            .comparison-header { grid-template-columns: 1fr 90px 90px; }
-            .comp-row { grid-template-columns: 1fr 90px 90px; }
-            .comp-row .feat { padding: 10px 14px; font-size: 0.77rem; }
-            .col-label { padding: 11px 14px; }
-            .section-label { padding: 8px 14px; }
-            .comparison-title { padding: 16px 18px 14px; }
+            .plan-card { padding: 22px 18px 20px; }
+            .plan-premium { padding: 26px 18px 20px; }
+            .plan-ribbon { top: 22px; }
+            .price-amount { font-size: 1.8rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #stateLoggedIn, #stateLoggedOut { animation: none; }
+            .plan-cta { transition: none; }
+            .plan-cta:hover { transform: none; }
         }
     </style>
 <style id="legal-footer-css">#legalFooter{position:fixed;bottom:0;left:0;right:0;height:22px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.62rem;color:rgba(240,240,245,.28);background:rgba(10,10,15,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.06);z-index:400;white-space:nowrap}#legalFooter a,#legalFooter button{color:rgba(192,132,252,.75);text-decoration:none;background:none;border:none;font:inherit;padding:0;cursor:pointer}#legalFooter a:hover,#legalFooter button:hover{color:#c084fc}</style>
 <script src="/legal-footer.js" defer></script>
 </head>
 <body>
+
+<!-- SVG icon set (used by the plan cards) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="i-check" viewBox="0 0 16 16"><polyline points="3,8.5 6.5,12 13,4.5"/></symbol>
+        <symbol id="i-lock" viewBox="0 0 16 16"><rect x="3" y="7" width="10" height="7" rx="1.6"/><path d="M5.2 7V5.2a2.8 2.8 0 0 1 5.6 0V7"/></symbol>
+    </defs>
+</svg>
 
 <!-- TOP BAR -->
 <div id="topBar">
@@ -765,21 +808,21 @@
     <!-- LOADING -->
     <div id="loadingState">
         <div class="spinner-sm"></div>
-        <span>Loading...</span>
+        <span>Loading…</span>
     </div>
 
     <!-- STATE 1: NOT LOGGED IN -->
     <div id="stateLoggedOut" style="display:none;">
         <div class="auth-card">
             <div class="auth-logo-area">
-                <img src="images/logo.png" alt="SatFleet" onerror="this.style.display='none'">
+                <img src="images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
                 <h1>Sign in to SatFleet</h1>
                 <p>Access your account and manage your Premium plan</p>
             </div>
 
             <div class="auth-tabs">
-                <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
-                <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Create Account</button>
+                <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Sign in</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Create account</button>
             </div>
 
             <!-- LOGIN FORM -->
@@ -792,7 +835,7 @@
                     <label>Password</label>
                     <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
                 </div>
-                <button class="btn-primary" onclick="login()">Sign In</button>
+                <button class="btn-primary" onclick="login()">Sign in</button>
 
                 <div class="divider">or</div>
 
@@ -816,13 +859,13 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="registerPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+                    <input type="password" id="registerPassword" placeholder="At least 6 characters" autocomplete="new-password">
                 </div>
                 <div class="form-group">
-                    <label>Confirm Password</label>
+                    <label>Confirm password</label>
                     <input type="password" id="registerPassword2" placeholder="Repeat password" autocomplete="new-password">
                 </div>
-                <button class="btn-primary" onclick="register()">Create Account</button>
+                <button class="btn-primary" onclick="register()">Create account</button>
 
                 <div class="divider">or</div>
 
@@ -849,38 +892,7 @@
                 <div class="user-info">
                     <h2 id="userDisplayName">User</h2>
                     <div class="user-email" id="userEmail">—</div>
-                    <div class="plan-badge free" id="planBadge">Free Plan</div>
-                </div>
-            </div>
-
-            <!-- Upgrade CTA (free users) -->
-            <div id="upgradeSection">
-                <button class="upgrade-btn" onclick="upgradePremium()">
-                    <div class="upgrade-left">
-                        <div class="upgrade-icon">
-                            <svg viewBox="0 0 16 16"><path d="M8 1l2.3 4.6L16 6.5l-4 3.9.9 5.6L8 13.4l-4.9 2.6.9-5.6L0 6.5l5.7-.9z"/></svg>
-                        </div>
-                        <div class="upgrade-label">
-                            <div class="upgrade-title">Upgrade to Premium</div>
-                            <div class="upgrade-sub">Starts with a 7-day free trial</div>
-                        </div>
-                    </div>
-                    <div class="upgrade-price">€2.99 / mo</div>
-                </button>
-            </div>
-
-            <!-- Premium active -->
-            <div id="premiumActiveSection" style="display:none;">
-                <div class="premium-active">
-                    <div class="premium-active-icon">
-                        <svg viewBox="0 0 16 16">
-                            <polyline points="2,8 6,12 14,4"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="premium-active-title">Premium Active</div>
-                        <div class="premium-active-sub">All features unlocked — thank you for your support</div>
-                    </div>
+                    <div class="plan-badge free" id="planBadge">Free plan</div>
                 </div>
             </div>
 
@@ -888,115 +900,100 @@
             <button class="logout-btn" onclick="showDeleteModal()" style="margin-top:6px;border-color:rgba(239,68,68,0.15);color:rgba(239,68,68,0.4);">Delete account</button>
         </div>
 
-        <!-- Comparison table -->
-        <div class="comparison-card">
+        <!-- PLAN CARDS (Premium first in the page order so it comes first on mobile) -->
+        <h2 class="sr-only">Free and Premium plans</h2>
+        <div class="plans">
 
-            <div class="comparison-title">Plan comparison</div>
+            <!-- PREMIUM CARD -->
+            <section class="plan-card plan-premium" aria-labelledby="premiumTitle">
+                <div class="plan-ribbon" id="premiumRibbon">Recommended</div>
 
-            <div class="comparison-header">
-                <div class="col-label">Feature</div>
-                <div class="col-free-h">Free</div>
-                <div class="col-premium-h">Premium</div>
-            </div>
+                <h3 class="plan-name" id="premiumTitle">Premium</h3>
+                <div class="plan-price">
+                    <span class="price-amount">€2.99</span>
+                    <span class="price-per">per month, VAT included</span>
+                </div>
+                <p class="plan-tag">Look further ahead, replay more history and get alerted.</p>
 
-            <!-- Map -->
-            <div class="section-label">Main Map</div>
-            <div class="comp-row">
-                <div class="feat">Full 3D globe (Cesium)</div>
-                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat">AR Sky View</div>
-                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat">Satellite search</div>
-                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat">Rocket pad markers</div>
-                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat highlight">Only Visible filter</div>
-                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat highlight">Simulate Flight / Preview Trajectory</div>
-                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
+                <p class="list-intro">Everything in Free, plus:</p>
+                <ul class="feat-list">
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Push notifications</strong> when passes and launches are coming up</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Plan ahead with a <strong>pass forecast of up to 7 days</strong></span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>See <strong>unlimited passes</strong>, not just 5</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Browse the <strong>full satellite catalog</strong></span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Follow each pass on a <strong>trajectory mini-map</strong></span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Focus the map with the <strong>Only Visible</strong> filter</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span><strong>Simulate Flight</strong> and <strong>Preview Trajectory</strong></span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Replay Earth satellites from a <strong>full 30-day archive</strong></span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Explore <strong>Moon, Mars and Deep Space</strong> history</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Follow <strong>all upcoming launches</strong>, not just the first 3</span></li>
+                </ul>
 
-            <!-- Time Travel -->
-            <div class="section-label">Time Travel</div>
-            <div class="comp-row">
-                <div class="feat">Earth satellite history</div>
-                <div class="cell"><span class="cell-partial">Yesterday only</span></div>
-                <div class="cell premium-col"><span class="cell-partial-premium">Full 30-day archive</span></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat highlight">Moon / Mars / Deep Space history</div>
-                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
+                <!-- Purchase button (free users) -->
+                <div class="plan-foot" id="upgradeSection">
+                    <button class="plan-cta" onclick="upgradePremium()">Start 7-day free trial</button>
+                    <p class="fine">7 days free, then €2.99/month (VAT included). Renews automatically. Cancel anytime from Manage subscription. <a href="/terms-of-service">Terms of service</a></p>
+                </div>
 
-            <!-- Next Passes -->
-            <div class="section-label">Next Passes</div>
+                <!-- Current plan (Premium users) -->
+                <div class="plan-foot" id="premiumActiveSection" style="display:none;">
+                    <div class="premium-active">
+                        <div class="premium-active-icon">
+                            <svg viewBox="0 0 16 16">
+                                <polyline points="2,8 6,12 14,4"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="premium-active-title">Your current plan</div>
+                            <div class="premium-active-sub">All features are unlocked. Thank you for your support.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-            <div class="comp-row">
-                <div class="feat">ISS, Starlink &amp; GPS passes</div>
-                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat">Forecast window</div>
-                <div class="cell"><span class="cell-partial">1 day</span></div>
-                <div class="cell premium-col"><span class="cell-partial-premium">Up to 7 days</span></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat">Passes shown</div>
-                <div class="cell"><span class="cell-partial">5 passes</span></div>
-                <div class="cell premium-col"><span class="cell-partial-premium">Unlimited</span></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat highlight">Full satellite catalog</div>
-                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat highlight">Pass trajectory mini-maps</div>
-                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat highlight">Push notifications</div>
-                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
+            <!-- FREE CARD -->
+            <section class="plan-card plan-free" aria-labelledby="freeTitle">
+                <h3 class="plan-name" id="freeTitle">Free</h3>
+                <div class="plan-price">
+                    <span class="price-amount">€0</span>
+                </div>
+                <p class="plan-tag">Included with every account.</p>
 
-            <!-- Launches -->
-            <div class="section-label">Launches</div>
+                <p class="list-intro">What you get:</p>
+                <ul class="feat-list included">
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Explore a full 3D globe</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Spot satellites overhead with AR Sky View</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Find satellites with search</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>See rocket pads on the map</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Catch ISS, Starlink and GPS passes</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Pass forecast for 1 day</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>5 passes shown</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Earth satellite history for yesterday only</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Full details for the first 3 launches</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span>Open launches on the map with View on Map</span></li>
+                </ul>
 
-            <div class="comp-row">
-                <div class="feat">First 3 launches (full info)</div>
-                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat">View on Map</div>
-                <div class="cell"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
-            <div class="comp-row">
-                <div class="feat highlight">All upcoming launches</div>
-                <div class="cell"><svg class="icon-cross" viewBox="0 0 14 14"><line x1="2" y1="2" x2="12" y2="12"/><line x1="12" y1="2" x2="2" y2="12"/></svg></div>
-                <div class="cell premium-col"><svg class="icon-check" viewBox="0 0 16 16"><polyline points="2,8 6,12 14,4"/></svg></div>
-            </div>
+                <div class="locked-head">
+                    <svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>
+                    <span>Premium only</span>
+                </div>
+                <ul class="feat-list locked">
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Push notifications for passes and launches</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Full satellite catalog</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Pass trajectory mini-maps</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Only Visible filter</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Simulate Flight and Preview Trajectory</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Moon, Mars and Deep Space history</span></li>
+                    <li><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>All upcoming launches</span></li>
+                </ul>
+
+                <div class="plan-foot">
+                    <div class="current-plan" id="freeCurrentPlan" style="display:none;">
+                        <svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>
+                        <span>Your current plan</span>
+                    </div>
+                </div>
+            </section>
 
         </div>
     </div>
@@ -1006,7 +1003,7 @@
 <div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;">
     <div style="background:#0f0f17;border:1px solid rgba(239,68,68,0.25);border-radius:16px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,0.6);">
         <div style="font-size:0.95rem;font-weight:700;color:#f87171;margin-bottom:8px;">Delete account</div>
-        <div id="deleteModalText" style="font-size:0.8rem;color:rgba(240,240,245,0.5);line-height:1.55;margin-bottom:20px;">This will permanently delete your account</div>
+        <div id="deleteModalText" style="font-size:0.8rem;color:rgba(240,240,245,0.5);line-height:1.55;margin-bottom:20px;">This will permanently delete your account. This action cannot be undone.</div>
         <div style="display:flex;gap:8px;">
             <button onclick="hideDeleteModal()" style="flex:1;padding:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:rgba(240,240,245,0.55);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">Cancel</button>
             <button onclick="deleteAccount()" style="flex:1;padding:9px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.35);border-radius:8px;color:#f87171;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.background='rgba(239,68,68,0.22)'" onmouseout="this.style.background='rgba(239,68,68,0.12)'">Yes, delete</button>
@@ -1038,7 +1035,7 @@ import {
     signOut 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-// 🔴 TU CONFIGURACIÓN REAL DE FIREBASE 🔴
+// TU CONFIGURACIÓN REAL DE FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyCqQcTt6gK_220ZMbDIK9jSuOhCVLTZn4I",
   authDomain: "satfleet-live.firebaseapp.com",
@@ -1110,8 +1107,8 @@ onAuthStateChanged(auth, async (user) => {
             // Mostrar mensaje según resultado (solo si viene del pago)
             if (_justUpgraded) {
                 const msg = isPremium
-                    ? '🎉 Premium is now active! All features are unlocked.'
-                    : 'Payment received! Premium access may take a few more minutes to activate — please refresh the page.';
+                    ? 'Premium is now active! All features are unlocked.'
+                    : 'Payment received! Premium access may take a few more minutes to activate. Please refresh the page.';
                 setTimeout(() => alert(msg), 300);
                 if (typeof gtag === 'function') {
                     gtag('event', isPremium ? 'premium_purchase_confirmed' : 'premium_purchase_pending', {});
@@ -1123,7 +1120,7 @@ onAuthStateChanged(auth, async (user) => {
             isPremium = false;
             subscriptionStore = null;
             if (_justUpgraded) {
-                setTimeout(() => alert('Payment received! Please refresh in a minute to see your Premium status.'), 300);
+                setTimeout(() => alert('Payment received! Please refresh the page in a minute to see your Premium status.'), 300);
             }
         }
 
@@ -1145,12 +1142,15 @@ function onUserLoggedIn(user) {
     document.getElementById('userDisplayName').textContent = displayName;
     document.getElementById('userEmail').textContent = user.email || '';
 
-    // Lógica visual del Premium (Adaptada a tu nuevo diseño)
+    // Lógica visual del Premium (Adaptada a las tarjetas de plan)
     if (isPremium) {
-        document.getElementById('planBadge').textContent = 'Premium';
+        document.getElementById('planBadge').textContent = 'Premium plan';
         document.getElementById('planBadge').className   = 'plan-badge premium';
         document.getElementById('upgradeSection').style.display       = 'none';
         document.getElementById('premiumActiveSection').style.display = 'block';
+        // Tarjetas: la Free deja de ser "tu plan actual" y el Premium ya no necesita la cinta "Recommended"
+        document.getElementById('freeCurrentPlan').style.display = 'none';
+        document.getElementById('premiumRibbon').style.display   = 'none';
         
         // ── BOTÓN DE GESTIONAR SUSCRIPCIÓN (Solo para Premium) ──
         let manageBtn = document.getElementById('manageSubBtn');
@@ -1159,7 +1159,7 @@ function onUserLoggedIn(user) {
             manageBtn.id = 'manageSubBtn';
             manageBtn.className = 'logout-btn'; 
             manageBtn.style.marginTop = '6px';
-            manageBtn.textContent = 'Manage Subscription';
+            manageBtn.textContent = 'Manage subscription';
             
             manageBtn.onclick = () => {
                 // CASO A: Pagó por Google Play
@@ -1170,7 +1170,7 @@ function onUserLoggedIn(user) {
                         window.open('https://play.google.com/store/account/subscriptions', '_blank');
                     }
                 } 
-                // ✅ CASO B: Pagó por Stripe (Con el parche del Auditor)
+                // CASO B: Pagó por Stripe (Con el parche del Auditor)
                 else {
                     const stripePortalUrl = "https://billing.stripe.com/p/login/dRm00ibzM9yXc2ObbVcs800";
                     const fullUrl = `${stripePortalUrl}?prefilled_email=${encodeURIComponent(user.email)}`;
@@ -1192,10 +1192,13 @@ function onUserLoggedIn(user) {
         // ────────────────────────────────────────────────────────
 
     } else {
-        document.getElementById('planBadge').textContent = 'Free Plan';
+        document.getElementById('planBadge').textContent = 'Free plan';
         document.getElementById('planBadge').className   = 'plan-badge free';
         document.getElementById('upgradeSection').style.display       = 'block';
         document.getElementById('premiumActiveSection').style.display = 'none';
+        // Tarjetas: la Free es el plan actual y el Premium muestra su cinta
+        document.getElementById('freeCurrentPlan').style.display = 'flex';
+        document.getElementById('premiumRibbon').style.display   = '';
     }
 
     document.getElementById('loadingState').style.display   = 'none';
@@ -1303,7 +1306,7 @@ function logout() {
 
 async function upgradePremium() {
     if (!currentUser || !currentUser.uid) {
-        alert('Please log in first to upgrade.');
+        alert('Please sign in first to upgrade.');
         return;
     }
 
@@ -1337,7 +1340,7 @@ async function upgradePremium() {
         if (data.url) {
             window.location.href = data.url;
         } else {
-            alert('Error creating payment session. Please try again.');
+            alert('Could not create the payment session. Please try again.');
             console.error('Stripe checkout error:', data);
         }
     } catch(err) {
@@ -1381,10 +1384,10 @@ async function deleteAccount() {
             
             // Google Play: No podemos cancelarlo por ellos, hay que avisarles muy claro
             const confirmed = confirm(
-                '⚠️ ATTENTION: You have an active Google Play subscription.\n\n' +
-                'Deleting your account will NOT cancel your billing automatically. ' +
-                'Please cancel it manually in the Google Play Store subscriptions menu before continuing.\n\n' +
-                'Continue with account deletion anyway?'
+                'Attention: you have an active Google Play subscription.\n\n' +
+                'Deleting your account will not cancel your billing automatically. ' +
+                'Please cancel it in the Google Play subscriptions menu before continuing.\n\n' +
+                'Delete your account anyway?'
             );
             if (!confirmed) {
                 hideDeleteModal();
@@ -1393,8 +1396,8 @@ async function deleteAccount() {
         } else {
             // Stripe (o cualquier otro): Bloqueamos el borrado y les mandamos a cancelar
             alert(
-                '⛔ You have an active Premium subscription!\n\n' +
-                'To prevent unwanted future charges, you MUST cancel your subscription first before deleting your account.'
+                'You have an active Premium subscription.\n\n' +
+                'To avoid future charges, please cancel your subscription before deleting your account.'
             );
             hideDeleteModal();
             const stripePortalUrl = "https://billing.stripe.com/p/login/dRm00ibzM9yXc2ObbVcs800";
@@ -1405,7 +1408,7 @@ async function deleteAccount() {
 
     // Cambiamos el texto del modal para que sepa que está cargando
     const modalText = document.getElementById('deleteModalText');
-    if (modalText) modalText.textContent = "Deleting account and data... Please wait.";
+    if (modalText) modalText.textContent = "Deleting your account and data… Please wait.";
 
     // 2. Si no es Premium (o si aceptó el aviso de Google Play), borramos la cuenta
     try {
@@ -1418,7 +1421,7 @@ async function deleteAccount() {
         if (error.code === 'auth/requires-recent-login') {
             alert('For security, please sign out and sign in again before deleting your account.');
         } else {
-            alert('Could not delete account: ' + error.message);
+            alert('Could not delete the account: ' + error.message);
         }
     }
 }
