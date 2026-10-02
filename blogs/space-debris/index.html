@@ -43,7 +43,7 @@
       "author": { "@type": "Organization", "name": "SatFleetLive" },
       "publisher": { "@type": "Organization", "name": "SatFleet Live", "url": "https://satfleetlive.com" },
       "datePublished": "2026-03-05",
-      "dateModified": "2026-03-05",
+      "dateModified": "2026-10-02",
       "url": "https://satfleetlive.com/blogs/space-debris/",
       "keywords": "space debris, orbital debris, Kessler syndrome, space junk, satellite collision"
     }
@@ -485,7 +485,7 @@
                 <li><a href="#by-altitude">Debris by orbital altitude</a></li>
                 <li><a href="#kessler">Kessler syndrome explained</a></li>
                 <li><a href="#cleanup">What is being done about it?</a></li>
-                <li><a href="#track-live">Active satellites vs. debris on the live map</a></li>
+                <li><a href="#track-live">See space debris and re-entries on the live map</a></li>
                 <li><a href="#faq">Frequently asked questions</a></li>
             </ol>
         </nav>
@@ -664,6 +664,10 @@
                 </div>
             </div>
 
+            <p>
+                We cover each of these events in depth, with where their fragments are today, in <a href="/blogs/biggest-space-debris-events/">The Biggest Space Debris Events</a>. Spent upper stages, the heaviest debris of all, get their own guide in <a href="/blogs/rocket-bodies-in-orbit/">Rocket Bodies in Orbit</a>.
+            </p>
+
             <!-- SECTION 4 -->
             <h2 id="speed-risk">How Dangerous Is Space Debris?</h2>
 
@@ -786,8 +790,8 @@
             </p>
 
             <div class="highlight-box">
-                <span class="highlight-label">⚠️ Are we already past the tipping point?</span>
-                <p>A growing number of orbital mechanics researchers believe that certain orbital shells — particularly the 800–1,000 km band — may already be past the Kessler tipping point for a slow-motion cascade. A 2021 NASA study concluded that the debris population in LEO is already sufficient to cause a "collisional cascade" without any additional launches. Active debris removal is no longer optional for long-term orbital stability — it is necessary.</p>
+                <span class="highlight-label">Are we already past the tipping point?</span>
+                <p>A growing number of researchers believe that some orbital shells — particularly the 800–1,000 km band — may already be past the tipping point for a slow-motion cascade. Studies, including ESA's annual space environment reports, suggest that in parts of low Earth orbit the number of fragments would keep growing from collisions alone, even with no new launches. That is why active debris removal is increasingly seen as necessary, not optional. Full story: <a href="/blogs/kessler-syndrome/">Kessler Syndrome Explained</a>.</p>
             </div>
 
             <!-- SECTION 7 -->
@@ -799,7 +803,7 @@
 
             <h3>Mitigation rules (preventing new debris)</h3>
             <p>
-                The most widely adopted rule is the <strong>25-year deorbit guideline</strong>: satellites in LEO should be designed to re-enter within 25 years of end of mission, either through natural atmospheric decay or active deorbit burns. This standard, published by IADC (Inter-Agency Space Debris Coordination Committee), is followed by most major space agencies, though compliance is inconsistent. In 2023, the FCC in the US tightened this to a <strong>5-year deorbit requirement</strong> for licensed operators — a significant step toward preserving orbital capacity. SpaceX's Starlink satellites, for example, are designed to deorbit within approximately 5 years at their operational altitude of 550 km using onboard propulsion.
+                The most widely adopted rule is the <strong>25-year deorbit guideline</strong>: satellites in LEO should be designed to re-enter within 25 years of end of mission, either through natural atmospheric decay or active deorbit burns. This standard, published by IADC (Inter-Agency Space Debris Coordination Committee), is followed by most major space agencies, though compliance is inconsistent. In 2022, the FCC in the US tightened this to a <strong>5-year deorbit requirement</strong> for licensed operators — a significant step toward preserving orbital capacity. SpaceX's Starlink satellites, for example, are designed to deorbit within approximately 5 years at their operational altitude of 550 km using onboard propulsion.
             </p>
             <p>
                 A second critical measure is <strong>passivation</strong> — venting residual propellant and discharging batteries on defunct spacecraft and rocket upper stages to prevent in-orbit explosions. Many of the 12+ fragmentation events per year recorded by ESA involve old objects launched before passivation requirements existed.
@@ -839,20 +843,20 @@
             </p>
 
             <!-- SECTION 8 -->
-            <h2 id="track-live">Active Satellites vs. Debris on the Live Map</h2>
+            <h2 id="track-live">See Space Debris and Re-entries on the Live Map</h2>
 
             <p>
-                SatFleet Live tracks only <strong>active, operational satellites</strong> — the 14,500+ functioning spacecraft currently communicating and manoeuvring in orbit. The 32,000+ debris objects tracked by NORAD are deliberately not displayed: showing debris alongside active satellites would make the map unusable, and debris is not assigned stable TLE data with the same regularity as active payloads.
+                SatFleet Live now shows space debris as well as active satellites. Switch the map to <strong>Space debris</strong> mode to see tracked fragments and spent rocket bodies from Space-Track.org, refreshed twice a day. Filters let you isolate each major debris cloud — <strong>Fengyun 1C</strong>, <strong>Cosmos 2251</strong>, <strong>Iridium 33</strong> and <strong>Cosmos 1408</strong> — as well as <strong>rocket bodies</strong> and other debris, and narrow them down by radar size. The size of each dot reflects the object's radar cross-section.
             </p>
             <p>
-                What you <em>can</em> see on the map is the scale of the problem indirectly: the sheer density of Starlink satellites at 550 km, the GPS constellation at MEO, and the geostationary belt — all of which exist alongside debris clouds that you cannot see. Every active satellite you track on SatFleet Live is, right now, performing routine conjunction assessments to avoid the fragments surrounding it.
+                The <strong>Re-entries</strong> layer shows the other end of the story: every object with an official re-entry prediction, its predicted time and uncertainty window, and a shaded band marking where it could come down. Our <a href="/blogs/satellite-reentry-tracker/">satellite re-entry tracker guide</a> explains how to read it, and <a href="/blogs/where-will-space-debris-fall/">Where Will Space Debris Fall?</a> explains why those zones are so wide.
             </p>
 
-            <a href="/" class="live-cta" aria-label="View all active satellites on the live map">
-                <div class="cta-icon">🌍</div>
+            <a href="/" class="live-cta" aria-label="See space debris and re-entries on the live map">
+                <div class="cta-icon"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-20 12 12)"/><circle cx="20" cy="8" r="0.8"/><circle cx="4.5" cy="15.5" r="0.8"/></svg></div>
                 <div class="cta-body">
-                    <span class="cta-title">Track Every Active Satellite Live — No Debris Clutter</span>
-                    <span class="cta-sub">14,500+ operational satellites in real time. Filter by category, switch to 3D globe, or click any satellite to see its altitude, speed, and country of origin. Debris excluded by design.</span>
+                    <span class="cta-title">See Space Debris and Re-entries Live</span>
+                    <span class="cta-sub">Every tracked debris cloud and rocket body, plus upcoming re-entries with their possible fall zones. Free, in your browser, no account needed.</span>
                 </div>
                 <div class="cta-arrow">→</div>
             </a>
@@ -926,54 +930,54 @@
                     <span class="faq-arrow">▼</span>
                 </button>
                 <div class="faq-answer">
-                    Most debris re-entering Earth's atmosphere burns up completely. Large objects — rocket stages, defunct satellites — can partially survive re-entry, and controlled or uncontrolled re-entries occur regularly. The risk to any individual on the ground is extremely low (estimated at roughly 1-in-10,000 lifetime risk of injury globally), but uncontrolled re-entries of large objects such as the Chinese Long March rocket bodies in 2020 and 2021 drew significant attention due to their unpredictable landing zones.
+                    Most debris re-entering Earth's atmosphere burns up completely. Large objects — rocket stages, defunct satellites — can partially survive re-entry, and uncontrolled re-entries happen regularly. The risk to any individual is extremely low: only one person is known to have ever been touched by falling debris, and she was unhurt. Large uncontrolled re-entries, such as the Chinese Long March 5B core stages in 2020 and 2021, draw attention because their landing zones stay uncertain until the final hours. See <a href="/blogs/can-space-debris-hit-you/">Can Space Debris Hit You?</a> for the real odds, and follow upcoming re-entries with our <a href="/blogs/satellite-reentry-tracker/">re-entry tracker</a>.
                 </div>
             </div>
 
             <!-- RELATED -->
             <div class="related-articles">
-                <div class="related-title">📖 Related Guides</div>
+                <div class="related-title">Related Guides</div>
                 <div class="related-grid">
+                    <a href="/blogs/satellite-reentry-tracker/" class="related-card">
+                        <span class="related-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span>
+                        <div class="related-text">
+                            <strong>Satellite Re-entry Tracker: See What's Falling to Earth Next</strong>
+                            <span>Upcoming re-entries, uncertainty windows and possible fall zones, live on the map.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/kessler-syndrome/" class="related-card">
+                        <span class="related-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.3 11l7.4-3.8M8.3 13l7.4 3.8"/></svg></span>
+                        <div class="related-text">
+                            <strong>Kessler Syndrome Explained: Could Space Debris Trap Us on Earth?</strong>
+                            <span>How one collision can trigger a chain reaction, and whether it has already begun.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/biggest-space-debris-events/" class="related-card">
+                        <span class="related-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                        <div class="related-text">
+                            <strong>The Biggest Space Debris Events</strong>
+                            <span>Fengyun-1C, Iridium-Cosmos and Cosmos 1408: what happened and where the debris is now.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/rocket-bodies-in-orbit/" class="related-card">
+                        <span class="related-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2c3 3 4 7 4 11l-4 3-4-3c0-4 1-8 4-11z"/><path d="M9.5 17.5l-1 4M14.5 17.5l1 4"/></svg></span>
+                        <div class="related-text">
+                            <strong>Rocket Bodies in Orbit: The Biggest Pieces of Space Junk</strong>
+                            <span>Spent rocket stages, the heaviest debris in orbit and the likeliest to survive re-entry.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/can-space-debris-hit-you/" class="related-card">
+                        <span class="related-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg></span>
+                        <div class="related-text">
+                            <strong>Can Space Debris Hit You? The Real Odds</strong>
+                            <span>The only known case, what survives re-entry, and what to do if you find a piece.</span>
+                        </div>
+                    </a>
                     <a href="/blogs/how-many-satellites-in-orbit/" class="related-card">
-                        <span class="related-icon">🛰️</span>
+                        <span class="related-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2196f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="6" height="6"/><path d="M3 12h6M15 12h6M12 3v6M12 15v6"/></svg></span>
                         <div class="related-text">
                             <strong>How Many Satellites Are in Orbit? The Full 2026 Count</strong>
                             <span>14,500+ active satellites — full breakdown by category, country, and altitude.</span>
-                        </div>
-                    </a>
-                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
-                        <span class="related-icon">🌍</span>
-                        <div class="related-text">
-                            <strong>How Satellite Orbits Work: A Beginner's Guide</strong>
-                            <span>LEO, MEO, GEO — why each altitude exists and what satellites use it.</span>
-                        </div>
-                    </a>
-                    <a href="/blogs/how-to-use-ar-to-spot-satellites/" class="related-card">
-    <span class="related-icon">🔭</span>
-    <div class="related-text">
-        <strong>How to Use AR to Spot Satellites With Your Phone</strong>
-        <span>Point your phone at the sky and see every satellite in real time — full guide to AR Sky View.</span>
-    </div>
-</a>
-                    <a href="/blogs/best-time-to-see-satellites-tonight/" class="related-card">
-    <span class="related-icon">🌅</span>
-    <div class="related-text">
-        <strong>Best Time to See Satellites Tonight</strong>
-        <span>The 90-minute twilight window explained — when to look, where, and what you'll see with the naked eye.</span>
-    </div>
-</a>
-                    <a href="/blogs/why-are-satellites-so-bright/" class="related-card">
-                        <span class="related-icon">✨</span>
-                        <div class="related-text">
-                            <strong>Why Are Satellites So Bright?</strong>
-                            <span>The physics behind satellite brightness, flares, and naked-eye visibility.</span>
-                        </div>
-                    </a>
-                    <a href="/blogs/iss-pass-tonight/" class="related-card">
-                        <span class="related-icon">⭐</span>
-                        <div class="related-text">
-                            <strong>ISS Pass Tonight — When & Where to See It</strong>
-                            <span>The brightest satellite in the sky — find tonight's pass for your location.</span>
                         </div>
                     </a>
                 </div>
@@ -983,11 +987,11 @@
 
         <!-- CTA BANNER -->
         <div class="cta-banner">
-            <h2>Watch Every Active Satellite in Real Time</h2>
-            <p>14,500+ operational satellites tracked live — filter by category, switch to 3D, and find passes over your location. Debris excluded by design.</p>
+            <h2>Watch Satellites and Space Debris in Real Time</h2>
+            <p>14,500+ operational satellites, every tracked debris cloud and upcoming re-entries — live on a 2D map and 3D globe. Free, no account needed.</p>
             <div class="cta-buttons">
-                <a href="/" class="cta-btn">🌍 Open Live Map</a>
-                <a href="/next-passes.html" class="cta-btn outline">📡 Find Passes Over Me</a>
+                <a href="/" class="cta-btn">Open Live Map</a>
+                <a href="/next-passes.html" class="cta-btn outline">Find Passes Over Me</a>
             </div>
         </div>
 

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script src="/cookie-consent.js"></script>
+
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="manifest" href="/manifest.json">
+
+    <title>Satellite Re-entry Tracker: What's Falling to Earth Next | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track upcoming satellite and space debris re-entries live. See predicted re-entry times, uncertainty windows and possible fall zones on a free 3D map, updated every 6 hours.">
+    <meta name="keywords" content="satellite reentry tracker, re-entry tracker, upcoming reentries, space debris reentry, what is falling to earth today, reentry predictions, rocket body reentry, uncontrolled reentry">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <link rel="canonical" href="https://satfleetlive.com/blogs/satellite-reentry-tracker/">
+
+    <meta property="og:title" content="Satellite Re-entry Tracker: See What's Falling to Earth Next">
+    <meta property="og:description" content="Upcoming satellite, rocket body and debris re-entries — predicted time, uncertainty window and possible fall zone, live on a free map.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/blogs/satellite-reentry-tracker/">
+    <meta property="og:image" content="/images/logo.png">
+    <meta property="article:published_time" content="2026-10-02">
+    <meta property="article:modified_time" content="2026-10-02">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Satellite Re-entry Tracker: See What's Falling to Earth Next">
+    <meta name="twitter:description" content="Upcoming satellite, rocket body and debris re-entries — predicted time, uncertainty window and possible fall zone, live on a free map.">
+    <meta name="twitter:image" content="/images/logo.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": "Satellite Re-entry Tracker: See What's Falling to Earth Next",
+      "description": "Track upcoming satellite and space debris re-entries live. See predicted re-entry times, uncertainty windows and possible fall zones on a free 3D map, updated every 6 hours.",
+      "author": { "@type": "Organization", "name": "SatFleetLive" },
+      "publisher": {
+        "@type": "Organization", "name": "SatFleet Live", "url": "https://satfleetlive.com",
+        "logo": { "@type": "ImageObject", "url": "https://satfleetlive.com/images/logo.png" }
+      },
+      "datePublished": "2026-10-02",
+      "dateModified": "2026-10-02",
+      "url": "https://satfleetlive.com/blogs/satellite-reentry-tracker/",
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://satfleetlive.com/blogs/satellite-reentry-tracker/" }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How can I see which satellites are re-entering the atmosphere today?", "acceptedAnswer": { "@type": "Answer", "text": "Open SatFleet Live's live map and turn on the Re-entries layer. It lists every object with an official re-entry prediction from Space-Track.org, the US Space Force's public catalog, showing its predicted time, uncertainty window and the region where it is expected to come down. The data refreshes every 6 hours." } },
+        { "@type": "Question", "name": "Where does re-entry prediction data come from?", "acceptedAnswer": { "@type": "Answer", "text": "SatFleet Live uses Tracking and Impact Prediction (TIP) messages published on Space-Track.org by the US Space Force. Each message gives a predicted re-entry time, an uncertainty window in minutes and the point where the object is expected to cross 10 km of altitude. Predictions are reissued and refined as the re-entry gets closer." } },
+        { "@type": "Question", "name": "How accurate are satellite re-entry predictions?", "acceptedAnswer": { "@type": "Answer", "text": "Days before re-entry, the uncertainty can be many hours. Because objects travel at about 28,000 km/h, even a one-hour error moves the re-entry point roughly 28,000 km along the ground track, so the exact location stays uncertain until the final hours. Accuracy improves sharply as the event approaches." } },
+        { "@type": "Question", "name": "Is the location on the map where the debris will land?", "acceptedAnswer": { "@type": "Answer", "text": "No. The coordinates in a re-entry prediction mark where the object is expected to cross 10 km of altitude, not an impact point. Any surviving fragments are spread along a footprint that can stretch for hundreds of kilometers beyond that point, which is why SatFleet Live shows a shaded possible fall zone instead of a single pin." } },
+        { "@type": "Question", "name": "What kinds of objects re-enter the atmosphere?", "acceptedAnswer": { "@type": "Answer", "text": "Mostly three kinds: old or decommissioned satellites (payloads), spent upper stages of rockets (rocket bodies) and fragments from collisions or breakups (debris). Most burn up completely, but large, dense objects such as rocket stages can leave surviving pieces." } }
+      ]
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://satfleetlive.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://satfleetlive.com/blogs/" },
+        { "@type": "ListItem", "position": 3, "name": "Satellite Re-entry Tracker", "item": "https://satfleetlive.com/blogs/satellite-reentry-tracker/" }
+      ]
+    }
+    </script>
+
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --gold: #d4a95a;
+            --gold-bright: #f0c674;
+            --ink: #05060a;
+            --panel: #0c0f16;
+            --panel-2: #10141d;
+            --line: #1e2430;
+            --text: #c7ccd6;
+            --text-bright: #f2f4f8;
+            --blue: #5a8fd4;
+        }
+
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: var(--ink);
+            color: var(--text);
+        }
+
+        header.site-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.5rem; background: var(--panel);
+            border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 100;
+            font-family: -apple-system, 'Segoe UI', sans-serif;
+        }
+        .logo-link { display: flex; align-items: center; gap: 0.7rem; text-decoration: none; }
+        .logo-link img { width: 34px; height: 34px; border-radius: 50%; }
+        .logo-link span { color: var(--gold-bright); font-weight: 700; font-size: 1.1rem; }
+        .site-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .site-nav a { color: var(--text); border: 1px solid var(--line); padding: 0.4rem 0.9rem; border-radius: 20px; text-decoration: none; font-size: 0.82rem; transition: 0.2s; }
+        .site-nav a:hover { border-color: var(--gold); color: var(--gold-bright); }
+
+        .hero {
+            position: relative; padding: 4rem 1.5rem 3rem; text-align: center;
+            background: radial-gradient(ellipse at 50% -10%, #1a1f2e 0%, var(--ink) 65%);
+            border-bottom: 1px solid var(--line); overflow: hidden;
+        }
+        .hero::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background-image: radial-gradient(1px 1px at 15% 30%, #fff, transparent),
+                radial-gradient(1px 1px at 82% 20%, #fff, transparent),
+                radial-gradient(1.5px 1.5px at 65% 65%, #fff, transparent),
+                radial-gradient(1px 1px at 30% 80%, #fff, transparent),
+                radial-gradient(1px 1px at 92% 55%, #fff, transparent);
+            opacity: 0.5;
+        }
+        .breadcrumb { font-size: 0.8rem; color: #7a8090; margin-bottom: 1.5rem; font-family: -apple-system, sans-serif; position: relative; }
+        .breadcrumb a { color: var(--blue); text-decoration: none; }
+        .kicker { font-family: -apple-system, sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; position: relative; }
+        h1 { font-size: 2.4rem; color: var(--text-bright); line-height: 1.2; max-width: 750px; margin: 0 auto 1.2rem; position: relative; font-weight: 400; }
+        h1 em { font-style: normal; color: var(--gold-bright); }
+        .subhead { max-width: 620px; margin: 0 auto; color: #9aa0ae; font-size: 1.08rem; line-height: 1.6; position: relative; }
+
+        .stat-strip {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+            background: var(--line); max-width: 900px; margin: 2.5rem auto 0; position: relative;
+            border: 1px solid var(--line);
+        }
+        .stat { background: var(--panel); padding: 1.5rem 1rem; text-align: center; }
+        .stat .num { font-family: 'Courier New', monospace; font-size: 1.7rem; color: var(--gold-bright); font-weight: 700; }
+        .stat .lbl { font-family: -apple-system, sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #7a8090; margin-top: 0.4rem; }
+
+        main { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+
+        .toc { border: 1px solid var(--line); border-left: 3px solid var(--gold); padding: 1.2rem 1.5rem; margin-bottom: 3rem; font-family: -apple-system, sans-serif; background: var(--panel); }
+        .toc-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 0.6rem; }
+        .toc a { color: var(--blue); text-decoration: none; font-size: 0.92rem; line-height: 1.9; display: block; }
+        .toc a:hover { color: var(--gold-bright); }
+
+        article p { line-height: 1.85; margin-bottom: 1.3rem; font-size: 1.06rem; color: var(--text); }
+        article strong { color: var(--text-bright); font-weight: 600; }
+        article a { color: var(--blue); }
+        article h2 { font-family: -apple-system, sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--text-bright); margin: 2.8rem 0 1.1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--line); }
+        article h2 span { color: var(--gold-bright); }
+
+        .note { border: 1px solid var(--line); background: var(--panel); border-radius: 4px; padding: 1.2rem 1.4rem; margin: 1.8rem 0; }
+        .note .note-label { font-family: -apple-system, sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gold); display: block; margin-bottom: 0.5rem; }
+        .note p { margin: 0; color: #b8bdc8; font-size: 0.98rem; }
+
+        /* TIMELINE */
+        .timeline { position: relative; margin: 2rem 0 2.5rem; padding-left: 2.2rem; }
+        .timeline::before { content: ''; position: absolute; left: 0.4rem; top: 0.3rem; bottom: 0.3rem; width: 1px; background: var(--line); }
+        .tl-item { position: relative; margin-bottom: 1.8rem; }
+        .tl-item::before { content: ''; position: absolute; left: -2.2rem; top: 0.3rem; width: 9px; height: 9px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3px var(--ink); }
+        .tl-year { font-family: 'Courier New', monospace; color: var(--gold-bright); font-size: 0.85rem; font-weight: 700; }
+        .tl-item p { margin: 0.25rem 0 0; font-size: 0.98rem; }
+
+        .faq { border-bottom: 1px solid var(--line); padding: 1.2rem 0; }
+        .faq summary { cursor: pointer; font-family: -apple-system, sans-serif; font-weight: 600; color: var(--text-bright); font-size: 1.02rem; list-style: none; display: flex; justify-content: space-between; }
+        .faq summary::-webkit-details-marker { display: none; }
+        .faq summary::after { content: '+'; color: var(--gold); font-size: 1.3rem; }
+        .faq[open] summary::after { content: '−'; }
+        .faq p { margin: 0.8rem 0 0; font-size: 0.97rem; color: #b8bdc8; }
+
+        .related { margin: 3rem 0 2rem; }
+        .related-title { font-family: -apple-system, sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 1rem; }
+        .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        .related-card { border: 1px solid var(--line); padding: 1rem 1.2rem; text-decoration: none; display: block; transition: 0.2s; background: var(--panel); }
+        .related-card:hover { border-color: var(--gold); background: var(--panel-2); }
+        .related-card strong { display: block; color: var(--text-bright); font-family: -apple-system, sans-serif; font-size: 0.95rem; margin-bottom: 0.3rem; }
+        .related-card span { color: #8a8f9c; font-size: 0.85rem; font-family: -apple-system, sans-serif; }
+
+        .cta { text-align: center; border: 1px solid var(--gold); padding: 2.2rem; margin: 3rem 0 1rem; background: linear-gradient(180deg, rgba(212,169,90,0.06), transparent); }
+        .cta h2 { border: none !important; margin: 0 0 0.6rem !important; }
+        .cta p { color: #9aa0ae; margin-bottom: 1.3rem; font-family: -apple-system, sans-serif; }
+        .cta-btn { display: inline-block; background: var(--gold); color: var(--ink); padding: 0.75rem 2rem; text-decoration: none; font-weight: 700; font-family: -apple-system, sans-serif; font-size: 0.95rem; }
+
+        footer { text-align: center; padding: 2rem 1rem; font-size: 0.78rem; color: #6a6f7c; font-family: -apple-system, sans-serif; border-top: 1px solid var(--line); }
+        footer a { color: var(--blue); text-decoration: none; }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.7rem; }
+            .stat-strip { grid-template-columns: 1fr; }
+            .related-grid { grid-template-columns: 1fr; }
+            .site-nav { display: none; }
+        }
+    </style>
+<script src="/legal-footer.js" defer></script>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <a class="logo-link" href="/">
+            <img src="/images/logo.png" alt="SatFleet Live" onerror="this.style.display='none'">
+            <span>SatFleet Live</span>
+        </a>
+        <nav class="site-nav">
+            <a href="/">Live Map</a>
+            <a href="/moon.html">Moon</a>
+            <a href="/mars.html">Mars</a>
+            <a href="/deep-space.html">Deep Space</a>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <p class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/blogs/">Blog</a> &rsaquo; Satellite Re-entry Tracker</p>
+        <div class="kicker">Re-entries &middot; Space Debris</div>
+        <h1>Satellite Re-entry Tracker: See What's <em>Falling to Earth</em> Next</h1>
+        <p class="subhead">Old satellites, spent rocket stages and debris fragments come back down every week. Here is how to see which ones are next, when they are expected, and where they might fall.</p>
+
+        <div class="stat-strip">
+            <div class="stat">
+                <div class="num">Every 6 h</div>
+                <div class="lbl">Prediction refresh</div>
+            </div>
+            <div class="stat">
+                <div class="num">~28,000 km/h</div>
+                <div class="lbl">Speed before re-entry</div>
+            </div>
+            <div class="stat">
+                <div class="num">10 km</div>
+                <div class="lbl">Altitude of the predicted point</div>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <nav class="toc">
+            <div class="toc-title">Contents</div>
+            <a href="#what-is">What a Re-entry Tracker Shows</a>
+            <a href="#data">Where the Predictions Come From</a>
+            <a href="#how-predictions-evolve">How a Prediction Evolves</a>
+            <a href="#read-the-map">How to Read the Re-entry Map</a>
+            <a href="#what-falls">What Actually Falls Back</a>
+            <a href="#track-it">How to Track Re-entries Live</a>
+            <a href="#faq">Frequently Asked Questions</a>
+        </nav>
+
+        <article>
+            <p>
+                Everything placed in low Earth orbit is slowly coming home. The upper atmosphere is thin, but not empty, and every orbit it steals a little speed from satellites, rocket stages and fragments of debris. Eventually they drop low enough that the air wins, and they plunge back in. A <strong>satellite re-entry tracker</strong> lets you see those objects before it happens: what is coming down, when, and over which part of the planet.
+            </p>
+
+            <h2 id="what-is">What a Re-entry Tracker <span>Shows</span></h2>
+
+            <p>
+                A re-entry tracker is a list and a map of every object that has an official, upcoming re-entry prediction. On SatFleet Live, each one shows its <strong>name and catalog number</strong>, what kind of object it is (a satellite, a rocket body or a piece of debris), the country that launched it, its rough radar size, and the most important pair of numbers: the <strong>predicted re-entry time</strong> and the <strong>uncertainty window</strong> around it.
+            </p>
+
+            <p>
+                That second number matters as much as the first. A prediction that says "Tuesday at 14:20 UTC, plus or minus 3 hours" is telling you something very different from one that says "plus or minus 4 minutes" — and the tracker shows both so you can judge how much to trust the date you are looking at.
+            </p>
+
+            <h2 id="data">Where the Predictions <span>Come From</span></h2>
+
+            <p>
+                The predictions are not ours, and they are not guesses. They come from <strong>Space-Track.org</strong>, the public catalog run by the US Space Force, which issues <strong>Tracking and Impact Prediction (TIP)</strong> messages for objects about to re-enter. Each message is based on radar tracking of the object's orbit as it decays.
+            </p>
+
+            <div class="note">
+                <span class="note-label">How fresh is the data?</span>
+                <p>SatFleet Live checks Space-Track for new re-entry predictions every 6 hours. When an object receives several updated messages as its re-entry gets closer, only the newest one is kept — so what you see is always the latest official estimate, not an outdated one.</p>
+            </div>
+
+            <p>
+                The underlying physics is the same one that keeps satellites up in the first place, which we explain in <a href="/blogs/how-satellite-orbits-work/">How Satellite Orbits Work</a>. The difference is that near the end of its life, an orbit changes fast — and drag is notoriously hard to predict, because it depends on how much the Sun is heating and inflating the upper atmosphere at that moment.
+            </p>
+
+            <h2 id="how-predictions-evolve">How a Prediction <span>Evolves</span></h2>
+
+            <p>
+                A re-entry forecast is not a single announcement. It is a series of estimates that narrow down as the object sinks. A typical sequence looks like this:
+            </p>
+
+            <div class="timeline">
+                <div class="tl-item">
+                    <div class="tl-year">Weeks before</div>
+                    <p>The orbit is clearly decaying, but the date is still fuzzy. Small changes in solar activity can shift the outcome by days.</p>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-year">About 4 days before</div>
+                    <p>Official re-entry messages typically begin. The uncertainty window is still wide — often many hours, meaning the object could come down almost anywhere along several orbits.</p>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-year">The last 24 hours</div>
+                    <p>Updates arrive more frequently and the window shrinks. Each new message also states when the next one is expected.</p>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-year">The final hours</div>
+                    <p>The window can drop to minutes, and the possible fall zone narrows to a single stretch of one orbit.</p>
+                </div>
+                <div class="tl-item">
+                    <div class="tl-year">After re-entry</div>
+                    <p>A final assessment confirms the object has re-entered, and it disappears from the list of upcoming re-entries.</p>
+                </div>
+            </div>
+
+            <p>
+                Why so much uncertainty early on? Speed. An object in low orbit moves at roughly <strong>28,000 km/h</strong>, so a one-hour error in timing moves the re-entry point about 28,000 km along its path — more than two-thirds of the way around the planet. That is why we wrote a full guide on <a href="/blogs/where-will-space-debris-fall/">how re-entry windows and fall zones are calculated</a>.
+            </p>
+
+            <h2 id="read-the-map">How to Read the <span>Re-entry Map</span></h2>
+
+            <p>
+                When you turn on the <strong>Re-entries</strong> layer, each prediction is drawn on the globe. A few rules make it easy to read:
+            </p>
+
+            <p>
+                <strong>The shaded area is the possible fall zone</strong>, not a single landing spot. It follows the object's ground track — the path its orbit traces over the Earth's surface — across the stretch it could be over during its uncertainty window. Wider window, longer zone.
+            </p>
+
+            <p>
+                <strong>Fainter means less precise.</strong> Predictions with a large time uncertainty are drawn more faintly, so the confident ones stand out at a glance. Zones with an uncertainty over ±30 minutes are hidden until you select that object, otherwise early, low-confidence predictions would cover half the map.
+            </p>
+
+            <div class="note">
+                <span class="note-label">The predicted point is not an impact point</span>
+                <p>The coordinates in an official re-entry message mark where the object is expected to cross <strong>10 km of altitude</strong> — well after the main breakup, but before anything reaches the ground. Surviving fragments, if any, keep travelling and scatter along a footprint that can stretch for hundreds of kilometers. Treat the point as a reference, never as a target.</p>
+            </div>
+
+            <h2 id="what-falls">What Actually <span>Falls Back</span></h2>
+
+            <p>
+                Upcoming re-entries fall into three groups, and the tracker labels each one:
+            </p>
+
+            <p>
+                <strong>Payloads</strong> are satellites — sometimes decommissioned on purpose, sometimes simply out of fuel and left to decay. Large constellations in very low orbits, such as <a href="/blogs/starlink-satellites/">Starlink</a>, are designed to come down within a few years once retired, and their satellites are built to burn up completely.
+            </p>
+
+            <p>
+                <strong>Rocket bodies</strong> are the spent upper stages that delivered satellites to orbit and were left behind. They are the largest and heaviest objects on the list, and the most likely to leave surviving pieces, which is why we dedicate a full article to <a href="/blogs/rocket-bodies-in-orbit/">rocket bodies in orbit</a>.
+            </p>
+
+            <p>
+                <strong>Debris</strong> covers fragments from collisions, explosions and anti-satellite tests. Most are small and burn up without a trace. For the wider picture of what is up there, see our guide to <a href="/blogs/space-debris/">space debris</a>.
+            </p>
+
+            <p>
+                Most of what re-enters is destroyed by heat between roughly 70 and 80 km of altitude. Whether anything reaches the ground depends on the object's size and materials, and the real risk to people is extremely low — we break down the actual odds in <a href="/blogs/can-space-debris-hit-you/">Can Space Debris Hit You?</a>
+            </p>
+
+            <h2 id="track-it">How to Track Re-entries <span>Live</span></h2>
+
+            <p>
+                On the <a href="/">SatFleet Live map</a>, switch on the <strong>Re-entries</strong> layer. Every object with an official prediction appears on the globe with its possible fall zone. Select any of them to see its predicted re-entry time, uncertainty window, object type, launch country and radar size, and to reveal its full zone even when it is too uncertain to show by default. It is free, works in the browser on desktop and mobile, and needs no account.
+            </p>
+
+            <h2 id="faq">Frequently Asked <span>Questions</span></h2>
+
+            <details class="faq">
+                <summary>How can I see which satellites are re-entering the atmosphere today?</summary>
+                <p>Open SatFleet Live's <a href="/">live map</a> and turn on the Re-entries layer. It lists every object with an official re-entry prediction from Space-Track.org, the US Space Force's public catalog, showing its predicted time, uncertainty window and the region where it is expected to come down. The data refreshes every 6 hours.</p>
+            </details>
+            <details class="faq">
+                <summary>Where does re-entry prediction data come from?</summary>
+                <p>SatFleet Live uses Tracking and Impact Prediction (TIP) messages published on Space-Track.org by the US Space Force. Each message gives a predicted re-entry time, an uncertainty window in minutes and the point where the object is expected to cross 10 km of altitude. Predictions are reissued and refined as the re-entry gets closer.</p>
+            </details>
+            <details class="faq">
+                <summary>How accurate are satellite re-entry predictions?</summary>
+                <p>Days before re-entry, the uncertainty can be many hours. Because objects travel at about 28,000 km/h, even a one-hour error moves the re-entry point roughly 28,000 km along the ground track, so the exact location stays uncertain until the final hours. Accuracy improves sharply as the event approaches.</p>
+            </details>
+            <details class="faq">
+                <summary>Is the location on the map where the debris will land?</summary>
+                <p>No. The coordinates in a re-entry prediction mark where the object is expected to cross 10 km of altitude, not an impact point. Any surviving fragments are spread along a footprint that can stretch for hundreds of kilometers beyond that point, which is why SatFleet Live shows a shaded possible fall zone instead of a single pin.</p>
+            </details>
+            <details class="faq">
+                <summary>What kinds of objects re-enter the atmosphere?</summary>
+                <p>Mostly three kinds: old or decommissioned satellites (payloads), spent upper stages of rockets (rocket bodies) and fragments from collisions or breakups (debris). Most burn up completely, but large, dense objects such as rocket stages can leave surviving pieces.</p>
+            </details>
+
+            <div class="related">
+                <div class="related-title">Related Articles</div>
+                <div class="related-grid">
+                    <a href="/blogs/where-will-space-debris-fall/" class="related-card">
+                        <strong>Where Will It Fall?</strong>
+                        <span>How re-entry windows and fall zones are calculated.</span>
+                    </a>
+                    <a href="/blogs/can-space-debris-hit-you/" class="related-card">
+                        <strong>Can Space Debris Hit You?</strong>
+                        <span>The real odds of being struck by falling space junk.</span>
+                    </a>
+                    <a href="/blogs/rocket-bodies-in-orbit/" class="related-card">
+                        <strong>Rocket Bodies in Orbit</strong>
+                        <span>The biggest pieces of space junk still circling Earth.</span>
+                    </a>
+                    <a href="/blogs/space-debris/" class="related-card">
+                        <strong>Space Debris</strong>
+                        <span>What it is, where it comes from, and how much is up there.</span>
+                    </a>
+                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
+                        <strong>How Satellite Orbits Work</strong>
+                        <span>The physics that keeps satellites up — and brings them down.</span>
+                    </a>
+                    <a href="/blogs/what-is-a-tle/" class="related-card">
+                        <strong>What Is a TLE?</strong>
+                        <span>The orbital data format behind every tracked object.</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="cta">
+                <h2>See What's Re-entering Right Now</h2>
+                <p>Free, live, based on official Space-Track predictions — no account required.</p>
+                <a href="/" class="cta-btn">Open the Live Map</a>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+        © 2026 SatFleetLive &middot;
+        Source: <a href="https://www.space-track.org/" target="_blank">Space-Track.org</a> &middot;
+        <a href="mailto:jaime.automatiza@gmail.com">Contact</a> &middot;
+        <a href="/privacy-policy" target="_blank">Privacy Policy</a> · <a href="#" onclick="openCookieSettings();return false;">Cookie settings</a>
+    </footer>
+
+</body>
+</html>

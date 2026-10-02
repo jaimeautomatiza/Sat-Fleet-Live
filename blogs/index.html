@@ -64,7 +64,13 @@
 {"@type":"ListItem","position":28,"url":"https://satfleetlive.com/blogs/where-is-voyager-1-now/","name":"Where Is Voyager 1 Now?"},
 {"@type":"ListItem","position":29,"url":"https://satfleetlive.com/blogs/james-webb-telescope-location/","name":"Where Is the James Webb Space Telescope? Location Explained"},
 {"@type":"ListItem","position":30,"url":"https://satfleetlive.com/blogs/where-is-the-tesla-roadster-now/","name":"Where Is the Tesla Roadster Now?"},
-{"@type":"ListItem","position":31,"url":"https://satfleetlive.com/blogs/is-pluto-a-planet/","name":"Is Pluto a Planet?"}
+{"@type":"ListItem","position":31,"url":"https://satfleetlive.com/blogs/is-pluto-a-planet/","name":"Is Pluto a Planet?"},
+{"@type":"ListItem","position":32,"url":"https://satfleetlive.com/blogs/satellite-reentry-tracker/","name":"Satellite Re-entry Tracker"},
+{"@type":"ListItem","position":33,"url":"https://satfleetlive.com/blogs/where-will-space-debris-fall/","name":"Where Will Space Debris Fall?"},
+{"@type":"ListItem","position":34,"url":"https://satfleetlive.com/blogs/can-space-debris-hit-you/","name":"Can Space Debris Hit You?"},
+{"@type":"ListItem","position":35,"url":"https://satfleetlive.com/blogs/kessler-syndrome/","name":"Kessler Syndrome Explained"},
+{"@type":"ListItem","position":36,"url":"https://satfleetlive.com/blogs/biggest-space-debris-events/","name":"The Biggest Space Debris Events"},
+{"@type":"ListItem","position":37,"url":"https://satfleetlive.com/blogs/rocket-bodies-in-orbit/","name":"Rocket Bodies in Orbit"}
 ]}]}
 </script>
 
@@ -149,6 +155,7 @@ h2{font:700 1.5rem var(--display);letter-spacing:-.01em}
 .card[data-cat=science]{--c:var(--green)}
 .card[data-cat=moonmars]{--c:#ff6b5b}
 .card[data-cat=deep]{--c:#22d3ee}
+.card[data-cat=debris]{--c:#ff8a3d}
 .meta{display:flex;justify-content:space-between;gap:1rem;font-size:.82rem;color:var(--muted)}
 .cat{display:flex;align-items:center;gap:.5rem;color:var(--c);font-weight:600}
 .cat::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--c)}
@@ -206,7 +213,7 @@ footer a:hover{color:var(--blue)}
         <h1>Satellite and space tracking guides</h1>
         <p class="lede">Find the ISS, follow rocket launches, explore the Moon and Mars, and learn how orbits and TLE data work. Practical guides, all free, written around the live tracker you can open in your browser.</p>
         <div class="facts">
-          <span><strong id="count">31</strong>free guides</span>
+          <span><strong id="count">37</strong>free guides</span>
           <span><strong>14,000+</strong>satellites tracked live</span>
           <span><strong>0</strong>sign-ups needed</span>
         </div>
@@ -248,10 +255,11 @@ footer a:hover{color:var(--blue)}
         <button class="chip" data-f="moonmars" aria-pressed="false">Moon &amp; Mars</button>
         <button class="chip" data-f="deep" aria-pressed="false">Deep space</button>
         <button class="chip" data-f="science" aria-pressed="false">Orbits &amp; data</button>
+        <button class="chip" data-f="debris" aria-pressed="false">Debris &amp; re-entries</button>
       </div>
       <input id="q" type="search" placeholder="Search guides" aria-label="Search guides">
     </div>
-    <p class="status" aria-live="polite">Showing <span id="shown">31</span> guides</p>
+    <p class="status" aria-live="polite">Showing <span id="shown">37</span> guides</p>
 
     <div class="grid">
 <!--
@@ -479,6 +487,48 @@ footer a:hover{color:var(--blue)}
         <h3><a href="/blogs/space-debris/">What Is Space Debris? Origins, Risks &amp; Cleanup (2026)</a></h3>
         <p class="d">Over 32,000 tracked fragments share orbit with active satellites, plus 500,000+ too small to track. Where debris comes from, why Kessler syndrome is real and which missions aim to fix it.</p>
         <ul class="tags"><li>Space safety</li><li>Kessler</li></ul>
+      </article>
+
+      <article class="card" data-cat="debris">
+        <p class="meta"><span class="cat">Debris &amp; re-entries</span><span>6 min read</span></p>
+        <h3><a href="/blogs/satellite-reentry-tracker/">Satellite Re-entry Tracker: See What's Falling to Earth Next</a></h3>
+        <p class="d">Track upcoming satellite, rocket body and debris re-entries live. Predicted times, uncertainty windows and possible fall zones from official Space-Track data, updated every 6 hours.</p>
+        <ul class="tags"><li>Re-entries</li><li>Live map</li></ul>
+      </article>
+
+      <article class="card" data-cat="debris">
+        <p class="meta"><span class="cat">Debris &amp; re-entries</span><span>6 min read</span></p>
+        <h3><a href="/blogs/where-will-space-debris-fall/">Where Will Space Debris Fall? How Re-entry Predictions Work</a></h3>
+        <p class="d">Why nobody knows exactly where a falling satellite will land until the final hours. Re-entry windows, ground tracks and debris footprints, explained simply.</p>
+        <ul class="tags"><li>Predictions</li><li>Fall zones</li></ul>
+      </article>
+
+      <article class="card" data-cat="debris">
+        <p class="meta"><span class="cat">Debris &amp; re-entries</span><span>6 min read</span></p>
+        <h3><a href="/blogs/can-space-debris-hit-you/">Can Space Debris Hit You? The Real Odds of Being Struck</a></h3>
+        <p class="d">Only one person is known to have been touched by falling space junk. The real odds of being hit by space debris, what survives re-entry and what to do if you find a piece.</p>
+        <ul class="tags"><li>Space safety</li><li>Odds</li></ul>
+      </article>
+
+      <article class="card" data-cat="debris">
+        <p class="meta"><span class="cat">Debris &amp; re-entries</span><span>7 min read</span></p>
+        <h3><a href="/blogs/kessler-syndrome/">Kessler Syndrome Explained: Could Space Debris Trap Us on Earth?</a></h3>
+        <p class="d">How one collision in orbit can trigger a chain reaction of space debris, whether Kessler syndrome is already happening, and what the movie Gravity got wrong.</p>
+        <ul class="tags"><li>Kessler</li><li>Collisions</li></ul>
+      </article>
+
+      <article class="card" data-cat="debris">
+        <p class="meta"><span class="cat">Debris &amp; re-entries</span><span>6 min read</span></p>
+        <h3><a href="/blogs/biggest-space-debris-events/">The Biggest Space Debris Events: Fengyun-1C, Iridium-Cosmos and Cosmos 1408</a></h3>
+        <p class="d">The anti-satellite tests and the collision behind most space junk in low orbit. What happened in each, where the debris is now, and how to see each cloud live.</p>
+        <ul class="tags"><li>ASAT tests</li><li>History</li></ul>
+      </article>
+
+      <article class="card" data-cat="debris">
+        <p class="meta"><span class="cat">Debris &amp; re-entries</span><span>6 min read</span></p>
+        <h3><a href="/blogs/rocket-bodies-in-orbit/">Rocket Bodies in Orbit: The Biggest Pieces of Space Junk</a></h3>
+        <p class="d">Spent rocket stages are the heaviest space debris and the most likely to survive re-entry. What rocket bodies are, why they matter and how to track them live.</p>
+        <ul class="tags"><li>Rocket bodies</li><li>Re-entries</li></ul>
       </article>
     </div>
     <p id="empty" hidden>No guides match your search. Try another keyword or choose All.</p>
