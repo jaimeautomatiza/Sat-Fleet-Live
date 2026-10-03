@@ -2114,6 +2114,17 @@ async function refreshActiveIds(env) {
     const ids = Array.isArray(data?.ids) ? data.ids.map(Number).filter(Number.isInteger) : [];
     if (ids.length < MIN_OBJECTS) throw new Error(`lista demasiado corta (${ids.length})`);
 
+    // Si CelesTrak lleva tiempo fallando, GitHub sigue sirviendo la MISMA lista
+    // vieja. Solo se acepta si es más nueva que la que ya tenemos: así una
+    // lista repetida nunca borra los satélites recién lanzados que hemos añadido.
+    try {
+      const have = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_ACTIVE_IDS));
+      if (have?.celestrakUpdated && data.updated && data.updated <= have.celestrakUpdated) {
+        console.log(`Lista de activos: sin cambios (sigue siendo la de CelesTrak del ${have.celestrakUpdated})`);
+        return;
+      }
+    } catch (e) {}
+
     // Los recién lanzados que ya habíamos añadido se conservan aunque
     // CelesTrak todavía no los tenga en su lista.
     let recentlyAdded = [];
