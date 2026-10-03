@@ -2566,6 +2566,7 @@ body.light-mode .rocket-filter-chip {
                 <button class="filter-chip" data-debris-size="SMALL" onclick="setDebrisSize('SMALL')">Small</button>
             </div>
         </div>
+        <div style="font-size:10px; opacity:0.5; margin-top:4px; line-height:1.3;">Radar cross-section (Space-Track): Small &lt; 0.1 m² · Medium 0.1–1 m² · Large &gt; 1 m²</div>
     </div>
 
     <!-- SATELLITES -->
@@ -2692,6 +2693,7 @@ body.light-mode .rocket-filter-chip {
                     <button class="mobile-filter-btn" data-debris-size="MEDIUM" onclick="setDebrisSize('MEDIUM')">Medium</button>
                     <button class="mobile-filter-btn" data-debris-size="SMALL" onclick="setDebrisSize('SMALL')">Small</button>
                 </div>
+                <div style="font-size:10px; opacity:0.5; margin-top:4px; line-height:1.3;">Radar cross-section (Space-Track): Small &lt; 0.1 m² · Medium 0.1–1 m² · Large &gt; 1 m²</div>
             </div>
 
             <!-- Satellites -->
@@ -2863,6 +2865,7 @@ body.light-mode .rocket-filter-chip {
 <div id="aboutPanel">
     <div id="aboutPanel-inner">
         SatFleet Live tracks nearly 30,000 objects in real time — active satellites (including the ISS, Starlink, GPS, and military satellites) plus space debris — using live orbital data from CelesTrak and Space-Track. Explore the Moon, Mars, and the whole solar system too, completely free. <a href="/blogs/what-is-satfleet-live/">Learn more about SatFleet Live →</a>
+        <div id="dataFreshness" style="margin-top:8px; opacity:0.6; font-size:0.85em;"></div>
     </div>
 </div>
 
@@ -3703,6 +3706,21 @@ window.exitTlePlayback = function() {
     cesiumViewer.clock.currentTime = Cesium.JulianDate.now();
 };
 
+        // Muestra en el panel About cuándo se actualizaron los datos
+        function showDataFreshness(tleUpdated, listUpdated) {
+            const el = document.getElementById('dataFreshness');
+            if (!el) return;
+            const fmt = (iso) => {
+                if (!iso) return null;
+                const d = new Date(iso);
+                return isNaN(d) ? null : d.toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            };
+            const parts = [];
+            if (fmt(tleUpdated)) parts.push('Orbits (Space-Track): ' + fmt(tleUpdated));
+            if (fmt(listUpdated)) parts.push('Active list (CelesTrak): ' + fmt(listUpdated));
+            el.textContent = parts.join(' · ');
+        }
+
         // Cargar satélites desde archivo local (sin llamadas directas a Celestrak)
         async function loadSatellites() {
     try {
@@ -3715,6 +3733,7 @@ window.exitTlePlayback = function() {
                 const serverDate = response.headers.get('Date');
                 const lastUpdate = tleUpdated ? new Date(tleUpdated) : (serverDate ? new Date(serverDate) : new Date());
                 localStorage.setItem('lastUpdateBackup', lastUpdate.toISOString());
+                showDataFreshness(tleUpdated, response.headers.get('X-List-Updated'));
                 return data;
             } catch (localError) {
                 console.error("❌ Fallo worker:", localError.message);

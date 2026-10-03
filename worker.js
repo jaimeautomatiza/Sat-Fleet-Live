@@ -112,7 +112,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Origin':  '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Accept, Authorization',
-  'Access-Control-Expose-Headers': 'X-TLE-Updated, X-Data-Stale',
+  'Access-Control-Expose-Headers': 'X-TLE-Updated, X-Data-Stale, X-List-Updated',
 };
 
 const SEC_HEADERS = {
@@ -913,6 +913,18 @@ async function archiveTleSnapshot(env) {
     gpData = JSON.parse(raw);
   } catch (e) {
     console.error('TLE archive: no se pudo obtener CelesTrak, se reintenta mañana:', e.message);
+    return;
+  }
+
+  // No archivar si los datos no se han renovado en las últimas 12 h:
+  // la "foto" de hoy sería en realidad la de otro día repetida.
+  let tleAgeH = Infinity;
+  try {
+    const meta = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_TLE_META) || '{}');
+    tleAgeH = (Date.now() - new Date(meta.updated).getTime()) / 3600000;
+  } catch (e) {}
+  if (!(tleAgeH < 12)) {
+    console.error(`TLE archive: los datos no se han renovado en ${Number.isFinite(tleAgeH) ? Math.round(tleAgeH) + ' h' : 'mucho tiempo'}, hoy no se archiva para no repetir un día.`);
     return;
   }
 
@@ -2008,16 +2020,16 @@ async function handleDataFile(request, ctx, env) {
 
 // Lector genérico KV → Response, con caché de Cloudflare por delante para no
 // gastar una lectura de KV (y hasta ~10 MB) por cada visitante.
-async function serveFromKv(ctx, env, { kvKey, cacheKey, ttl, label, updatedFromKey }) {
+async function serveFromKv(ctx, env, { kvKey, cacheKey, ttl, label, updatedFromKey = null }) {
   const cache = caches.default;
   const hit = await cache.match(cacheKey);
   if (hit) return wrapCached(hit);
 
-  let body, updated = null;
+  let body, updated = null, listUpdated = null;
   try {
     body = await env.LAUNCHES_KV.get(kvKey, { type: 'stream' });
     if (body && updatedFromKey) {
-      try { updated = JSON.parse(await env.LAUNCHES_KV.get(updatedFromKey)).updated || null; } catch (e) {}
+      try { const m = JSON.parse(await env.LAUNCHES_KV.get(updatedFromKey)); updated = m.updated || null; listUpdated = m.listUpdated || null; } catch (e) {}
     }
   } catch (err) {
     return new Response(JSON.stringify({ error: `${label}: KV error — ${err.message}` }), {
@@ -2039,6 +2051,7 @@ async function serveFromKv(ctx, env, { kvKey, cacheKey, ttl, label, updatedFromK
       'Content-Type':  'application/json; charset=utf-8',
       'Cache-Control': `s-maxage=${ttl}, max-age=${ttl}`,
       ...(updated ? { 'X-TLE-Updated': updated } : {}),
+      ...(listUpdated ? { 'X-List-Updated': listUpdated } : {}),
     }),
   });
   ctx.waitUntil(cache.put(cacheKey, resp.clone()));
@@ -2065,47 +2078,148 @@ async function putKvChecked(env, key, text) {
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-// ── 1. TLE de CelesTrak (fetch-tle.yml) ─────────────────────────
-async function fetchTleToKv(env) {
+// ── 1. TLE de satélites activos ─────────────────────────────────
+// Las ÓRBITAS vienen de Space-Track cada 2 h (CelesTrak corta las conexiones
+// que salen de Cloudflare). La LISTA de qué satélites están activos es la de
+// CelesTrak, pero la descarga tu repositorio de GitHub y el Worker la lee de ahí.
+const KV_KEY_ACTIVE_IDS     = 'tle_active_ids_v1';
+const KV_KEY_ACTIVE_ATTEMPT = 'tle_active_ids_attempt_v1';
+const ACTIVE_LIST_EVERY_MS  = 6 * 3600 * 1000;   // cada 6 h mira si hay lista nueva en GitHub
+// Archivo que publica tu repositorio de GitHub. Si cambias el nombre del repo, cambia también esta línea.
+const ACTIVE_IDS_URL = 'https://raw.githubusercontent.com/jaimeautomatiza/satfleet-active-list/data/active-ids.json';
+const RECENT_LAUNCH_DAYS    = 30;                // los recién lanzados entran aunque no estén en la lista
+const TLE_FIELDS = 'OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,NORAD_CAT_ID,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,LAUNCH_DATE';
+const TLE_INT_FIELDS   = ['NORAD_CAT_ID', 'EPHEMERIS_TYPE', 'ELEMENT_SET_NO', 'REV_AT_EPOCH'];
+const TLE_FLOAT_FIELDS = ['MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY', 'BSTAR', 'MEAN_MOTION_DOT', 'MEAN_MOTION_DDOT'];
+const TLE_REQUIRED     = ['NORAD_CAT_ID', 'EPOCH', 'MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY'];
+const nowIso = () => new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+
+// Cada 6 h intenta renovar la lista de activos desde tu repositorio de GitHub
+// (allí la descarga de CelesTrak sí funciona). Si falla no pasa nada:
+// se sigue usando la última lista buena.
+async function refreshActiveIds(env) {
+  let lastTry = 0;
+  try { lastTry = Number(await env.LAUNCHES_KV.get(KV_KEY_ACTIVE_ATTEMPT)) || 0; } catch (e) {}
+  if (Date.now() - lastTry < ACTIVE_LIST_EVERY_MS) return;
+  await env.LAUNCHES_KV.put(KV_KEY_ACTIVE_ATTEMPT, String(Date.now()));
+
   try {
-    let text = null, lastErr = 'desconocido';
-    for (let i = 1; i <= 3; i++) {           // equivale a curl --retry 3 --retry-delay 10
-      try {
-        const res = await fetch(CELESTRAK_GP_URL, {
-          headers: { 'User-Agent': COLLECTOR_UA, 'Accept': 'application/json' },
-          signal: AbortSignal.timeout(30000),
-        });
-        // CelesTrak avisa explícitamente: ante un 403 o 404, repetir la
-        // petición no cambia nada y puede acabar con la IP en su cortafuegos.
-        // Solo se reintenta ante fallos de red o errores 5xx.
-        if (res.status === 403 || res.status === 404 || res.status === 301) {
-          lastErr = 'HTTP ' + res.status + ' (no se reintenta: CelesTrak lo prohíbe)';
-          break;
-        }
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        text = await res.text();
-        break;
-      } catch (e) {
-        lastErr = e.message;
-        if (i < 3) await sleep(10000);
+    const res = await fetch(ACTIVE_IDS_URL, {
+      headers: { 'User-Agent': COLLECTOR_UA, 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    let data;
+    try { data = JSON.parse(await res.text()); } catch (e) { throw new Error('la respuesta no es JSON válido'); }
+    const ids = Array.isArray(data?.ids) ? data.ids.map(Number).filter(Number.isInteger) : [];
+    if (ids.length < MIN_OBJECTS) throw new Error(`lista demasiado corta (${ids.length})`);
+
+    // Los recién lanzados que ya habíamos añadido se conservan aunque
+    // CelesTrak todavía no los tenga en su lista.
+    let recentlyAdded = [];
+    try {
+      const prev = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_ACTIVE_IDS));
+      const listSet = new Set(ids);
+      recentlyAdded = (prev?.added || []).filter(x => !listSet.has(x.id) && Date.now() - x.at < RECENT_LAUNCH_DAYS * 86400000);
+    } catch (e) {}
+
+    const all = ids.concat(recentlyAdded.map(x => x.id));
+    await env.LAUNCHES_KV.put(KV_KEY_ACTIVE_IDS, JSON.stringify({
+      updated: nowIso(), source: 'github', celestrakUpdated: data.updated || null,
+      count: all.length, ids: all, added: recentlyAdded,
+    }));
+    console.log(`Lista de activos: ${ids.length} satélites (GitHub, descargada de CelesTrak el ${data.updated || '?'})`);
+  } catch (err) {
+    console.warn('Lista de activos: GitHub no responde, se sigue usando la anterior —', err.message);
+  }
+}
+
+// Devuelve la lista de activos guardada. La primera vez la saca de los
+// TLE de CelesTrak que ya había en KV, para no empezar de cero.
+async function loadActiveIds(env) {
+  try {
+    const raw = await env.LAUNCHES_KV.get(KV_KEY_ACTIVE_IDS);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (Array.isArray(p.ids) && p.ids.length >= MIN_OBJECTS) return { set: new Set(p.ids), celestrakUpdated: p.celestrakUpdated || null };
+    }
+  } catch (e) {}
+  try {
+    const raw = await env.LAUNCHES_KV.get(KV_KEY_TLE);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length >= MIN_OBJECTS) {
+        const ids = arr.map(o => Number(o.NORAD_CAT_ID)).filter(Number.isInteger);
+        // Esos TLE venían de CelesTrak: su fecha es la fecha de esta lista.
+        let celestrakUpdated = null;
+        try { celestrakUpdated = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_TLE_META)).updated || null; } catch (e) {}
+        await env.LAUNCHES_KV.put(KV_KEY_ACTIVE_IDS, JSON.stringify({ updated: nowIso(), source: 'tle guardados', celestrakUpdated, count: ids.length, ids }));
+        return { set: new Set(ids), celestrakUpdated };
       }
     }
-    if (text === null) throw new Error('CelesTrak no responde: ' + lastErr);
+  } catch (e) {}
+  return null;
+}
 
-    // Tiene que ser JSON, una LISTA, y con una cantidad razonable de satélites (hoy ~16.000).
-    let data;
-    try { data = JSON.parse(text); } catch (e) { throw new Error('la respuesta no es JSON válido'); }
-    if (!Array.isArray(data) || data.length < MIN_OBJECTS) {
-      throw new Error(`lista inválida (${Array.isArray(data) ? data.length : typeof data} objetos, mínimo ${MIN_OBJECTS})`);
+async function fetchTleToKv(env) {
+  try {
+    await refreshActiveIds(env);
+    const activeInfo = await loadActiveIds(env);
+    if (!activeInfo) throw new Error('todavía no hay lista de satélites activos');
+    const active = activeInfo.set;
+
+    // Satélites (PAYLOAD) y objetos aún sin clasificar de lanzamientos recientes
+    // (TBA, UNKNOWN), sin reentrar y con elementos de los últimos 30 días.
+    const raw = await spaceTrackQuery(env,
+      `class/gp/OBJECT_TYPE/PAYLOAD,TBA,UNKNOWN/DECAY_DATE/null-val/EPOCH/%3Enow-30/predicates/${TLE_FIELDS}/orderby/NORAD_CAT_ID%20asc/format/json`,
+      240000);
+    if (!Array.isArray(raw)) throw new Error('Space-Track no devolvió una lista (¿error o límite de uso?)');
+
+    const recentCut = new Date(Date.now() - RECENT_LAUNCH_DAYS * 86400000).toISOString().slice(0, 10);
+    const final = [];
+    let skipped = 0, recent = 0;
+    const newIds = [];
+    for (const r of raw) {
+      // Space-Track entrega todo como texto: se pasa a número (mismo formato que daba CelesTrak).
+      let ok = true;
+      for (const k of TLE_INT_FIELDS) {
+        if (!isEmptyVal(r[k])) { const n = Number(r[k]); if (Number.isInteger(n)) r[k] = n; else ok = false; }
+      }
+      for (const k of TLE_FLOAT_FIELDS) {
+        if (!isEmptyVal(r[k])) { const n = Number(r[k]); if (Number.isFinite(n)) r[k] = n; else ok = false; }
+      }
+      if (!ok || TLE_REQUIRED.some(k => isEmptyVal(r[k]))) { skipped++; continue; }
+
+      const isActive = active.has(r.NORAD_CAT_ID);
+      const isRecent = !isEmptyVal(r.LAUNCH_DATE) && r.LAUNCH_DATE >= recentCut;
+      if (!isActive && !isRecent) continue;
+      if (!isActive) { recent++; newIds.push(r.NORAD_CAT_ID); }
+      delete r.LAUNCH_DATE;   // solo hacía falta para el filtro
+      final.push(r);
     }
+    if (final.length < MIN_OBJECTS) throw new Error(`solo ${final.length} satélites válidos (mínimo ${MIN_OBJECTS})`);
 
-    const bytes = await putKvChecked(env, KV_KEY_TLE, text);
+    const bytes = await putKvChecked(env, KV_KEY_TLE, JSON.stringify(final));
     await env.LAUNCHES_KV.put(KV_KEY_TLE_META, JSON.stringify({
-      updated: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
-      source: 'celestrak.org',
-      count: data.length,
+      updated: nowIso(),
+      source: 'space-track.org',
+      count: final.length,
+      listUpdated: activeInfo.celestrakUpdated,   // fecha de la lista de activos de CelesTrak que se ha usado
     }));
-    console.log(`TLE: ${data.length} satélites guardados (${(bytes / 1048576).toFixed(1)} MB)`);
+    if (newIds.length) {
+      try {
+        const p = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_ACTIVE_IDS));
+        const known = new Set(p.ids);
+        const add = newIds.filter(id => !known.has(id));
+        if (add.length) {
+          p.ids = p.ids.concat(add);
+          p.count = p.ids.length;
+          p.added = (p.added || []).concat(add.map(id => ({ id, at: Date.now() })));
+          await env.LAUNCHES_KV.put(KV_KEY_ACTIVE_IDS, JSON.stringify(p));
+        }
+      } catch (e) {}
+    }
+    console.log(`TLE: ${final.length} satélites guardados desde Space-Track (${recent} recién lanzados, ${(bytes / 1048576).toFixed(1)} MB). Descartados por datos incompletos: ${skipped}`);
   } catch (err) {
     console.error('TLE: fallo, se conservan los datos anteriores —', err.message);
   }
