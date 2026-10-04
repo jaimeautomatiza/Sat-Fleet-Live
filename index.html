@@ -5676,8 +5676,9 @@ filtered.forEach(sat => {
                 showSatelliteInfo(pickedObject.id._satData);
             }
         } else {
-    // Click en el vacío — primero desactivar POV (necesita sat/rocket todavía asignado)
-    if (isPovActive) togglePovMode();
+    // Click en el vacío — si el 360 está encendido no hacemos nada:
+    // el 360 solo se apaga pulsando su propio botón.
+    if (isPovActive) return;
     closeSatelliteInfo();
     currentSelectedSat = null;
     currentSelectedRocket = null;

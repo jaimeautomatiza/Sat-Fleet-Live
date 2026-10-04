@@ -602,13 +602,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <div id="playbackSpeedGroup">
         <button class="pt-speed-btn" data-speed="1" onclick="setPlaybackSpeed(1)">1:1</button>
         <button class="pt-speed-btn" data-speed="300" onclick="setPlaybackSpeed(300)">5m/s</button>
-        <button class="pt-speed-btn" data-speed="900" onclick="setPlaybackSpeed(900)">15m/s</button>
         <button class="pt-speed-btn active" data-speed="3600" onclick="setPlaybackSpeed(3600)">1h/s</button>
         <button class="pt-speed-btn" data-speed="21600" onclick="setPlaybackSpeed(21600)">6h/s</button>
         <button class="pt-speed-btn" data-speed="86400" onclick="setPlaybackSpeed(86400)">1d/s</button>
         <button class="pt-speed-btn" data-speed="604800" onclick="setPlaybackSpeed(604800)">1w/s</button>
-        <button class="pt-speed-btn" data-speed="2629800" onclick="setPlaybackSpeed(2629800)">1mo/s</button>
-        <button class="pt-speed-btn" data-speed="31557600" onclick="setPlaybackSpeed(31557600)">1yr/s</button>
     </div>
 </div>
 
@@ -2482,9 +2479,9 @@ renderer.domElement.addEventListener('pointerup', (e) => {
     if (moved > 6) return; // fue un arrastre de cámara, no un clic real
 
     const id = pickObjectAt(e.clientX, e.clientY);
-    if (id) {
+    if (id && !(realScaleActive && id === 'sun')) {
         showObjectInfo(id);
-    } else {
+    } else if (!realScaleActive) {
         closeSiteInfo();
     }
 });
