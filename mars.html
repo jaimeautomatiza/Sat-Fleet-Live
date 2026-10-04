@@ -1072,6 +1072,20 @@ function getRoverPositionAtTime(roverId, timeMs) {
     return best;
 }
 
+// Posición que hay que usar para un sitio en este momento. Si es un rover
+// con rastro, su posición real (hoy o la fecha del Playback). Si no, sus
+// coordenadas fijas. La usan el 360 y el vuelo de cámara, igual que el icono.
+function getSiteCurrentPos(site) {
+    const pts = roverTrailData[site.id];
+    if (!pts || !pts.length) return { lat: site.lat, lng: site.lng };
+    if (orbiterTimeOverride !== null) {
+        const p = getRoverPositionAtTime(site.id, orbiterTimeOverride);
+        return p ? { lat: p.lat, lng: p.lng } : { lat: site.lat, lng: site.lng };
+    }
+    const last = pts[pts.length - 1];
+    return { lat: last.lat, lng: last.lng };
+}
+
 // Distancia total recorrida por un rover en un instante.
 // timeMs = null significa "ahora mismo" (último dato de la NASA).
 function getRoverDistanceKm(roverId, timeMs) {
@@ -1206,13 +1220,8 @@ function showSiteInfo(site) {
         if (_marsPovRestartTimeout) { clearTimeout(_marsPovRestartTimeout); _marsPovRestartTimeout = null; }
         _marsPovRestartTimeout = setTimeout(() => { _marsPovRestartTimeout = null; toggleMarsPov(); }, 100);
     } else {
-        let flyLng = site.lng, flyLat = site.lat;
-        // Si es un rover (tiene rastro) y estamos en Playback, volamos a su
-        // posición real de esa fecha, no a la de ahora mismo.
-        if (orbiterTimeOverride !== null && roverTrailData[site.id]) {
-            const roverPos = getRoverPositionAtTime(site.id, orbiterTimeOverride);
-            if (roverPos) { flyLng = roverPos.lng; flyLat = roverPos.lat; }
-        }
+        const flyPos = getSiteCurrentPos(site);
+        const flyLng = flyPos.lng, flyLat = flyPos.lat;
         viewer.camera.flyTo({
             destination: Cesium.Cartesian3.fromDegrees(flyLng, flyLat, 120000, marsEllipsoid),
             duration: 1.5
@@ -1564,13 +1573,8 @@ function getMarsPovTarget() {
         return { lat: p.lat, lng: p.lng, altM: Math.max(p.alt, 0) * 1000, isOrbiter: true };
     }
     if (currentSelectedSite) {
-        // Si el sitio es un rover (no un lugar fijo tipo cráter) y estamos en
-        // Playback, usamos su posición real de esa fecha, no la de ahora mismo.
-        if (orbiterTimeOverride !== null && currentSelectedSite.id && roverTrailData[currentSelectedSite.id]) {
-            const roverPos = getRoverPositionAtTime(currentSelectedSite.id, orbiterTimeOverride);
-            if (roverPos) return { lat: roverPos.lat, lng: roverPos.lng, altM: 0, isOrbiter: false };
-        }
-        return { lat: currentSelectedSite.lat, lng: currentSelectedSite.lng, altM: 0, isOrbiter: false };
+        const pos = getSiteCurrentPos(currentSelectedSite);
+        return { lat: pos.lat, lng: pos.lng, altM: 0, isOrbiter: false };
     }
     return null;
 }

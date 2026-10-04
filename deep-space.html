@@ -1915,7 +1915,7 @@ window.startDeepSpacePlayback = async function() {
     goBtn.disabled = true;
     startLoadingProgress(18000); // Deep Space: hasta 42 objetivos, tarda más
 
-    const endpoint = `https://worker.satfleetlive.com/api/deep-space-playback?date=${dateVal}`;
+    const endpoint = `https://worker.satfleetlive.com/api/deep-space-playback?date=${dateVal}&v=2`;
 
     console.log(`[Playback] Llamando a: ${endpoint}`);
     const fetchStarted = performance.now();

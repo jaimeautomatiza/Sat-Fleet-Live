@@ -1796,6 +1796,7 @@ async function computeDeepSpaceObjects(refDate, previousObjects, env, isLive = t
   async function fetchConDeteccionAutomatica(target) {
     let tierIdx = target.ultraFastOrbit ? 3 : (target.fastOrbit ? 2 : 0);
     let lastError = new Error('No se pudo obtener ningún dato');
+    let segundaOportunidadUsada = false;
     while (tierIdx < STEP_TIERS.length) {
       const tier = STEP_TIERS[tierIdx];
       let necesitaAfinar = false;
@@ -1815,10 +1816,17 @@ async function computeDeepSpaceObjects(refDate, previousObjects, env, isLive = t
           await new Promise(r => setTimeout(r, 300));
         }
       }
-      // Tanto si el motivo fue "se ve brusco" como si fue un fallo real
-      // (un 503 puntual, por ejemplo), probamos el siguiente escalón — así
-      // cada objeto tiene margen en LOS CUATRO escalones, no solo en el
-      // primero, antes de rendirse del todo.
+      // Si fue un fallo real (un 503 puntual, por ejemplo), primero
+      // repetimos el MISMO escalón tras una pausa más larga.
+      if (!necesitaAfinar && !segundaOportunidadUsada) {
+        segundaOportunidadUsada = true;
+        await new Promise(r => setTimeout(r, 2000));
+        continue;
+      }
+      // El último escalón (paso de 1 minuto) solo cubre 1 DÍA, no 30. Si
+      // bajáramos a él por un fallo, el objeto se quedaría congelado tras
+      // ese día en el Playback. Por un fallo, nunca bajamos a él.
+      if (!necesitaAfinar && tierIdx + 1 === STEP_TIERS.length - 1) break;
       tierIdx++;
     }
     throw lastError;
@@ -1960,7 +1968,7 @@ async function handleDeepSpacePlayback(request, ctx, env) {
     });
   }
 
-  const kvKey = `deep_space_playback_${dateParam}`;
+  const kvKey = `deep_space_playback_v2_${dateParam}`;
   try {
     const cached = await env.LAUNCHES_KV.get(kvKey);
     if (cached) {
