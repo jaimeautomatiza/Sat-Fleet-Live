@@ -1703,24 +1703,21 @@ async function computeDeepSpaceObjects(refDate, previousObjects, env, isLive = t
   // antes de su lanzamiento, se descartaba entero en vez de ajustar el inicio.
   function extractEphemerisBoundary(errMsg) {
     const msg = errMsg || '';
-    const after = /after\s+A\.D\.\s+(\d{4})-(\w{3})-(\d{2})/i.exec(msg);
-    if (after) {
-      const mm = MESES_HORIZONS[after[2].toUpperCase()];
-      return mm ? { type: 'after', date: `${after[1]}-${mm}-${after[3]}` } : null;
-    }
-    const prior = /prior\s+to\s+A\.D\.\s+(\d{4})-(\w{3})-(\d{2})/i.exec(msg);
-    if (prior) {
-      const mm = MESES_HORIZONS[prior[2].toUpperCase()];
-      if (!mm) return null;
-      // El mensaje trae también la HORA exacta (ej. "13:59:24") que nosotros
-      // no leemos — si reintentamos con la misma fecha a medianoche, seguimos
-      // pidiendo antes de esa hora real, y la NASA nos rechaza otra vez con
-      // el mismo motivo. Sumamos un día entero de margen para no rozarlo.
-      const fechaBase = new Date(`${prior[1]}-${mm}-${prior[3]}T00:00:00Z`);
-      const fechaSegura = new Date(fechaBase.getTime() + 24 * 3600 * 1000).toISOString().slice(0, 10);
-      return { type: 'prior', date: fechaSegura };
-    }
-    return null;
+    const m = /(after|prior\s+to)\s+A\.D\.\s+(\d{4})-(\w{3})-(\d{2})(?:\s+(\d{2}):(\d{2}))?/i.exec(msg);
+    if (!m) return null;
+    const mm = MESES_HORIZONS[m[3].toUpperCase()];
+    if (!mm) return null;
+    const type = /^after/i.test(m[1]) ? 'after' : 'prior';
+    // Ahora SÍ leemos la hora exacta que trae el mensaje (ej. "02:05"), y
+    // dejamos solo 10 minutos de margen en vez de un día entero. Así no
+    // perdemos el primer día de una misión corta (ej. Artemis II). Si algún
+    // mensaje no trae hora, hacemos lo de siempre.
+    const conHora = m[5] !== undefined;
+    const base = new Date(`${m[2]}-${mm}-${m[4]}T${conHora ? m[5] + ':' + m[6] : '00:00'}:00Z`);
+    const margenMs = conHora ? 10 * 60 * 1000 : (type === 'after' ? 0 : 24 * 3600 * 1000);
+    const segura = new Date(base.getTime() + (type === 'after' ? -margenMs : margenMs)).toISOString();
+    const date = conHora ? `${segura.slice(0, 10)}%20${segura.slice(11, 16)}` : segura.slice(0, 10);
+    return { type, date };
   }
 
   async function intentarUnaVez(target, stopTime, stepSize, inicioPersonalizado) {
@@ -1740,23 +1737,34 @@ async function computeDeepSpaceObjects(refDate, previousObjects, env, isLive = t
   }
 
   async function fetchVentanaConLimiteReal(target, dias, stepSize) {
-    const stopTime = new Date(now.getTime() + dias * 24 * 3600 * 1000).toISOString().slice(0, 10);
+    let inicio = startTime;
+    let fin = new Date(now.getTime() + dias * 24 * 3600 * 1000).toISOString().slice(0, 10);
+    const comparable = s => s.replace('%20', 'T');
+    let ajustes = 0;
     let lastErr;
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        return await intentarUnaVez(target, stopTime, stepSize);
+        return await intentarUnaVez(target, fin, stepSize, inicio);
       } catch (err) {
         lastErr = err;
         const boundary = extractEphemerisBoundary(err.message);
-        if (boundary?.type === 'after') {
-          // Los datos se acaban antes de lo pedido — acortamos el final.
-          return await intentarUnaVez(target, boundary.date, stepSize);
-        }
-        if (boundary?.type === 'prior') {
-          // Los datos empiezan después de lo pedido (ej. Voyager 1, pedido
-          // desde antes de su lanzamiento) — adelantamos el inicio a la
-          // fecha real, manteniendo el mismo final de siempre.
-          return await intentarUnaVez(target, stopTime, stepSize, boundary.date);
+        // Una nave puede tener los DOS extremos fuera de la ventana a la vez
+        // (ej. Artemis II: sus datos empiezan horas después del lanzamiento y
+        // acaban el día del amerizaje). Corregimos un extremo, volvemos a
+        // preguntar, y si falta el otro la NASA nos lo dice y lo corregimos.
+        if (boundary && ajustes < 2) {
+          if (boundary.type === 'after') {
+            // Si sus datos acabaron antes incluso de nuestro inicio, no hay
+            // nada que pedir en esta ventana (misión ya terminada).
+            if (comparable(boundary.date) <= comparable(inicio)) throw err;
+            fin = boundary.date;
+          } else {
+            if (comparable(boundary.date) >= comparable(fin)) throw err;
+            inicio = boundary.date;
+          }
+          ajustes++;
+          attempt--; // corregir la ventana no cuenta como un reintento por fallo
+          continue;
         }
         if (/no ephemeris/i.test(err.message || '')) throw err;
         if (attempt < 2) await new Promise(r => setTimeout(r, 300 * (attempt + 1) * (attempt + 1)));
@@ -1968,7 +1976,7 @@ async function handleDeepSpacePlayback(request, ctx, env) {
     });
   }
 
-  const kvKey = `deep_space_playback_v2_${dateParam}`;
+  const kvKey = `deep_space_playback_v3_${dateParam}`;
   try {
     const cached = await env.LAUNCHES_KV.get(kvKey);
     if (cached) {
