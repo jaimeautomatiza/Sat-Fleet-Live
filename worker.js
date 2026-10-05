@@ -1023,7 +1023,7 @@ async function handleTle(ctx, env) {
 // HANDLER: /api/launches/upcoming
 // ═══════════════════════════════════════════════════════════════
 
-async function handleLaunches(ctx, env, forceRefresh = false) {
+async function handleLaunches(ctx, env, forceRefresh = false, fromCron = false) {
   let cached = null;
   let meta   = null;
 
@@ -1042,7 +1042,10 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
   const now       = Date.now();
   const ttlUsed   = meta?.ttlUsed   ?? TTL_DEFAULT;
   const lastFetch = meta?.lastFetch ?? 0;
-  const isFresh   = !forceRefresh && cached && (now - lastFetch) < ttlUsed * 1000;
+  // Las visitas solo leen lo guardado y nunca llaman a Space Devs si ya hay datos.
+  // Solo el cron pide datos nuevos, cuando tocan (5, 15 o 60 min). El minuto de margen
+  // evita que el cron se salte una vuelta por llegar unos segundos antes.
+  const isFresh   = !forceRefresh && cached && (!fromCron || (now - lastFetch) < ttlUsed * 1000 - 60_000);
 
   if (isFresh) {
     return new Response(JSON.stringify({
@@ -1169,14 +1172,14 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
           const msUntilNow       = launchTime - nowMs;
           const msUntilLastFetch = launchTime - lastFetch;
 
-          if (msUntilNow > -60_000 && msUntilNow <= FIVE_MIN) {
+          if (msUntilNow > -60_000 && msUntilNow <= 2 * FIVE_MIN) {
           const notifKey = `notified_t5_${newL.id}`;
           const alreadySent = await env.LAUNCHES_KV.get(notifKey).catch(() => null);
           if (!alreadySent) {
             await env.LAUNCHES_KV.put(notifKey, '1', { expirationTtl: 3600 }).catch(() => {});
             notifPromises.push(sendFcmMessage(env, 'todos_los_usuarios', 'topic',
               'Liftoff imminent',
-              `${newL.name} launches in less than 5 minutes!`,
+              `${newL.name} launches in less than 10 minutes!`,
               { launchId: newL.id, type: 't_minus_5' },
               900 // 15 min — pasado eso, ya habrá despegado o no tiene sentido
             ));
@@ -1214,8 +1217,8 @@ async function handleLaunches(ctx, env, forceRefresh = false) {
     }
 
     await Promise.all([
-      env.LAUNCHES_KV.put(KV_KEY_LAUNCHES, JSON.stringify({ results }), { expirationTtl: dynamicTTL + 300 }),
-      env.LAUNCHES_KV.put(KV_KEY_META,     JSON.stringify(newMeta),     { expirationTtl: dynamicTTL + 300 }),
+      env.LAUNCHES_KV.put(KV_KEY_LAUNCHES, JSON.stringify({ results })),
+      env.LAUNCHES_KV.put(KV_KEY_META,     JSON.stringify(newMeta)),
       ...notifPromises,
     ]);
   })());
@@ -2524,7 +2527,7 @@ export default {
       return;
     }
     const fakeCtx = { waitUntil: (p) => ctx.waitUntil(p) };
-    await handleLaunches(fakeCtx, env, true); // fuerza refresh para ejecutar notificaciones
+    await handleLaunches(fakeCtx, env, false, true); // el cron pide datos solo cuando tocan
   },
 
   // ════════════════════════════════════════════════════════
@@ -2820,7 +2823,7 @@ async function handlePeopleInSpace(ctx, env) {
     try {
       const lock = await env.LAUNCHES_KV.get(KV_KEY_PEOPLE_LOCK);
       if (!lock) {
-        await env.LAUNCHES_KV.put(KV_KEY_PEOPLE_LOCK, '1', { expirationTtl: 600 });
+        await env.LAUNCHES_KV.put(KV_KEY_PEOPLE_LOCK, '1', { expirationTtl: 3600 });
         ctx.waitUntil(fetchPeopleInSpaceToKv(env));
       }
     } catch (e) {}

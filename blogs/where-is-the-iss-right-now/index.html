@@ -584,7 +584,7 @@
     <!-- CONTENT -->
     <main class="blog-container">
 
-        <p class="last-updated">Last updated: <time datetime="2026-10-05">October 5, 2026</time></p>
+        <p class="last-updated">Last updated: <time datetime="2026-10-05" data-live="date">October 5, 2026</time></p>
 
         <!-- TOC -->
         <nav class="toc" aria-label="Table of contents">
@@ -634,7 +634,7 @@
             <h3>How to find the ISS on the SatFleet Live map</h3>
             <ol>
                 <li>Open the <a href="/">SatFleet Live tracker</a>. It loads in your browser, with no download or sign-up.</li>
-                <li>Use the category filter to show space stations only Space Station, so the ISS stands out from thousands of other satellites.</li>
+                <li>Find the ISS among the satellites on the map. It is the largest object in low Earth orbit and one of the easiest to pick out.</li>
                 <li>Click the ISS to see its current altitude, speed and position. Switch to the 3D globe to see its whole orbit around Earth, or read our guide to <a href="/blogs/3d-satellite-tracking/">3D satellite tracking</a> to get the most out of that view.</li>
                 <li>To know when it will fly over you, open <a href="/next-passes.html">Next Passes</a> and enter your location.</li>
             </ol>
@@ -673,9 +673,6 @@
 
             <p>
                 The ISS travels at about <strong>7.7 km per second</strong>, which is roughly 28,000 km/h or 17,500 mph. That is around 30 times faster than a passenger jet at cruising speed. In a single day the station covers more than 650,000 km, which is about 1.7 times the average distance from Earth to the Moon.
-            </p>
-            <p>
-                Inside the station, the crew feel none of this. Everything on board, including the astronauts, is moving at the same speed and falling around Earth together, which is why they float.
             </p>
 
             <h3>How long does it take the ISS to orbit Earth?</h3>
@@ -747,10 +744,10 @@
             <h2 id="live-camera">Is There an ISS Live Camera?</h2>
 
             <p>
-                NASA broadcasts live video from the station on its official channels, including views of Earth from orbit and coverage of events such as spacewalks and spacecraft arrivals. You can find the current streams from the <a href="https://www.nasa.gov/" target="_blank" rel="noopener">NASA website</a>.
+                NASA broadcasts live video from the station on its official channels, such as NASA+ and its YouTube channel, including coverage of spacewalks, spacecraft arrivals and departures, and views of Earth from orbit. You can find the current streams on the <a href="https://www.nasa.gov/" target="_blank" rel="noopener">NASA website</a>.
             </p>
             <p>
-                Two things are worth knowing. First, the picture often goes dark or switches to a still image: on the night side of the orbit there is little to see, and the signal drops when the station moves between communication satellites. Second, the video shows what the station sees, not where it is. Keeping a live tracker open next to the stream tells you which country or ocean is passing below the camera.
+                The picture often goes dark or switches to a still image: on the night side of the orbit there is little to see, and the signal drops when the station moves between communication satellites. Also, the video shows what the station sees, not where it is. Keeping a live tracker open next to the stream tells you which country or ocean is passing below the camera.
             </p>
 
             <h2 id="how-tracked">How Is the Position of the ISS Calculated?</h2>
@@ -797,12 +794,44 @@
             <h2 id="who-on-board">Who Is on the ISS Right Now?</h2>
 
             <p>
-                The ISS has had people on board without interruption since 2 November 2000. It currently hosts a crew of 11, drawn from NASA, Roscosmos and partner agencies such as <a href="https://www.esa.int/" target="_blank" rel="noopener">ESA</a>, JAXA and CSA, and sometimes private astronauts. Crews rotate every few months, so names change regularly. For the current count and the names of everyone in orbit, including the crew of Tiangong, see <a href="/blogs/how-many-people-are-in-space-right-now/">how many people are in space right now</a>.
+                The ISS has had people on board without interruption since 2 November 2000. Right now there are <strong><span data-live="iss">11</span> people on the station</strong>, from NASA, Roscosmos and partner agencies such as <a href="https://www.esa.int/" target="_blank" rel="noopener">ESA</a>, JAXA and CSA. Crews rotate every few months, so the list changes regularly. The table below is updated automatically every time this page loads.
+            </p>
+
+            <div style="overflow-x:auto;">
+                <table class="country-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Agency</th>
+                            <th>Country</th>
+                            <th>In space since</th>
+                        </tr>
+                    </thead>
+                    <tbody data-station="ISS">
+                        <tr><td><span class="rank-num">1</span></td><td>Andrei Fedyaev</td><td>Roscosmos</td><td>Russia</td><td>February 13, 2026</td></tr>
+                        <tr><td><span class="rank-num">2</span></td><td>Jack Hathaway</td><td>NASA</td><td>United States</td><td>February 13, 2026</td></tr>
+                        <tr><td><span class="rank-num">3</span></td><td>Jessica Meir</td><td>NASA</td><td>United States</td><td>February 13, 2026</td></tr>
+                        <tr><td><span class="rank-num">4</span></td><td>Sophie Adenot</td><td>ESA</td><td>France</td><td>February 13, 2026</td></tr>
+                        <tr><td><span class="rank-num">5</span></td><td>Anil Menon</td><td>NASA</td><td>United States</td><td>July 14, 2026</td></tr>
+                        <tr><td><span class="rank-num">6</span></td><td>Anna Kikina</td><td>Roscosmos</td><td>Russia</td><td>July 14, 2026</td></tr>
+                        <tr><td><span class="rank-num">7</span></td><td>Pyotr Dubrov</td><td>Roscosmos</td><td>Russia</td><td>July 14, 2026</td></tr>
+                        <tr><td><span class="rank-num">8</span></td><td>Jessica Watkins</td><td>NASA</td><td>United States</td><td>October 1, 2026</td></tr>
+                        <tr><td><span class="rank-num">9</span></td><td>Joshua Kutryk</td><td>CSA</td><td>Canada</td><td>October 1, 2026</td></tr>
+                        <tr><td><span class="rank-num">10</span></td><td>Luke Delaney</td><td>NASA</td><td>United States</td><td>October 1, 2026</td></tr>
+                        <tr><td><span class="rank-num">11</span></td><td>Sergey Teteryatnikov</td><td>Roscosmos</td><td>Russia</td><td>October 1, 2026</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="table-note">Data: <a href="https://thespacedevs.com/" target="_blank" rel="noopener">The Space Devs</a>. Updated automatically when the page loads. Last updated: <span data-live="date">October 5, 2026</span>.</p>
+
+            <p>
+                For everyone in orbit, including the crew of China's Tiangong station, see <a href="/blogs/how-many-people-are-in-space-right-now/">how many people are in space right now</a>.
             </p>
 
             <h3>How much longer will the ISS stay in orbit?</h3>
             <p>
-                The partner agencies plan to operate the station until about 2030, then bring it down in a controlled re-entry over a remote area of ocean using a dedicated deorbit vehicle. Until then, it remains the easiest crewed spacecraft to follow live and to see with the naked eye.
+                NASA's current plan is to operate the station until about 2030 and then bring it down in a controlled re-entry over a remote area of the South Pacific, using a deorbit vehicle built by SpaceX. Extending its life beyond 2030 has been proposed in the US Congress, so the final date could still change.
             </p>
 
             <a href="/next-passes.html" class="live-cta" aria-label="Find the next visible ISS pass over your location">
@@ -1013,6 +1042,101 @@
             document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
             if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
         }
+    </script>
+    <script>
+        /* Live crew data from the SatFleet Live Worker (source: The Space Devs).
+           Only replaces the people count, the crew table(s) and the update date.
+           If the request fails or returns no people, the text written in this page is left untouched. */
+        (function () {
+            var REQUIRED = ['ISS'];
+            var AGENCY = { RFSA: 'Roscosmos', CNSA: 'CMSA' };
+            var COUNTRY = { 'United States of America': 'United States' };
+            function fmt(iso) {
+                var d = new Date(iso);
+                return isNaN(d) ? '' : d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+            }
+            function setText(sel, text) {
+                document.querySelectorAll(sel).forEach(function (el) { el.textContent = text; });
+            }
+            function rows(list) {
+                var frag = document.createDocumentFragment();
+                list.forEach(function (p, i) {
+                    var tr = document.createElement('tr');
+                    var cells = [String(i + 1), p.name, AGENCY[p.agency] || p.agency || '', COUNTRY[p.country] || p.country || '', fmt(p.launched)];
+                    cells.forEach(function (v, j) {
+                        var td = document.createElement('td');
+                        if (j === 0) {
+                            var n = document.createElement('span');
+                            n.className = 'rank-num';
+                            n.textContent = v;
+                            td.appendChild(n);
+                        } else {
+                            td.textContent = v;
+                        }
+                        tr.appendChild(td);
+                    });
+                    frag.appendChild(tr);
+                });
+                return frag;
+            }
+            fetch('https://worker.satfleetlive.com/api/people-in-space')
+                .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then(function (d) {
+                    var people = (d && Array.isArray(d.people)) ? d.people.filter(function (p) { return p && p.name; }) : [];
+                    if (!d || !(d.count > 0) || !people.length) return;
+                    people.sort(function (a, b) {
+                        return String(a.launched).localeCompare(String(b.launched)) || a.name.localeCompare(b.name);
+                    });
+                    var groups = {};
+                    people.forEach(function (p) { (groups[p.station] = groups[p.station] || []).push(p); });
+                    for (var i = 0; i < REQUIRED.length; i++) { if (!groups[REQUIRED[i]]) return; }
+
+                    setText('[data-live="total"]', String(people.length));
+                    setText('[data-live="iss"]', String((groups['ISS'] || []).length));
+                    setText('[data-live="tiangong"]', String((groups['Tiangong'] || []).length));
+                    var countries = {};
+                    people.forEach(function (p) { countries[COUNTRY[p.country] || p.country] = 1; });
+                    setText('[data-live="countries"]', String(Object.keys(countries).length));
+
+                    document.querySelectorAll('tbody[data-station]').forEach(function (tb) {
+                        tb.textContent = '';
+                        tb.appendChild(rows(groups[tb.getAttribute('data-station')]));
+                    });
+
+                    var box = document.querySelector('[data-live="other"]');
+                    var others = people.filter(function (p) { return p.station !== 'ISS' && p.station !== 'Tiangong'; });
+                    if (box && others.length) {
+                        var wrap = document.createElement('div');
+                        wrap.style.overflowX = 'auto';
+                        var table = document.createElement('table');
+                        table.className = 'country-table';
+                        var head = document.createElement('thead');
+                        var hr = document.createElement('tr');
+                        ['#', 'Name', 'Agency', 'Country', 'In space since'].forEach(function (h) {
+                            var th = document.createElement('th');
+                            th.textContent = h;
+                            hr.appendChild(th);
+                        });
+                        head.appendChild(hr);
+                        var body = document.createElement('tbody');
+                        body.appendChild(rows(others));
+                        table.appendChild(head);
+                        table.appendChild(body);
+                        wrap.appendChild(table);
+                        box.textContent = '';
+                        box.appendChild(wrap);
+                    }
+
+                    var when = fmt(d.updated);
+                    if (when) {
+                        document.querySelectorAll('[data-live="date"]').forEach(function (el) {
+                            el.textContent = when;
+                            if (el.tagName === 'TIME') el.setAttribute('datetime', String(d.updated).slice(0, 10));
+                        });
+                    }
+                })
+                .catch(function () { /* keep the text already written in the page */ });
+        })();
     </script>
 </body>
 </html>
