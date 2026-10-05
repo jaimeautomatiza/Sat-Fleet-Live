@@ -9422,5 +9422,297 @@ maybeShowTrialPromo();
     <button class="tp-cta" onclick="trialPromoClick()">Try free for 7 days</button>
     <button class="tp-close" onclick="trialPromoClose()">×</button>
 </div>
+<!-- ══════════════ PEOPLE IN SPACE (gente en el espacio ahora mismo) ══════════════
+     Bloque autocontenido: estilos + panel + código. Añade la línea "X in space"
+     en la barra de arriba (PC y móvil), una opción en el menú ⋯ del móvil y la
+     línea "Crew on board" en la ficha de la ISS / Tiangong.
+     Para quitar la función entera basta con borrar este bloque completo.
+     Los datos los da el Worker en /api/people-in-space (se refrescan cada 12 h). -->
+<style>
+    #barStats .pis-stat, #mobileStats .pis-stat {
+        display: inline-flex; align-items: center; gap: 3px; margin-top: 1px;
+        padding: 0 5px; border-radius: 5px; cursor: pointer;
+        border: 1px solid rgba(156,39,176,0.45); background: rgba(156,39,176,0.12);
+        transition: background 0.15s;
+    }
+    #barStats .pis-stat:hover { background: rgba(156,39,176,0.28); }
+    #mobileStats .pis-stat { align-self: flex-end; padding: 1px 5px; -webkit-tap-highlight-color: transparent; }
+    #mobileStats .pis-stat:active { background: rgba(156,39,176,0.35); }
+    .pis-helmet { width: 11px; height: 11px; flex-shrink: 0; object-fit: contain; }
+    #mobileStats .pis-helmet { width: 10px; height: 10px; }
+    #mobileStats.pis-ready { cursor: pointer; }
+
+    #pisBackdrop { display: none; position: fixed; inset: 0; z-index: 1090; background: rgba(0,0,0,0.4); }
+    #pisBackdrop.open { display: block; }
+    #pisPanel {
+        position: fixed; top: calc(var(--bar-height) + 8px); left: 16px;
+        width: 340px; max-width: calc(100vw - 32px);
+        max-height: calc(100vh - var(--bar-height) - 100px); overflow-y: auto;
+        background: rgba(10,10,16,0.98); color: #fff;
+        border: 1px solid rgba(156,39,176,0.25); border-radius: 14px;
+        padding: 14px 16px; z-index: 1100; box-sizing: border-box;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+        opacity: 0; pointer-events: none; transform: translateY(-8px);
+        transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1);
+    }
+    #pisPanel.open { opacity: 1; pointer-events: auto; transform: none; }
+    .pis-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .pis-title { font-size: 0.95rem; font-weight: 700; }
+    .pis-title strong { color: #c084fc; }
+    .pis-updated { font-size: 0.65rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+    .pis-close { background: none; border: none; color: rgba(255,255,255,0.55); font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 0 2px; }
+    .pis-group { margin-top: 12px; }
+    .pis-group-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px;
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: #c084fc; }
+    .pis-fly { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 8px; cursor: pointer;
+        font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2px; text-transform: none;
+        color: #e0aaff; background: rgba(156,39,176,0.15); border: 1px solid rgba(156,39,176,0.45); }
+    .pis-fly:hover { background: rgba(156,39,176,0.3); }
+    .pis-fly svg { width: 13px; height: 13px; }
+    .pis-person { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid rgba(255,255,255,0.06); }
+    .pis-photo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: rgba(255,255,255,0.08); }
+    .pis-info { min-width: 0; }
+    .pis-name { font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .pis-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pis-flag { width: 16px; height: 11px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+    .pis-meta { font-size: 0.66rem; color: rgba(255,255,255,0.5); margin-top: 1px; }
+    .pis-days { font-size: 0.66rem; color: rgba(255,255,255,0.75); margin-top: 1px; }
+    .pis-credit { font-size: 0.6rem; color: rgba(255,255,255,0.35); margin-top: 12px; text-align: right; }
+
+    #satCrewRow { margin-top: 8px; }
+    .pis-crew-line { display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 3px; }
+    .pis-crew-line strong { color: #c084fc; font-size: 0.9rem; }
+    .pis-faces { display: flex; }
+    .pis-faces img, .pis-faces span { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; margin-left: -5px;
+        border: 1.5px solid rgba(10,10,16,0.95); background: rgba(255,255,255,0.12); }
+    .pis-faces img:first-child, .pis-faces span:first-child { margin-left: 0; }
+    .pis-faces .pis-more { display: flex; align-items: center; justify-content: center; font-size: 0.55rem; font-weight: 700; color: #fff; }
+
+    body.light-mode #pisPanel { background: rgba(252,252,255,0.99); color: #1a1a1a; border-color: rgba(156,39,176,0.18);
+        box-shadow: 0 16px 48px rgba(0,0,0,0.12); }
+    body.light-mode .pis-title strong, body.light-mode .pis-group-head, body.light-mode .pis-crew-line strong { color: #7b1fa2; }
+    body.light-mode .pis-fly { color: #7b1fa2; }
+    body.light-mode .pis-updated, body.light-mode .pis-meta, body.light-mode .pis-credit { color: rgba(0,0,0,0.5); }
+    body.light-mode .pis-days { color: rgba(0,0,0,0.75); }
+    body.light-mode .pis-close { color: rgba(0,0,0,0.5); }
+    body.light-mode .pis-person { border-top-color: rgba(0,0,0,0.07); }
+
+    @media (min-width: 769px) { #pisBackdrop.open { display: none; } }
+    @media (max-width: 768px) {
+        #pisPanel {
+            top: auto; bottom: 0; left: 0; right: 0; width: auto; max-width: none; max-height: 72vh;
+            border-radius: 16px 16px 0 0; transform: translateY(100%);
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+        }
+        #pisPanel.open { transform: none; }
+        #pisPanel::before { content: ''; display: block; width: 36px; height: 4px; border-radius: 2px;
+            background: rgba(128,128,128,0.45); margin: -4px auto 10px; }
+    }
+</style>
+
+<div id="pisBackdrop" onclick="closePeoplePanel()"></div>
+<div id="pisPanel" role="dialog" aria-label="People in space">
+    <div class="pis-head">
+        <div>
+            <div class="pis-title">People in space: <strong class="pis-count">0</strong></div>
+            <div class="pis-updated" id="pisUpdated"></div>
+        </div>
+        <button class="pis-close" onclick="closePeoplePanel()" aria-label="Close">×</button>
+    </div>
+    <div id="pisBody"></div>
+    <div class="pis-credit">Data: The Space Devs</div>
+</div>
+
+<script>
+(function () {
+    const PIS_URL = 'https://worker.satfleetlive.com/api/people-in-space';
+    const HELMET_SVG = '<img class="pis-helmet" src="images/astronaut.svg" alt="" aria-hidden="true">';
+    const GLOBE_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>';
+    const STATION_ORDER = ['ISS', 'Tiangong'];
+
+    let pisData = null;
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function findSatByNorad(norad) {
+        if (typeof allSatellites === 'undefined' || !Array.isArray(allSatellites)) return null;
+        return allSatellites.find(s => String(s.noradId) === String(norad)) || null;
+    }
+
+    function updatedText(iso) {
+        if (!iso) return '';
+        const h = Math.floor((Date.now() - new Date(iso).getTime()) / 3600000);
+        return h < 1 ? 'Updated less than an hour ago' : 'Updated ' + h + ' h ago';
+    }
+
+    function daysText(iso) {
+        if (!iso) return '';
+        const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+        if (!(d >= 0)) return '';
+        if (d === 0) return 'Launched today';
+        return d === 1 ? '1 day in space' : d.toLocaleString() + ' days in space';
+    }
+
+    // ── Elementos que se añaden a la interfaz que ya existe ──
+    function injectUi() {
+        const barStats = document.getElementById('barStats');
+        if (barStats && !barStats.querySelector('.pis-stat')) {
+            barStats.insertAdjacentHTML('beforeend',
+                '<span class="pis-stat" style="display:none" onclick="openPeoplePanel()" title="People in space right now">' +
+                HELMET_SVG + '<strong class="pis-count">0</strong> in space</span>');
+        }
+        const mobileStats = document.getElementById('mobileStats');
+        if (mobileStats && !mobileStats.querySelector('.pis-stat')) {
+            mobileStats.insertAdjacentHTML('beforeend',
+                '<span class="pis-stat" style="display:none">' + HELMET_SVG + '<strong class="pis-count" style="color:#9c27b0;">0</strong> in space</span>');
+            mobileStats.addEventListener('click', () => { if (pisData) openPeoplePanel(); });
+        }
+        const nextPassesItem = document.querySelector('#overflowMenu .overflow-item.blue');
+        if (nextPassesItem && !document.getElementById('pisOverflowItem')) {
+            nextPassesItem.insertAdjacentHTML('beforebegin',
+                '<button class="overflow-item" id="pisOverflowItem" style="display:none; color:#c084fc;" onclick="openPeoplePanel(); closeOverflowMenu()">' +
+                HELMET_SVG.replace('class="pis-helmet"', 'style="width:16px;height:16px;"') + ' People in space</button>');
+        }
+        const videoBox = document.getElementById('rocketVideoContainer');
+        if (videoBox && !document.getElementById('satCrewRow')) {
+            videoBox.insertAdjacentHTML('beforebegin', '<div id="satCrewRow" style="display:none;"></div>');
+        }
+    }
+
+    // ── Panel ──
+    function renderPanel() {
+        const body = document.getElementById('pisBody');
+        if (!body || !pisData) return;
+        const groups = {};
+        pisData.people.forEach(p => { const k = p.station || 'Other missions'; (groups[k] = groups[k] || []).push(p); });
+        const keys = Object.keys(groups).sort((a, b) => {
+            const ia = STATION_ORDER.indexOf(a), ib = STATION_ORDER.indexOf(b);
+            return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+        });
+        body.innerHTML = keys.map(k => {
+            const list = groups[k];
+            const norad = list[0].norad;
+            const canFly = (typeof is3DMode !== 'undefined' && is3DMode) && norad && findSatByNorad(norad);
+            const btn = canFly ? '<button class="pis-fly" onclick="flyToCrewStation(' + Number(norad) + ')">' + GLOBE_SVG + 'Show on globe</button>' : '';
+            const rows = list.map(p => {
+                const photo = p.photo
+                    ? '<img class="pis-photo" src="' + esc(p.photo) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
+                    : '<div class="pis-photo"></div>';
+                const flag = /^[a-z]{2}$/.test(p.cc || '')
+                    ? '<img class="pis-flag" src="https://flagcdn.com/' + p.cc + '.svg" alt="" loading="lazy" onerror="this.remove()">'
+                    : '';
+                const meta = [p.agency, p.country].filter(Boolean).map(esc).join(' · ');
+                const days = daysText(p.launched);
+                return '<div class="pis-person">' + photo + '<div class="pis-info">' +
+                    '<div class="pis-name">' + flag + '<span>' + esc(p.name) + '</span></div>' +
+                    (meta ? '<div class="pis-meta">' + meta + '</div>' : '') +
+                    (days ? '<div class="pis-days">' + days + '</div>' : '') +
+                    '</div></div>';
+            }).join('');
+            return '<div class="pis-group"><div class="pis-group-head"><span>' + esc(k) + ' · ' + list.length + '</span>' + btn + '</div>' + rows + '</div>';
+        }).join('');
+        const up = document.getElementById('pisUpdated');
+        if (up) up.textContent = updatedText(pisData.updated);
+    }
+
+    window.openPeoplePanel = function () {
+        if (!pisData) return;
+        renderPanel();
+        document.getElementById('pisPanel').classList.add('open');
+        document.getElementById('pisBackdrop').classList.add('open');
+    };
+
+    window.closePeoplePanel = function () {
+        document.getElementById('pisPanel').classList.remove('open');
+        document.getElementById('pisBackdrop').classList.remove('open');
+    };
+
+    // ── "Show on globe": selecciona la estación y lleva la cámara 3D hasta ella ──
+    window.flyToCrewStation = function (norad) {
+        const sat = findSatByNorad(norad);
+        if (!sat || typeof cesiumViewer === 'undefined' || !cesiumViewer || !is3DMode) return;
+        try {
+            const now = new Date();
+            const pv = window.satellite.propagate(sat.satrec, now);
+            if (pv && pv.position) {
+                const gd = window.satellite.eciToGeodetic(pv.position, window.satellite.gstime(now));
+                sat.lat = window.satellite.degreesLat(gd.latitude);
+                sat.lng = window.satellite.degreesLong(gd.longitude);
+                sat.altitude = gd.height;
+            }
+        } catch (e) {}
+        showSatelliteInfo(sat);
+        if (sat.lat != null && sat.lng != null && sat.altitude) {
+            cesiumViewer.camera.flyTo({
+                destination: Cesium.Cartesian3.fromDegrees(sat.lng, sat.lat, sat.altitude * 1000 + 3000000),
+                duration: 1.5
+            });
+        }
+        if (window.innerWidth <= 768) closePeoplePanel();
+    };
+
+    // ── Línea "Crew on board" en la ficha de la ISS / Tiangong ──
+    window.updateSatCrewRow = function (sat) {
+        const row = document.getElementById('satCrewRow');
+        if (!row) return;
+        const crew = (pisData && sat) ? pisData.people.filter(p => p.norad && String(p.norad) === String(sat.noradId)) : [];
+        if (!crew.length) { row.style.display = 'none'; row.innerHTML = ''; return; }
+        const faces = crew.slice(0, 6).map(p => p.photo
+            ? '<img src="' + esc(p.photo) + '" alt="" title="' + esc(p.name) + '" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
+            : '<span></span>').join('');
+        const more = crew.length > 6 ? '<span class="pis-more">+' + (crew.length - 6) + '</span>' : '';
+        row.innerHTML = '<div class="info-label">Crew on board</div>' +
+            '<div class="pis-crew-line" onclick="openPeoplePanel()" title="See who is on board"><strong>' + crew.length + '</strong><div class="pis-faces">' + faces + more + '</div></div>';
+        row.style.display = 'block';
+    };
+
+    // Engancha la línea de tripulación a la ficha de satélite que ya existe,
+    // y la oculta cuando la ficha pasa a mostrar un cohete.
+    if (typeof showSatelliteInfo === 'function') {
+        const originalShowSat = showSatelliteInfo;
+        showSatelliteInfo = function (sat) {
+            const r = originalShowSat.apply(this, arguments);
+            try { window.updateSatCrewRow(sat); } catch (e) {}
+            return r;
+        };
+    }
+    if (typeof showRocketInfo3D === 'function') {
+        const originalShowRocket = showRocketInfo3D;
+        showRocketInfo3D = function () {
+            const row = document.getElementById('satCrewRow');
+            if (row) row.style.display = 'none';
+            return originalShowRocket.apply(this, arguments);
+        };
+    }
+
+    // ── Carga de datos (una vez al abrir la web) ──
+    async function loadPeopleInSpace() {
+        try {
+            const r = await fetch(PIS_URL);
+            if (!r.ok) return;
+            const data = await r.json();
+            if (!data || !Array.isArray(data.people) || data.people.length === 0) return;
+            pisData = data;
+            document.querySelectorAll('.pis-count').forEach(el => { el.textContent = data.people.length; });
+            document.querySelectorAll('.pis-stat').forEach(el => { el.style.display = ''; });
+            const ov = document.getElementById('pisOverflowItem');
+            if (ov) ov.style.display = '';
+            const ms = document.getElementById('mobileStats');
+            if (ms) ms.classList.add('pis-ready');
+            if (typeof currentSelectedSat !== 'undefined' && currentSelectedSat) window.updateSatCrewRow(currentSelectedSat);
+        } catch (e) {
+            console.warn('People in space no disponible:', e);
+        }
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePeoplePanel(); });
+    injectUi();
+    loadPeopleInSpace();
+})();
+</script>
+<!-- ══════════════ FIN PEOPLE IN SPACE ══════════════ -->
+
 </body>
 </html>

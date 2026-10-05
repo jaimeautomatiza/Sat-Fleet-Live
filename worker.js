@@ -2507,7 +2507,7 @@ export default {
     // errores y NUNCA sobrescribe el KV si algo falla.
     switch (event.cron) {
       case TLE_CRON:       await fetchTleToKv(env);          return;
-      case DEBRIS_CRON:    await fetchDebrisToKv(env);       return;
+      case DEBRIS_CRON:    await fetchDebrisToKv(env); await fetchPeopleInSpaceToKv(env); return;
       case REENTRIES_CRON: await fetchReentriesToKv(env);    return;
       case ROVER_CRON:     await fetchRoverTrailsToKv(env);  return;
     }
@@ -2707,6 +2707,7 @@ export default {
       if (!isPremium) return premiumRequired();
       return handleMarsOrbitersPlayback(request, ctx, env);
     }
+    if (pathname === '/api/people-in-space') return handlePeopleInSpace(ctx, env);
     if (pathname === '/api/deep-space') return handleDeepSpace(ctx, env);
     if (pathname === '/api/deep-space-playback') {
       const uid = extractUidFromJWT(request.headers.get('Authorization'));
@@ -2723,3 +2724,114 @@ export default {
     });
   },
 };
+// ═══════════════════════════════════════════════════════════════
+// PEOPLE IN SPACE — quién está en el espacio ahora mismo (The Space Devs)
+// ═══════════════════════════════════════════════════════════════
+// Se refresca cada 12 h, colgado del cron de basura espacial (DEBRIS_CRON).
+// Son 2 llamadas a The Space Devs por refresco: la lista de astronautas en el
+// espacio y las expediciones activas (para saber en qué estación está cada uno).
+// Si algo falla, se conserva el último dato bueno que ya hubiera en KV.
+
+const KV_KEY_PEOPLE      = 'people_in_space_v1';
+const KV_KEY_PEOPLE_LOCK = 'people_in_space_lock_v1';
+
+// Estaciones que SatFleet sabe dibujar en el globo (nombre corto + NORAD)
+const PEOPLE_STATIONS = [
+  { match: /international space station|\biss\b/i,        short: 'ISS',      norad: 25544 },
+  { match: /tiangong|tianhe|chinese space station|\bcss\b/i, short: 'Tiangong', norad: 48274 },
+];
+
+async function fetchSpaceDevsJson(env, path) {
+  const res = await fetch(`${SPACEDEVS_BASE}${path}`, {
+    headers: {
+      'User-Agent': COLLECTOR_UA,
+      'Accept':     'application/json',
+      ...(env.SPACEDEVS_TOKEN ? { 'Authorization': `Token ${env.SPACEDEVS_TOKEN}` } : {}),
+    },
+  });
+  if (!res.ok) throw new Error(`Space Devs respondió ${res.status} en ${path.split('?')[0]}`);
+  return res.json();
+}
+
+async function fetchPeopleInSpaceToKv(env) {
+  try {
+    const ahora = new Date().toISOString();
+    const [astro, exped] = await Promise.all([
+      fetchSpaceDevsJson(env, '/astronauts/?in_space=true&limit=100&format=json'),
+      fetchSpaceDevsJson(env, `/expeditions/?mode=detailed&ordering=-start&limit=20&format=json`),
+    ]);
+
+    // Solo personas: fuera Starman (el maniquí del Tesla) y cualquier otro "no humano"
+    const lista = Array.isArray(astro?.results)
+      ? astro.results.filter(a => !/non-human/i.test(a?.type?.name || '') && a?.name !== 'Starman')
+      : null;
+    if (!lista) throw new Error('la respuesta de astronautas no trae "results"');
+    // Red de seguridad: desde el año 2000 nunca ha habido 0 personas en el espacio.
+    // Si llega 0, casi seguro es un fallo de la API → no se toca el dato bueno.
+    if (lista.length === 0) throw new Error('la API dice 0 personas en el espacio');
+
+    // Astronauta → estación, a partir de las expediciones que siguen abiertas
+    const nowMs = Date.now();
+    const estacionDe = new Map();
+    for (const ex of (exped?.results || [])) {
+      const finMs = ex.end ? new Date(ex.end).getTime() : Infinity;
+      if (finMs < nowMs) continue; // expedición ya terminada
+      const nombre = ex.spacestation?.name || '';
+      const conocida = PEOPLE_STATIONS.find(s => s.match.test(nombre));
+      const est = conocida ? { name: conocida.short, norad: conocida.norad } : { name: nombre || 'Other missions', norad: null };
+      for (const c of (ex.crew || [])) {
+        const id = c?.astronaut?.id;
+        if (id != null && !estacionDe.has(id)) estacionDe.set(id, est);
+      }
+    }
+
+    const people = lista.map(a => {
+      const est = estacionDe.get(a.id) || { name: 'Other missions', norad: null };
+      const pais = Array.isArray(a.nationality) ? a.nationality[0] : null;
+      return {
+        id:       a.id,
+        name:     a.name || 'Unknown',
+        photo:    a.image?.thumbnail_url || a.image?.image_url || null,
+        agency:   a.agency?.abbrev || a.agency?.name || '',
+        country:  pais?.name || '',
+        cc:       (pais?.alpha_2_code || '').toLowerCase(),
+        launched: a.last_flight || null,
+        station:  est.name,
+        norad:    est.norad,
+      };
+    });
+
+    const payload = JSON.stringify({ updated: new Date().toISOString(), count: people.length, people });
+    await putKvChecked(env, KV_KEY_PEOPLE, payload);
+    console.log(`[people-in-space] OK: ${people.length} personas guardadas`);
+  } catch (e) {
+    console.error('[people-in-space] Fallo, se conserva el dato anterior:', e.message);
+  }
+}
+
+async function handlePeopleInSpace(ctx, env) {
+  let body = null;
+  try { body = await env.LAUNCHES_KV.get(KV_KEY_PEOPLE); } catch (e) {}
+
+  if (!body) {
+    // Todavía no hay dato (p. ej. justo después de desplegar): se pide uno en
+    // segundo plano, como mucho una vez cada 10 minutos, y mientras tanto la web
+    // simplemente no enseña el contador.
+    try {
+      const lock = await env.LAUNCHES_KV.get(KV_KEY_PEOPLE_LOCK);
+      if (!lock) {
+        await env.LAUNCHES_KV.put(KV_KEY_PEOPLE_LOCK, '1', { expirationTtl: 600 });
+        ctx.waitUntil(fetchPeopleInSpaceToKv(env));
+      }
+    } catch (e) {}
+    return new Response(JSON.stringify({ updated: null, count: 0, people: [] }), {
+      status: 200,
+      headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }),
+    });
+  }
+
+  return new Response(body, {
+    status: 200,
+    headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=1800' }),
+  });
+}
