@@ -155,9 +155,9 @@
 
             viewer.entities.add({
                 position: new Cesium.CallbackProperty(function () { return issPosition; }, false),
-                // ISS icon: replace /images/iss-icon.svg to change it in both the 2D and 3D widgets
+                // ISS icon: replace /embed/iss-icon.svg to change it in both the 2D and 3D widgets
                 billboard: {
-                    image: '/images/iss-icon.svg',
+                    image: '/embed/iss-icon.svg',
                     width: 40,
                     height: 40,
                     verticalOrigin: Cesium.VerticalOrigin.CENTER,
@@ -187,7 +187,7 @@
             // Render-on-demand: redraw once the icon image has finished loading
             var iconImg = new Image();
             iconImg.onload = function () { viewer.scene.requestRender(); };
-            iconImg.src = '/images/iss-icon.svg';
+            iconImg.src = '/embed/iss-icon.svg';
 
             var satrec = null;
             var follow = true;
