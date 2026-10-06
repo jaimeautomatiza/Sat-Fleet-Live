@@ -132,6 +132,14 @@
     },
     {
       "@type": "Question",
+      "name": "Can the widget show Tiangong or Hubble instead of the ISS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Choose Tiangong or Hubble in the Object option to get an embed code for China's space station or the Hubble Space Telescope. Everything else works the same, including the 2D and 3D views."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "Is there a 3D version of the ISS widget?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -619,6 +627,13 @@
             <h2 id="get-code">Get the Embed Code</h2>
 
             <div class="embed-options">
+                <label>Object
+                    <select id="optSat">
+                        <option value="iss">ISS</option>
+                        <option value="tiangong">Tiangong</option>
+                        <option value="hubble">Hubble</option>
+                    </select>
+                </label>
                 <label>View
                     <select id="optView">
                         <option value="2d">2D map (lightweight)</option>
@@ -698,6 +713,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr><td>Tiangong or Hubble</td><td><code>?sat=tiangong</code> or <code>?sat=hubble</code></td><td>Shows China's space station or the Hubble Space Telescope instead of the ISS</td></tr>
                         <tr><td>3D globe</td><td><code>iss-3d.html</code> instead of <code>iss.html</code></td><td>Satellite view of Earth with the ISS orbit in 3D</td></tr>
                         <tr><td>Light theme</td><td><code>?theme=light</code></td><td>Light map and panel for sites with a white background (in 3D, only the panel changes)</td></tr>
                         <tr><td>Imperial units</td><td><code>?units=imperial</code></td><td>Altitude in miles and speed in mph</td></tr>
@@ -722,10 +738,10 @@
                 The widget is free for personal, educational and commercial websites. We only ask that you keep the visible link to SatFleet Live below the widget, and that you do not present the tracker as your own work. Live data depends on external sources, so very occasionally the widget may show a short message instead of the map while the data is refreshed.
             </p>
 
-            <h2 id="more">Want to Show More Than the ISS?</h2>
+            <h2 id="more">Can the Widget Show Other Spacecraft?</h2>
 
             <p>
-                The widget focuses on the space station because it is the object most people want to follow. The full <a href="/">SatFleet Live tracker</a> shows thousands of satellites on a 3D globe, and <a href="/next-passes.html">Next Passes</a> tells your visitors when the ISS will be visible from their own location. For tips on spotting it with the naked eye, see <a href="/blogs/iss-pass-tonight/">when and where to see the ISS tonight</a>.
+                Yes. Besides the ISS, the widget can follow China's <a href="/blogs/tiangong-space-station/">Tiangong space station</a> and the Hubble Space Telescope: choose them in the Object option above. The full <a href="/">SatFleet Live tracker</a> shows thousands of satellites on a 3D globe, and <a href="/next-passes.html">Next Passes</a> tells your visitors when the ISS will be visible from their own location. For tips on spotting it with the naked eye, see <a href="/blogs/iss-pass-tonight/">when and where to see the ISS tonight</a>.
             </p>
 
             <a href="/" class="live-cta" aria-label="Open the full SatFleet Live 3D tracker">
@@ -778,6 +794,16 @@
                 </button>
                 <div class="faq-answer">
                     The position is calculated every second from the latest published orbital data for the ISS, using the same standard model as professional trackers. With recent data it is typically accurate to within a few kilometres.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can the widget show Tiangong or Hubble instead of the ISS?
+                    <span class="faq-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="faq-answer">
+                    Yes. Choose Tiangong or Hubble in the Object option to get an embed code for China's space station or the Hubble Space Telescope. Everything else works the same, including the 2D and 3D views.
                 </div>
             </div>
 
@@ -926,6 +952,7 @@
     <script>
         /* Embed code builder: updates the code and the preview when an option changes, and copies the code */
         (function () {
+            var sat = document.getElementById('optSat');
             var view = document.getElementById('optView');
             var theme = document.getElementById('optTheme');
             var units = document.getElementById('optUnits');
@@ -935,17 +962,18 @@
             var label = document.getElementById('copyLabel');
             function build() {
                 var q = [];
+                if (sat.value !== 'iss') q.push('sat=' + sat.value);
                 if (theme.value === 'light') q.push('theme=light');
                 if (units.value === 'imperial') q.push('units=imperial');
                 var query = q.length ? '?' + q.join('&') : '';
                 var file = view.value === '3d' ? 'iss-3d.html' : 'iss.html';
                 code.textContent = '<iframe src="https://satfleetlive.com/embed/' + file + query + '" width="100%" height="' + height.value +
-                    '" style="border:0;border-radius:12px;" loading="lazy" title="ISS live tracker by SatFleet Live"></iframe>\n' +
-                    '<p style="font-size:13px;margin:6px 0 0;">Live ISS tracker by <a href="https://satfleetlive.com/">SatFleet Live</a></p>';
+                    '" style="border:0;border-radius:12px;" loading="lazy" title="' + sat.options[sat.selectedIndex].text + ' live tracker by SatFleet Live"></iframe>\n' +
+                    '<p style="font-size:13px;margin:6px 0 0;">Live ' + sat.options[sat.selectedIndex].text + ' tracker by <a href="https://satfleetlive.com/">SatFleet Live</a></p>';
                 preview.src = '/embed/' + file + query;
                 preview.height = height.value;
             }
-            [view, theme, units, height].forEach(function (el) { el.addEventListener('change', build); });
+            [sat, view, theme, units, height].forEach(function (el) { el.addEventListener('change', build); });
             document.getElementById('copyBtn').addEventListener('click', function () {
                 var text = code.textContent;
                 function done() { label.textContent = 'Copied'; setTimeout(function () { label.textContent = 'Copy code'; }, 2000); }

@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISS Live Tracker Widget | SatFleet Live</title>
+    <title>ISS Live 3D Tracker Widget | SatFleet Live</title>
     <!-- This page is the embeddable widget itself: it should not appear in Google on its own -->
     <meta name="robots" content="noindex, follow">
     <link rel="canonical" href="https://satfleetlive.com/embed/">
     <link rel="icon" type="image/png" href="/images/logo.png">
-    <link rel="stylesheet" href="/css/leaflet.css">
+    <!-- Same CesiumJS version as the main SatFleet Live tracker -->
+    <link rel="preconnect" href="https://cesium.com">
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
     <style>
         :root {
-            --bg: #060d18;
+            --bg: #05080f;
             --panel: rgba(6, 13, 24, 0.86);
             --text: #e8f1fa;
             --muted: #8fa6bd;
@@ -20,7 +22,6 @@
             --border: rgba(127, 168, 200, 0.25);
         }
         body.light {
-            --bg: #eef2f6;
             --panel: rgba(255, 255, 255, 0.92);
             --text: #13202d;
             --muted: #55687a;
@@ -29,10 +30,11 @@
         }
         html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
             font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        #map { position: absolute; inset: 0; background: var(--bg); }
-        .box { position: absolute; z-index: 500; background: var(--panel); border: 1px solid var(--border);
+        #globe { position: absolute; inset: 0; }
+        .cesium-widget-credits, .cesium-credit-logoContainer { display: none !important; }
+        .box { position: absolute; z-index: 10; background: var(--panel); border: 1px solid var(--border);
             border-radius: 10px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-        .panel { left: 10px; bottom: 22px; padding: 8px 12px; font-size: 12px; line-height: 1.55; min-width: 168px; }
+        .panel { left: 10px; bottom: 26px; padding: 8px 12px; font-size: 12px; line-height: 1.55; min-width: 168px; }
         .panel-title { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 13px; margin-bottom: 3px; }
         .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); animation: pulse 1.6s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.6); } 70% { box-shadow: 0 0 0 6px rgba(229, 57, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); } }
@@ -49,78 +51,173 @@
         body:not(.light) .brand svg, body:not(.light) .msg a { color: #c084fc; }
         .msg { left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 14px 18px; font-size: 13px; text-align: center; display: none; max-width: 80%; }
         .msg a { color: var(--accent); }
-        .iss-icon { filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.7)); }
-        .leaflet-control-attribution { font-size: 9px; }
+        .credit { position: absolute; right: 6px; bottom: 4px; z-index: 10; font-size: 9px; color: rgba(232, 241, 250, 0.7); }
     </style>
 </head>
 <body>
-    <div id="map" role="img" aria-label="Live map showing the current position of the International Space Station"></div>
+    <div id="globe" role="img" aria-label="Live 3D globe showing the current position of a satellite"></div>
 
     <div class="box brand">
-        <a href="https://satfleetlive.com/?ref=embed" target="_blank" rel="noopener" title="Open the full 3D satellite tracker">
+        <a href="https://satfleetlive.com/?ref=embed3d" target="_blank" rel="noopener" title="Open the full 3D satellite tracker">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             SatFleet Live
         </a>
     </div>
 
     <div class="box panel" aria-live="off">
-        <div class="panel-title"><span class="live-dot" aria-hidden="true"></span>ISS live</div>
+        <div class="panel-title"><span class="live-dot" aria-hidden="true"></span><span id="satName">ISS live</span></div>
         <div class="row"><span>Altitude</span><span id="vAlt">&#8212;</span></div>
         <div class="row"><span>Speed</span><span id="vVel">&#8212;</span></div>
         <div class="row"><span>Latitude</span><span id="vLat">&#8212;</span></div>
         <div class="row"><span>Longitude</span><span id="vLng">&#8212;</span></div>
-        <button class="center-btn" id="centerBtn" type="button">Follow the ISS</button>
+        <button class="center-btn" id="centerBtn" type="button">Follow again</button>
     </div>
 
     <div class="box msg" id="msg">
-        Live ISS data is temporarily unavailable.<br>
-        <a href="https://satfleetlive.com/?ref=embed" target="_blank" rel="noopener">Open the SatFleet Live tracker</a>
+        <span id="msgText">Live data is temporarily unavailable.</span><br>
+        <a href="https://satfleetlive.com/?ref=embed3d" target="_blank" rel="noopener">Open the SatFleet Live tracker</a>
     </div>
 
-    <script src="/js/leaflet.js"></script>
+    <div class="credit">Imagery &copy; Esri, Maxar, Earthstar Geographics</div>
+
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
     <script src="/js/satellite.min.js"></script>
     <script>
         (function () {
             // Options from the embed code: ?theme=light and ?units=imperial
             var params = new URLSearchParams(location.search);
-            var light = params.get('theme') === 'light';
             var imperial = params.get('units') === 'imperial';
-            if (light) document.body.classList.add('light');
+            if (params.get('theme') === 'light') document.body.classList.add('light');
+
+            // Objects that can be shown: ?sat=iss (default), ?sat=tiangong or ?sat=hubble
+            var SATS = {
+                iss:      { norad: 25544, name: 'ISS',      icon: '/embed/iss-icon.svg' },
+                tiangong: { norad: 48274, name: 'Tiangong', icon: '/embed/satellite-icon.svg' },
+                hubble:   { norad: 20580, name: 'Hubble',   icon: '/embed/satellite-icon.svg' }
+            };
+            var SAT = SATS[(params.get('sat') || '').toLowerCase()] || SATS.iss;
+            document.getElementById('satName').textContent = SAT.name + ' live';
+            document.title = SAT.name + ' Live Tracker Widget | SatFleet Live';
 
             var KM_TO_MI = 0.621371;
-            var TLE_URL = 'https://worker.satfleetlive.com/api/tle/25544';
-            // Brand purple; a lighter shade on the dark map so the line stays visible
-            var TRACK_COLOR = light ? '#9c27b0' : '#c084fc';
+            var TLE_URL = 'https://worker.satfleetlive.com/api/tle/' + SAT.norad;
+            var CAMERA_HEIGHT = 6000000; // metres above the ground when following the object
 
-            // Same Esri tiles as the main tracker (no key needed; attribution required)
-            var map = L.map('map', { minZoom: 1, maxZoom: 7, worldCopyJump: false }).setView([0, 0], 2);
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/' +
-                (light ? 'World_Light_Gray_Base' : 'World_Dark_Gray_Base') + '/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap',
-                maxNativeZoom: 16,
-                maxZoom: 19
-            }).addTo(map);
+            function showMessage(text) {
+                document.getElementById('msgText').textContent = text;
+                document.getElementById('msg').style.display = 'block';
+            }
 
-            // ISS icon: replace /embed/iss-icon.svg to change it in both the 2D and 3D widgets
-            var issIcon = L.icon({
-                iconUrl: '/embed/iss-icon.svg',
-                iconSize: [38, 38],
-                iconAnchor: [19, 19],
-                className: 'iss-icon'
+            if (typeof Cesium === 'undefined') {
+                showMessage('The 3D globe could not be loaded.');
+                return;
+            }
+
+            // Same setup as the main tracker: no Cesium ion, Esri imagery only
+            var viewer;
+            try {
+                Cesium.Ion.defaultAccessToken = undefined;
+                viewer = new Cesium.Viewer('globe', {
+                    terrainProvider: new Cesium.EllipsoidTerrainProvider({}),
+                    baseLayer: false,
+                    animation: false,
+                    baseLayerPicker: false,
+                    fullscreenButton: false,
+                    geocoder: false,
+                    homeButton: false,
+                    infoBox: false,
+                    sceneModePicker: false,
+                    selectionIndicator: false,
+                    timeline: false,
+                    navigationHelpButton: false,
+                    navigationInstructionsInitiallyVisible: false,
+                    skyBox: false,
+                    skyAtmosphere: false,
+                    scene3DOnly: true,
+                    requestRenderMode: true,
+                    maximumRenderTimeChange: 1.0
+                });
+            } catch (e) {
+                showMessage('Your browser cannot display the 3D globe.');
+                return;
+            }
+
+            viewer.imageryLayers.removeAll();
+            viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                maximumLevel: 17
+            }));
+            viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+                maximumLevel: 19
+            }));
+            viewer.imageryLayers.get(0).brightness = 0.75;
+            viewer.imageryLayers.get(1).alpha = 0.8;
+            viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#05080f');
+            viewer.scene.globe.tileCacheSize = 100;
+            viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, 1.5);
+
+            // Brand purple; a lighter shade for the orbit line so it stands out over the satellite imagery
+            var TRACK_COLOR = '#c084fc';
+
+            var issPosition = Cesium.Cartesian3.fromDegrees(0, 0, 420000);
+            var nextTrack = [], pastTrack = [];
+
+            viewer.entities.add({
+                position: new Cesium.CallbackProperty(function () { return issPosition; }, false),
+                // Icon: /embed/iss-icon.svg for the ISS, /embed/satellite-icon.svg for the others (shared with the 2D widget)
+                billboard: {
+                    image: SAT.icon,
+                    width: 40,
+                    height: 40,
+                    verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                    horizontalOrigin: Cesium.HorizontalOrigin.CENTER
+                }
             });
-            var marker = L.marker([0, 0], { icon: issIcon, interactive: false, keyboard: false });
-            var pastLine = L.polyline([], { color: TRACK_COLOR, weight: 2, opacity: 0.5, dashArray: '4 5', interactive: false }).addTo(map);
-            var nextLine = L.polyline([], { color: TRACK_COLOR, weight: 2.5, opacity: 0.95, interactive: false }).addTo(map);
+            viewer.entities.add({
+                polyline: {
+                    positions: new Cesium.CallbackProperty(function () { return nextTrack; }, false),
+                    width: 2.5,
+                    arcType: Cesium.ArcType.NONE,
+                    material: Cesium.Color.fromCssColorString(TRACK_COLOR).withAlpha(0.95)
+                }
+            });
+            viewer.entities.add({
+                polyline: {
+                    positions: new Cesium.CallbackProperty(function () { return pastTrack; }, false),
+                    width: 2,
+                    arcType: Cesium.ArcType.NONE,
+                    material: new Cesium.PolylineDashMaterialProperty({
+                        color: Cesium.Color.fromCssColorString(TRACK_COLOR).withAlpha(0.5),
+                        dashLength: 12
+                    })
+                }
+            });
+
+            // Render-on-demand: redraw once the icon image has finished loading
+            var iconImg = new Image();
+            iconImg.onload = function () { viewer.scene.requestRender(); };
+            iconImg.src = SAT.icon;
 
             var satrec = null;
             var follow = true;
-            var shownLng = null;   // longitude kept continuous so the marker never jumps across the map
             var centerBtn = document.getElementById('centerBtn');
 
-            map.on('dragstart', function () {
+            // When a visitor rotates or zooms the globe, stop following and offer a button to resume
+            function stopFollowing() {
+                if (!follow) return;
                 follow = false;
                 centerBtn.style.display = 'block';
+            }
+            // Only a real drag or zoom stops following: a simple tap or scrolling the page does not
+            var downX = null, downY = null;
+            viewer.canvas.addEventListener('pointerdown', function (e) { downX = e.clientX; downY = e.clientY; });
+            viewer.canvas.addEventListener('pointermove', function (e) {
+                if (downX === null || !e.buttons) return;
+                if (Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 8) stopFollowing();
             });
+            window.addEventListener('pointerup', function () { downX = null; });
+            viewer.canvas.addEventListener('wheel', stopFollowing, { passive: true });
             centerBtn.addEventListener('click', function () {
                 follow = true;
                 centerBtn.style.display = 'none';
@@ -138,30 +235,19 @@
                 return { lat: lat, lng: lng, alt: geo.height, vel: vel };
             }
 
-            function closeTo(lng, ref) {
-                while (lng - ref > 180) lng -= 360;
-                while (lng - ref < -180) lng += 360;
-                return lng;
-            }
-
-            // Ground track: 45 minutes back and 90 minutes ahead, drawn around the marker
+            // Orbit: 45 minutes back and 90 minutes ahead, sampled every 30 seconds
             function drawTrack(now) {
-                var past = [], next = [], prev = shownLng, i, p, lng;
-                for (i = 0; i <= 45; i++) {
-                    p = position(new Date(now - i * 60000));
-                    if (!p) continue;
-                    lng = closeTo(p.lng, prev); prev = lng;
-                    past.unshift([p.lat, lng]);
+                var past = [], next = [], i, p;
+                for (i = 90; i >= 0; i--) {
+                    p = position(new Date(now - i * 30000));
+                    if (p) past.push(Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.alt * 1000));
                 }
-                prev = shownLng;
-                for (i = 0; i <= 90; i++) {
-                    p = position(new Date(now + i * 60000));
-                    if (!p) continue;
-                    lng = closeTo(p.lng, prev); prev = lng;
-                    next.push([p.lat, lng]);
+                for (i = 0; i <= 180; i++) {
+                    p = position(new Date(now + i * 30000));
+                    if (p) next.push(Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.alt * 1000));
                 }
-                pastLine.setLatLngs(past);
-                nextLine.setLatLngs(next);
+                pastTrack = past;
+                nextTrack = next;
             }
 
             function fmtCoord(v, pos, neg) {
@@ -174,11 +260,12 @@
                 var now = Date.now();
                 var p = position(new Date(now));
                 if (!p) return;
-                shownLng = shownLng === null ? p.lng : closeTo(p.lng, shownLng);
-                marker.setLatLng([p.lat, shownLng]);
-                if (!map.hasLayer(marker)) marker.addTo(map);
+                issPosition = Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.alt * 1000);
                 if (forceTrack || now - lastTrack > 60000) { drawTrack(now); lastTrack = now; }
-                if (follow) map.setView([p.lat, shownLng], map.getZoom(), { animate: false });
+                if (follow) {
+                    viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(p.lng, p.lat, CAMERA_HEIGHT) });
+                }
+                viewer.scene.requestRender();
 
                 var alt = imperial ? p.alt * KM_TO_MI : p.alt;
                 var vel = imperial ? p.vel * KM_TO_MI : p.vel;
@@ -199,7 +286,7 @@
                         update(true);
                     })
                     .catch(function () {
-                        if (!satrec) document.getElementById('msg').style.display = 'block';
+                        if (!satrec) showMessage('Live data is temporarily unavailable.');
                     });
             }
 
