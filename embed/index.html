@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/cookie-consent.js"></script>
+    
+    
+
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="manifest" href="/manifest.json">
+
+    <!-- PRIMARY SEO -->
+    <title>Free ISS Tracker Widget for Your Website | SatFleet Live</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free ISS tracker widget for your website: embed a live 2D map or 3D globe of the International Space Station with two lines of HTML. No sign-up, no ads.">
+    <meta name="keywords" content="ISS tracker widget, embed ISS tracker, ISS live map widget, 3D ISS tracker widget, free ISS tracker for website, International Space Station widget">
+    <meta name="author" content="SatFleetLive">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://satfleetlive.com/embed/">
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="SatFleet Live">
+    <meta property="og:title" content="Free ISS Tracker Widget for Your Website | SatFleet Live">
+    <meta property="og:description" content="Embed a free live ISS tracker on your website with two lines of HTML. No sign-up, no cookies, no ads.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://satfleetlive.com/embed/">
+    <meta property="og:image" content="https://satfleetlive.com/images/logo.png">
+    <meta property="article:published_time" content="2026-10-06">
+    <meta property="article:modified_time" content="2026-10-06">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Free ISS Tracker Widget for Your Website">
+    <meta name="twitter:description" content="Embed a free live ISS tracker on your website with two lines of HTML. No sign-up, no cookies, no ads.">
+    <meta name="twitter:image" content="https://satfleetlive.com/images/logo.png">
+
+    <!-- Schema.org Article -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "headline": "Free ISS Tracker Widget for Your Website",
+  "description": "Free ISS tracker widget for your website: embed a live 2D map or 3D globe of the International Space Station with two lines of HTML. No sign-up, no ads.",
+  "image": "https://satfleetlive.com/images/logo.png",
+  "datePublished": "2026-10-06",
+  "dateModified": "2026-10-06",
+  "author": {
+    "@type": "Organization",
+    "name": "SatFleetLive",
+    "url": "https://satfleetlive.com/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "SatFleet Live",
+    "url": "https://satfleetlive.com/",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://satfleetlive.com/images/logo.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://satfleetlive.com/embed/"
+  },
+  "url": "https://satfleetlive.com/embed/",
+  "inLanguage": "en",
+  "keywords": "ISS tracker widget, embed ISS tracker, ISS live map widget, 3D ISS tracker widget, free ISS tracker for website, International Space Station widget"
+}
+    </script>
+
+    <!-- Schema.org BreadcrumbList -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://satfleetlive.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "ISS Tracker Widget",
+      "item": "https://satfleetlive.com/embed/"
+    }
+  ]
+}
+    </script>
+
+    <!-- FAQPage Schema (same text as the visible FAQ section) -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is the ISS tracker widget free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The SatFleet Live ISS widget is free for personal, educational and commercial websites. There is no sign-up and no API key. We only ask that you keep the visible link to SatFleet Live below the widget."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I add a live ISS tracker to my website?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Copy the embed code from this page and paste it into your site wherever you can add custom HTML, such as a Custom HTML block in WordPress, an Embed Code element in Wix or a Code block in Squarespace. The tracker appears as soon as you save the page."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the widget use cookies?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The widget sets no cookies and includes no analytics, tracking or advertising. Map tiles are loaded from Esri and the orbital data comes from SatFleet Live's own server."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate is the ISS position in the widget?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The position is calculated every second from the latest published orbital data for the ISS, using the same standard model as professional trackers. With recent data it is typically accurate to within a few kilometres."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a 3D version of the ISS widget?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Choose the 3D globe option to embed the ISS and its orbit on a 3D satellite view of Earth. It is more spectacular but heavier than the 2D map, so the 2D version is better for sidebars and pages read mostly on phones."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I change the size and colours of the widget?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can choose between a 2D map and a 3D globe, a dark or light theme, metric or imperial units and the height of the widget. The widget always fills the width of the space where you place it, so it adapts to phones and wide pages."
+      }
+    }
+  ]
+}
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --accent: #2196f3;
+            --accent-dark: #1565c0;
+            --accent-dim: rgba(33, 150, 243, 0.12);
+            --accent-border: rgba(33, 150, 243, 0.3);
+            --purple: #9c27b0;
+            --dark-bg: #09101a;
+            --dark-secondary: #0f1923;
+            --dark-card: #121e2b;
+            --dark-tertiary: #1e2f40;
+            --text-primary: #e8f4ff;
+            --text-secondary: #7fa8c8;
+            --text-muted: #3d6080;
+            --starlink-green: #00d26a;
+            --geo-cyan: #00ced1;
+            --military-red: #ff4444;
+            --weather-gold: #ffd700;
+            --comm-orange: #ff6b35;
+            --tech-violet: #9400d3;
+            --misc-pink: #ff69b4;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── HEADER ── */
+        .header {
+            background: rgba(9, 16, 26, 0.96);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(33,150,243,0.18);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-section { display: flex; align-items: center; gap: 0.9rem; text-decoration: none; }
+        .logo { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 12px rgba(33,150,243,0.3); }
+        .logo img { width: 38px; height: 38px; object-fit: contain; }
+        .logo-placeholder { width: 38px; height: 38px; background: var(--purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.1rem; font-weight: 800; }
+        .site-title { font-size: 1.3rem; font-weight: 700; color: var(--purple); letter-spacing: -0.01em; }
+        .header-nav { display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; }
+        .nav-btn { background: none; border: 1.5px solid rgba(156,39,176,0.5); color: var(--purple); padding: 0.45rem 1rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; text-decoration: none; display: inline-block; white-space: nowrap; }
+        .nav-btn:hover { background: var(--purple); color: #fff; text-decoration: none; }
+        .nav-btn.blue { border-color: rgba(33,150,243,0.5); color: var(--accent); }
+        .nav-btn.blue:hover { background: var(--accent); color: #fff; }
+
+        /* ── HERO ── */
+        .article-hero {
+            background: linear-gradient(160deg, #050e1a 0%, #091525 50%, #050d18 100%);
+            border-bottom: 2px solid rgba(33,150,243,0.35);
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-stars { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        .star { position: absolute; background: #fff; border-radius: 50%; opacity: 0; animation: twinkle 3s ease-in-out infinite; }
+        @keyframes twinkle { 0%,100%{opacity:0;} 50%{opacity:0.7;} }
+
+        /* Orbital rings in hero */
+        .hero-rings {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0.07;
+        }
+        .hero-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid var(--accent);
+        }
+
+        .breadcrumb { font-size: 0.83rem; color: var(--text-muted); margin-bottom: 1.2rem; position: relative; z-index: 1; }
+        .breadcrumb a { color: var(--accent); }
+
+        .article-hero h1 {
+            font-size: clamp(1.7rem, 4vw, 2.6rem);
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.2;
+            max-width: 820px;
+            margin: 0 auto 1rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+        .article-hero h1 em { font-style: normal; color: var(--accent); }
+        .article-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.83rem; color: var(--text-muted); margin-top: 1rem; position: relative; z-index: 1; }
+
+        /* ── LIVE COUNTER BAR ── */
+        .counter-bar {
+            background: var(--dark-secondary);
+            border-bottom: 1px solid var(--dark-tertiary);
+            padding: 1rem 1.5rem;
+        }
+        .counter-bar-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+        .counter-item { text-align: center; }
+        .counter-value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .counter-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            display: block;
+            margin-top: 0.3rem;
+        }
+        .counter-sep { width: 1px; background: var(--dark-tertiary); align-self: stretch; }
+        .counter-item.green .counter-value { color: var(--starlink-green); }
+        .counter-item.red .counter-value { color: var(--military-red); }
+        .counter-item.gold .counter-value { color: var(--weather-gold); }
+
+        /* ── LAYOUT ── */
+        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+        /* ── TOC ── */
+        .toc { background: var(--dark-card); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+        .toc-title { font-size: 0.88rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+        .toc ol { margin-left: 1.2rem; }
+        .toc li { margin-bottom: 0.4rem; }
+        .toc a { color: var(--accent); font-size: 0.93rem; }
+        .toc a:hover { text-decoration: underline; }
+
+        /* ── ARTICLE BODY ── */
+        .article-body p { color: var(--text-secondary); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
+        .article-body strong { color: var(--text-primary); }
+        .article-body a { color: var(--accent); }
+        .article-body h2 {
+            font-size: 1.5rem; font-weight: 700; color: #fff;
+            margin: 2.75rem 0 1rem; padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+            scroll-margin-top: 80px; letter-spacing: -0.01em;
+        }
+        .article-body h3 { font-size: 1.08rem; font-weight: 600; color: var(--accent); margin: 1.75rem 0 0.65rem; }
+
+        /* ── HIGHLIGHT BOX ── */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(33,150,243,0.08), rgba(0,206,209,0.05));
+            border: 1px solid var(--accent-border);
+            border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0;
+        }
+        .highlight-box p { margin-bottom: 0 !important; color: #b8daff !important; }
+        .highlight-label { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; display: block; }
+
+        /* ── CATEGORY BREAKDOWN CHART ── */
+        .chart-block {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-tertiary);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin: 1.75rem 0;
+        }
+        .chart-label { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem; }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+        .bar-name {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            width: 140px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .bar-track {
+            flex: 1;
+            height: 22px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+        }
+        .bar-count {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: rgba(0,0,0,0.8);
+            white-space: nowrap;
+        }
+        .bar-pct { font-size: 0.75rem; color: var(--text-muted); width: 38px; flex-shrink: 0; text-align: right; }
+
+        /* ── DATA CARDS ── */
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem; }
+        .data-card {
+            background: var(--dark-card); border: 1px solid var(--dark-tertiary);
+            border-radius: 12px; padding: 1.25rem 1rem; text-align: center;
+            border-top: 3px solid var(--accent); transition: transform 0.2s, border-top-color 0.2s;
+        }
+        .data-card:hover { transform: translateY(-2px); }
+        .data-card-icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+        .data-card-value { font-size: 1.3rem; font-weight: 800; color: var(--accent); display: block; letter-spacing: -0.02em; margin-bottom: 0.3rem; line-height: 1.1; }
+        .data-card-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+        .data-card-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.4rem; display: block; line-height: 1.4; }
+        .data-card.green { border-top-color: var(--starlink-green); }
+        .data-card.green .data-card-value { color: var(--starlink-green); }
+        .data-card.red { border-top-color: var(--military-red); }
+        .data-card.red .data-card-value { color: var(--military-red); }
+        .data-card.gold { border-top-color: var(--weather-gold); }
+        .data-card.gold .data-card-value { color: var(--weather-gold); }
+        .data-card.cyan { border-top-color: var(--geo-cyan); }
+        .data-card.cyan .data-card-value { color: var(--geo-cyan); }
+
+        /* ── COUNTRY TABLE ── */
+        .country-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0 1.75rem; font-size: 0.93rem; }
+        .country-table thead tr { background: rgba(33,150,243,0.12); }
+        .country-table th { padding: 0.8rem 1rem; text-align: left; font-weight: 600; color: var(--text-primary); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .country-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--dark-tertiary); color: var(--text-secondary); vertical-align: middle; }
+        .country-table tbody tr:hover { background: rgba(33,150,243,0.04); }
+        .country-table td:first-child { color: var(--text-primary); font-weight: 600; }
+        .country-table .mini-bar { height: 6px; border-radius: 3px; background: var(--accent); display: inline-block; vertical-align: middle; margin-right: 8px; }
+        .rank-num { color: var(--text-muted); font-size: 0.8rem; margin-right: 0.4rem; }
+
+        /* ── ORBIT ALTITUDE DIAGRAM ── */
+        .altitude-viz {
+            background: #050d18;
+            border: 1px solid var(--dark-tertiary);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .altitude-viz-label { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; text-align: left; }
+
+        /* ── GROWTH TIMELINE ── */
+        .timeline { margin: 1.5rem 0 2rem; }
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.65rem;
+        }
+        .timeline-year { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); width: 44px; flex-shrink: 0; }
+        .timeline-track { flex: 1; height: 20px; background: rgba(255,255,255,0.04); border-radius: 4px; overflow: hidden; }
+        .timeline-fill { height: 100%; background: linear-gradient(90deg, var(--accent-dark), var(--accent)); border-radius: 4px; display: flex; align-items: center; padding-left: 8px; transition: width 1.4s cubic-bezier(0.4,0,0.2,1); width: 0; }
+        .timeline-count { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.9); white-space: nowrap; }
+        .timeline-note { font-size: 0.72rem; color: var(--text-muted); width: 90px; flex-shrink: 0; text-align: right; }
+
+        /* ── LIVE CTA ── */
+        .live-cta {
+            display: flex; align-items: center; gap: 1.25rem;
+            background: linear-gradient(135deg, rgba(33,150,243,0.1), rgba(0,206,209,0.06));
+            border: 1.5px solid var(--accent-border);
+            border-radius: 14px; padding: 1.25rem 1.5rem; margin: 1.75rem 0;
+            text-decoration: none; transition: all 0.3s; cursor: pointer;
+        }
+        .live-cta:hover { border-color: var(--accent); background: linear-gradient(135deg, rgba(33,150,243,0.16), rgba(0,206,209,0.1)); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(33,150,243,0.18); text-decoration: none; }
+        .cta-icon { font-size: 2rem; flex-shrink: 0; }
+        .cta-body { flex: 1; }
+        .cta-title { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; display: block; }
+        .cta-sub { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; }
+        .cta-arrow { font-size: 1.3rem; color: var(--accent); flex-shrink: 0; transition: transform 0.2s; }
+        .live-cta:hover .cta-arrow { transform: translateX(4px); }
+
+        /* ── FAQ ── */
+        .faq-item { background: var(--dark-card); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; border: 1px solid var(--dark-tertiary); }
+        .faq-question { width: 100%; background: none; border: none; color: #fff; font-size: 1rem; font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background 0.2s; font-family: inherit; }
+        .faq-question:hover { background: rgba(33,150,243,0.06); }
+        .faq-arrow { color: var(--accent); font-size: 1rem; transition: transform 0.3s; flex-shrink: 0; }
+        .faq-question.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
+        .faq-answer.visible { display: block; }
+        .faq-answer a { color: var(--accent); }
+
+        /* ── RELATED ── */
+        .related-articles { margin: 2.5rem 0 1.5rem; }
+        .related-title { font-size: 0.88rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+        .related-grid { display: flex; flex-direction: column; gap: 0.6rem; }
+        .related-card { background: var(--dark-card); border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; text-decoration: none; border: 1px solid var(--dark-tertiary); transition: border-color 0.25s, background 0.25s; }
+        .related-card:hover { border-color: var(--accent); background: rgba(33,150,243,0.05); text-decoration: none; }
+        .related-icon { font-size: 1.7rem; flex-shrink: 0; }
+        .related-text strong { display: block; color: #fff; font-size: 0.95rem; margin-bottom: 0.2rem; }
+        .related-text span { color: var(--text-secondary); font-size: 0.85rem; }
+
+        /* ── CTA BANNER ── */
+        .cta-banner { background: linear-gradient(135deg, rgba(33,150,243,0.12), rgba(0,206,209,0.08)); border: 1px solid var(--accent-border); border-radius: 14px; padding: 2.25rem 2rem; text-align: center; margin: 3rem 0 2rem; }
+        .cta-banner h2 { font-size: 1.4rem; color: #fff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; }
+        .cta-banner p { color: var(--text-secondary); margin-bottom: 1.25rem; }
+        .cta-buttons { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .cta-btn { display: inline-block; background: var(--accent); color: #fff; padding: 0.75rem 1.75rem; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 0.95rem; transition: all 0.25s; border: 2px solid var(--accent); }
+        .cta-btn:hover { background: transparent; color: var(--accent); text-decoration: none; }
+        .cta-btn.outline { background: transparent; color: var(--text-secondary); border-color: var(--dark-tertiary); }
+        .cta-btn.outline:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* ── FOOTER ── */
+        .footer { background: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--dark-tertiary); }
+        .footer a { color: var(--accent); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .footer-row { margin-bottom: 0.4rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .article-hero { padding: 2.5rem 1rem 2rem; }
+            .article-hero h1 { font-size: 1.6rem; }
+            .counter-bar-inner { grid-template-columns: repeat(2, 1fr); }
+            .counter-sep { display: none; }
+            .header { padding: 0.75rem 1rem; }
+            .blog-container { padding: 1.75rem 1rem 3rem; }
+            .data-grid { grid-template-columns: repeat(2, 1fr); }
+            .bar-name { width: 100px; font-size: 0.75rem; }
+            .country-table { font-size: 0.8rem; }
+            .country-table th, .country-table td { padding: 0.55rem 0.65rem; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+    <style>
+        /* Article additions: inline SVG icons, lists, update line (general styles above are unchanged) */
+        .i { width: 1em; height: 1em; vertical-align: -0.15em; margin-right: 0.35em; flex-shrink: 0; }
+        .article-meta span { display: inline-flex; align-items: center; }
+        .cta-icon svg, .related-icon svg { width: 32px; height: 32px; color: var(--accent); display: block; }
+        .faq-arrow svg, .cta-arrow svg { width: 1.1em; height: 1.1em; display: block; }
+        .article-body ul, .article-body ol { color: var(--text-secondary); margin: 0 0 1.25rem 1.4rem; line-height: 1.8; font-size: 1.02rem; }
+        .article-body li { margin-bottom: 0.45rem; }
+        .last-updated { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .table-note { font-size: 0.8rem !important; color: var(--text-muted) !important; }
+    </style>
+<script src="/legal-footer.js" defer></script>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a class="logo-section" href="/">
+            <div class="logo">
+                <img src="/images/logo.png" alt="SatFleet Live Logo"
+                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>S</div>'">
+            </div>
+            <span class="site-title">SatFleet Live</span>
+        </a>
+        <nav class="header-nav" aria-label="Main navigation">
+            <a href="/" class="nav-btn"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Live Map</a>
+            <a href="/next-passes.html" class="nav-btn blue"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49"/><path d="M7.76 16.24a6 6 0 0 1 0-8.49"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>Next Passes</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="article-hero" role="banner">
+        <div class="hero-stars" id="heroStars" aria-hidden="true"></div>
+        <div class="hero-rings" aria-hidden="true">
+            <div class="hero-ring" style="width:600px;height:600px;"></div>
+            <div class="hero-ring" style="width:400px;height:400px;"></div>
+            <div class="hero-ring" style="width:220px;height:220px;"></div>
+        </div>
+        <p class="breadcrumb">
+            <a href="/">Home</a> &rsaquo; ISS Tracker Widget
+        </p>
+        <h1>Free ISS Tracker Widget<br><em>for Your Website</em></h1>
+        <div class="article-meta">
+            <span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>SatFleetLive</span>
+            <span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>October 6, 2026</span>
+            <span><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>4 min read</span>
+        </div>
+    </div>
+
+    <!-- COUNTER BAR -->
+    <div class="counter-bar" aria-label="Widget features at a glance">
+        <div class="counter-bar-inner">
+            <div class="counter-item">
+                <span class="counter-value">Free</span>
+                <span class="counter-label">No sign-up</span>
+            </div>
+            <div class="counter-sep" aria-hidden="true"></div>
+            <div class="counter-item green">
+                <span class="counter-value">2 lines</span>
+                <span class="counter-label">Of HTML</span>
+            </div>
+            <div class="counter-sep" aria-hidden="true"></div>
+            <div class="counter-item gold">
+                <span class="counter-value">1 s</span>
+                <span class="counter-label">Position updates</span>
+            </div>
+            <div class="counter-sep" aria-hidden="true"></div>
+            <div class="counter-item">
+                <span class="counter-value">0</span>
+                <span class="counter-label">Cookies</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <main class="blog-container">
+
+        <p class="last-updated">Last updated: <time datetime="2026-10-06">October 6, 2026</time></p>
+
+        <!-- TOC -->
+        <nav class="toc" aria-label="Table of contents">
+            <div class="toc-title"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Contents</div>
+            <ol>
+                <li><a href="#preview">Live preview</a></li>
+                <li><a href="#get-code">Get the embed code</a></li>
+                <li><a href="#how-to-add">How to add it to your website</a></li>
+                <li><a href="#what-it-shows">What the widget shows: 2D and 3D</a></li>
+                <li><a href="#options">Widget options</a></li>
+                <li><a href="#privacy">Cookies and page speed</a></li>
+                <li><a href="#terms">Terms of use</a></li>
+                <li><a href="#faq">Frequently asked questions</a></li>
+            </ol>
+        </nav>
+
+        <article class="article-body">
+
+            <style>
+                .embed-preview { margin: 1.5rem 0 2rem; }
+                .embed-options { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+                .embed-options label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; color: var(--text-muted); }
+                .embed-options select { padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid rgba(127,168,200,0.3); background: rgba(6,13,24,0.6); color: var(--text-primary); font: inherit; }
+                .embed-code { position: relative; margin: 0.5rem 0 1.5rem; }
+                .embed-code pre { margin: 0; padding: 1rem 1.1rem; border-radius: 10px; background: rgba(6,13,24,0.75); border: 1px solid rgba(127,168,200,0.25); overflow-x: auto; white-space: pre-wrap; word-break: break-all; font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary); }
+                .copy-btn { margin-top: 0.75rem; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.1rem; border-radius: 8px; border: 0; cursor: pointer; font: inherit; font-weight: 600; background: var(--accent); color: #fff; }
+                .copy-btn:hover { filter: brightness(1.1); }
+            </style>
+
+            <p>
+                <strong>You can add a free, live ISS tracker to any website by pasting two lines of HTML.</strong> The SatFleet Live widget shows the International Space Station moving in real time, on a flat world map or on a 3D globe, with its altitude, speed and coordinates updated every second. There is no sign-up, no API key, no cookies and no advertising.
+            </p>
+            <p>
+                It works on WordPress, Blogger, Wix, Squarespace, Google Sites and any other platform that lets you add custom HTML. Choose your options below, copy the code and paste it where you want the tracker to appear.
+            </p>
+
+            <h2 id="preview">Live Preview</h2>
+
+            <div class="embed-preview">
+                <iframe id="embedPreview" src="/embed/iss.html" width="100%" height="420" style="border:0;border-radius:12px;" loading="lazy" title="Preview of the ISS live tracker widget"></iframe>
+            </div>
+
+            <h2 id="get-code">Get the Embed Code</h2>
+
+            <div class="embed-options">
+                <label>View
+                    <select id="optView">
+                        <option value="2d">2D map (lightweight)</option>
+                        <option value="3d">3D globe</option>
+                    </select>
+                </label>
+                <label>Theme
+                    <select id="optTheme">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                    </select>
+                </label>
+                <label>Units
+                    <select id="optUnits">
+                        <option value="metric">Metric (km, km/h)</option>
+                        <option value="imperial">Imperial (mi, mph)</option>
+                    </select>
+                </label>
+                <label>Height
+                    <select id="optHeight">
+                        <option value="320">Small (320 px)</option>
+                        <option value="420" selected>Medium (420 px)</option>
+                        <option value="560">Large (560 px)</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="embed-code">
+                <pre><code id="embedCode">&lt;iframe src=&quot;https://satfleetlive.com/embed/iss.html&quot; width=&quot;100%&quot; height=&quot;420&quot; style=&quot;border:0;border-radius:12px;&quot; loading=&quot;lazy&quot; title=&quot;ISS live tracker by SatFleet Live&quot;&gt;&lt;/iframe&gt;
+&lt;p style=&quot;font-size:13px;margin:6px 0 0;&quot;&gt;Live ISS tracker by &lt;a href=&quot;https://satfleetlive.com/&quot;&gt;SatFleet Live&lt;/a&gt;&lt;/p&gt;</code></pre>
+                <button class="copy-btn" id="copyBtn" type="button"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg><span id="copyLabel">Copy code</span></button>
+            </div>
+
+            <p>
+                The widget takes the full width of the space where you paste it, so it fits phones, sidebars and wide article columns alike. Please keep the line with the link to SatFleet Live: it is the only thing we ask in return.
+            </p>
+
+            <h2 id="how-to-add">How to Add the ISS Tracker to Your Website</h2>
+
+            <p>
+                The steps are the same everywhere: find the option that lets you insert your own HTML, paste the code and save. On the most common platforms:
+            </p>
+            <ul>
+                <li><strong>WordPress:</strong> in the block editor, add a <em>Custom HTML</em> block where you want the tracker and paste the code.</li>
+                <li><strong>Blogger:</strong> switch the post editor to HTML view and paste the code, or add an <em>HTML/JavaScript</em> gadget to show it in your sidebar.</li>
+                <li><strong>Wix:</strong> add an <em>Embed Code</em> element (Embed HTML), paste the code and resize the box.</li>
+                <li><strong>Squarespace:</strong> add a <em>Code</em> block to the page and paste the code.</li>
+                <li><strong>Google Sites:</strong> choose <em>Insert</em>, then <em>Embed</em>, open the <em>Embed code</em> tab and paste the code.</li>
+                <li><strong>Notion and similar tools:</strong> use their embed block and paste only the address, <code>https://satfleetlive.com/embed/iss.html</code> for the 2D map or <code>https://satfleetlive.com/embed/iss-3d.html</code> for the 3D globe.</li>
+            </ul>
+            <p>
+                If your platform removes iframes from posts, look for a separate HTML or embed element. Most website builders have one.
+            </p>
+
+            <h2 id="what-it-shows">What Does the Widget Show?</h2>
+
+            <p>
+                The widget shows the current position of the ISS, together with its path: the path it has followed over the last 45 minutes and the path it will follow over the next 90 minutes, which is roughly one full orbit. A small panel displays its altitude, speed, latitude and longitude, updated every second.
+            </p>
+            <p>
+                It comes in two versions. The <strong>2D map</strong> draws the ground track on a flat map and is the lightest option. The <strong>3D globe</strong> shows the station and its orbit around a satellite view of Earth, the same globe used in the full tracker. In both, the view follows the station as it moves; visitors can zoom and drag freely, and a button brings the view back to the ISS. The position is calculated in the visitor's browser from the latest orbital data for the station (NORAD catalogue number 25544), the same method used by the full <a href="/">SatFleet Live tracker</a>. If you want to know more about the numbers it shows, our guide <a href="/blogs/where-is-the-iss-right-now/">Where Is the ISS Right Now?</a> explains the station's speed, altitude and ground track.
+            </p>
+
+            <h2 id="options">Widget Options</h2>
+
+            <p>
+                The options above simply add settings to the end of the widget address. You can also set them by hand:
+            </p>
+
+            <div style="overflow-x:auto;">
+                <table class="country-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>How to set it</th>
+                            <th>Effect</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>3D globe</td><td><code>iss-3d.html</code> instead of <code>iss.html</code></td><td>Satellite view of Earth with the ISS orbit in 3D</td></tr>
+                        <tr><td>Light theme</td><td><code>?theme=light</code></td><td>Light map and panel for sites with a white background (in 3D, only the panel changes)</td></tr>
+                        <tr><td>Imperial units</td><td><code>?units=imperial</code></td><td>Altitude in miles and speed in mph</td></tr>
+                        <tr><td>Both</td><td><code>?theme=light&amp;units=imperial</code></td><td>Light theme with imperial units</td></tr>
+                        <tr><td>Height</td><td><code>height="420"</code> in the iframe</td><td>Any height in pixels; 320 to 560 works best</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 id="privacy">Does the Widget Use Cookies or Slow Down My Site?</h2>
+
+            <p>
+                The widget sets no cookies and includes no analytics, tracking or advertising, so it does not add anything to your cookie banner. The map and satellite imagery are loaded from Esri, and the orbital data comes from SatFleet Live's own server, which keeps it cached so the widget loads quickly. The 3D version also loads the CesiumJS globe library from cesium.com.
+            </p>
+            <p>
+                The code includes <code>loading="lazy"</code>, which tells the browser not to load the widget until a visitor scrolls near it. That way it does not slow down the rest of your page. The 2D map is light and works well anywhere, including sidebars and pages read mostly on phones. The 3D globe is more spectacular but noticeably heavier and needs a device with 3D graphics support, so it is best for a large, featured spot on the page.
+            </p>
+
+            <h2 id="terms">Terms of Use</h2>
+
+            <p>
+                The widget is free for personal, educational and commercial websites. We only ask that you keep the visible link to SatFleet Live below the widget, and that you do not present the tracker as your own work. Live data depends on external sources, so very occasionally the widget may show a short message instead of the map while the data is refreshed.
+            </p>
+
+            <h2 id="more">Want to Show More Than the ISS?</h2>
+
+            <p>
+                The widget focuses on the space station because it is the object most people want to follow. The full <a href="/">SatFleet Live tracker</a> shows thousands of satellites on a 3D globe, and <a href="/next-passes.html">Next Passes</a> tells your visitors when the ISS will be visible from their own location. For tips on spotting it with the naked eye, see <a href="/blogs/iss-pass-tonight/">when and where to see the ISS tonight</a>.
+            </p>
+
+            <a href="/" class="live-cta" aria-label="Open the full SatFleet Live 3D tracker">
+                <div class="cta-icon"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                <div class="cta-body">
+                    <span class="cta-title">Explore the Full 3D Tracker</span>
+                    <span class="cta-sub">Thousands of satellites, space stations and launches on a live 3D globe. Free, with no account needed.</span>
+                </div>
+                <div class="cta-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+            </a>
+
+
+            <!-- FAQ -->
+            <h2 id="faq">Frequently Asked Questions</h2>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Is the ISS tracker widget free?
+                    <span class="faq-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="faq-answer">
+                    Yes. The SatFleet Live ISS widget is free for personal, educational and commercial websites. There is no sign-up and no API key. We only ask that you keep the visible link to SatFleet Live below the widget.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How do I add a live ISS tracker to my website?
+                    <span class="faq-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="faq-answer">
+                    Copy the embed code from this page and paste it into your site wherever you can add custom HTML, such as a Custom HTML block in WordPress, an Embed Code element in Wix or a Code block in Squarespace. The tracker appears as soon as you save the page.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Does the widget use cookies?
+                    <span class="faq-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="faq-answer">
+                    No. The widget sets no cookies and includes no analytics, tracking or advertising. Map tiles are loaded from Esri and the orbital data comes from SatFleet Live's own server.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    How accurate is the ISS position in the widget?
+                    <span class="faq-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="faq-answer">
+                    The position is calculated every second from the latest published orbital data for the ISS, using the same standard model as professional trackers. With recent data it is typically accurate to within a few kilometres.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Is there a 3D version of the ISS widget?
+                    <span class="faq-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="faq-answer">
+                    Yes. Choose the 3D globe option to embed the ISS and its orbit on a 3D satellite view of Earth. It is more spectacular but heavier than the 2D map, so the 2D version is better for sidebars and pages read mostly on phones.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
+                    Can I change the size and colours of the widget?
+                    <span class="faq-arrow"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></span>
+                </button>
+                <div class="faq-answer">
+                    Yes. You can choose between a 2D map and a 3D globe, a dark or light theme, metric or imperial units and the height of the widget. The widget always fills the width of the space where you place it, so it adapts to phones and wide pages.
+                </div>
+            </div>
+
+            <!-- RELATED -->
+            <div class="related-articles">
+                <div class="related-title"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>Related Guides</div>
+                <div class="related-grid">
+                    <a href="/blogs/where-is-the-iss-right-now/" class="related-card">
+                        <span class="related-icon"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M2 6h5v12H2zM17 6h5v12h-5zM7 12h2M15 12h2"/></svg></span>
+                        <div class="related-text">
+                            <strong>Where Is the ISS Right Now? Live Map, Speed and Altitude</strong>
+                            <span>Speed, altitude and ground track of the space station.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/iss-pass-tonight/" class="related-card">
+                        <span class="related-icon"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
+                        <div class="related-text">
+                            <strong>ISS Pass Tonight: When &amp; Where to See the Space Station</strong>
+                            <span>Plan a naked-eye sighting from your location.</span>
+                        </div>
+                    </a>
+                    <a href="/blogs/how-many-people-are-in-space-right-now/" class="related-card">
+                        <span class="related-icon"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                        <div class="related-text">
+                            <strong>How Many People Are in Space Right Now?</strong>
+                            <span>Live count and crews on the ISS and Tiangong.</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        </article>
+
+        <!-- CTA BANNER -->
+        <div class="cta-banner">
+            <h2>Add the ISS to Your Website</h2>
+            <p>Copy the code above and give your readers a live view of the International Space Station, free and with no sign-up.</p>
+            <div class="cta-buttons">
+                <a href="#get-code" class="cta-btn"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>Get the Code</a>
+                <a href="/" class="cta-btn outline"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Open Live Map</a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-row">&copy; 2026 SatFleetLive</div>
+        <div class="footer-row">
+            Source: <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a> &middot;
+            <a href="https://www.wikidata.org" target="_blank" rel="noopener">Wikidata</a> &middot;
+            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> &middot;
+            <a href="/privacy-policy" target="_blank">Privacy Policy</a> &middot;
+            <a href="#" onclick="openCookieSettings();return false;">Cookie settings</a>
+        </div>
+    </footer>
+
+    <script>
+        // Starfield
+        const starsContainer = document.getElementById('heroStars');
+        for (let i = 0; i < 90; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2.2 + 0.4;
+            star.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;`;
+            starsContainer.appendChild(star);
+        }
+
+        // Animate orbit dots in altitude diagram
+        (function() {
+            const leo = document.getElementById('leoDot');
+            const meo = document.getElementById('meoDot');
+            if (!leo || !meo) return;
+            // LEO: cx=250 cy=130 rx=78 ry=54
+            // MEO: cx=250 cy=130 rx=168 ry=82
+            let t = 0;
+            function animateOrbits() {
+                t += 0.012;
+                if (leo) {
+                    leo.setAttribute('cx', (250 + 78 * Math.cos(t)).toFixed(2));
+                    leo.setAttribute('cy', (130 + 54 * Math.sin(t)).toFixed(2));
+                }
+                if (meo) {
+                    meo.setAttribute('cx', (250 + 168 * Math.cos(-t * 0.45)).toFixed(2));
+                    meo.setAttribute('cy', (130 + 82 * Math.sin(-t * 0.45)).toFixed(2));
+                }
+                requestAnimationFrame(animateOrbits);
+            }
+            requestAnimationFrame(animateOrbits);
+        })();
+
+        // Animate bars when in view
+        function animateBars() {
+            document.querySelectorAll('.bar-fill[data-width]').forEach(bar => {
+                bar.style.width = bar.dataset.width + '%';
+            });
+        }
+        function animateTimeline() {
+            document.querySelectorAll('.timeline-fill[data-width]').forEach(fill => {
+                fill.style.width = fill.dataset.width + '%';
+            });
+        }
+
+        // IntersectionObserver for chart
+        const chartObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { animateBars(); chartObs.unobserve(e.target); } });
+        }, { threshold: 0.3 });
+        const chart = document.getElementById('categoryChart');
+        if (chart) chartObs.observe(chart);
+
+        const timelineObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { animateTimeline(); timelineObs.unobserve(e.target); } });
+        }, { threshold: 0.3 });
+        const timeline = document.getElementById('growthTimeline');
+        if (timeline) timelineObs.observe(timeline);
+
+        // FAQ accordion
+        function toggleFAQ(btn) {
+            const answer = btn.nextElementSibling;
+            const isOpen = answer.classList.contains('visible');
+            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
+            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
+            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+        }
+    </script>
+    <script>
+        /* Embed code builder: updates the code and the preview when an option changes, and copies the code */
+        (function () {
+            var view = document.getElementById('optView');
+            var theme = document.getElementById('optTheme');
+            var units = document.getElementById('optUnits');
+            var height = document.getElementById('optHeight');
+            var code = document.getElementById('embedCode');
+            var preview = document.getElementById('embedPreview');
+            var label = document.getElementById('copyLabel');
+            function build() {
+                var q = [];
+                if (theme.value === 'light') q.push('theme=light');
+                if (units.value === 'imperial') q.push('units=imperial');
+                var query = q.length ? '?' + q.join('&') : '';
+                var file = view.value === '3d' ? 'iss-3d.html' : 'iss.html';
+                code.textContent = '<iframe src="https://satfleetlive.com/embed/' + file + query + '" width="100%" height="' + height.value +
+                    '" style="border:0;border-radius:12px;" loading="lazy" title="ISS live tracker by SatFleet Live"></iframe>\n' +
+                    '<p style="font-size:13px;margin:6px 0 0;">Live ISS tracker by <a href="https://satfleetlive.com/">SatFleet Live</a></p>';
+                preview.src = '/embed/' + file + query;
+                preview.height = height.value;
+            }
+            [view, theme, units, height].forEach(function (el) { el.addEventListener('change', build); });
+            document.getElementById('copyBtn').addEventListener('click', function () {
+                var text = code.textContent;
+                function done() { label.textContent = 'Copied'; setTimeout(function () { label.textContent = 'Copy code'; }, 2000); }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(done, fallback);
+                } else { fallback(); }
+                function fallback() {
+                    var ta = document.createElement('textarea');
+                    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta); ta.select();
+                    try { document.execCommand('copy'); done(); } catch (e) {}
+                    document.body.removeChild(ta);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

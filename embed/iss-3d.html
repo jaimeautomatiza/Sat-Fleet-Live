@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Live 3D Tracker Widget | SatFleet Live</title>
+    <!-- This page is the embeddable widget itself: it should not appear in Google on its own -->
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="https://satfleetlive.com/embed/">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <!-- Same CesiumJS version as the main SatFleet Live tracker -->
+    <link rel="preconnect" href="https://cesium.com">
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05080f;
+            --panel: rgba(6, 13, 24, 0.86);
+            --text: #e8f1fa;
+            --muted: #8fa6bd;
+            --accent: #9c27b0;
+            --live: #e53935;
+            --border: rgba(127, 168, 200, 0.25);
+        }
+        body.light {
+            --panel: rgba(255, 255, 255, 0.92);
+            --text: #13202d;
+            --muted: #55687a;
+            --accent: #9c27b0;
+            --border: rgba(19, 32, 45, 0.15);
+        }
+        html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        #globe { position: absolute; inset: 0; }
+        .cesium-widget-credits, .cesium-credit-logoContainer { display: none !important; }
+        .box { position: absolute; z-index: 10; background: var(--panel); border: 1px solid var(--border);
+            border-radius: 10px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+        .panel { left: 10px; bottom: 26px; padding: 8px 12px; font-size: 12px; line-height: 1.55; min-width: 168px; }
+        .panel-title { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); animation: pulse 1.6s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.6); } 70% { box-shadow: 0 0 0 6px rgba(229, 57, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); } }
+        .row { display: flex; justify-content: space-between; gap: 14px; }
+        .row span:first-child { color: var(--muted); }
+        .row span:last-child { font-variant-numeric: tabular-nums; }
+        .center-btn { margin-top: 6px; width: 100%; padding: 4px 6px; font: inherit; font-size: 11px; cursor: pointer;
+            color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; display: none; }
+        .center-btn:hover { border-color: var(--accent); }
+        .brand { right: 10px; top: 10px; padding: 6px 10px; font-size: 12px; font-weight: 600; }
+        .brand a { color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .brand a:hover { color: var(--accent); }
+        .brand svg { width: 16px; height: 16px; color: var(--accent); }
+        body:not(.light) .brand svg, body:not(.light) .msg a { color: #c084fc; }
+        .msg { left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 14px 18px; font-size: 13px; text-align: center; display: none; max-width: 80%; }
+        .msg a { color: var(--accent); }
+        .credit { position: absolute; right: 6px; bottom: 4px; z-index: 10; font-size: 9px; color: rgba(232, 241, 250, 0.7); }
+    </style>
+</head>
+<body>
+    <div id="globe" role="img" aria-label="Live 3D globe showing the current position of the International Space Station"></div>
+
+    <div class="box brand">
+        <a href="https://satfleetlive.com/?ref=embed3d" target="_blank" rel="noopener" title="Open the full 3D satellite tracker">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            SatFleet Live
+        </a>
+    </div>
+
+    <div class="box panel" aria-live="off">
+        <div class="panel-title"><span class="live-dot" aria-hidden="true"></span>ISS live</div>
+        <div class="row"><span>Altitude</span><span id="vAlt">&#8212;</span></div>
+        <div class="row"><span>Speed</span><span id="vVel">&#8212;</span></div>
+        <div class="row"><span>Latitude</span><span id="vLat">&#8212;</span></div>
+        <div class="row"><span>Longitude</span><span id="vLng">&#8212;</span></div>
+        <button class="center-btn" id="centerBtn" type="button">Follow the ISS</button>
+    </div>
+
+    <div class="box msg" id="msg">
+        <span id="msgText">Live ISS data is temporarily unavailable.</span><br>
+        <a href="https://satfleetlive.com/?ref=embed3d" target="_blank" rel="noopener">Open the SatFleet Live tracker</a>
+    </div>
+
+    <div class="credit">Imagery &copy; Esri, Maxar, Earthstar Geographics</div>
+
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+    <script src="/js/satellite.min.js"></script>
+    <script>
+        (function () {
+            // Options from the embed code: ?theme=light and ?units=imperial
+            var params = new URLSearchParams(location.search);
+            var imperial = params.get('units') === 'imperial';
+            if (params.get('theme') === 'light') document.body.classList.add('light');
+
+            var KM_TO_MI = 0.621371;
+            var TLE_URL = 'https://worker.satfleetlive.com/api/tle/25544';
+            var CAMERA_HEIGHT = 9000000; // metres above the ground when following the ISS
+
+            function showMessage(text) {
+                document.getElementById('msgText').textContent = text;
+                document.getElementById('msg').style.display = 'block';
+            }
+
+            if (typeof Cesium === 'undefined') {
+                showMessage('The 3D globe could not be loaded.');
+                return;
+            }
+
+            // Same setup as the main tracker: no Cesium ion, Esri imagery only
+            var viewer;
+            try {
+                Cesium.Ion.defaultAccessToken = undefined;
+                viewer = new Cesium.Viewer('globe', {
+                    terrainProvider: new Cesium.EllipsoidTerrainProvider({}),
+                    baseLayer: false,
+                    animation: false,
+                    baseLayerPicker: false,
+                    fullscreenButton: false,
+                    geocoder: false,
+                    homeButton: false,
+                    infoBox: false,
+                    sceneModePicker: false,
+                    selectionIndicator: false,
+                    timeline: false,
+                    navigationHelpButton: false,
+                    navigationInstructionsInitiallyVisible: false,
+                    skyBox: false,
+                    skyAtmosphere: false,
+                    scene3DOnly: true,
+                    requestRenderMode: true,
+                    maximumRenderTimeChange: 1.0
+                });
+            } catch (e) {
+                showMessage('Your browser cannot display the 3D globe.');
+                return;
+            }
+
+            viewer.imageryLayers.removeAll();
+            viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                maximumLevel: 17
+            }));
+            viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+                maximumLevel: 19
+            }));
+            viewer.imageryLayers.get(0).brightness = 0.75;
+            viewer.imageryLayers.get(1).alpha = 0.8;
+            viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#05080f');
+            viewer.scene.globe.tileCacheSize = 100;
+            viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, 1.5);
+
+            // Brand purple; a lighter shade for the orbit line so it stands out over the satellite imagery
+            var TRACK_COLOR = '#c084fc';
+
+            var issPosition = Cesium.Cartesian3.fromDegrees(0, 0, 420000);
+            var nextTrack = [], pastTrack = [];
+
+            viewer.entities.add({
+                position: new Cesium.CallbackProperty(function () { return issPosition; }, false),
+                // ISS icon: replace /images/iss-icon.svg to change it in both the 2D and 3D widgets
+                billboard: {
+                    image: '/images/iss-icon.svg',
+                    width: 40,
+                    height: 40,
+                    verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                    horizontalOrigin: Cesium.HorizontalOrigin.CENTER
+                }
+            });
+            viewer.entities.add({
+                polyline: {
+                    positions: new Cesium.CallbackProperty(function () { return nextTrack; }, false),
+                    width: 2.5,
+                    arcType: Cesium.ArcType.NONE,
+                    material: Cesium.Color.fromCssColorString(TRACK_COLOR).withAlpha(0.95)
+                }
+            });
+            viewer.entities.add({
+                polyline: {
+                    positions: new Cesium.CallbackProperty(function () { return pastTrack; }, false),
+                    width: 2,
+                    arcType: Cesium.ArcType.NONE,
+                    material: new Cesium.PolylineDashMaterialProperty({
+                        color: Cesium.Color.fromCssColorString(TRACK_COLOR).withAlpha(0.5),
+                        dashLength: 12
+                    })
+                }
+            });
+
+            // Render-on-demand: redraw once the icon image has finished loading
+            var iconImg = new Image();
+            iconImg.onload = function () { viewer.scene.requestRender(); };
+            iconImg.src = '/images/iss-icon.svg';
+
+            var satrec = null;
+            var follow = true;
+            var centerBtn = document.getElementById('centerBtn');
+
+            // When a visitor rotates or zooms the globe, stop following and offer a button to resume
+            function stopFollowing() {
+                if (!follow) return;
+                follow = false;
+                centerBtn.style.display = 'block';
+            }
+            ['pointerdown', 'wheel', 'touchstart'].forEach(function (ev) {
+                viewer.canvas.addEventListener(ev, stopFollowing, { passive: true });
+            });
+            centerBtn.addEventListener('click', function () {
+                follow = true;
+                centerBtn.style.display = 'none';
+                update(true);
+            });
+
+            function position(date) {
+                var pv = satellite.propagate(satrec, date);
+                if (!pv || !pv.position) return null;
+                var geo = satellite.eciToGeodetic(pv.position, satellite.gstime(date));
+                var lat = satellite.degreesLat(geo.latitude);
+                var lng = satellite.degreesLong(geo.longitude);
+                if (isNaN(lat) || isNaN(lng) || !(geo.height > 0)) return null;
+                var vel = pv.velocity ? Math.sqrt(pv.velocity.x * pv.velocity.x + pv.velocity.y * pv.velocity.y + pv.velocity.z * pv.velocity.z) * 3600 : 0;
+                return { lat: lat, lng: lng, alt: geo.height, vel: vel };
+            }
+
+            // Orbit: 45 minutes back and 90 minutes ahead, sampled every 30 seconds
+            function drawTrack(now) {
+                var past = [], next = [], i, p;
+                for (i = 90; i >= 0; i--) {
+                    p = position(new Date(now - i * 30000));
+                    if (p) past.push(Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.alt * 1000));
+                }
+                for (i = 0; i <= 180; i++) {
+                    p = position(new Date(now + i * 30000));
+                    if (p) next.push(Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.alt * 1000));
+                }
+                pastTrack = past;
+                nextTrack = next;
+            }
+
+            function fmtCoord(v, pos, neg) {
+                return Math.abs(v).toFixed(2) + '\u00b0 ' + (v >= 0 ? pos : neg);
+            }
+
+            var lastTrack = 0;
+            function update(forceTrack) {
+                if (!satrec) return;
+                var now = Date.now();
+                var p = position(new Date(now));
+                if (!p) return;
+                issPosition = Cesium.Cartesian3.fromDegrees(p.lng, p.lat, p.alt * 1000);
+                if (forceTrack || now - lastTrack > 60000) { drawTrack(now); lastTrack = now; }
+                if (follow) {
+                    viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(p.lng, p.lat, CAMERA_HEIGHT) });
+                }
+                viewer.scene.requestRender();
+
+                var alt = imperial ? p.alt * KM_TO_MI : p.alt;
+                var vel = imperial ? p.vel * KM_TO_MI : p.vel;
+                document.getElementById('vAlt').textContent = Math.round(alt).toLocaleString('en-US') + (imperial ? ' mi' : ' km');
+                document.getElementById('vVel').textContent = Math.round(vel).toLocaleString('en-US') + (imperial ? ' mph' : ' km/h');
+                document.getElementById('vLat').textContent = fmtCoord(p.lat, 'N', 'S');
+                document.getElementById('vLng').textContent = fmtCoord(p.lng, 'E', 'W');
+            }
+
+            // One request for the ISS orbit (cached by the SatFleet Live Worker), refreshed every 6 hours
+            function loadOrbit() {
+                fetch(TLE_URL)
+                    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                    .then(function (data) {
+                        var obj = Array.isArray(data) ? data[0] : data;
+                        satrec = satellite.json2satrec(obj);
+                        document.getElementById('msg').style.display = 'none';
+                        update(true);
+                    })
+                    .catch(function () {
+                        if (!satrec) showMessage('Live ISS data is temporarily unavailable.');
+                    });
+            }
+
+            loadOrbit();
+            setInterval(loadOrbit, 6 * 3600 * 1000);
+            setInterval(function () { if (!document.hidden) update(false); }, 1000);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Live Tracker Widget | SatFleet Live</title>
+    <!-- This page is the embeddable widget itself: it should not appear in Google on its own -->
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="https://satfleetlive.com/embed/">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/leaflet.css">
+    <style>
+        :root {
+            --bg: #060d18;
+            --panel: rgba(6, 13, 24, 0.86);
+            --text: #e8f1fa;
+            --muted: #8fa6bd;
+            --accent: #9c27b0;
+            --live: #e53935;
+            --border: rgba(127, 168, 200, 0.25);
+        }
+        body.light {
+            --bg: #eef2f6;
+            --panel: rgba(255, 255, 255, 0.92);
+            --text: #13202d;
+            --muted: #55687a;
+            --accent: #9c27b0;
+            --border: rgba(19, 32, 45, 0.15);
+        }
+        html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        #map { position: absolute; inset: 0; background: var(--bg); }
+        .box { position: absolute; z-index: 500; background: var(--panel); border: 1px solid var(--border);
+            border-radius: 10px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+        .panel { left: 10px; bottom: 22px; padding: 8px 12px; font-size: 12px; line-height: 1.55; min-width: 168px; }
+        .panel-title { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); animation: pulse 1.6s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.6); } 70% { box-shadow: 0 0 0 6px rgba(229, 57, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); } }
+        .row { display: flex; justify-content: space-between; gap: 14px; }
+        .row span:first-child { color: var(--muted); }
+        .row span:last-child { font-variant-numeric: tabular-nums; }
+        .center-btn { margin-top: 6px; width: 100%; padding: 4px 6px; font: inherit; font-size: 11px; cursor: pointer;
+            color: var(--text); background: transparent; border: 1px solid var(--border); border-radius: 6px; display: none; }
+        .center-btn:hover { border-color: var(--accent); }
+        .brand { right: 10px; top: 10px; padding: 6px 10px; font-size: 12px; font-weight: 600; }
+        .brand a { color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 6px; }
+        .brand a:hover { color: var(--accent); }
+        .brand svg { width: 16px; height: 16px; color: var(--accent); }
+        body:not(.light) .brand svg, body:not(.light) .msg a { color: #c084fc; }
+        .msg { left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 14px 18px; font-size: 13px; text-align: center; display: none; max-width: 80%; }
+        .msg a { color: var(--accent); }
+        .iss-icon { filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.7)); }
+        .leaflet-control-attribution { font-size: 9px; }
+    </style>
+</head>
+<body>
+    <div id="map" role="img" aria-label="Live map showing the current position of the International Space Station"></div>
+
+    <div class="box brand">
+        <a href="https://satfleetlive.com/?ref=embed" target="_blank" rel="noopener" title="Open the full 3D satellite tracker">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            SatFleet Live
+        </a>
+    </div>
+
+    <div class="box panel" aria-live="off">
+        <div class="panel-title"><span class="live-dot" aria-hidden="true"></span>ISS live</div>
+        <div class="row"><span>Altitude</span><span id="vAlt">&#8212;</span></div>
+        <div class="row"><span>Speed</span><span id="vVel">&#8212;</span></div>
+        <div class="row"><span>Latitude</span><span id="vLat">&#8212;</span></div>
+        <div class="row"><span>Longitude</span><span id="vLng">&#8212;</span></div>
+        <button class="center-btn" id="centerBtn" type="button">Follow the ISS</button>
+    </div>
+
+    <div class="box msg" id="msg">
+        Live ISS data is temporarily unavailable.<br>
+        <a href="https://satfleetlive.com/?ref=embed" target="_blank" rel="noopener">Open the SatFleet Live tracker</a>
+    </div>
+
+    <script src="/js/leaflet.js"></script>
+    <script src="/js/satellite.min.js"></script>
+    <script>
+        (function () {
+            // Options from the embed code: ?theme=light and ?units=imperial
+            var params = new URLSearchParams(location.search);
+            var light = params.get('theme') === 'light';
+            var imperial = params.get('units') === 'imperial';
+            if (light) document.body.classList.add('light');
+
+            var KM_TO_MI = 0.621371;
+            var TLE_URL = 'https://worker.satfleetlive.com/api/tle/25544';
+            // Brand purple; a lighter shade on the dark map so the line stays visible
+            var TRACK_COLOR = light ? '#9c27b0' : '#c084fc';
+
+            // Same Esri tiles as the main tracker (no key needed; attribution required)
+            var map = L.map('map', { minZoom: 1, maxZoom: 7, worldCopyJump: false }).setView([0, 0], 2);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/' +
+                (light ? 'World_Light_Gray_Base' : 'World_Dark_Gray_Base') + '/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap',
+                maxNativeZoom: 16,
+                maxZoom: 19
+            }).addTo(map);
+
+            // ISS icon: replace /images/iss-icon.svg to change it in both the 2D and 3D widgets
+            var issIcon = L.icon({
+                iconUrl: '/images/iss-icon.svg',
+                iconSize: [38, 38],
+                iconAnchor: [19, 19],
+                className: 'iss-icon'
+            });
+            var marker = L.marker([0, 0], { icon: issIcon, interactive: false, keyboard: false });
+            var pastLine = L.polyline([], { color: TRACK_COLOR, weight: 2, opacity: 0.5, dashArray: '4 5', interactive: false }).addTo(map);
+            var nextLine = L.polyline([], { color: TRACK_COLOR, weight: 2.5, opacity: 0.95, interactive: false }).addTo(map);
+
+            var satrec = null;
+            var follow = true;
+            var shownLng = null;   // longitude kept continuous so the marker never jumps across the map
+            var centerBtn = document.getElementById('centerBtn');
+
+            map.on('dragstart', function () {
+                follow = false;
+                centerBtn.style.display = 'block';
+            });
+            centerBtn.addEventListener('click', function () {
+                follow = true;
+                centerBtn.style.display = 'none';
+                update(true);
+            });
+
+            function position(date) {
+                var pv = satellite.propagate(satrec, date);
+                if (!pv || !pv.position) return null;
+                var geo = satellite.eciToGeodetic(pv.position, satellite.gstime(date));
+                var lat = satellite.degreesLat(geo.latitude);
+                var lng = satellite.degreesLong(geo.longitude);
+                if (isNaN(lat) || isNaN(lng) || !(geo.height > 0)) return null;
+                var vel = pv.velocity ? Math.sqrt(pv.velocity.x * pv.velocity.x + pv.velocity.y * pv.velocity.y + pv.velocity.z * pv.velocity.z) * 3600 : 0;
+                return { lat: lat, lng: lng, alt: geo.height, vel: vel };
+            }
+
+            function closeTo(lng, ref) {
+                while (lng - ref > 180) lng -= 360;
+                while (lng - ref < -180) lng += 360;
+                return lng;
+            }
+
+            // Ground track: 45 minutes back and 90 minutes ahead, drawn around the marker
+            function drawTrack(now) {
+                var past = [], next = [], prev = shownLng, i, p, lng;
+                for (i = 0; i <= 45; i++) {
+                    p = position(new Date(now - i * 60000));
+                    if (!p) continue;
+                    lng = closeTo(p.lng, prev); prev = lng;
+                    past.unshift([p.lat, lng]);
+                }
+                prev = shownLng;
+                for (i = 0; i <= 90; i++) {
+                    p = position(new Date(now + i * 60000));
+                    if (!p) continue;
+                    lng = closeTo(p.lng, prev); prev = lng;
+                    next.push([p.lat, lng]);
+                }
+                pastLine.setLatLngs(past);
+                nextLine.setLatLngs(next);
+            }
+
+            function fmtCoord(v, pos, neg) {
+                return Math.abs(v).toFixed(2) + '\u00b0 ' + (v >= 0 ? pos : neg);
+            }
+
+            var lastTrack = 0;
+            function update(forceTrack) {
+                if (!satrec) return;
+                var now = Date.now();
+                var p = position(new Date(now));
+                if (!p) return;
+                shownLng = shownLng === null ? p.lng : closeTo(p.lng, shownLng);
+                marker.setLatLng([p.lat, shownLng]);
+                if (!map.hasLayer(marker)) marker.addTo(map);
+                if (forceTrack || now - lastTrack > 60000) { drawTrack(now); lastTrack = now; }
+                if (follow) map.setView([p.lat, shownLng], map.getZoom(), { animate: false });
+
+                var alt = imperial ? p.alt * KM_TO_MI : p.alt;
+                var vel = imperial ? p.vel * KM_TO_MI : p.vel;
+                document.getElementById('vAlt').textContent = Math.round(alt).toLocaleString('en-US') + (imperial ? ' mi' : ' km');
+                document.getElementById('vVel').textContent = Math.round(vel).toLocaleString('en-US') + (imperial ? ' mph' : ' km/h');
+                document.getElementById('vLat').textContent = fmtCoord(p.lat, 'N', 'S');
+                document.getElementById('vLng').textContent = fmtCoord(p.lng, 'E', 'W');
+            }
+
+            // One request for the ISS orbit (cached by the SatFleet Live Worker), refreshed every 6 hours
+            function loadOrbit() {
+                fetch(TLE_URL)
+                    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                    .then(function (data) {
+                        var obj = Array.isArray(data) ? data[0] : data;
+                        satrec = satellite.json2satrec(obj);
+                        document.getElementById('msg').style.display = 'none';
+                        update(true);
+                    })
+                    .catch(function () {
+                        if (!satrec) document.getElementById('msg').style.display = 'block';
+                    });
+            }
+
+            loadOrbit();
+            setInterval(loadOrbit, 6 * 3600 * 1000);
+            setInterval(function () { if (!document.hidden) update(false); }, 1000);
+        })();
+    </script>
+</body>
+</html>
