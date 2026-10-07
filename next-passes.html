@@ -797,7 +797,9 @@ body.light-mode {
   margin-bottom: calc(-1 * var(--sp-1));
 }
 
-.train-separator-icon { font-size: 1rem; }
+.train-separator-icon { display: inline-flex; color: var(--green); }
+.train-separator-icon svg { width: 16px; height: 16px; display: block; }
+.train-badge svg { width: 10px; height: 10px; display: block; }
 
 .train-separator-text {
   font-size: var(--text-xs);
@@ -887,6 +889,12 @@ body.light-mode {
   text-align: center;
   pointer-events: none;
 }
+
+/* Iconos SVG (sustituyen a los emojis) */
+#satfleet-toast .toast-icon { display: inline-flex; vertical-align: -3px; margin-right: 7px; }
+#satfleet-toast .toast-icon svg { width: 16px; height: 16px; }
+.ui-icon { display: inline-flex; vertical-align: -2px; margin-right: 5px; }
+.ui-icon svg { width: 14px; height: 14px; }
 
 #satfleet-toast.show {
   transform: translateX(-50%) translateY(0);
@@ -1080,15 +1088,16 @@ body.light-mode #aboutPanel-inner { color: rgba(0,0,0,0.65); }
         <select class="select-input" id="filterSelect" onchange="applyFilter()">
           <option value="relevant">Relevant satellites (default)</option>
           <option value="all" id="fOptAll">All satellites — slow</option>
-          <option value="gps" id="fOptGps">GPS Navigation</option>
-          <option value="iss" id="fOptIss">Space Stations</option>
+          <option value="starlink" id="fOptStarlink">Starlink — slow</option>
+          <option value="internet" id="fOptInternet">Other Internet (OneWeb, Kuiper...)</option>
           <option value="comm" id="fOptComm">Communications</option>
-          <option value="starlink" id="fOptStarlink">Starlink Internet — slow</option>
-          <option value="military" id="fOptMil">Military / Spy</option>
-          <option value="weather" id="fOptWea">Weather / Climate</option>
-          <option value="geo" id="fOptGeo">Geodetic Tracking</option>
-          <option value="tech" id="fOptTech">Technology Experimental</option>
-          <option value="misc" id="fOptMisc">Other Miscellaneous — slow</option>
+          <option value="gps" id="fOptGps">Navigation (GPS, Galileo...)</option>
+          <option value="geo" id="fOptGeo">Earth Observation</option>
+          <option value="weather" id="fOptWea">Weather</option>
+          <option value="military" id="fOptMil">Military</option>
+          <option value="iss" id="fOptIss">Space Stations</option>
+          <option value="tech" id="fOptTech">Science &amp; Tech</option>
+          <option value="misc" id="fOptMisc">Other — slow</option>
         </select>
       </div>
       <div class="control-group">
@@ -1239,9 +1248,45 @@ const notifState = {};
 const NOTIF_STORAGE_KEY = 'satfleet_scheduled_alerts';
 let toastTimer = null;
 
-function showToast(msg, duration = 4000) {
+// Iconos SVG en lugar de emojis (mismo estilo que el resto de iconos de la web)
+const UI_ICONS = {
+    bell:    '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+    bellOff: '<path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><path d="m1 1 22 22"/>',
+    check:   '<path d="M20 6 9 17l-5-5"/>',
+    alert:   '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/>',
+    phone:   '<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+    rocket:  '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+    clock:   '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    x:       '<path d="M18 6 6 18M6 6l12 12"/>',
+};
+function uiIcon(name) {
+    const p = UI_ICONS[name];
+    return p ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>` : '';
+}
+// Pone un icono + texto en una etiqueta (el texto se escribe como texto, no como HTML)
+function setIconLabel(el, icon, text) {
+    el.textContent = '';
+    if (icon) {
+        const i = document.createElement('span');
+        i.className = 'ui-icon';
+        i.innerHTML = uiIcon(icon);
+        el.appendChild(i);
+    }
+    el.appendChild(document.createTextNode(text));
+}
+
+// showToast(mensaje)  ·  showToast(mensaje, 'icono')  ·  showToast(mensaje, duración, 'icono')
+function showToast(msg, duration = 4000, icon = null) {
+    if (typeof duration === 'string') { icon = duration; duration = 4000; }
     const el = document.getElementById('satfleet-toast');
-    el.textContent = msg;
+    el.textContent = '';
+    if (icon) {
+        const i = document.createElement('span');
+        i.className = 'toast-icon';
+        i.innerHTML = uiIcon(icon);
+        el.appendChild(i);
+    }
+    el.appendChild(document.createTextNode(msg));
     el.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('show'), duration);
@@ -1272,13 +1317,13 @@ function updateNotifPermBtn() {
             ? Android.areNotificationsEnabled()
             : true; // apps viejas sin esta función — mejor asumir que sí, que no
         btn.className = activadas ? 'notif-header-btn granted' : 'notif-header-btn';
-        label.textContent = activadas ? '✅ Notifications On' : '🔕 Notifications Off';
+        setIconLabel(label, activadas ? 'check' : 'bellOff', activadas ? 'Notifications On' : 'Notifications Off');
         btn.title = activadas
             ? 'Launch alerts arrive automatically. Enable individual satellite pass alerts on each pass card.'
             : 'Enable notifications for SatFleet Live in your phone settings';
         btn.onclick = activadas
-            ? () => showToast('🚀 You\'ll get launch alerts automatically. Use "Notify me" on any pass for satellite alerts.')
-            : () => showToast('🔕 Notifications are off. Enable them in your phone\'s app settings.');
+            ? () => showToast('You\'ll get launch alerts automatically. Use "Notify me" on any pass for satellite alerts.', 'rocket')
+            : () => showToast('Notifications are off. Enable them in your phone\'s app settings.', 'bellOff');
         return;
     }
 
@@ -1291,27 +1336,27 @@ function updateNotifPermBtn() {
     btn.className = 'notif-header-btn';
     if (perm === 'granted' && isInstalled()) {
         btn.classList.add('granted');
-        label.textContent = '✅ Notifications On';
+        setIconLabel(label, 'check', 'Notifications On');
         btn.title = 'Launch alerts arrive automatically. Enable individual satellite pass alerts on each pass card.';
-        btn.onclick = () => showToast('🚀 You\'ll get launch alerts automatically. Use "Notify me" on any pass for satellite alerts.');
+        btn.onclick = () => showToast('You\'ll get launch alerts automatically. Use "Notify me" on any pass for satellite alerts.', 'rocket');
     } else if (perm === 'granted' && !isInstalled()) {
         // Tiene el permiso concedido, pero al no estar instalada, no le va a
         // llegar nada de verdad — se lo decimos claro, en vez de mentirle.
-        label.textContent = '📲 Install to Enable';
+        setIconLabel(label, 'phone', 'Install to Enable');
         btn.title = 'Install SatFleet Live to your home screen to receive notifications';
-        btn.onclick = () => showToast('📲 Add SatFleet Live to your home screen (browser menu → Install) to receive notifications.');
+        btn.onclick = () => showToast('Add SatFleet Live to your home screen (browser menu → Install) to receive notifications.', 'phone');
     } else if (perm === 'denied') {
         const userExplicitlyDenied = localStorage.getItem('notif_explicitly_denied');
         if (userExplicitlyDenied) {
             btn.classList.add('denied');
-            label.textContent = '🔕 Blocked';
+            setIconLabel(label, 'bellOff', 'Blocked');
             btn.onclick = null;
         } else {
-            label.textContent = '🔔 Enable Notifications';
+            setIconLabel(label, 'bell', 'Enable Notifications');
             btn.onclick = requestNotifPermission;
         }
     } else {
-        label.textContent = '🔔 Enable Notifications';
+        setIconLabel(label, 'bell', 'Enable Notifications');
         btn.onclick = requestNotifPermission;
     }
 }
@@ -1321,7 +1366,7 @@ async function requestNotifPermission() {
     // Premium solo bloquea el aviso de un pase concreto, más abajo en
     // toggleNotification(), no este primer paso.
     if (!('Notification' in window)) {
-        showToast('⚠️ Notifications not available in this app');
+        showToast('Notifications not available in this app', 'alert');
         const btn = document.getElementById('notifPermBtn');
         if (btn) btn.style.display = 'none';
         return;
@@ -1337,9 +1382,9 @@ async function requestNotifPermission() {
         if (typeof window.activarNotificacionesWeb === 'function') {
             window.activarNotificacionesWeb(); // también recibe avisos de lanzamientos, no solo pases
         }
-        showToast('🔔 Alerts enabled! Press "Notify me" on any pass.');
+        showToast('Alerts enabled! Press "Notify me" on any pass.', 'bell');
     } else if (result === 'denied') {
-        showToast('🔕 Blocked. Enable notifications in your browser settings.');
+        showToast('Blocked. Enable notifications in your browser settings.', 'bellOff');
     }
 }
 
@@ -1459,7 +1504,7 @@ window.cancelSavedAlert = async function(passId) {
     } catch (e) { console.warn('Cancel error:', e); }
     delete notifState[passId];
     forgetAlert(passId);
-    showToast('🔕 Alert cancelled for ' + a.satName);
+    showToast('Alert cancelled for ' + a.satName, 'bellOff');
 };
 
 // Repinta las campanitas encendidas después de cada render de la lista
@@ -1499,7 +1544,7 @@ async function toggleNotification(passId) {
     if (!pass) return;
 
     if (pass.startTime.getTime() <= Date.now()) {
-        showToast('⏱️ This pass has already started.');
+        showToast('This pass has already started.', 'clock');
         return;
     }
 
@@ -1516,7 +1561,7 @@ async function toggleNotification(passId) {
 
     // ════ Push real vía FCM — mismo camino para Android y navegador ════
     if (!('Notification' in window) && !isAndroidApp()) {
-        showToast('⚠️ Notifications not available in this browser');
+        showToast('Notifications not available in this browser', 'alert');
         return;
     }
     if (!isAndroidApp() && Notification.permission !== 'granted') {
@@ -1541,7 +1586,7 @@ async function toggleNotification(passId) {
                 }),
             });
             if (res.status === 403) {
-                showToast("⚠️ Session expired. Please open the 'Account' menu to refresh.");
+                showToast("Session expired. Please open the 'Account' menu to refresh.", 'alert');
                 return;
             }
         } catch(e) { console.warn('Cancel error:', e); }
@@ -1549,18 +1594,18 @@ async function toggleNotification(passId) {
         forgetAlert(passId);
         updateToggleBtn(passId, false);
         removePills(passId);
-        showToast('🔕 Alert cancelled for ' + pass.satellite.name);
+        showToast('Alert cancelled for ' + pass.satellite.name, 'bellOff');
         return;
     }
 
     if (!isInstalled()) {
-        showToast('📲 Please install SatFleet Live to your home screen first to enable alerts.');
+        showToast('Please install SatFleet Live to your home screen first to enable alerts.', 'phone');
         return;
     }
 
     const token = await getDeviceToken();
     if (!token) {
-        showToast('⚠️ Could not get a notification token. Try again in a moment.');
+        showToast('Could not get a notification token. Try again in a moment.', 'alert');
         return;
     }
 
@@ -1585,8 +1630,25 @@ async function toggleNotification(passId) {
         });
 
         if (res.status === 403) {
-            showToast("⚠️ Session expired. Please open the 'Account' menu to refresh.");
+            showToast("Session expired. Please open the 'Account' menu to refresh.", 'alert');
             return;
+        }
+
+        // Límites de avisos (los pone el worker)
+        if (res.status === 429 || res.status === 400) {
+            const info = await res.json().catch(() => ({}));
+            if (info.error === 'active_limit') {
+                showToast(`You can have up to ${info.limit} active alerts. Cancel one to add another.`, 'alert');
+                return;
+            }
+            if (info.error === 'daily_limit') {
+                showToast(`You have reached today's limit of ${info.limit} new alerts. Try again tomorrow.`, 'alert');
+                return;
+            }
+            if (info.error === 'too_far') {
+                showToast('Alerts can only be set for passes in the next 7 days.', 'alert');
+                return;
+            }
         }
 
         const data = await res.json();
@@ -1603,11 +1665,11 @@ async function toggleNotification(passId) {
         saveAlert(passId, pass);
         updateToggleBtn(passId, true);
         renderPills(passId, fakeTimers);
-        showToast(`🔔 Push alert set! You'll be notified before ${pass.satellite.name} passes.`);
+        showToast(`Push alert set! You'll be notified before ${pass.satellite.name} passes.`, 'bell');
 
     } catch(err) {
         console.error('Notify pass error:', err);
-        showToast('❌ Could not schedule alert. Check your connection.');
+        showToast('Could not schedule alert. Check your connection.', 'x');
     }
 }
 
@@ -1697,14 +1759,14 @@ function removePills(passId) {
                 };
                 localStorage.setItem('userLocation', JSON.stringify(userLocation));
                 updateLocationInfo();
-                console.log('✅ GPS obtenido en Next Passes:', userLocation);
+                console.log('GPS obtenido en Next Passes:', userLocation);
             },
             (error) => {
                 if (!userLocation) {
                     userLocation = { lat: 40.4168, lng: -3.7038 };
                     updateLocationInfo();
                 }
-                console.warn('⚠️ GPS no disponible:', error.message);
+                console.warn('GPS no disponible:', error.message);
             },
             { timeout: 8000, maximumAge: 60000, enableHighAccuracy: false }
         );
@@ -1845,7 +1907,7 @@ function confirmLocation() {
     // Reset de pases ya calculados
     calculatedPasses = [];
     document.getElementById('passesContainer').innerHTML = '';
-    console.log('📍 Ubicación manual seleccionada:', userLocation);
+    console.log('Ubicación manual seleccionada:', userLocation);
 }
 
 function useMyGPS() {
@@ -1895,10 +1957,20 @@ function closeLocationPicker() {
             const satellites = [];
             for (const obj of gpData) {
                 try {
-                    const satrec = satellite.json2satrec(obj);
                     const name = obj.OBJECT_NAME;
+                    // La ISS y la estación china vienen repetidas, una vez por cada
+                    // módulo (mismo sitio, misma órbita). Nos quedamos con una de cada.
+                    if (STATION_DUPLICATE_MODULE.test(String(name).toUpperCase())) continue;
+                    const satrec = satellite.json2satrec(obj);
                     const noradId = obj.NORAD_CAT_ID.toString();
-                    satellites.push({ name, noradId, satrec });
+                    const type = getSatelliteType(name);
+                    // Código del lanzamiento (p. ej. "2026-225"): los trenes de Starlink
+                    // son satélites de un MISMO lanzamiento viajando juntos.
+                    const launchId = String(obj.OBJECT_ID || '').slice(0, 8);
+                    // Tamaño de radar del catálogo (SMALL / MEDIUM / LARGE): sirve para
+                    // estimar el brillo de los satélites sin un valor medido propio
+                    const rcs = obj.RCS_SIZE || null;
+                    satellites.push({ name, noradId, satrec, type, launchId, rcs });
                 } catch (err) {
                     console.warn(`Could not parse satellite ${obj.OBJECT_NAME}`);
                 }
@@ -1906,51 +1978,100 @@ function closeLocationPicker() {
             return satellites;
         }
 
-        // Filtrar satélites relevantes (no Starlink ni basura espacial)
-// Función helper para clasificar satélites
-function getSatelliteType(name) {
-    const n = (name || '').toLowerCase().trim();
-    const has = (kw) => n.includes(kw);
-    const any = (...kws) => kws.some(has);
-    const word = (re) => re.test(n);
+// ===== CLASIFICACIÓN DE SATÉLITES POR NOMBRE =====
+// COPIA EXACTA de las reglas del mapa (SAT_TYPE_RULES en index.html) y del
+// worker (SAT_TYPE_RULES_STATS). Si cambias unas, cambia también las otras.
+// Se mira el nombre de arriba abajo y gana la PRIMERA regla que encaje.
+/** @type {Array<[string, RegExp]>} */
+const SAT_TYPE_RULES = [
+    // 1. Space Stations: estaciones, sus módulos y las naves que las visitan
+    ['iss', /^(?:ISS|CSS) \(|^(?:TIANGONG|CREW DRAGON|DRAGON|CYGNUS|PROGRESS[ -]?MS|SOYUZ[ -]?MS|SHENZHOU|TIANZHOU|STARLINER|HTV|DREAM CHASER)(?![A-Z])/],
 
-    if (any('gps', 'navstar', 'galileo', 'glonass', 'beidou', 'navic', 'irnss') || word(/\bgsat0?\d{2}\b/)) return 'gps';
-    if (any('iss', 'zarya', 'space station', 'tiangong', 'progress', 'soyuz', 'dragon', 'cygnus')) return 'iss';
-    if (any('starlink', 'oneweb', 'kuiper')) return 'starlink';
-    if (any('yaogan', 'nro', 'spy', 'military', 'classified', 'cosmos', 'usa-', 'nrol')) return 'military';
-    if (any('intelsat', 'eutelsat', 'ses', 'astra', 'telecom', 'viasat', 'iridium', 'globalstar', 'orbcomm')) return 'comm';
-    if (any('noaa', 'goes', 'metop', 'himawari', 'weather', 'meteo', 'meteor', 'fengyun')) return 'weather';
-    if (any('landsat', 'spot', 'sentinel', 'worldview', 'terrasar', 'radarsat', 'grace', 'lageos')) return 'geo';
-    if (any('demo', 'test', 'tech', 'cubesat', 'experiment', 'proba')) return 'tech';
-    return 'misc';
+    // 2. Starlink, sola
+    ['starlink', /^STARLINK(?![A-Z])/],
+
+    // 3. Other Internet: el resto de megaconstelaciones de internet
+    ['internet', /^(?:ONEWEB|KUIPER|QIANFAN|HULIANWANG|GUOWANG|O3B|RASSVET|SPACEMOBILE|BLUEBIRD|BLUEWALKER|LYNK|LIGHTSPEED|HONGYAN|XINGWANG)/],
+
+    // 4. Navigation: GPS, GLONASS, Galileo, BeiDou, QZSS, NavIC...
+    ['gps', /^(?:NAVSTAR|GPS|GALILEO|GSAT0\d{3}|BEIDOU|BD-\d|IRNSS|NVS-\d|QZS|MICHIBIKI|CENTISPACE|LEONAV)(?![A-Z])|\bGLONASS\b/],
+
+    // 5. Military (antes, los COSMOS de geodesia rusos se mandan a Earth Observation)
+    ['geo', /\((?:ETALON|GEO-IK)/],
+    ['military', /^(?:YAOGAN|USA \d|NROL|TJS|SBIRS|WGS|AEHF|MUOS|DMSP|SDA_|PRAETORIAN|SPAINSAT|SYRACUSE|SKYNET|MILSTAR|DSCS|UFO|FLTSATCOM|MERIDIAN|OPS \d|SBSS|HELIOS|CSO|SAR-LUPE|SARAH|OFEQ|OFEK|IGS|STARSHIELD|GJZ|LUCH|BLACKJACK|HBTSS|SAPPHIRE|KONDOR|LOTOS|PION|BARS-M|RAZDAN|NEMO-AM|COSMOS \d+|KOSMOS \d+)(?![A-Z])|\(USA \d/],
+
+    // 6. Weather: meteorología y clima
+    ['weather', /^(?:NOAA|GOES|METOP|METEOSAT|MTG|MSG|HIMAWARI|FENGYUN|FY|METEOR|ELEKTRO|ARKTIKA|ARCTIC|JPSS|SUOMI|NPP|TIANMU|YUNHAI|YUNYAO|AQUA|TERRA|AURA|GPM|SMOS|SMAP|OCO|GOSAT|GCOM|CLOUDSAT|CALIPSO|EARTHCARE|SCATSAT|OCEANSAT|LEMUR|FORMOSAT-?7|FORMOSAT7|COSMIC|TEMPEST|TROPICS|INSAT-3D|GEO-KOMPSAT-2A|DSCOVR|CYGFM|PREFIRE|PACE|DAQI|SEAHAWK|EWS)(?![A-Z])/],
+
+    // 7. Earth Observation: fotos, radar, cartografía y geodesia
+    ['geo', /^(?:SENTINEL|LANDSAT|SPOT|PLEIADES|PNEO|WORLDVIEW|GEOEYE|CARTOSAT|RESOURCESAT|RISAT|EOS|EOSSAT|KOMPSAT|KANOPUS|RESURS|GAOFEN|JILIN|SUPERVIEW|ZY|ZIYUAN|HJ|HAIYANG|TIANHUI|FLOCK|SKYSAT|PELICAN|TANAGER|ICEYE|CAPELLA|UMBRA|STRIX|QPS|IRIDE|NUSAT|GRUS|DMC|ALSAT|LEGION|BLACKSKY|HAWK|BRO|GHGSAT|COSMO|CSG|TERRASAR|TANDEM|TDX|PAZ|INGENIO|RADARSAT|RCM|SAOCOM|NISAR|ALOS|GRACE|LAGEOS|LARES|LARETS|STARLETTE|STELLA|AJISAI|ETALON|JASON|SWOT|CRYOSAT|ICESAT|SARAL|AMAZONIA|CBERS|DEIMOS|DUBAISAT|KHALIFASAT|PIESAT|ZHUHAI|WILDFIRE|FIRESAT|NOVASAR|SAUDISAT|SAUDIGEOSAT|CAS500|AAC-HSI|PRISMA|ENMAP|BIROS|HYSIS|SDGSAT|THEOS|RASAT|GOKTURK|IMECE|PERUSAT|VRSS|VNREDSAT|KAZEOSAT|NIGERIASAT|LAPAN|HYPSO|ASNARO|CO3D|LT-1|BIOMASS|EGS|SARI|TIRSAT|HYPERION|CARBSAR|EMISAR|LASARSAT|SARAMAGO|CESARIO|COLIBRI|DRAGRACER|MONOLITH|PULSAR|CORIOLIS|EGYPTSAT|EMISAT|LUOJIA|KUWAITSAT|TELEOS|GEISAT|DRISHTI|HYPERFIELD|SATELLOGIC|NEONSAT|SPACEEYE|OPTISAT|EROS|DIWATA|MOHAMMED|MAROC|SSOT|ALISIO|BUCCANEER|SAR|SKYMED|GLOBAL|FORMOSAT)(?![A-Z])/],
+
+    // 8. Communications: televisión, teléfono, datos, repetidores e IoT
+    ['comm', /^(?:INTELSAT|IS|SES|ASTRA|EUTELSAT|EUTE|HOT ?BIRD|HISPASAT|AMAZONAS|INMARSAT|VIASAT|ECHOSTAR|DIRECTV|SIRIUS|XM|GALAXY|TELSTAR|ANIK|NIMIQ|AMC|CIEL|CHINASAT|ZHONGXING|APSTAR|ASIASAT|ASIASTAR|JCSAT|SUPERBIRD|BSAT|KOREASAT|THAICOM|IPSTAR|MEASAT|OPTUS|YAMAL|EXPRESS|EKSPRESS|GONETS|RADUGA|ARABSAT|BADR|NILESAT|YAHSAT|AL YAH|THURAYA|TURKSAT|AMOS|HELLAS|AZERSPACE|BELINTERSAT|ABS|NSS|STAR ?ONE|TDRS|TIANLIAN|TIANTONG|IRIDIUM|GLOBALSTAR|ORBCOMM|SWARM|SPACEBEE|KINEIS|TIANQI|ASTROCAST|SATELIOT|CONNECTA|GEESAT|SAUDICOMSAT|COMSATBW|ALCOMSAT|NIGCOMSAT|PAKSAT|RASCOM|QUETZSAT|JUPITER|ASTRANIS|GSAT|INSAT|CMS|TELKOM|NUSANTARA|BRISAT|KACIFIC|ES'HAIL|SKY|HORIZONS|EDRS|SKYTERRA|TERRESTAR|APRIZESAT|AAC-AIS|MEXSAT|MORELOS|SATMEX|ARSAT|SGDC|VINASAT|LAOSAT|KAZSAT|ANGOSAT|TURKMENALEM|BULGARIASAT|GHANASAT|OMNI|KORSAT|SATRIA|NBN|SXM|THOR|HYLAS|ECHO|WILDBLUE|ALPHASAT|AT&T|NORSAT|EXACTVIEW|FOSSASAT|OVZON|BANGABANDHUSAT|DJIBOUTI|AGILA|STRELA|RODNIK|YUBILEINY|MOLNIYA|MERIDIAN-M|BLAGOVEST|EUTELSAT|KA-SAT|SICRAL|ATHENA-FIDUS|TIBA|NILESAT|ETIHAD|MBZ|SCD|LINGQIAO|WNISAT)(?![A-Z])/],
+
+    // 9. Science & Tech: telescopios, ciencia, pruebas tecnológicas, remolcadores, radioaficionados y cubesats
+    ['tech', /^(?:HST|HUBBLE|CXO|SWIFT|FERMI|NUSTAR|TESS|XMM|INTEGRAL|AGILE|IXPE|ICON|MMS|THEMIS|CLUSTER|PUNCH|TIMED|SDO|IRIS|HINODE|SPEKTR|GAIA|ASTROSAT|HXMT|EINSTEIN|SVOM|XRISM|XPOSAT|SPHEREX|NEOSSAT|MOST|SCISAT|SORCE|SWAS|IMAGE|ARASE|DAMPE|ZHANGHENG|TRACERS|EZIE|BRITE|CALSPHERE|LCS|TEMPSAT|SURCAL|SHIYAN|SHIJIAN|SJ|SY|ION|SHERPA|VIGORIDE|MEV|OTV|DISKSAT|STARLING|PATHFINDER|TIANPING|IONOSFERA|AEROCUBE|TECHSAT|TECHNOSAT|PROBA|OSCAR|AO|FO|CAS|XW|FOX|FUNCUBE|LILACSAT|CUBESAT|CUTE|CANX|POLYTECH|CHUANG XIN|CX|PROX|MINXSS|SIRION|AISTECHSAT|ITAMSAT|RADIO|KX|HAMMER|CHAMRAN|DEMO|PAYLOAD|STARS|CUBY|NETSAT|LKW|KSM|VSP|HEAD|BB|RAPTOR|HERMES|AETHER|TOMORROW|GNOMES|CENTAURI|SKYCRAFT|SKYKRAFT|MISR|MISRSAT|NINGXIA|CASSIOPE|SZ|ETV|SWISSCUBE|AISSAT|O\/OREOS|FASTSAT|RIGIDSPHERE|WFOV|MERCURY|SATNOGS|STPSAT|STP|SPAWAR|TYVAK|YAM|TACSAT|MANDRAKE|JACKAL|RAISE|DSX|S-NET|TEN-KOH|NANOSAT|QB50P|UNISAT|FALCONSAT|ZHEDA|XIWANG|HODOYOSHI|POPACS|GRBALPHA|BEESAT|UWE|ESTCUBE|NAYIF|LUCAS|DB|OTB|OTTER|OT-FOREST|IOD|FGN|PRC)(?![A-Z])/],
+];
+
+const satTypeCache = new Map();
+function getSatelliteType(name) {
+    const n = (name || '').toUpperCase().trim();
+    let type = satTypeCache.get(n);
+    if (type) return type;
+    type = 'misc';
+    for (const [t, re] of SAT_TYPE_RULES) {
+        if (re.test(n)) { type = t; break; }
+    }
+    satTypeCache.set(n, type);
+    return type;
 }
 
+// Módulos repetidos de las estaciones: se queda solo ISS (ZARYA) y CSS (TIANHE-1)
+const STATION_DUPLICATE_MODULE = /^ISS \((?!ZARYA\))|^CSS \((?!TIANHE)/;
+
 // Filtrar satélites según categoría seleccionada
+// ===== "RELEVANT" (lista por defecto, y la única de los usuarios Free) =====
+// Satélites que se pueden ver a simple vista y que la gente conoce:
+//  - Solo órbita baja: los de GPS o los geoestacionarios están demasiado lejos para verse.
+//  - Sin megaconstelaciones de internet (Starlink, OneWeb, Kuiper...).
+//  - Primero los grandes y famosos (lista de abajo), luego el resto por tipo.
+// calculatePasses calcula los 500 primeros de esta lista.
+const RELEVANT_TIERS = [
+    // 1. Estaciones espaciales, sus naves y el Hubble
+    /^(?:ISS|CSS|TIANGONG|HST|HUBBLE|CREW DRAGON|DRAGON|CYGNUS|PROGRESS|SOYUZ|SHENZHOU|TIANZHOU|STARLINER|HTV)(?![A-Z])/,
+    // 2. Grandes satélites civiles conocidos: meteorología, observación, ciencia, telefonía
+    /^(?:NOAA|METOP|FENGYUN|FY|METEOR|TERRA|AQUA|AURA|SUOMI|NPP|JPSS|GPM|SMAP|CALIPSO|CLOUDSAT|OCO|LANDSAT|SENTINEL|ALOS|RADARSAT|RCM|COSMO|CSG|TERRASAR|TANDEM|PAZ|SAOCOM|CRYOSAT|ICESAT|GOSAT|GCOM|CARTOSAT|RESURS|KANOPUS|GAOFEN|SPOT|PLEIADES|WORLDVIEW|KOMPSAT|SWIFT|FERMI|NUSTAR|IRIDIUM|GLOBALSTAR)(?![A-Z])/,
+    // 3. Grandes satélites militares conocidos
+    /^(?:YAOGAN|COSMOS|USA|SHIJIAN|TIANHUI|IGS|HELIOS|CSO|OFEQ)(?![A-Z])/,
+];
+const RELEVANT_TYPE_ORDER = { iss: 0, weather: 1, geo: 2, military: 3, comm: 4, tech: 5, misc: 6 };
+
+function isLowEarthOrbit(sat) {
+    const revsPerDay = sat.satrec.no * 1440 / (2 * Math.PI);   // vueltas al día
+    return revsPerDay >= 11.25 && sat.satrec.ecco < 0.1;      // por debajo de ~2.000 km y casi circular
+}
+
+function getRelevantSatellites() {
+    const rank = s => {
+        const n = s.name.toUpperCase();
+        let tier = RELEVANT_TIERS.findIndex(re => re.test(n));
+        if (tier < 0) tier = RELEVANT_TIERS.length;              // el resto, después
+        return tier * 10 + (RELEVANT_TYPE_ORDER[s.type] ?? 9);
+    };
+    return allSatellites
+        .filter(s => s.type !== 'starlink' && s.type !== 'internet' && isLowEarthOrbit(s))
+        .sort((a, b) => rank(a) - rank(b) || Number(a.noradId) - Number(b.noradId));
+}
+
 function getFilteredSatellites() {
     const filterType = document.getElementById('filterSelect').value;
     
     if (filterType === 'all') {
-        console.log('⚠️ Calculating ALL satellites - this may take a while...');
+        console.log('Calculating ALL satellites - this may take a while...');
         return allSatellites;
     }
     
-    if (filterType === 'relevant') {
-        return allSatellites.filter(sat => {
-            const name = sat.name.toLowerCase();
-            if (name.includes('starlink')) return false;
-            if (name.includes('oneweb')) return false;
-            if (name.includes('debris')) return false;
-            if (name.includes('rocket body')) return false;
-            
-            return (
-                name.includes('iss') || name.includes('hubble') || name.includes('tiangong') ||
-                name.includes('gps') || name.includes('galileo') || name.includes('glonass') ||
-                name.includes('iridium') || name.includes('cosmos') || name.includes('yaogan') ||
-                name.includes('noaa') || name.includes('goes') || name.includes('metop') ||
-                name.includes('landsat') || name.includes('sentinel') || sat.name.length < 30
-            );
-        });
-    }
+    if (filterType === 'relevant') return getRelevantSatellites();
     
     // Filtrar por tipo específico
     return allSatellites.filter(sat => getSatelliteType(sat.name) === filterType);
@@ -1990,7 +2111,7 @@ function applyFilter() {
             // Filter: show badge, disable all non-relevant options
             const filterTag = document.getElementById('filterPremiumTag');
             if (filterTag) filterTag.classList.add('show');
-            const premiumFilterIds = ['fOptAll','fOptGps','fOptIss','fOptComm','fOptStarlink','fOptMil','fOptWea','fOptGeo','fOptTech','fOptMisc'];
+            const premiumFilterIds = ['fOptAll','fOptGps','fOptIss','fOptComm','fOptStarlink','fOptInternet','fOptMil','fOptWea','fOptGeo','fOptTech','fOptMisc'];
             premiumFilterIds.forEach(id => {
                 const opt = document.getElementById(id);
                 if (opt) { opt.disabled = true; opt.text += ' — Premium'; }
@@ -2053,6 +2174,12 @@ function applyFilter() {
                 }
             }
             
+            // Trenes de Starlink y brillo: se marcan los trenes (que brillan más)
+            // y se quitan los pases que no se pueden ver a simple vista con el
+            // cielo que habrá en ese momento.
+            markStarlinkTrains(calculatedPasses);
+            calculatedPasses = calculatedPasses.filter(p => p.visibilityMargin >= 0);
+
             console.log(`Found ${calculatedPasses.length} visible passes`);
             sortAndDisplayPasses();
             loading.classList.remove('active');
@@ -2152,13 +2279,12 @@ function applyFilter() {
                 passData.maxElevation = bestElev;
                 passData.maxElevationTime = bestTime;
 
-                // Obtener posición ECI en el pico para brillo real
-                let peakEci = null;
-                try {
-                    const peakPv = window.satellite.propagate(satellite.satrec, bestTime);
-                    if (peakPv && peakPv.position) peakEci = peakPv.position;
-                } catch(e) {}
-                passData.brightness = estimateBrightness(satellite.name, bestElev, bestTime, peakEci);
+                // Brillo: se recorre el pase entero y se guarda el momento más brillante,
+                // y el margen frente a lo oscuro que está el cielo en cada momento
+                // (en pleno crepúsculo solo se ven los satélites brillantes).
+                const pb = passBrightness(satellite, passData.startTime, passData.endTime);
+                passData.brightness = pb.magnitude;
+                passData.visibilityMargin = pb.margin;
 
                 // Azimuth en el pico para dirección en 3 puntos
                 const peakPos = getSatellitePosition(satellite, bestTime);
@@ -2347,64 +2473,106 @@ function calculateSunPositionECI(date) {
             return { elevation, azimuth };
         }
 
-        function estimateBrightness(satName, elevation, time, satPositionEci) {
-    const name = satName.toLowerCase();
+        // ===== BRILLO (magnitud) =====
+        // Recordatorio: cuanto MÁS NEGATIVO, MÁS BRILLANTE (Venus ≈ -4; a simple
+        // vista se llega a +4 en ciudad y a +6 en un cielo muy oscuro).
+        //
+        // Modelo estándar de la observación de satélites (el de Heavens-Above,
+        // CalSky o los programas de Mike McCants):
+        //   magnitud = magnitud estándar del satélite
+        //            + 5·log10(distancia / 1000 km)          → más lejos, más débil
+        //            − 2.5·log10(sen φ + (π − φ)·cos φ)      → ángulo de la luz (fase)
+        //            + extinción atmosférica                  → más aire cerca del horizonte
+        // La magnitud estándar es su brillo a 1.000 km con la luz de lado (φ = 90°).
+        // φ es el ángulo Sol–satélite–observador: con φ pequeño ves la cara
+        // iluminada de frente (como la Luna llena); cerca de 180° la ves a contraluz.
 
-    // Magnitud estándar intrínseca por tipo de satélite
-    // (magnitud a 1000km de distancia, iluminación óptima)
-    // stdMag = magnitud intrínseca estándar (referencia a 1000 km, fase óptima)
-    // Valores calibrados para que con distanceCorrection den resultados realistas
-    let stdMag;
-    if (name.includes('iss'))            stdMag = -3.5; // A ~400km pasa a ~-3.5 → correcto
-    else if (name.includes('tiangong'))  stdMag = -2.5;
-    else if (name.includes('hubble'))    stdMag =  0.5;
-    else if (name.includes('iridium'))   stdMag = -1.5; // flares históricos ~mag -8, sin flare ~+5
-    else if (name.includes('starlink'))  stdMag =  2.5;
-    else if (name.includes('oneweb'))    stdMag =  3.0;
-    else if (name.includes('cosmos'))    stdMag =  2.0;
-    else if (name.includes('noaa') || name.includes('metop')) stdMag = 2.5;
-    else                                 stdMag =  3.0;
+        // Satélites con brillo medido (magnitud estándar)
+        const STD_MAG_RULES = [
+            [/^ISS \(/,              -1.8], // valor clásico (CalSky da -2.0); máximo real ~-4 en los mejores pases
+            [/^(CSS \(|TIANGONG)/,    0.2], // estación china: calibrado para un máximo de ~-2,5
+            [/^(HST|HUBBLE)\b/,       2.8], // Hubble: calibrado para un máximo de ~+0,5 a +1
+            [/^STARLINK/,             6.0], // Starlink en su capa (Mallama: 5,9 los primeros, 7,2 con visera)
+            [/^ONEWEB/,               7.1], // OneWeb (Mallama: 7,05 a 7,18)
+        ];
+        // El resto, según su tamaño de radar en el catálogo de Space-Track
+        // (estimación: a más superficie, más luz reflejada)
+        const STD_MAG_BY_SIZE = { LARGE: 4.0, MEDIUM: 5.5, SMALL: 7.0 };
+        const STD_MAG_UNKNOWN = 5.5;
+        const EXTINCTION_PER_AIRMASS = 0.25; // magnitudes que se pierden por cada "capa" extra de aire
 
-    // Calcular distancia real observador→satélite en km
-    // Usamos la posición ECI si está disponible, si no aproximamos por elevación
-    let rangKm;
-    if (satPositionEci) {
-        // Posición del observador en ECI (aproximación esférica)
-        const earthRadius = 6371;
-        const latRad = userLocation.lat * Math.PI / 180;
-        const lngRad = userLocation.lng * Math.PI / 180;
-        const gmst = window.satellite.gstime(time);
-        const lngEci = lngRad + gmst;
-        const obsX = earthRadius * Math.cos(latRad) * Math.cos(lngEci);
-        const obsY = earthRadius * Math.cos(latRad) * Math.sin(lngEci);
-        const obsZ = earthRadius * Math.sin(latRad);
-        const dx = satPositionEci.x - obsX;
-        const dy = satPositionEci.y - obsY;
-        const dz = satPositionEci.z - obsZ;
-        rangKm = Math.sqrt(dx*dx + dy*dy + dz*dz);
-    } else {
-        // Fallback geométrico por elevación (fórmula estándar)
-        const earthRadius = 6371;
-        const satAltKm = 400; // altura típica LEO
-        const elevRad = elevation * Math.PI / 180;
-        rangKm = Math.sqrt(
-            Math.pow(earthRadius + satAltKm, 2) -
-            Math.pow(earthRadius * Math.cos(elevRad), 2)
-        ) - earthRadius * Math.sin(elevRad);
-    }
+        function standardMagnitude(sat) {
+            const n = sat.name.toUpperCase();
+            for (const [re, m] of STD_MAG_RULES) if (re.test(n)) return m;
+            return STD_MAG_BY_SIZE[sat.rcs] ?? STD_MAG_UNKNOWN;
+        }
 
-    // Corrección por distancia: cada vez que doblas la distancia, +1.5 mag
-    // Referencia a 1000 km
-    const distanceCorrection = 5 * Math.log10(rangKm / 1000);
+        // Lo más débil que se ve a simple vista según lo oscuro que esté el cielo
+        // (altura del Sol bajo el horizonte). Para cielos de ciudad hay que restar algo.
+        function skyLimitingMagnitude(sunElevation) {
+            if (sunElevation > -6)  return 3.5; // crepúsculo civil: cielo todavía claro
+            if (sunElevation > -9)  return 4.5;
+            if (sunElevation > -12) return 5.5;
+            return 6.0;                         // noche cerrada
+        }
 
-    // Corrección atmosférica por elevación (extinción)
-    // A 90° no hay corrección, a 10° se pierde ~0.8 magnitudes
-    const elevRad = elevation * Math.PI / 180;
-    const airmass = Math.min(1 / Math.sin(elevRad), 10); // tope a airmass=10 (~5.7°)
-    const atmosphericCorrection = 0.25 * (airmass - 1);
+        // Posición del observador en el mismo sistema que el satélite (ECI, km)
+        function observerEci(time, gmst) {
+            const lat = userLocation.lat * Math.PI / 180;
+            const lng = userLocation.lng * Math.PI / 180;
+            const S = window.satellite;
+            if (typeof S.geodeticToEcf === 'function' && typeof S.ecfToEci === 'function') {
+                return S.ecfToEci(S.geodeticToEcf({ latitude: lat, longitude: lng, height: 0 }), gmst);
+            }
+            const R = 6371, l = lng + gmst;   // aproximación esférica (versiones viejas de satellite.js)
+            return { x: R * Math.cos(lat) * Math.cos(l), y: R * Math.cos(lat) * Math.sin(l), z: R * Math.sin(lat) };
+        }
 
-    return stdMag + distanceCorrection + atmosphericCorrection;
-}
+        // Brillo del satélite en un instante concreto
+        function brightnessAt(sat, time) {
+            try {
+                const pv = window.satellite.propagate(sat.satrec, time);
+                if (!pv || !pv.position) return null;
+                const gmst = window.satellite.gstime(time);
+                const geo = window.satellite.eciToGeodetic(pv.position, gmst);
+                const look = calculateAzElev(userLocation.lat, userLocation.lng,
+                    window.satellite.degreesLat(geo.latitude), window.satellite.degreesLong(geo.longitude), geo.height);
+                if (!(look.elevation > 0)) return null;
+
+                const s = pv.position, o = observerEci(time, gmst), sun = calculateSunPositionECI(time);
+                const toObs = { x: o.x - s.x, y: o.y - s.y, z: o.z - s.z };
+                const toSun = { x: sun.x - s.x, y: sun.y - s.y, z: sun.z - s.z };
+                const range = Math.hypot(toObs.x, toObs.y, toObs.z);
+                const cosPhase = (toObs.x * toSun.x + toObs.y * toSun.y + toObs.z * toSun.z) /
+                                 (range * Math.hypot(toSun.x, toSun.y, toSun.z));
+                const phase = Math.acos(Math.max(-1, Math.min(1, cosPhase)));
+                const phaseFactor = Math.sin(phase) + (Math.PI - phase) * Math.cos(phase);
+                if (phaseFactor < 1e-4) return { magnitude: 99, sunElevation: 0 }; // a contraluz total
+
+                const airmass = Math.min(1 / Math.sin(look.elevation * Math.PI / 180), 10);
+                const magnitude = standardMagnitude(sat)
+                    + 5 * Math.log10(range / 1000)
+                    - 2.5 * Math.log10(phaseFactor)
+                    + EXTINCTION_PER_AIRMASS * (airmass - 1);
+                const sunElevation = calculateSunPosition(time, userLocation.lat, userLocation.lng).elevation;
+                return { magnitude, sunElevation };
+            } catch (e) { return null; }
+        }
+
+        // Recorre el pase entero: brillo máximo y margen de visibilidad
+        // (margen > 0: en algún momento brilla más de lo que el cielo deja ver)
+        function passBrightness(sat, start, end) {
+            const t0 = start.getTime(), t1 = end.getTime();
+            const step = Math.max(20 * 1000, (t1 - t0) / 30);
+            let magnitude = 99, margin = -99;
+            for (let t = t0; t <= t1 + 1; t += step) {
+                const b = brightnessAt(sat, new Date(Math.min(t, t1)));
+                if (!b) continue;
+                if (b.magnitude < magnitude) magnitude = b.magnitude;
+                margin = Math.max(margin, skyLimitingMagnitude(b.sunElevation) - b.magnitude);
+            }
+            return { magnitude, margin };
+        }
 
         function getBrightnessClass(magnitude) {
             if (magnitude < 0) return 'very-bright';
@@ -2441,50 +2609,90 @@ function calculateSunPositionECI(date) {
             displayPasses();
         }
 
+        // ===== TRENES DE STARLINK =====
+        // Un tren de verdad = satélites de un MISMO lanzamiento pasando uno detrás
+        // de otro, muy juntos en el espacio. Antes bastaba con que fueran
+        // Starlink y pasaran por la misma zona en 10 minutos, y con más de 11.000
+        // Starlink en órbita salían "trenes" imposibles de 200 satélites.
+        const TRAIN_MAX_GAP_MS       = 120 * 1000; // máximo entre un satélite y el siguiente
+        const TRAIN_MIN_SATS         = 3;         // mínimo de satélites para llamarlo tren
+        const TRAIN_BRIGHTNESS_BOOST = 1.5;       // los trenes recién lanzados brillan más (magnitudes):
+                                                  // van con los paneles de cara, sin la orientación que los oscurece
+
+        // ¿Van juntos en el espacio? Se miran los dos satélites en el mismo instante:
+        // tienen que estar muy cerca (menos de ~4°, unos 450 km) y en la misma
+        // órbita (planos casi iguales). En un tren de verdad van uno detrás de otro;
+        // los Starlink ya colocados en su capa están separados unos 16° como mínimo.
+        // Además tienen que ir todavía bajos (recién lanzados, subiendo a su capa).
+        const TRAIN_MAX_SEPARATION_DEG = 4;
+        const TRAIN_MAX_PLANE_DIFF_DEG = 1.5;
+        const TRAIN_MAX_ALTITUDE_KM    = 420; // por encima ya están (casi) en su capa: no es un tren
+        function flyingTogether(passA, passB) {
+            try {
+                const t = passA.maxElevationTime || passA.startTime;
+                const a = window.satellite.propagate(passA.satellite.satrec, t);
+                const b = window.satellite.propagate(passB.satellite.satrec, t);
+                if (!a || !b || !a.position || !b.position || !a.velocity || !b.velocity) return false;
+                const ang = (u, v) => {
+                    const dot = u.x * v.x + u.y * v.y + u.z * v.z;
+                    const nu = Math.hypot(u.x, u.y, u.z), nv = Math.hypot(v.x, v.y, v.z);
+                    return Math.acos(Math.max(-1, Math.min(1, dot / (nu * nv)))) * 180 / Math.PI;
+                };
+                const cross = (r, v) => ({ x: r.y * v.z - r.z * v.y, y: r.z * v.x - r.x * v.z, z: r.x * v.y - r.y * v.x });
+                // Los trenes visibles son satélites recién lanzados, todavía bajos
+                const altA = Math.hypot(a.position.x, a.position.y, a.position.z) - 6371;
+                if (altA > TRAIN_MAX_ALTITUDE_KM) return false;
+                return ang(a.position, b.position) <= TRAIN_MAX_SEPARATION_DEG &&
+                       ang(cross(a.position, a.velocity), cross(b.position, b.velocity)) <= TRAIN_MAX_PLANE_DIFF_DEG;
+            } catch (e) { return false; }
+        }
+
+        function markStarlinkTrains(passes) {
+            const byLaunch = {};
+            passes.forEach(p => {
+                const s = p.satellite;
+                if (s.type !== 'starlink' || !s.launchId) return;
+                (byLaunch[s.launchId] = byLaunch[s.launchId] || []).push(p);
+            });
+            for (const launchId in byLaunch) {
+                const list = byLaunch[launchId].sort((a, b) => a.startTime - b.startTime);
+                let group = [list[0]];
+                const closeGroup = () => {
+                    if (group.length < TRAIN_MIN_SATS) return;
+                    const key = launchId + '_' + group[0].startTime.getTime();
+                    group.forEach(p => {
+                        p.trainKey  = key;
+                        p.trainSize = group.length;
+                        p.brightness -= TRAIN_BRIGHTNESS_BOOST;
+                        p.visibilityMargin += TRAIN_BRIGHTNESS_BOOST;
+                    });
+                };
+                for (let i = 1; i < list.length; i++) {
+                    const prev = list[i - 1], cur = list[i];
+                    const closeInTime = cur.startTime - prev.startTime <= TRAIN_MAX_GAP_MS;
+                    if (closeInTime && flyingTogether(prev, cur)) group.push(cur);
+                    else { closeGroup(); group = [cur]; }
+                }
+                closeGroup();
+            }
+        }
+
+        // Para pintar: qué tarjetas son de un tren y dónde va la cabecera de cada tren
         function detectTrains(passes) {
-    const trainIds = new Set();
-    const trainGroups = {};
-    const assigned = new Set();
-
-    // ⚠️ Trabajar siempre sobre índices del array ordenado por tiempo
-    const byTime = passes
-        .map((p, originalIndex) => ({ p, originalIndex }))
-        .sort((a, b) => a.p.startTime - b.p.startTime);
-
-    for (let i = 0; i < byTime.length; i++) {
-        const { p, originalIndex: oi } = byTime[i];
-        if (assigned.has(oi)) continue;
-        if (!p.satellite.name.toLowerCase().includes('starlink')) continue;
-
-        const group = [oi];
-
-        for (let j = i + 1; j < byTime.length; j++) {
-            const { p: q, originalIndex: oj } = byTime[j];
-            if (assigned.has(oj)) continue;
-            if (!q.satellite.name.toLowerCase().includes('starlink')) continue;
-
-            const timeDiff = (q.startTime - p.startTime) / 60000;
-            if (timeDiff > 10) break; // seguro porque byTime está ordenado
-
-            const azDiff = Math.abs(p.startAzimuth - q.startAzimuth);
-            if (Math.min(azDiff, 360 - azDiff) <= 45) group.push(oj);
+            const trainIds = new Set();
+            const trainGroups = {};
+            const byKey = {};
+            passes.forEach((p, i) => { if (p.trainKey) (byKey[p.trainKey] = byKey[p.trainKey] || []).push(i); });
+            for (const key in byKey) {
+                const idxs = byKey[key];
+                idxs.forEach(i => trainIds.add(i));
+                // La cabecera va encima de la primera tarjeta del tren en pantalla
+                const first = Math.min(...idxs);
+                const startTime = idxs.reduce((t, i) => passes[i].startTime < t ? passes[i].startTime : t, passes[idxs[0]].startTime);
+                trainGroups[first] = { count: passes[idxs[0]].trainSize, startTime };
+            }
+            return { trainIds, trainGroups };
         }
-
-        if (group.length >= 3) {
-            group.forEach(idx => { trainIds.add(idx); assigned.add(idx); });
-            // El "primero en pantalla" es el de menor índice en el array YA ORDENADO
-            // que recibe displayPasses(), que es calculatedPasses en su orden actual
-            const firstInDisplay = Math.min(...group);
-            // Guardar también la hora de inicio más temprana del grupo para el subtítulo
-            const earliestTime = group.reduce((earliest, idx) => {
-                return passes[idx].startTime < earliest ? passes[idx].startTime : earliest;
-            }, passes[group[0]].startTime);
-            if (!trainGroups[firstInDisplay]) trainGroups[firstInDisplay] = { count: group.length, startTime: earliestTime };
-        }
-    }
-
-    return { trainIds, trainGroups };
-}
 
 function displayPasses() {
             // Destruir instancias Leaflet previas para evitar bloqueo y memory leaks
@@ -2524,7 +2732,7 @@ function displayPasses() {
             const { count, startTime: trainStart } = trainGroups[index];
             html.push(`
                 <div class="train-separator">
-                    <span class="train-separator-icon">🟢</span>
+                    <span class="train-separator-icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4" cy="16" r="2"/><circle cx="9" cy="13.5" r="2"/><circle cx="14" cy="11" r="2"/><circle cx="19" cy="8.5" r="2"/></svg></span>
                     <span class="train-separator-text">Starlink Train — ${count} satellites</span>
                     <span class="train-separator-sub">${formatDateTime(trainStart)}</span>
                 </div>
@@ -2532,12 +2740,12 @@ function displayPasses() {
         }
 
         const trainBadge = isTrain
-            ? `<span class="train-badge">🟢 TRAIN</span>`
+            ? `<span class="train-badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4" cy="16" r="2"/><circle cx="9" cy="13.5" r="2"/><circle cx="14" cy="11" r="2"/><circle cx="19" cy="8.5" r="2"/></svg> TRAIN</span>`
             : '';
 
         const trainBlogLink = isTrain && trainGroups[index] !== undefined
             ? `<a href="/blogs/how-to-spot-a-starlink-train/" class="train-blog-link" target="_blank">
-                   ✦ How to spot a Starlink train →
+                   How to spot a Starlink train →
                </a>`
             : '';
 

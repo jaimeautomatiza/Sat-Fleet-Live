@@ -392,7 +392,41 @@ async function handleFcmSubscribe(request, env) {
   }
 }
 
-async function handleNotifyPass(request, env) {
+// ── Límites de avisos de pases (por usuario Premium) ──
+// Sin límites, un solo usuario podría programar cientos de avisos y cada uno
+// gasta escrituras de KV y mensajes de la cola.
+const PASS_ALERT_MAX_ACTIVE   = 20;                    // avisos activos a la vez por usuario
+const PASS_ALERT_MAX_PER_DAY  = 60;                    // avisos nuevos al día por usuario
+const PASS_ALERT_MAX_AHEAD_MS = 8 * 24 * 3600 * 1000;  // Next Passes calcula como mucho 7 días
+
+const passAlertUserKey = (uid) => `pass_alerts_user_${uid}`;
+
+// Lista de avisos activos del usuario: [{ k: clave del aviso, t: hora del pase en ms }]
+async function loadUserPassAlerts(env, uid) {
+  try {
+    const list = JSON.parse(await env.LAUNCHES_KV.get(passAlertUserKey(uid)));
+    const now = Date.now();
+    return Array.isArray(list) ? list.filter(a => a && a.k && a.t > now) : [];
+  } catch (e) { return []; }
+}
+
+async function saveUserPassAlerts(env, uid, list) {
+  try {
+    if (!list.length) { await env.LAUNCHES_KV.delete(passAlertUserKey(uid)); return; }
+    const lastPass = Math.max(...list.map(a => a.t));
+    const ttl = Math.max(60, Math.ceil((lastPass - Date.now()) / 1000) + 3600);
+    await env.LAUNCHES_KV.put(passAlertUserKey(uid), JSON.stringify(list), { expirationTtl: ttl });
+  } catch (e) {}
+}
+
+function passAlertLimitResponse(status, error, limit) {
+  return new Response(JSON.stringify({ ok: false, error, limit }), {
+    status,
+    headers: makeHeaders({ 'Content-Type': 'application/json' }),
+  });
+}
+
+async function handleNotifyPass(request, env, uid) {
   let payload;
   try {
     payload = await request.json();
@@ -415,12 +449,27 @@ async function handleNotifyPass(request, env) {
     });
   }
 
+  // Datos con forma rara o demasiado largos: fuera (protege el KV de basura)
+  if (typeof token !== 'string' || token.length > 4096 ||
+      typeof satelliteName !== 'string' || satelliteName.length > 100 ||
+      typeof passTimeIso !== 'string' || isNaN(new Date(passTimeIso).getTime())) {
+    return new Response(JSON.stringify({ error: 'Invalid fields' }), {
+      status: 400,
+      headers: makeHeaders({ 'Content-Type': 'application/json' }),
+    });
+  }
+
   const alertKey = `pass_alert_${token}_${passTimeIso}`;
 
   if (cancel) {
     try {
       await env.LAUNCHES_KV.delete(alertKey);
     } catch(e) {}
+    if (uid) {
+      const list = await loadUserPassAlerts(env, uid);
+      const rest = list.filter(a => a.k !== alertKey);
+      if (rest.length !== list.length) await saveUserPassAlerts(env, uid, rest);
+    }
     return new Response(JSON.stringify({ ok: true, cancelled: true }), {
       headers: makeHeaders({ 'Content-Type': 'application/json' }),
     });
@@ -434,6 +483,11 @@ async function handleNotifyPass(request, env) {
       status: 400,
       headers: makeHeaders({ 'Content-Type': 'application/json' }),
     });
+  }
+
+  // Pases demasiado lejanos: Next Passes no calcula más de 7 días
+  if (passTime - now > PASS_ALERT_MAX_AHEAD_MS) {
+    return passAlertLimitResponse(400, 'too_far', 7);
   }
 
   const magStr = (typeof brightness === 'number')
@@ -450,6 +504,22 @@ async function handleNotifyPass(request, env) {
       });
     }
   } catch(e) {}
+
+  // Límites por usuario (solo para avisos NUEVOS; repetir uno que ya existe
+  // ha salido antes por la deduplicación y no cuenta)
+  const userAlerts = uid ? await loadUserPassAlerts(env, uid) : [];
+  if (uid) {
+    if (userAlerts.length >= PASS_ALERT_MAX_ACTIVE) {
+      return passAlertLimitResponse(429, 'active_limit', PASS_ALERT_MAX_ACTIVE);
+    }
+    const dayKey = `pass_alert_day_${uid}_${new Date().toISOString().slice(0, 10)}`;
+    let today = 0;
+    try { today = Number(await env.LAUNCHES_KV.get(dayKey)) || 0; } catch (e) {}
+    if (today >= PASS_ALERT_MAX_PER_DAY) {
+      return passAlertLimitResponse(429, 'daily_limit', PASS_ALERT_MAX_PER_DAY);
+    }
+    try { await env.LAUNCHES_KV.put(dayKey, String(today + 1), { expirationTtl: 2 * 86400 }); } catch (e) {}
+  }
 
   // Marcamos el aviso como activo ANTES de programar nada — así, aunque el
   // primer mensaje de la cola se procese casi al instante, ya encuentra la
@@ -495,6 +565,12 @@ async function handleNotifyPass(request, env) {
     } catch (err) {
       console.error('Error programando aviso en la cola:', err.message);
     }
+  }
+
+  // Apuntar el aviso en la lista del usuario (para el límite de avisos activos)
+  if (uid) {
+    userAlerts.push({ k: alertKey, t: passTime });
+    await saveUserPassAlerts(env, uid, userAlerts);
   }
 
   return new Response(JSON.stringify({ ok: true, scheduled: true }), {
@@ -2107,7 +2183,8 @@ const ACTIVE_LIST_EVERY_MS  = 6 * 3600 * 1000;   // cada 6 h mira si hay lista n
 // Archivo que publica tu repositorio de GitHub. Si cambias el nombre del repo, cambia también esta línea.
 const ACTIVE_IDS_URL = 'https://raw.githubusercontent.com/jaimeautomatiza/satfleet-active-list/data/active-ids.json';
 const RECENT_LAUNCH_DAYS    = 30;                // los recién lanzados entran aunque no estén en la lista
-const TLE_FIELDS = 'OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,NORAD_CAT_ID,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,LAUNCH_DATE,COUNTRY_CODE';
+const TLE_FIELDS = 'OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,NORAD_CAT_ID,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,LAUNCH_DATE,COUNTRY_CODE,RCS_SIZE';
+// RCS_SIZE (tamaño de radar: SMALL / MEDIUM / LARGE) se queda en los datos: Next Passes lo usa para estimar el brillo
 const TLE_INT_FIELDS   = ['NORAD_CAT_ID', 'EPHEMERIS_TYPE', 'ELEMENT_SET_NO', 'REV_AT_EPOCH'];
 const TLE_FLOAT_FIELDS = ['MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY', 'BSTAR', 'MEAN_MOTION_DOT', 'MEAN_MOTION_DDOT'];
 const TLE_REQUIRED     = ['NORAD_CAT_ID', 'EPOCH', 'MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY'];
@@ -2682,7 +2759,7 @@ export default {
         const uid       = extractUidFromJWT(request.headers.get('Authorization'));
         const isPremium = await checkPremiumStatus(uid, env);
         if (!isPremium) return premiumRequired();
-        return handleNotifyPass(request, env);
+        return handleNotifyPass(request, env, uid);
     }
 
     if (pathname === '/api/stripe/checkout' && request.method === 'POST') {

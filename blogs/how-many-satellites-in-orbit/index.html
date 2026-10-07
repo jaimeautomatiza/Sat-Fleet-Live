@@ -1143,6 +1143,26 @@
                 return h === 1 ? '1 hour ago' : h + ' hours ago';
             }
 
+            // Años nuevos: si la página solo trae filas hasta un año anterior,
+            // se añaden las que falten copiando la última fila.
+            function addYearRows(year) {
+                var box = document.getElementById('yearTimeline');
+                if (!box) return;
+                var rows = box.querySelectorAll('.timeline-row[data-year]');
+                var last = rows[rows.length - 1];
+                if (!last) return;
+                for (var y = Number(last.getAttribute('data-year')) + 1; y <= year; y++) {
+                    var row = last.cloneNode(true);
+                    row.setAttribute('data-year', String(y));
+                    row.querySelector('.timeline-year').textContent = String(y);
+                    var c = row.querySelector('.timeline-count');
+                    c.setAttribute('data-live', c.getAttribute('data-live').replace(/\d{4}$/, String(y)));
+                    c.textContent = '0';
+                    box.appendChild(row);
+                    last = row;
+                }
+            }
+
             fetch('https://worker.satfleetlive.com/api/satellite-stats')
                 .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
                 .then(function (d) {
@@ -1164,6 +1184,7 @@
                     });
 
                     if (d.years && d.year) {
+                        addYearRows(d.year);
                         set('year', String(d.year));
                         set('this-year', n(d.launchedThisYear));
                         var yv = {}, early = 0, last5 = 0;

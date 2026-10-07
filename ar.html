@@ -195,7 +195,7 @@
 
         #overlay.hidden { display: none; }
 
-        .overlay-icon { font-size: 3rem; margin-bottom: 8px; }
+        .overlay-icon { font-size: 3rem; margin-bottom: 8px; display: flex; justify-content: center; color: var(--orange); }
         .overlay-title { font-size: 1.2rem; font-weight: 700; color: var(--orange); }
         .overlay-text { font-size: 0.85rem; color: rgba(255,255,255,0.55); line-height: 1.5; max-width: 300px; }
 
@@ -398,27 +398,29 @@
     <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;">
         <button class="ar-filter-btn active" data-type="all" onclick="setArFilter('all')">All (day)</button>
         <button class="ar-filter-btn" data-type="visible" onclick="setArFilter('visible')">Only Visible (night)</button>
-        <button class="ar-filter-btn" data-type="iss" onclick="setArFilter('iss')">Space Station</button>
-        <button class="ar-filter-btn" data-type="gps" onclick="setArFilter('gps')">GPS</button>
         <button class="ar-filter-btn" data-type="starlink" onclick="setArFilter('starlink')">Starlink</button>
-        <button class="ar-filter-btn" data-type="military" onclick="setArFilter('military')">Military</button>
+        <button class="ar-filter-btn" data-type="internet" onclick="setArFilter('internet')">Other Internet</button>
+        <button class="ar-filter-btn" data-type="comm" onclick="setArFilter('comm')">Communications</button>
+        <button class="ar-filter-btn" data-type="gps" onclick="setArFilter('gps')">Navigation</button>
+        <button class="ar-filter-btn" data-type="geo" onclick="setArFilter('geo')">Earth Observation</button>
         <button class="ar-filter-btn" data-type="weather" onclick="setArFilter('weather')">Weather</button>
-        <button class="ar-filter-btn" data-type="comm" onclick="setArFilter('comm')">Comm</button>
-        <button class="ar-filter-btn" data-type="geo" onclick="setArFilter('geo')">Geodetic</button>
-        <button class="ar-filter-btn" data-type="tech" onclick="setArFilter('tech')">Technology</button>
+        <button class="ar-filter-btn" data-type="military" onclick="setArFilter('military')">Military</button>
+        <button class="ar-filter-btn" data-type="iss" onclick="setArFilter('iss')">Space Stations</button>
+        <button class="ar-filter-btn" data-type="tech" onclick="setArFilter('tech')">Science &amp; Tech</button>
         <button class="ar-filter-btn" data-type="misc" onclick="setArFilter('misc')">Other</button>
     </div>
     <!-- LEYENDA -->
     <div style="font-size:0.7rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Legend</div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#4285f4;flex-shrink:0;display:inline-block;"></span>GPS / Navigation</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ffffff;flex-shrink:0;display:inline-block;"></span>Space Station</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#00d26a;flex-shrink:0;display:inline-block;"></span>Starlink</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#c6ff00;flex-shrink:0;display:inline-block;"></span>Other Internet</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ff6b35;flex-shrink:0;display:inline-block;"></span>Communications</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ff0000;flex-shrink:0;display:inline-block;"></span>Military</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#4285f4;flex-shrink:0;display:inline-block;"></span>Navigation</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#00ced1;flex-shrink:0;display:inline-block;"></span>Earth Observation</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ffd700;flex-shrink:0;display:inline-block;"></span>Weather</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#00ced1;flex-shrink:0;display:inline-block;"></span>Geodetic</div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#9400d3;flex-shrink:0;display:inline-block;"></span>Technology</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ff0000;flex-shrink:0;display:inline-block;"></span>Military</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ffffff;flex-shrink:0;display:inline-block;"></span>Space Stations</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#9400d3;flex-shrink:0;display:inline-block;"></span>Science &amp; Tech</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ff69b4;flex-shrink:0;display:inline-block;"></span>Other</div>
     </div>
 
@@ -456,7 +458,11 @@
     font-weight: 700;
     cursor: pointer;
     z-index: 1000;
-">🧭</button>
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></button>
 
 <!-- CALIBRATION HINT -->
 <div id="calibHint">Move your phone in a figure-8 to calibrate</div>
@@ -483,7 +489,7 @@
         width: 100%;
         text-align: center;
     ">
-        <div style="font-size:2rem; margin-bottom:12px;">🧭</div>
+        <div style="margin-bottom:12px; color:#ff6b35; display:flex; justify-content:center;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
         <div style="font-size:1rem; font-weight:700; color:#ff6b35; margin-bottom:8px;">Compass Calibration</div>
         <div style="font-size:0.82rem; color:rgba(255,255,255,0.6); line-height:1.5; margin-bottom:20px;">
             If satellites appear misaligned, move your phone in a <strong style="color:#fff;">figure-8 motion</strong> to calibrate the compass.
@@ -548,7 +554,7 @@
         <button id="arPreviewPlayBtn" onclick="togglePreviewPlay()"
             style="width:32px;height:32px;border-radius:50%;border:none;flex-shrink:0;
                    background:#ff6b35;color:#fff;cursor:pointer;font-size:0.8rem;
-                   display:flex;align-items:center;justify-content:center;">▶</button>
+                   display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg></button>
         <input id="arPreviewScrub" class="ar-scrub" type="range" min="0" max="1000" value="0" oninput="onPreviewScrub(this.value)"
             style="flex:1;min-width:0;appearance:none;-webkit-appearance:none;height:4px;border-radius:2px;
                    background:rgba(255,255,255,0.15);outline:none;">
@@ -634,7 +640,7 @@ const QUALITY_STYLES = {
     calibrating:   { text: 'Calibrating…',    color: 'rgba(255,255,255,0.55)', ring: 'rgba(255,255,255,0.15)' },
     good:          { text: 'Good',            color: '#00d26a',                ring: 'rgba(0,210,106,0.35)' },
     fair:          { text: 'Fair',            color: '#ffd700',                ring: 'rgba(255,215,0,0.32)' },
-    poor:          { text: 'Poor · tap 🧭',   color: '#ff5555',                ring: 'rgba(255,85,85,0.38)' },
+    poor:          { text: 'Poor · recalibrate', color: '#ff5555',             ring: 'rgba(255,85,85,0.38)' },
     'needs-motion':{ text: 'Move in a "8"',   color: '#ffd700',                ring: 'rgba(255,215,0,0.32)' },
 };
 
@@ -800,9 +806,13 @@ function parseTLE(gpData) {
     const sats = [];
     for (const obj of gpData) {
         try {
-            const satrec = satellite.json2satrec(obj);
             const name = obj.OBJECT_NAME;
             const noradId = obj.NORAD_CAT_ID.toString();
+            // La ISS y la estación china vienen una vez por módulo (mismo sitio):
+            // se dibuja una sola de cada, salvo que vengas a ver justo ese módulo.
+            const previewing = previewPass && previewPass.noradId === noradId;
+            if (!previewing && STATION_DUPLICATE_MODULE.test(String(name).toUpperCase())) continue;
+            const satrec = satellite.json2satrec(obj);
             sats.push({ name, noradId, satrec });
         } catch(e) {}
     }
@@ -1243,40 +1253,75 @@ function projectToScreen(satAz, satEl) {
 // SATELLITE TYPE & COLOR
 // ═══════════════════════════════════════════════
 const TYPE_COLORS = {
-    gps:      '#4285f4',
-    iss:      '#ffffff',
     starlink: '#00d26a',
+    internet: '#c6ff00',
     comm:     '#ff6b35',
-    military: '#ff0000',
-    weather:  '#ffd700',
+    gps:      '#4285f4',
     geo:      '#00ced1',
+    weather:  '#ffd700',
+    military: '#ff0000',
+    iss:      '#ffffff',
     tech:     '#9400d3',
     misc:     '#ff69b4',
 };
 
-function getSatType(name) {
-    const n = (name || '').toLowerCase().trim();
-    const has = kw => n.includes(kw);
-    const any = (...kws) => kws.some(has);
+// ===== CLASIFICACIÓN DE SATÉLITES POR NOMBRE =====
+// COPIA EXACTA de las reglas del mapa (index.html), de Next Passes y del
+// worker. Si cambias unas, cambia también las otras.
+// Se mira el nombre de arriba abajo y gana la PRIMERA regla que encaje.
+/** @type {Array<[string, RegExp]>} */
+const SAT_TYPE_RULES = [
+    // 1. Space Stations: estaciones, sus módulos y las naves que las visitan
+    ['iss', /^(?:ISS|CSS) \(|^(?:TIANGONG|CREW DRAGON|DRAGON|CYGNUS|PROGRESS[ -]?MS|SOYUZ[ -]?MS|SHENZHOU|TIANZHOU|STARLINER|HTV|DREAM CHASER)(?![A-Z])/],
 
-    if (any('gps', 'navstar', 'galileo', 'glonass', 'beidou', 'bei dou', 'navic', 'irnss')) return 'gps';
-    if (any('iss', 'zarya', 'space station', 'tiangong', 'tianhe', 'wentian', 'nauka',
-            'progress', 'soyuz', 'shenzhou', 'crew dragon', 'dragon ', 'cygnus', 'starliner')) return 'iss';
-    if (any('starlink', 'oneweb', 'kuiper')) return 'starlink';
-    if (any('yaogan', 'nro', 'military', 'classified', 'kosmos', 'cosmos',
-            'navy', 'sbirs', 'wgs ', 'aehf', 'milstar', 'dsp', 'defense',
-            'nrol', 'usa-')) return 'military';
-    if (any('intelsat', 'eutelsat', 'ses ', 'astra', 'telecom', 'viasat',
-            'iridium', 'globalstar', 'orbcomm', 'thuraya', 'arabsat',
-            'hispasat', 'galaxy', 'telstar')) return 'comm';
-    if (any('noaa', 'goes', 'metop', 'himawari', 'weather', 'meteo', 'meteor',
-            'fengyun', 'meteosat', 'suomi', 'jpss')) return 'weather';
-    if (any('landsat', 'spot', 'sentinel', 'worldview', 'terrasar', 'radarsat',
-            'grace', 'lageos', 'geodesy', 'laser')) return 'geo';
-    if (any('cubesat', 'cube-sat', 'demo', 'test', 'tech', 'experiment',
-            'proba', 'pathfinder', 'amateur', 'oscar')) return 'tech';
-    return 'misc';
+    // 2. Starlink, sola
+    ['starlink', /^STARLINK(?![A-Z])/],
+
+    // 3. Other Internet: el resto de megaconstelaciones de internet
+    ['internet', /^(?:ONEWEB|KUIPER|QIANFAN|HULIANWANG|GUOWANG|O3B|RASSVET|SPACEMOBILE|BLUEBIRD|BLUEWALKER|LYNK|LIGHTSPEED|HONGYAN|XINGWANG)/],
+
+    // 4. Navigation: GPS, GLONASS, Galileo, BeiDou, QZSS, NavIC...
+    ['gps', /^(?:NAVSTAR|GPS|GALILEO|GSAT0\d{3}|BEIDOU|BD-\d|IRNSS|NVS-\d|QZS|MICHIBIKI|CENTISPACE|LEONAV)(?![A-Z])|\bGLONASS\b/],
+
+    // 5. Military (antes, los COSMOS de geodesia rusos se mandan a Earth Observation)
+    ['geo', /\((?:ETALON|GEO-IK)/],
+    ['military', /^(?:YAOGAN|USA \d|NROL|TJS|SBIRS|WGS|AEHF|MUOS|DMSP|SDA_|PRAETORIAN|SPAINSAT|SYRACUSE|SKYNET|MILSTAR|DSCS|UFO|FLTSATCOM|MERIDIAN|OPS \d|SBSS|HELIOS|CSO|SAR-LUPE|SARAH|OFEQ|OFEK|IGS|STARSHIELD|GJZ|LUCH|BLACKJACK|HBTSS|SAPPHIRE|KONDOR|LOTOS|PION|BARS-M|RAZDAN|NEMO-AM|COSMOS \d+|KOSMOS \d+)(?![A-Z])|\(USA \d/],
+
+    // 6. Weather: meteorología y clima
+    ['weather', /^(?:NOAA|GOES|METOP|METEOSAT|MTG|MSG|HIMAWARI|FENGYUN|FY|METEOR|ELEKTRO|ARKTIKA|ARCTIC|JPSS|SUOMI|NPP|TIANMU|YUNHAI|YUNYAO|AQUA|TERRA|AURA|GPM|SMOS|SMAP|OCO|GOSAT|GCOM|CLOUDSAT|CALIPSO|EARTHCARE|SCATSAT|OCEANSAT|LEMUR|FORMOSAT-?7|FORMOSAT7|COSMIC|TEMPEST|TROPICS|INSAT-3D|GEO-KOMPSAT-2A|DSCOVR|CYGFM|PREFIRE|PACE|DAQI|SEAHAWK|EWS)(?![A-Z])/],
+
+    // 7. Earth Observation: fotos, radar, cartografía y geodesia
+    ['geo', /^(?:SENTINEL|LANDSAT|SPOT|PLEIADES|PNEO|WORLDVIEW|GEOEYE|CARTOSAT|RESOURCESAT|RISAT|EOS|EOSSAT|KOMPSAT|KANOPUS|RESURS|GAOFEN|JILIN|SUPERVIEW|ZY|ZIYUAN|HJ|HAIYANG|TIANHUI|FLOCK|SKYSAT|PELICAN|TANAGER|ICEYE|CAPELLA|UMBRA|STRIX|QPS|IRIDE|NUSAT|GRUS|DMC|ALSAT|LEGION|BLACKSKY|HAWK|BRO|GHGSAT|COSMO|CSG|TERRASAR|TANDEM|TDX|PAZ|INGENIO|RADARSAT|RCM|SAOCOM|NISAR|ALOS|GRACE|LAGEOS|LARES|LARETS|STARLETTE|STELLA|AJISAI|ETALON|JASON|SWOT|CRYOSAT|ICESAT|SARAL|AMAZONIA|CBERS|DEIMOS|DUBAISAT|KHALIFASAT|PIESAT|ZHUHAI|WILDFIRE|FIRESAT|NOVASAR|SAUDISAT|SAUDIGEOSAT|CAS500|AAC-HSI|PRISMA|ENMAP|BIROS|HYSIS|SDGSAT|THEOS|RASAT|GOKTURK|IMECE|PERUSAT|VRSS|VNREDSAT|KAZEOSAT|NIGERIASAT|LAPAN|HYPSO|ASNARO|CO3D|LT-1|BIOMASS|EGS|SARI|TIRSAT|HYPERION|CARBSAR|EMISAR|LASARSAT|SARAMAGO|CESARIO|COLIBRI|DRAGRACER|MONOLITH|PULSAR|CORIOLIS|EGYPTSAT|EMISAT|LUOJIA|KUWAITSAT|TELEOS|GEISAT|DRISHTI|HYPERFIELD|SATELLOGIC|NEONSAT|SPACEEYE|OPTISAT|EROS|DIWATA|MOHAMMED|MAROC|SSOT|ALISIO|BUCCANEER|SAR|SKYMED|GLOBAL|FORMOSAT)(?![A-Z])/],
+
+    // 8. Communications: televisión, teléfono, datos, repetidores e IoT
+    ['comm', /^(?:INTELSAT|IS|SES|ASTRA|EUTELSAT|EUTE|HOT ?BIRD|HISPASAT|AMAZONAS|INMARSAT|VIASAT|ECHOSTAR|DIRECTV|SIRIUS|XM|GALAXY|TELSTAR|ANIK|NIMIQ|AMC|CIEL|CHINASAT|ZHONGXING|APSTAR|ASIASAT|ASIASTAR|JCSAT|SUPERBIRD|BSAT|KOREASAT|THAICOM|IPSTAR|MEASAT|OPTUS|YAMAL|EXPRESS|EKSPRESS|GONETS|RADUGA|ARABSAT|BADR|NILESAT|YAHSAT|AL YAH|THURAYA|TURKSAT|AMOS|HELLAS|AZERSPACE|BELINTERSAT|ABS|NSS|STAR ?ONE|TDRS|TIANLIAN|TIANTONG|IRIDIUM|GLOBALSTAR|ORBCOMM|SWARM|SPACEBEE|KINEIS|TIANQI|ASTROCAST|SATELIOT|CONNECTA|GEESAT|SAUDICOMSAT|COMSATBW|ALCOMSAT|NIGCOMSAT|PAKSAT|RASCOM|QUETZSAT|JUPITER|ASTRANIS|GSAT|INSAT|CMS|TELKOM|NUSANTARA|BRISAT|KACIFIC|ES'HAIL|SKY|HORIZONS|EDRS|SKYTERRA|TERRESTAR|APRIZESAT|AAC-AIS|MEXSAT|MORELOS|SATMEX|ARSAT|SGDC|VINASAT|LAOSAT|KAZSAT|ANGOSAT|TURKMENALEM|BULGARIASAT|GHANASAT|OMNI|KORSAT|SATRIA|NBN|SXM|THOR|HYLAS|ECHO|WILDBLUE|ALPHASAT|AT&T|NORSAT|EXACTVIEW|FOSSASAT|OVZON|BANGABANDHUSAT|DJIBOUTI|AGILA|STRELA|RODNIK|YUBILEINY|MOLNIYA|MERIDIAN-M|BLAGOVEST|EUTELSAT|KA-SAT|SICRAL|ATHENA-FIDUS|TIBA|NILESAT|ETIHAD|MBZ|SCD|LINGQIAO|WNISAT)(?![A-Z])/],
+
+    // 9. Science & Tech: telescopios, ciencia, pruebas tecnológicas, remolcadores, radioaficionados y cubesats
+    ['tech', /^(?:HST|HUBBLE|CXO|SWIFT|FERMI|NUSTAR|TESS|XMM|INTEGRAL|AGILE|IXPE|ICON|MMS|THEMIS|CLUSTER|PUNCH|TIMED|SDO|IRIS|HINODE|SPEKTR|GAIA|ASTROSAT|HXMT|EINSTEIN|SVOM|XRISM|XPOSAT|SPHEREX|NEOSSAT|MOST|SCISAT|SORCE|SWAS|IMAGE|ARASE|DAMPE|ZHANGHENG|TRACERS|EZIE|BRITE|CALSPHERE|LCS|TEMPSAT|SURCAL|SHIYAN|SHIJIAN|SJ|SY|ION|SHERPA|VIGORIDE|MEV|OTV|DISKSAT|STARLING|PATHFINDER|TIANPING|IONOSFERA|AEROCUBE|TECHSAT|TECHNOSAT|PROBA|OSCAR|AO|FO|CAS|XW|FOX|FUNCUBE|LILACSAT|CUBESAT|CUTE|CANX|POLYTECH|CHUANG XIN|CX|PROX|MINXSS|SIRION|AISTECHSAT|ITAMSAT|RADIO|KX|HAMMER|CHAMRAN|DEMO|PAYLOAD|STARS|CUBY|NETSAT|LKW|KSM|VSP|HEAD|BB|RAPTOR|HERMES|AETHER|TOMORROW|GNOMES|CENTAURI|SKYCRAFT|SKYKRAFT|MISR|MISRSAT|NINGXIA|CASSIOPE|SZ|ETV|SWISSCUBE|AISSAT|O\/OREOS|FASTSAT|RIGIDSPHERE|WFOV|MERCURY|SATNOGS|STPSAT|STP|SPAWAR|TYVAK|YAM|TACSAT|MANDRAKE|JACKAL|RAISE|DSX|S-NET|TEN-KOH|NANOSAT|QB50P|UNISAT|FALCONSAT|ZHEDA|XIWANG|HODOYOSHI|POPACS|GRBALPHA|BEESAT|UWE|ESTCUBE|NAYIF|LUCAS|DB|OTB|OTTER|OT-FOREST|IOD|FGN|PRC)(?![A-Z])/],
+];
+
+// Memoria de nombres ya clasificados: el AR recalcula dos veces por segundo
+const satTypeCache = new Map();
+function getSatType(name) {
+    const n = (name || '').toUpperCase().trim();
+    let type = satTypeCache.get(n);
+    if (type) return type;
+    type = 'misc';
+    for (const [t, re] of SAT_TYPE_RULES) {
+        if (re.test(n)) { type = t; break; }
+    }
+    satTypeCache.set(n, type);
+    return type;
 }
+
+// Módulos repetidos de las estaciones: se queda solo ISS (ZARYA) y CSS (TIANHE-1)
+const STATION_DUPLICATE_MODULE = /^ISS \((?!ZARYA\))|^CSS \((?!TIANHE)/;
+// Estaciones espaciales de verdad (para el halo grande al dibujarlas)
+const STATION_NAME = /^(ISS|CSS) \(/;
+
+// Iconos del botón de reproducir / pausa
+const AR_ICON_PLAY  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>';
+const AR_ICON_PAUSE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
 
 function getSatColor(name) {
     return TYPE_COLORS[getSatType(name)] || '#ff69b4';
@@ -1447,7 +1492,7 @@ function drawSatellites() {
 
         const color = getSatColor(sat.name);
         const isSelected = selectedSat && selectedSat.noradId === sat.noradId;
-        const isISS = sat.name.toLowerCase().includes('iss');
+        const isISS = STATION_NAME.test(sat.name.toUpperCase());
 
         // Glow
         const glowR = isISS ? 18 : (isSelected ? 14 : 10);
@@ -1630,7 +1675,8 @@ function updatePreviewUI() {
     if (back) back.style.display = 'inline-flex';
 
     const live = (arTimeOverride === null);
-    document.getElementById('arPreviewPlayBtn').textContent = live ? '▶' : (previewPlaying ? '❚❚' : '▶');
+    // Iconos dibujados (no emojis): reproducir / pausa
+    document.getElementById('arPreviewPlayBtn').innerHTML = (!live && previewPlaying) ? AR_ICON_PAUSE : AR_ICON_PLAY;
 
     // Un único indicador, siempre en el mismo sitio: encendido cuando estás
     // en directo, apagado y pulsable para volver cuando estás reproduciendo.
@@ -1800,14 +1846,14 @@ function showOverlay(type) {
     const el = document.getElementById('overlay');
     if (type === 'error') {
         el.innerHTML = `
-            <div class="overlay-icon">⚠️</div>
+            <div class="overlay-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4M12 17h.01"/></svg></div>
             <div class="overlay-title">Could not load satellites</div>
             <div class="overlay-text">Check your connection and try again.</div>
             <button class="overlay-btn" onclick="location.reload()">Retry</button>
         `;
     } else if (type === 'compass-denied') {
         el.innerHTML = `
-            <div class="overlay-icon">🧭</div>
+            <div class="overlay-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
             <div class="overlay-title">Compass permission denied</div>
             <div class="overlay-text">Go to your browser settings and allow motion sensors to use AR mode.</div>
             <button class="overlay-btn" onclick="hideOverlay()">Continue anyway</button>
