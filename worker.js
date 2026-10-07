@@ -2107,7 +2107,7 @@ const ACTIVE_LIST_EVERY_MS  = 6 * 3600 * 1000;   // cada 6 h mira si hay lista n
 // Archivo que publica tu repositorio de GitHub. Si cambias el nombre del repo, cambia también esta línea.
 const ACTIVE_IDS_URL = 'https://raw.githubusercontent.com/jaimeautomatiza/satfleet-active-list/data/active-ids.json';
 const RECENT_LAUNCH_DAYS    = 30;                // los recién lanzados entran aunque no estén en la lista
-const TLE_FIELDS = 'OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,NORAD_CAT_ID,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,LAUNCH_DATE';
+const TLE_FIELDS = 'OBJECT_NAME,OBJECT_ID,EPOCH,MEAN_MOTION,ECCENTRICITY,INCLINATION,RA_OF_ASC_NODE,ARG_OF_PERICENTER,MEAN_ANOMALY,EPHEMERIS_TYPE,CLASSIFICATION_TYPE,NORAD_CAT_ID,ELEMENT_SET_NO,REV_AT_EPOCH,BSTAR,MEAN_MOTION_DOT,MEAN_MOTION_DDOT,LAUNCH_DATE,COUNTRY_CODE';
 const TLE_INT_FIELDS   = ['NORAD_CAT_ID', 'EPHEMERIS_TYPE', 'ELEMENT_SET_NO', 'REV_AT_EPOCH'];
 const TLE_FLOAT_FIELDS = ['MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY', 'BSTAR', 'MEAN_MOTION_DOT', 'MEAN_MOTION_DDOT'];
 const TLE_REQUIRED     = ['NORAD_CAT_ID', 'EPOCH', 'MEAN_MOTION', 'ECCENTRICITY', 'INCLINATION', 'RA_OF_ASC_NODE', 'ARG_OF_PERICENTER', 'MEAN_ANOMALY'];
@@ -2209,6 +2209,7 @@ async function fetchTleToKv(env) {
     const final = [];
     let skipped = 0, recent = 0;
     const newIds = [];
+    const statRows = [];   // datos mínimos para el resumen del blog (/api/satellite-stats)
     for (const r of raw) {
       // Space-Track entrega todo como texto: se pasa a número (mismo formato que daba CelesTrak).
       let ok = true;
@@ -2224,7 +2225,13 @@ async function fetchTleToKv(env) {
       const isRecent = !isEmptyVal(r.LAUNCH_DATE) && r.LAUNCH_DATE >= recentCut;
       if (!isActive && !isRecent) continue;
       if (!isActive) { recent++; newIds.push(r.NORAD_CAT_ID); }
-      delete r.LAUNCH_DATE;   // solo hacía falta para el filtro
+      statRows.push({
+        name: r.OBJECT_NAME, mm: r.MEAN_MOTION, ecc: r.ECCENTRICITY, inc: r.INCLINATION,
+        year: launchYearForStats(r),
+        cc: isEmptyVal(r.COUNTRY_CODE) ? null : String(r.COUNTRY_CODE).trim(),
+      });
+      delete r.LAUNCH_DATE;    // solo hacía falta para el filtro
+      delete r.COUNTRY_CODE;   // solo hace falta para el resumen del blog
       final.push(r);
     }
     if (final.length < MIN_OBJECTS) throw new Error(`solo ${final.length} satélites válidos (mínimo ${MIN_OBJECTS})`);
@@ -2236,6 +2243,7 @@ async function fetchTleToKv(env) {
       count: final.length,
       listUpdated: activeInfo.celestrakUpdated,   // fecha de la lista de activos de CelesTrak que se ha usado
     }));
+    await saveSatStats(env, statRows, nowIso());  // resumen pequeño para el blog
     if (newIds.length) {
       try {
         const p = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_ACTIVE_IDS));
@@ -2363,6 +2371,13 @@ async function fetchDebrisToKv(env) {
       objects: final,
     }));
     const nRb = final.reduce((a, o) => a + (o.OBJECT_TYPE === 'ROCKET BODY' ? 1 : 0), 0);
+    try {
+      // Resumen pequeño para el blog (/api/satellite-stats)
+      await env.LAUNCHES_KV.put(KV_KEY_DEBRIS_STATS, JSON.stringify({
+        updated: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+        total: final.length, fragments: final.length - nRb, rocketBodies: nRb,
+      }));
+    } catch (e) {}
     console.log(`Debris: ${final.length} objetos guardados — ${final.length - nRb} fragmentos + ${nRb} cuerpos de cohete (${(bytes / 1048576).toFixed(1)} MB). Descartados por datos incompletos: ${skipped}`);
   } catch (err) {
     console.error('Debris: fallo, se conservan los datos anteriores —', err.message);
@@ -2711,6 +2726,7 @@ export default {
       return handleMarsOrbitersPlayback(request, ctx, env);
     }
     if (pathname === '/api/people-in-space') return handlePeopleInSpace(ctx, env);
+    if (pathname === '/api/satellite-stats') return handleSatelliteStats(ctx, env);
     if (pathname === '/api/deep-space') return handleDeepSpace(ctx, env);
     if (pathname === '/api/deep-space-playback') {
       const uid = extractUidFromJWT(request.headers.get('Authorization'));
@@ -2860,4 +2876,215 @@ async function handlePeopleInSpace(ctx, env) {
     status: 200,
     headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'public, max-age=1800' }),
   });
+}
+// ═══════════════════════════════════════════════════════════════
+// SATELLITE STATS — resumen pequeño para el artículo del blog
+// "How Many Satellites Are in Orbit Right Now?"
+// ═══════════════════════════════════════════════════════════════
+// Se calcula cada vez que el cron renueva las órbitas (cada 2 h) y pesa
+// unos pocos KB. El blog lo pide en /api/satellite-stats y Cloudflare lo
+// guarda 15 minutos, así que casi no gasta lecturas de KV.
+//
+// IMPORTANTE: las reglas de abajo son una COPIA de las del index
+// (SAT_TYPE_RULES en index.html). Si cambias unas, cambia también las otras.
+const KV_KEY_SAT_STATS      = 'sat_stats_v1';
+const KV_KEY_SAT_STATS_LOCK = 'sat_stats_lock_v1';
+const KV_KEY_DEBRIS_STATS   = 'debris_stats_v1';
+const CACHE_KEY_SAT_STATS   = 'https://internal.satfleetlive/cache/sat-stats-v1';
+const SAT_STATS_TTL         = 900;   // 15 min
+
+/** @type {Array<[string, RegExp]>} */
+const SAT_TYPE_RULES_STATS = [
+    // 1. Space Stations: estaciones, sus módulos y las naves que las visitan
+    ['iss', /^(?:ISS|CSS) \(|^(?:TIANGONG|CREW DRAGON|DRAGON|CYGNUS|PROGRESS[ -]?MS|SOYUZ[ -]?MS|SHENZHOU|TIANZHOU|STARLINER|HTV|DREAM CHASER)(?![A-Z])/],
+
+    // 2. Starlink, sola
+    ['starlink', /^STARLINK(?![A-Z])/],
+
+    // 3. Other Internet: el resto de megaconstelaciones de internet
+    ['internet', /^(?:ONEWEB|KUIPER|QIANFAN|HULIANWANG|GUOWANG|O3B|RASSVET|SPACEMOBILE|BLUEBIRD|BLUEWALKER|LYNK|LIGHTSPEED|HONGYAN|XINGWANG)/],
+
+    // 4. Navigation: GPS, GLONASS, Galileo, BeiDou, QZSS, NavIC...
+    ['gps', /^(?:NAVSTAR|GPS|GALILEO|GSAT0\d{3}|BEIDOU|BD-\d|IRNSS|NVS-\d|QZS|MICHIBIKI|CENTISPACE|LEONAV)(?![A-Z])|\bGLONASS\b/],
+
+    // 5. Military (antes, los COSMOS de geodesia rusos se mandan a Earth Observation)
+    ['geo', /\((?:ETALON|GEO-IK)/],
+    ['military', /^(?:YAOGAN|USA \d|NROL|TJS|SBIRS|WGS|AEHF|MUOS|DMSP|SDA_|PRAETORIAN|SPAINSAT|SYRACUSE|SKYNET|MILSTAR|DSCS|UFO|FLTSATCOM|MERIDIAN|OPS \d|SBSS|HELIOS|CSO|SAR-LUPE|SARAH|OFEQ|OFEK|IGS|STARSHIELD|GJZ|LUCH|BLACKJACK|HBTSS|SAPPHIRE|KONDOR|LOTOS|PION|BARS-M|RAZDAN|NEMO-AM|COSMOS \d+|KOSMOS \d+)(?![A-Z])|\(USA \d/],
+
+    // 6. Weather: meteorología y clima
+    ['weather', /^(?:NOAA|GOES|METOP|METEOSAT|MTG|MSG|HIMAWARI|FENGYUN|FY|METEOR|ELEKTRO|ARKTIKA|ARCTIC|JPSS|SUOMI|NPP|TIANMU|YUNHAI|YUNYAO|AQUA|TERRA|AURA|GPM|SMOS|SMAP|OCO|GOSAT|GCOM|CLOUDSAT|CALIPSO|EARTHCARE|SCATSAT|OCEANSAT|LEMUR|FORMOSAT-?7|FORMOSAT7|COSMIC|TEMPEST|TROPICS|INSAT-3D|GEO-KOMPSAT-2A|DSCOVR|CYGFM|PREFIRE|PACE|DAQI|SEAHAWK|EWS)(?![A-Z])/],
+
+    // 7. Earth Observation: fotos, radar, cartografía y geodesia
+    ['geo', /^(?:SENTINEL|LANDSAT|SPOT|PLEIADES|PNEO|WORLDVIEW|GEOEYE|CARTOSAT|RESOURCESAT|RISAT|EOS|EOSSAT|KOMPSAT|KANOPUS|RESURS|GAOFEN|JILIN|SUPERVIEW|ZY|ZIYUAN|HJ|HAIYANG|TIANHUI|FLOCK|SKYSAT|PELICAN|TANAGER|ICEYE|CAPELLA|UMBRA|STRIX|QPS|IRIDE|NUSAT|GRUS|DMC|ALSAT|LEGION|BLACKSKY|HAWK|BRO|GHGSAT|COSMO|CSG|TERRASAR|TANDEM|TDX|PAZ|INGENIO|RADARSAT|RCM|SAOCOM|NISAR|ALOS|GRACE|LAGEOS|LARES|LARETS|STARLETTE|STELLA|AJISAI|ETALON|JASON|SWOT|CRYOSAT|ICESAT|SARAL|AMAZONIA|CBERS|DEIMOS|DUBAISAT|KHALIFASAT|PIESAT|ZHUHAI|WILDFIRE|FIRESAT|NOVASAR|SAUDISAT|SAUDIGEOSAT|CAS500|AAC-HSI|PRISMA|ENMAP|BIROS|HYSIS|SDGSAT|THEOS|RASAT|GOKTURK|IMECE|PERUSAT|VRSS|VNREDSAT|KAZEOSAT|NIGERIASAT|LAPAN|HYPSO|ASNARO|CO3D|LT-1|BIOMASS|EGS|SARI|TIRSAT|HYPERION|CARBSAR|EMISAR|LASARSAT|SARAMAGO|CESARIO|COLIBRI|DRAGRACER|MONOLITH|PULSAR|CORIOLIS|EGYPTSAT|EMISAT|LUOJIA|KUWAITSAT|TELEOS|GEISAT|DRISHTI|HYPERFIELD|SATELLOGIC|NEONSAT|SPACEEYE|OPTISAT|EROS|DIWATA|MOHAMMED|MAROC|SSOT|ALISIO|BUCCANEER|SAR|SKYMED|GLOBAL|FORMOSAT)(?![A-Z])/],
+
+    // 8. Communications: televisión, teléfono, datos, repetidores e IoT
+    ['comm', /^(?:INTELSAT|IS|SES|ASTRA|EUTELSAT|EUTE|HOT ?BIRD|HISPASAT|AMAZONAS|INMARSAT|VIASAT|ECHOSTAR|DIRECTV|SIRIUS|XM|GALAXY|TELSTAR|ANIK|NIMIQ|AMC|CIEL|CHINASAT|ZHONGXING|APSTAR|ASIASAT|ASIASTAR|JCSAT|SUPERBIRD|BSAT|KOREASAT|THAICOM|IPSTAR|MEASAT|OPTUS|YAMAL|EXPRESS|EKSPRESS|GONETS|RADUGA|ARABSAT|BADR|NILESAT|YAHSAT|AL YAH|THURAYA|TURKSAT|AMOS|HELLAS|AZERSPACE|BELINTERSAT|ABS|NSS|STAR ?ONE|TDRS|TIANLIAN|TIANTONG|IRIDIUM|GLOBALSTAR|ORBCOMM|SWARM|SPACEBEE|KINEIS|TIANQI|ASTROCAST|SATELIOT|CONNECTA|GEESAT|SAUDICOMSAT|COMSATBW|ALCOMSAT|NIGCOMSAT|PAKSAT|RASCOM|QUETZSAT|JUPITER|ASTRANIS|GSAT|INSAT|CMS|TELKOM|NUSANTARA|BRISAT|KACIFIC|ES'HAIL|SKY|HORIZONS|EDRS|SKYTERRA|TERRESTAR|APRIZESAT|AAC-AIS|MEXSAT|MORELOS|SATMEX|ARSAT|SGDC|VINASAT|LAOSAT|KAZSAT|ANGOSAT|TURKMENALEM|BULGARIASAT|GHANASAT|OMNI|KORSAT|SATRIA|NBN|SXM|THOR|HYLAS|ECHO|WILDBLUE|ALPHASAT|AT&T|NORSAT|EXACTVIEW|FOSSASAT|OVZON|BANGABANDHUSAT|DJIBOUTI|AGILA|STRELA|RODNIK|YUBILEINY|MOLNIYA|MERIDIAN-M|BLAGOVEST|EUTELSAT|KA-SAT|SICRAL|ATHENA-FIDUS|TIBA|NILESAT|ETIHAD|MBZ|SCD|LINGQIAO|WNISAT)(?![A-Z])/],
+
+    // 9. Science & Tech: telescopios, ciencia, pruebas tecnológicas, remolcadores, radioaficionados y cubesats
+    ['tech', /^(?:HST|HUBBLE|CXO|SWIFT|FERMI|NUSTAR|TESS|XMM|INTEGRAL|AGILE|IXPE|ICON|MMS|THEMIS|CLUSTER|PUNCH|TIMED|SDO|IRIS|HINODE|SPEKTR|GAIA|ASTROSAT|HXMT|EINSTEIN|SVOM|XRISM|XPOSAT|SPHEREX|NEOSSAT|MOST|SCISAT|SORCE|SWAS|IMAGE|ARASE|DAMPE|ZHANGHENG|TRACERS|EZIE|BRITE|CALSPHERE|LCS|TEMPSAT|SURCAL|SHIYAN|SHIJIAN|SJ|SY|ION|SHERPA|VIGORIDE|MEV|OTV|DISKSAT|STARLING|PATHFINDER|TIANPING|IONOSFERA|AEROCUBE|TECHSAT|TECHNOSAT|PROBA|OSCAR|AO|FO|CAS|XW|FOX|FUNCUBE|LILACSAT|CUBESAT|CUTE|CANX|POLYTECH|CHUANG XIN|CX|PROX|MINXSS|SIRION|AISTECHSAT|ITAMSAT|RADIO|KX|HAMMER|CHAMRAN|DEMO|PAYLOAD|STARS|CUBY|NETSAT|LKW|KSM|VSP|HEAD|BB|RAPTOR|HERMES|AETHER|TOMORROW|GNOMES|CENTAURI|SKYCRAFT|SKYKRAFT|MISR|MISRSAT|NINGXIA|CASSIOPE|SZ|ETV|SWISSCUBE|AISSAT|O\/OREOS|FASTSAT|RIGIDSPHERE|WFOV|MERCURY|SATNOGS|STPSAT|STP|SPAWAR|TYVAK|YAM|TACSAT|MANDRAKE|JACKAL|RAISE|DSX|S-NET|TEN-KOH|NANOSAT|QB50P|UNISAT|FALCONSAT|ZHEDA|XIWANG|HODOYOSHI|POPACS|GRBALPHA|BEESAT|UWE|ESTCUBE|NAYIF|LUCAS|DB|OTB|OTTER|OT-FOREST|IOD|FGN|PRC)(?![A-Z])/],
+];
+
+function satTypeForStats(name) {
+  const n = String(name || '').toUpperCase().trim();
+  for (const [t, re] of SAT_TYPE_RULES_STATS) if (re.test(n)) return t;
+  return 'misc';
+}
+
+// Órbita a partir del movimiento medio (vueltas/día) y la excentricidad.
+// LEO < 2.000 km; GEO = franja de 35.286–36.286 km; MEO entre medias;
+// HEO = órbitas muy elípticas o por encima de la geoestacionaria.
+function orbitForStats(meanMotion, ecc) {
+  const mm = Number(meanMotion), e = Number(ecc) || 0;
+  if (!(mm > 0)) return null;
+  const n = mm * 2 * Math.PI / 86400;
+  const a = Math.cbrt(398600.4418 / (n * n));
+  const alt = a - 6378.137;
+  if (e >= 0.25) return 'heo';
+  if (alt < 2000) return 'leo';
+  if (alt >= 35286 && alt <= 36286) return 'geo';
+  if (alt < 35286) return 'meo';
+  return 'heo';
+}
+
+function launchYearForStats(r) {
+  const ld = String(r.LAUNCH_DATE || '');
+  if (/^\d{4}/.test(ld)) return Number(ld.slice(0, 4));
+  const id = String(r.OBJECT_ID || '');
+  if (/^\d{4}-/.test(id)) return Number(id.slice(0, 4));
+  return null;
+}
+
+// Altura media (km) a partir del movimiento medio (vueltas/día)
+function altitudeForStats(meanMotion) {
+  const mm = Number(meanMotion);
+  if (!(mm > 0)) return null;
+  const n = mm * 2 * Math.PI / 86400;
+  return Math.cbrt(398600.4418 / (n * n)) - 6378.137;
+}
+
+// Capa de Starlink según la inclinación de su órbita
+function starlinkShellForStats(inc) {
+  const i = Number(inc);
+  if (!(i >= 0)) return 'other';
+  if (i >= 40 && i < 46) return '43';
+  if (i >= 50 && i < 56) return '53';
+  if (i >= 65 && i < 75) return '70';
+  if (i >= 95 && i < 100) return '97';
+  return 'other';
+}
+
+// rows: [{ name, mm, ecc, inc, year, cc }]  (cc = país/organización de Space-Track, o null)
+function buildSatStats(rows, updated) {
+  const types = { starlink: 0, internet: 0, comm: 0, gps: 0, geo: 0, weather: 0, military: 0, iss: 0, tech: 0, misc: 0 };
+  const orbits = { leo: 0, meo: 0, geo: 0, heo: 0 };
+  const years = {};
+  const countries = {};
+  // Resumen solo de Starlink, para el artículo "How Many Starlink Satellites..."
+  const sl = {
+    total: 0, years: {},
+    shells: { '53': 0, '43': 0, '97': 0, '70': 0, other: 0 },
+    altitudes: { low: 0, vleo: 0, main: 0, high: 0 },   // <330 km, 330-400, 400-520, 520+
+  };
+  const slAlts = [];
+  let hasCountry = false, oldest = null;
+  for (const r of rows) {
+    const t = satTypeForStats(r.name);
+    types[t]++;
+    if (t === 'starlink') {
+      sl.total++;
+      if (r.year) sl.years[r.year] = (sl.years[r.year] || 0) + 1;
+      sl.shells[starlinkShellForStats(r.inc)]++;
+      const h = altitudeForStats(r.mm);
+      if (h !== null) {
+        slAlts.push(h);
+        sl.altitudes[h < 330 ? 'low' : h < 400 ? 'vleo' : h < 520 ? 'main' : 'high']++;
+      }
+    }
+    const o = orbitForStats(r.mm, r.ecc);
+    if (o) orbits[o]++;
+    if (r.year) {
+      years[r.year] = (years[r.year] || 0) + 1;
+      if (!oldest || r.year < oldest.year) oldest = { name: r.name, year: r.year };
+    }
+    if (r.cc) { hasCountry = true; countries[r.cc] = (countries[r.cc] || 0) + 1; }
+  }
+  const year = new Date().getUTCFullYear();
+  slAlts.sort((a, b) => a - b);
+  sl.medianAltKm = slAlts.length ? Math.round(slAlts[slAlts.length >> 1]) : null;
+  sl.launchedThisYear = sl.years[year] || 0;
+  return {
+    updated,
+    total: rows.length,
+    types,
+    orbits,
+    years,
+    year,
+    launchedThisYear: years[year] || 0,
+    countries: hasCountry ? Object.entries(countries).sort((a, b) => b[1] - a[1]).map(([code, count]) => ({ code, count })) : [],
+    oldest,
+    starlink: sl,
+    source: 'Space-Track.org orbits + CelesTrak active list',
+  };
+}
+
+async function saveSatStats(env, rows, updated) {
+  try {
+    const stats = buildSatStats(rows, updated);
+    await env.LAUNCHES_KV.put(KV_KEY_SAT_STATS, JSON.stringify(stats));
+    console.log(`[sat-stats] OK: ${stats.total} satélites, ${stats.types.starlink} Starlink`);
+  } catch (e) {
+    console.error('[sat-stats] Fallo, se conserva el dato anterior:', e.message);
+  }
+}
+
+// Solo la primera vez (justo después de desplegar): se saca el resumen de los
+// TLE ya guardados, sin países (llegan en el siguiente cron de órbitas).
+async function rebuildSatStatsFromStoredTle(env) {
+  try {
+    const arr = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_TLE));
+    if (!Array.isArray(arr) || arr.length < MIN_OBJECTS) return;
+    let updated = null;
+    try { updated = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_TLE_META)).updated || null; } catch (e) {}
+    const rows = arr.map(r => ({ name: r.OBJECT_NAME, mm: r.MEAN_MOTION, ecc: r.ECCENTRICITY, inc: r.INCLINATION, year: launchYearForStats(r), cc: null }));
+    await saveSatStats(env, rows, updated || nowIso());
+  } catch (e) {
+    console.error('[sat-stats] No se pudo reconstruir desde los TLE guardados:', e.message);
+  }
+}
+
+async function handleSatelliteStats(ctx, env) {
+  const cache = caches.default;
+  const hit = await cache.match(CACHE_KEY_SAT_STATS);
+  if (hit) return wrapCached(hit);
+
+  let stats = null, debris = null;
+  try { stats = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_SAT_STATS)); } catch (e) {}
+  try { debris = JSON.parse(await env.LAUNCHES_KV.get(KV_KEY_DEBRIS_STATS)); } catch (e) {}
+
+  if (!stats || !(stats.total > 0)) {
+    // Todavía no hay resumen: se prepara en segundo plano (como mucho una vez
+    // cada 10 min) y mientras tanto la web enseña el número escrito en la página.
+    try {
+      const lock = await env.LAUNCHES_KV.get(KV_KEY_SAT_STATS_LOCK);
+      if (!lock) {
+        await env.LAUNCHES_KV.put(KV_KEY_SAT_STATS_LOCK, '1', { expirationTtl: 600 });
+        ctx.waitUntil(rebuildSatStatsFromStoredTle(env));
+      }
+    } catch (e) {}
+    return new Response(JSON.stringify({ updated: null, total: 0 }), {
+      status: 200,
+      headers: makeHeaders({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }),
+    });
+  }
+
+  stats.debris = debris && debris.total > 0 ? debris : null;
+  const resp = new Response(JSON.stringify(stats), {
+    status: 200,
+    headers: makeHeaders({
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': `public, s-maxage=${SAT_STATS_TTL}, max-age=${SAT_STATS_TTL}`,
+    }),
+  });
+  ctx.waitUntil(cache.put(CACHE_KEY_SAT_STATS, resp.clone()));
+  return resp;
 }
