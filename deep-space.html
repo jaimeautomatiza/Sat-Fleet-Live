@@ -82,7 +82,7 @@
     .bar-spacer { flex:1; }
 
     #dsSearch {
-        flex:1; min-width:0; max-width:none; height:34px;
+        flex:1; min-width:140px; max-width:240px; height:34px;
         padding:0 14px; border:1px solid rgba(255,255,255,0.1); border-radius:8px;
         background:rgba(255,255,255,0.05); color:#fff; font-size:0.78rem; font-family:inherit;
         outline:none; transition:border-color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -316,8 +316,9 @@
         body.is-touch #exploreBtn { display:none !important; }
         body.is-touch .bar-sep {display:none !important; }
         body.is-touch #overflowBtn { display:flex !important; }
+        body.is-touch #dsSearch { min-width:0; max-width:none; }
 
-        @media (max-width: 0px) {
+        @media (max-width: 768px) {
         #firstDraftNote { display:none; }
         #overflowBtn { display:flex; }
         #dsSearch { max-width:none; }
