@@ -397,7 +397,7 @@
     <div style="font-size:0.7rem; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;">Filters</div>
     <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;">
         <button class="ar-filter-btn active" data-type="all" onclick="setArFilter('all')">All (day)</button>
-        <button class="ar-filter-btn" data-type="visible" onclick="setArFilter('visible')">Only Visible (night)</button>
+        <button class="ar-filter-btn" data-type="visible" onclick="setArFilter('visible')">Naked-eye visible</button>
         <button class="ar-filter-btn" data-type="starlink" onclick="setArFilter('starlink')">Starlink</button>
         <button class="ar-filter-btn" data-type="internet" onclick="setArFilter('internet')">Other Internet</button>
         <button class="ar-filter-btn" data-type="comm" onclick="setArFilter('comm')">Communications</button>
@@ -592,6 +592,7 @@
     <div class="popup-row"><span class="popup-row-label">Velocity</span><span class="popup-row-val" id="popupVel">—</span></div>
     <div class="popup-row"><span class="popup-row-label">Elevation</span><span class="popup-row-val" id="popupEl">—</span></div>
     <div class="popup-row"><span class="popup-row-label">Azimuth</span><span class="popup-row-val" id="popupAz">—</span></div>
+    <div class="popup-row"><span class="popup-row-label">Brightness</span><span class="popup-row-val" id="popupMag">—</span></div>
 </div>
 
 <!-- LOADING / PERMISSION OVERLAY -->
@@ -813,7 +814,9 @@ function parseTLE(gpData) {
             const previewing = previewPass && previewPass.noradId === noradId;
             if (!previewing && STATION_DUPLICATE_MODULE.test(String(name).toUpperCase())) continue;
             const satrec = satellite.json2satrec(obj);
-            sats.push({ name, noradId, satrec });
+            const rcs = obj.RCS_SIZE || null;                          // tamaño de radar → brillo estimado
+            const launchId = String(obj.OBJECT_ID || '').slice(0, 8);  // lanzamiento → trenes de Starlink
+            sats.push({ name, noradId, satrec, rcs, launchId });
         } catch(e) {}
     }
     return sats;
@@ -1053,6 +1056,7 @@ function calcSatPositions() {
     // Si vienes de un pase concreto, ese es el único que importa — también
     // en vivo. Se puede soltar el filtro con el botón "All".
     const onlyThis = (previewPass && !showAllInPreview) ? previewPass.noradId : null;
+    const light = arLightContext(now);   // Sol y observador, una vez por cálculo
 
     for (const sat of allSatellites) {
         if (onlyThis && String(sat.noradId) !== onlyThis) continue;
@@ -1080,11 +1084,6 @@ function calcSatPositions() {
 
             if (elevation < -5 && !onlyThis) continue; // en previsualización lo seguimos aunque esté bajo el horizonte
 
-            // Only Visible — misma lógica que index.html
-            if (arFilters.has('visible')) {
-                if (!isSatVisibleAR(satLat, satLng, alt, elevation, now)) continue;
-            }
-
             const vel = Math.sqrt(
                 pv.velocity.x**2 + pv.velocity.y**2 + pv.velocity.z**2
             ) * 3600;
@@ -1094,9 +1093,22 @@ function calcSatPositions() {
                 elevation, azimuth,
                 altitude: alt,
                 velocity: vel,
-                satLat, satLng
+                satLat, satLng,
+                eci: pv.position,
+                light: satLight(sat, pv.position, elevation, light),
             });
         } catch(e) { /* silencioso */ }
+    }
+
+    // Trenes de Starlink recién lanzados: brillan bastante más que los demás
+    markArStarlinkTrains(results);
+
+    // Only Visible: solo lo que de verdad se ve a simple vista AHORA
+    // (de noche, al satélite le da el Sol y brilla más de lo que el cielo permite ver)
+    if (arFilters.has('visible') && !onlyThis) {
+        visibleSats = results.filter(r => r.light.nakedEye);
+        document.getElementById('statusVisible').textContent = visibleSats.length;
+        return visibleSats;
     }
 
     visibleSats = results;
@@ -1104,13 +1116,142 @@ function calcSatPositions() {
     return results;
 }
 
-function isSatVisibleAR(satLat, satLng, satAlt, elevation, now) {
-    // Sol sobre el observador
-    const sunEl = calcSunElevation(now, userLocation.lat, userLocation.lng);
-    if (sunEl > 0) return false; // de día no hay satélites visibles a ojo
-    // Satélite iluminado por el sol
-    const satSunEl = calcSunElevation(now, satLat, satLng);
-    return satSunEl > -6;
+// ═══════════════════════════════════════════════
+// BRILLO Y VISIBILIDAD A SIMPLE VISTA (mismo cálculo que Next Passes)
+// ═══════════════════════════════════════════════
+// Recordatorio: cuanto MÁS NEGATIVO, MÁS BRILLANTE (Venus ≈ -4).
+// Modelo estándar de la observación de satélites (Heavens-Above, CalSky, McCants):
+//   magnitud = magnitud estándar + 5·log10(distancia/1000 km)
+//            − 2.5·log10(sen φ + (π − φ)·cos φ) + extinción atmosférica
+// φ = ángulo Sol–satélite–observador (la "fase", como la de la Luna).
+const STD_MAG_RULES = [
+    [/^ISS \(/,              -1.8], // máximo real ~-4 en los mejores pases
+    [/^(CSS \(|TIANGONG)/,    0.2], // estación china: máximo ~-2,5
+    [/^(HST|HUBBLE)\b/,       2.8], // Hubble: máximo ~+0,5 a +1
+    [/^STARLINK/,             6.0], // Starlink en su capa (Mallama: 5,9 a 7,2)
+    [/^ONEWEB/,               7.1], // OneWeb (Mallama: 7,05 a 7,18)
+];
+const STD_MAG_BY_SIZE = { LARGE: 4.0, MEDIUM: 5.5, SMALL: 7.0 }; // resto: por tamaño de radar
+const STD_MAG_UNKNOWN = 5.5;
+const EXTINCTION_PER_AIRMASS = 0.25;
+const EARTH_RADIUS_KM = 6371;
+
+// Trenes de Starlink: satélites del mismo lanzamiento, todavía bajos y muy juntos
+const TRAIN_MAX_ALTITUDE_KM    = 420;
+const TRAIN_MAX_SEPARATION_DEG = 4;
+const TRAIN_MIN_NEIGHBOURS     = 2;   // él + 2 vecinos = tren de 3 o más
+const TRAIN_BRIGHTNESS_BOOST   = 1.5; // van con los paneles de cara: brillan más
+
+function standardMagnitudeAR(sat) {
+    const n = sat.name.toUpperCase();
+    for (const [re, m] of STD_MAG_RULES) if (re.test(n)) return m;
+    return STD_MAG_BY_SIZE[sat.rcs] ?? STD_MAG_UNKNOWN;
+}
+
+// Lo más débil que se ve a simple vista según lo oscuro que esté el cielo
+function skyLimitingMagnitude(sunElevation) {
+    if (sunElevation > -6)  return 3.5; // crepúsculo civil: cielo todavía claro
+    if (sunElevation > -9)  return 4.5;
+    if (sunElevation > -12) return 5.5;
+    return 6.0;                         // noche cerrada
+}
+
+// Posición del Sol en el mismo sistema que los satélites (ECI, km)
+function sunEciAR(date) {
+    const n  = (date.getTime() / 86400000) + 2440587.5 - 2451545.0;
+    const L  = ((280.460 + 0.9856474 * n) % 360 + 360) % 360;
+    const M  = (((357.528 + 0.9856003 * n) % 360 + 360) % 360) * Math.PI / 180;
+    const lam = (L + 1.915 * Math.sin(M) + 0.020 * Math.sin(2 * M)) * Math.PI / 180;
+    const eps = (23.439 - 0.0000004 * n) * Math.PI / 180;
+    const r = (1.00014 - 0.01671 * Math.cos(M) - 0.00014 * Math.cos(2 * M)) * 149597870.7;
+    return { x: r * Math.cos(lam), y: r * Math.cos(eps) * Math.sin(lam), z: r * Math.sin(eps) * Math.sin(lam) };
+}
+
+// Posición del observador (ECI, km)
+function observerEciAR(gmst) {
+    const lat = userLocation.lat * Math.PI / 180, lng = userLocation.lng * Math.PI / 180;
+    if (typeof satellite.geodeticToEcf === 'function' && typeof satellite.ecfToEci === 'function') {
+        return satellite.ecfToEci(satellite.geodeticToEcf({ latitude: lat, longitude: lng, height: 0 }), gmst);
+    }
+    const l = lng + gmst;
+    return { x: EARTH_RADIUS_KM * Math.cos(lat) * Math.cos(l), y: EARTH_RADIUS_KM * Math.cos(lat) * Math.sin(l), z: EARTH_RADIUS_KM * Math.sin(lat) };
+}
+
+// Lo que es igual para todos los satélites en un instante: se calcula una vez
+function arLightContext(now) {
+    const sun = sunEciAR(now);
+    const sunLen = Math.hypot(sun.x, sun.y, sun.z);
+    const sunElevation = calcSunElevation(now, userLocation.lat, userLocation.lng);
+    return {
+        sun, sunUnit: { x: sun.x / sunLen, y: sun.y / sunLen, z: sun.z / sunLen },
+        obs: observerEciAR(satellite.gstime(now)),
+        sunElevation,
+        limit: skyLimitingMagnitude(sunElevation),
+        dark: sunElevation < -3,   // con el Sol más alto el cielo es demasiado claro
+    };
+}
+
+// Brillo y visibilidad de un satélite en ese instante
+function satLight(sat, s, elevation, ctx) {
+    // ¿Le da el Sol? (fuera del cilindro de sombra de la Tierra)
+    const proj = s.x * ctx.sunUnit.x + s.y * ctx.sunUnit.y + s.z * ctx.sunUnit.z;
+    const perp = Math.sqrt(Math.max(0, s.x * s.x + s.y * s.y + s.z * s.z - proj * proj));
+    const sunlit = proj > 0 || perp > EARTH_RADIUS_KM;
+    if (!sunlit || elevation <= 0) return { sunlit, magnitude: null, nakedEye: false };
+
+    const toObs = { x: ctx.obs.x - s.x, y: ctx.obs.y - s.y, z: ctx.obs.z - s.z };
+    const toSun = { x: ctx.sun.x - s.x, y: ctx.sun.y - s.y, z: ctx.sun.z - s.z };
+    const range = Math.hypot(toObs.x, toObs.y, toObs.z);
+    const cosPhase = (toObs.x * toSun.x + toObs.y * toSun.y + toObs.z * toSun.z) /
+                     (range * Math.hypot(toSun.x, toSun.y, toSun.z));
+    const phase = Math.acos(Math.max(-1, Math.min(1, cosPhase)));
+    const phaseFactor = Math.sin(phase) + (Math.PI - phase) * Math.cos(phase);
+    if (phaseFactor < 1e-4) return { sunlit, magnitude: null, nakedEye: false }; // a contraluz total
+
+    const airmass = Math.min(1 / Math.sin(elevation * Math.PI / 180), 10);
+    const magnitude = standardMagnitudeAR(sat) + 5 * Math.log10(range / 1000)
+        - 2.5 * Math.log10(phaseFactor) + EXTINCTION_PER_AIRMASS * (airmass - 1);
+    return { sunlit, magnitude, nakedEye: ctx.dark && magnitude <= ctx.limit, limit: ctx.limit, dark: ctx.dark };
+}
+
+// Marca los Starlink recién lanzados que van en tren y les sube el brillo
+function markArStarlinkTrains(list) {
+    const byLaunch = {};
+    for (const r of list) {
+        if (!r.launchId || r.altitude > TRAIN_MAX_ALTITUDE_KM || !/^STARLINK/.test(r.name.toUpperCase())) continue;
+        (byLaunch[r.launchId] = byLaunch[r.launchId] || []).push(r);
+    }
+    const cosMax = Math.cos(TRAIN_MAX_SEPARATION_DEG * Math.PI / 180);
+    for (const id in byLaunch) {
+        const g = byLaunch[id];
+        if (g.length <= TRAIN_MIN_NEIGHBOURS) continue;
+        for (const a of g) {
+            const la = Math.hypot(a.eci.x, a.eci.y, a.eci.z);
+            let near = 0;
+            for (const b of g) {
+                if (a === b) continue;
+                const cos = (a.eci.x * b.eci.x + a.eci.y * b.eci.y + a.eci.z * b.eci.z) / (la * Math.hypot(b.eci.x, b.eci.y, b.eci.z));
+                if (cos >= cosMax && ++near >= TRAIN_MIN_NEIGHBOURS) break;
+            }
+            if (near < TRAIN_MIN_NEIGHBOURS) continue;
+            a.inTrain = true;
+            if (a.light.magnitude !== null) {
+                a.light.magnitude -= TRAIN_BRIGHTNESS_BOOST;
+                a.light.nakedEye = a.light.dark && a.light.magnitude <= a.light.limit;
+            }
+        }
+    }
+}
+
+// Texto del brillo para el panel del satélite
+function brightnessText(sat) {
+    const L = sat.light;
+    if (!L || sat.elevation <= 0) return 'Below horizon';
+    if (!L.sunlit) return "In Earth's shadow";
+    if (L.magnitude === null) return 'Not visible';
+    const m = (L.magnitude >= 0 ? '+' : '') + L.magnitude.toFixed(1);
+    if (!L.dark) return `Mag ${m} · sky too bright`;
+    return L.nakedEye ? `Mag ${m} · naked eye` : `Mag ${m} · too faint`;
 }
 
 function calcSunElevation(date, lat, lng) {
@@ -1743,6 +1884,7 @@ function refreshPopupNumbers(sat) {
     document.getElementById('popupVel').textContent = Math.round(sat.velocity).toLocaleString() + ' km/h';
     document.getElementById('popupEl').textContent  = sat.elevation.toFixed(1) + '°';
     document.getElementById('popupAz').textContent  = sat.azimuth.toFixed(1) + '°';
+    document.getElementById('popupMag').textContent = brightnessText(sat);
 }
 
 function calcOrbitPoints(sat) {
