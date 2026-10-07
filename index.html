@@ -9345,6 +9345,11 @@ maybeShowTrialPromo();
             const ms = document.getElementById('mobileStats');
             if (ms) ms.classList.add('pis-ready');
             if (typeof currentSelectedSat !== 'undefined' && currentSelectedSat) window.updateSatCrewRow(currentSelectedSat);
+            // Si se llega desde otra página con ?people=1, abrir el panel directamente
+            if (new URLSearchParams(location.search).get('people') === '1') {
+                window.openPeoplePanel();
+                history.replaceState(null, '', location.pathname);
+            }
         } catch (e) {
             console.warn('People in space no disponible:', e);
         }

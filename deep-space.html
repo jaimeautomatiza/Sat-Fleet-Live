@@ -103,6 +103,9 @@
         font-family:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
     }
     .bar-btn:hover { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.2); color:#fff; transform:translateY(-1px); }
+    #pisBarBtn { display:inline-flex; align-items:center; gap:6px; border-color:rgba(156,39,176,0.45); background:rgba(156,39,176,0.12); color:#c084fc; }
+    #pisBarBtn:hover { background:rgba(156,39,176,0.28); border-color:rgba(156,39,176,0.7); color:#c084fc; }
+    body.light-mode #pisBarBtn, body.light-mode #pisBarBtn:hover { color:#7b1fa2; }
 
     #guidesBtn { border-color:rgba(255,215,0,0.5); color:#ffd700; background:rgba(255,215,0,0.07); }
     #launchesBtn { border-color:rgba(255,107,53,0.5); color:#ff6b35; background:rgba(255,107,53,0.07); }
@@ -276,7 +279,7 @@
         #bottomBar { padding:0 10px; gap:6px; }
         .bar-logo-text { display:none; }
         .bar-logo img { width:32px; height:32px; }
-        #guidesBtn, #launchesBtn, #nextPassesBtn, #accountBtn, #exploreBtn { display:none !important; }
+        #guidesBtn, #launchesBtn, #nextPassesBtn, #pisBarBtn, #accountBtn, #exploreBtn { display:none !important; }
         }
 
         /* Dispositivos táctiles: misma interfaz sea cual sea el tamaño o la
@@ -286,6 +289,7 @@
         body.is-touch #launchesBtn,
         body.is-touch #nextPassesBtn,
         body.is-touch #accountBtn,
+        body.is-touch #pisBarBtn,
         body.is-touch #exploreBtn { display:none !important; }
 
         body.is-touch #overflowBtn { display:flex !important; }
@@ -550,6 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <img src="images/telescope.svg" style="width:14px;height:14px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
     </button>
     <div class="bar-sep"></div>
+    <button class="bar-btn" id="pisBarBtn" onclick="window.location.href='/?people=1'" title="People in space right now"><img src="images/astronaut.svg" style="width:14px;height:14px;" alt=""> People in space</button>
     <button class="bar-btn" id="accountBtn" onclick="window.location.href='account.html'"><img src="images/account.svg" style="width:14px;height:14px;"> Account</button>
     <div class="bar-sep"></div>
     <button class="bar-btn" id="exploreBtn" onclick="toggleExploreMenu()">
@@ -627,6 +632,9 @@ document.addEventListener('DOMContentLoaded', () => {
     </button>
     <button class="overflow-item" style="color:#2196f3;" onclick="window.location.href='next-passes.html'">
         <img src="images/telescope.svg" style="width:16px;height:16px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
+    </button>
+    <button class="overflow-item" style="color:#c084fc;" onclick="window.location.href='/?people=1'">
+        <img src="images/astronaut.svg" style="width:16px;height:16px;" alt=""> People in space
     </button>
     <button class="overflow-item orange" onclick="window.location.href='launches.html'">
         <img src="images/rocket.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
