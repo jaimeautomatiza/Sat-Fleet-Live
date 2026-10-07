@@ -91,6 +91,7 @@
             --iss-color: #ffffff;
             --comm-color: #ff6b35;
             --starlink-color: #00d26a;
+            --internet-color: #c6ff00;
             --military-color: #ff0000;
             --weather-color: #ffd700;
             --geo-color: #00ced1;
@@ -2494,15 +2495,16 @@ body.light-mode .rocket-filter-chip {
         </div>
     </div>
     <div id="legendSatItems">
-    <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>GPS / Navigation</span></div>
-    <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Station</span></div>
-    <div class="legend-item"><div class="legend-color" style="background:#00d26a"></div><span>Starlink / Internet</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#00d26a"></div><span>Starlink</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#c6ff00"></div><span>Other Internet</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ff6b35"></div><span>Communications</span></div>
-    <div class="legend-item"><div class="legend-color" style="background:#ff0000"></div><span>Military / Spy</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>Navigation</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Earth Observation</span></div>
     <div class="legend-item"><div class="legend-color" style="background:#ffd700"></div><span>Weather / Climate</span></div>
-    <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Geodetic / Tracking</span></div>
-    <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Technology / Exp.</span></div>
-    <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other / Misc</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff0000"></div><span>Military</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Stations</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Science &amp; Tech</span></div>
+    <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other</span></div>
     </div><!-- /legendSatItems -->
 
     <div id="legendReentryItems" style="display:none;">
@@ -2577,14 +2579,15 @@ body.light-mode .rocket-filter-chip {
         <div class="layer-filters-wrap" id="satelliteFiltersWrap">
             <div class="filters-grid">
                 <button class="filter-chip" data-type="all" onclick="filterSatellites('all')">All</button>
-                <button class="filter-chip active" data-type="gps" onclick="filterSatellites('gps')">GPS</button>
-                <button class="filter-chip active" data-type="iss" onclick="filterSatellites('iss')">Space Station</button>
-                <button class="filter-chip active" data-type="comm" onclick="filterSatellites('comm')">Communications</button>
                 <button class="filter-chip" data-type="starlink" onclick="filterSatellites('starlink')">Starlink</button>
-                <button class="filter-chip active" data-type="military" onclick="filterSatellites('military')">Military</button>
+                <button class="filter-chip active" data-type="internet" onclick="filterSatellites('internet')">Other Internet</button>
+                <button class="filter-chip active" data-type="comm" onclick="filterSatellites('comm')">Communications</button>
+                <button class="filter-chip active" data-type="gps" onclick="filterSatellites('gps')">Navigation</button>
+                <button class="filter-chip active" data-type="geo" onclick="filterSatellites('geo')">Earth Observation</button>
                 <button class="filter-chip active" data-type="weather" onclick="filterSatellites('weather')">Weather</button>
-                <button class="filter-chip active" data-type="geo" onclick="filterSatellites('geo')">Geodetic</button>
-                <button class="filter-chip active" data-type="tech" onclick="filterSatellites('tech')">Technology</button>
+                <button class="filter-chip active" data-type="military" onclick="filterSatellites('military')">Military</button>
+                <button class="filter-chip active" data-type="iss" onclick="filterSatellites('iss')">Space Stations</button>
+                <button class="filter-chip active" data-type="tech" onclick="filterSatellites('tech')">Science &amp; Tech</button>
                 <button class="filter-chip" data-type="misc" onclick="filterSatellites('misc')">Other</button>
             </div>
         </div>
@@ -2703,14 +2706,15 @@ body.light-mode .rocket-filter-chip {
                 </div>
                 <div class="mobile-filters layer-filters-wrap" id="mobileSatelliteFiltersWrap">
                     <button class="mobile-filter-btn" data-type="all" onclick="mobileFilterSatellites('all')">All</button>
-                    <button class="mobile-filter-btn active" data-type="gps" onclick="mobileFilterSatellites('gps')">GPS</button>
-                    <button class="mobile-filter-btn active" data-type="iss" onclick="mobileFilterSatellites('iss')">Space Station</button>
-                    <button class="mobile-filter-btn active" data-type="comm" onclick="mobileFilterSatellites('comm')">Communications</button>
                     <button class="mobile-filter-btn" data-type="starlink" onclick="mobileFilterSatellites('starlink')">Starlink</button>
-                    <button class="mobile-filter-btn active" data-type="military" onclick="mobileFilterSatellites('military')">Military</button>
+                    <button class="mobile-filter-btn active" data-type="internet" onclick="mobileFilterSatellites('internet')">Other Internet</button>
+                    <button class="mobile-filter-btn active" data-type="comm" onclick="mobileFilterSatellites('comm')">Communications</button>
+                    <button class="mobile-filter-btn active" data-type="gps" onclick="mobileFilterSatellites('gps')">Navigation</button>
+                    <button class="mobile-filter-btn active" data-type="geo" onclick="mobileFilterSatellites('geo')">Earth Observation</button>
                     <button class="mobile-filter-btn active" data-type="weather" onclick="mobileFilterSatellites('weather')">Weather</button>
-                    <button class="mobile-filter-btn active" data-type="geo" onclick="mobileFilterSatellites('geo')">Geodetic</button>
-                    <button class="mobile-filter-btn active" data-type="tech" onclick="mobileFilterSatellites('tech')">Technology</button>
+                    <button class="mobile-filter-btn active" data-type="military" onclick="mobileFilterSatellites('military')">Military</button>
+                    <button class="mobile-filter-btn active" data-type="iss" onclick="mobileFilterSatellites('iss')">Space Stations</button>
+                    <button class="mobile-filter-btn active" data-type="tech" onclick="mobileFilterSatellites('tech')">Science &amp; Tech</button>
                     <button class="mobile-filter-btn" data-type="misc" onclick="mobileFilterSatellites('misc')">Other</button>
                 </div>
             </div>
@@ -2762,14 +2766,15 @@ body.light-mode .rocket-filter-chip {
         <div class="mobile-section">
             <div class="mobile-section-title">Satellite Types</div>
             <div class="mobile-legend">
-                <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>GPS</span></div>
-                <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Station</span></div>
                 <div class="legend-item"><div class="legend-color" style="background:#00d26a"></div><span>Starlink</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#c6ff00"></div><span>Other Internet</span></div>
                 <div class="legend-item"><div class="legend-color" style="background:#ff6b35"></div><span>Communications</span></div>
-                <div class="legend-item"><div class="legend-color" style="background:#ff0000"></div><span>Military</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#4285f4"></div><span>Navigation</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Earth Observation</span></div>
                 <div class="legend-item"><div class="legend-color" style="background:#ffd700"></div><span>Weather</span></div>
-                <div class="legend-item"><div class="legend-color" style="background:#00ced1"></div><span>Geodetic</span></div>
-                <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Technology</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#ff0000"></div><span>Military</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#ffffff"></div><span>Space Stations</span></div>
+                <div class="legend-item"><div class="legend-color" style="background:#9400d3"></div><span>Science &amp; Tech</span></div>
                 <div class="legend-item"><div class="legend-color" style="background:#ff69b4"></div><span>Other</span></div>
             </div>
             
@@ -3062,7 +3067,7 @@ body.light-mode .rocket-filter-chip {
         let allSatellites = [];
         let rawActiveGpData = null;    // TLE de satélites activos, intacto mientras se ve basura
         let parseActiveGpData = null;  // referencia a parseTLEWithType, definida al cargar
-        const DEFAULT_FILTERS = ['gps', 'iss', 'comm', 'military', 'weather', 'geo', 'tech'];
+        const DEFAULT_FILTERS = ['internet', 'comm', 'gps', 'geo', 'weather', 'military', 'iss', 'tech'];
         let activeFilters = new Set(DEFAULT_FILTERS);
 
         // ===== MODO DE DATOS: 'active' (satélites) o 'debris' (basura) =====
@@ -3161,6 +3166,7 @@ let cesiumUpdateInterval = null;
                 case 'gps': return 'var(--gps-color)';
                 case 'iss': return 'var(--iss-color)';
                 case 'starlink': return 'var(--starlink-color)';
+                case 'internet': return 'var(--internet-color)';
                 case 'comm': return 'var(--comm-color)';
                 case 'military': return 'var(--military-color)';
                 case 'weather': return 'var(--weather-color)';
@@ -3171,85 +3177,57 @@ let cesiumUpdateInterval = null;
             }
         }
 
-        // Función para obtener tipo de satélite
+        // ===== CLASIFICACIÓN DE SATÉLITES POR NOMBRE =====
+        // Se mira el nombre de arriba abajo y gana la PRIMERA regla que encaje.
+        // Cada regla busca nombres que EMPIEZAN por esas palabras (no que las contengan
+        // en medio), para evitar errores como "Amazonas" metido en Kuiper.
+        // Lo que no encaja en ninguna va a "Other".
+        const SAT_TYPE_RULES = [
+            // 1. Space Stations: estaciones, sus módulos y las naves que las visitan
+            ['iss', /^(?:ISS|CSS) \(|^(?:TIANGONG|CREW DRAGON|DRAGON|CYGNUS|PROGRESS[ -]?MS|SOYUZ[ -]?MS|SHENZHOU|TIANZHOU|STARLINER|HTV|DREAM CHASER)(?![A-Z])/],
+
+            // 2. Starlink, sola
+            ['starlink', /^STARLINK(?![A-Z])/],
+
+            // 3. Other Internet: el resto de megaconstelaciones de internet
+            ['internet', /^(?:ONEWEB|KUIPER|QIANFAN|HULIANWANG|GUOWANG|O3B|RASSVET|SPACEMOBILE|BLUEBIRD|BLUEWALKER|LYNK|LIGHTSPEED|HONGYAN|XINGWANG)/],
+
+            // 4. Navigation: GPS, GLONASS, Galileo, BeiDou, QZSS, NavIC...
+            ['gps', /^(?:NAVSTAR|GPS|GALILEO|GSAT0\d{3}|BEIDOU|BD-\d|IRNSS|NVS-\d|QZS|MICHIBIKI|CENTISPACE|LEONAV)(?![A-Z])|\bGLONASS\b/],
+
+            // 5. Military (antes, los COSMOS de geodesia rusos se mandan a Earth Observation)
+            ['geo', /\((?:ETALON|GEO-IK)/],
+            ['military', /^(?:YAOGAN|USA \d|NROL|TJS|SBIRS|WGS|AEHF|MUOS|DMSP|SDA_|PRAETORIAN|SPAINSAT|SYRACUSE|SKYNET|MILSTAR|DSCS|UFO|FLTSATCOM|MERIDIAN|OPS \d|SBSS|HELIOS|CSO|SAR-LUPE|SARAH|OFEQ|OFEK|IGS|STARSHIELD|GJZ|LUCH|BLACKJACK|HBTSS|SAPPHIRE|KONDOR|LOTOS|PION|BARS-M|RAZDAN|NEMO-AM|COSMOS \d+|KOSMOS \d+)(?![A-Z])|\(USA \d/],
+
+            // 6. Weather: meteorología y clima
+            ['weather', /^(?:NOAA|GOES|METOP|METEOSAT|MTG|MSG|HIMAWARI|FENGYUN|FY|METEOR|ELEKTRO|ARKTIKA|ARCTIC|JPSS|SUOMI|NPP|TIANMU|YUNHAI|YUNYAO|AQUA|TERRA|AURA|GPM|SMOS|SMAP|OCO|GOSAT|GCOM|CLOUDSAT|CALIPSO|EARTHCARE|SCATSAT|OCEANSAT|LEMUR|FORMOSAT-?7|FORMOSAT7|COSMIC|TEMPEST|TROPICS|INSAT-3D|GEO-KOMPSAT-2A|DSCOVR|CYGFM|PREFIRE|PACE|DAQI|SEAHAWK|EWS)(?![A-Z])/],
+
+            // 7. Earth Observation: fotos, radar, cartografía y geodesia
+            ['geo', /^(?:SENTINEL|LANDSAT|SPOT|PLEIADES|PNEO|WORLDVIEW|GEOEYE|CARTOSAT|RESOURCESAT|RISAT|EOS|EOSSAT|KOMPSAT|KANOPUS|RESURS|GAOFEN|JILIN|SUPERVIEW|ZY|ZIYUAN|HJ|HAIYANG|TIANHUI|FLOCK|SKYSAT|PELICAN|TANAGER|ICEYE|CAPELLA|UMBRA|STRIX|QPS|IRIDE|NUSAT|GRUS|DMC|ALSAT|LEGION|BLACKSKY|HAWK|BRO|GHGSAT|COSMO|CSG|TERRASAR|TANDEM|TDX|PAZ|INGENIO|RADARSAT|RCM|SAOCOM|NISAR|ALOS|GRACE|LAGEOS|LARES|LARETS|STARLETTE|STELLA|AJISAI|ETALON|JASON|SWOT|CRYOSAT|ICESAT|SARAL|AMAZONIA|CBERS|DEIMOS|DUBAISAT|KHALIFASAT|PIESAT|ZHUHAI|WILDFIRE|FIRESAT|NOVASAR|SAUDISAT|SAUDIGEOSAT|CAS500|AAC-HSI|PRISMA|ENMAP|BIROS|HYSIS|SDGSAT|THEOS|RASAT|GOKTURK|IMECE|PERUSAT|VRSS|VNREDSAT|KAZEOSAT|NIGERIASAT|LAPAN|HYPSO|ASNARO|CO3D|LT-1|BIOMASS|EGS|SARI|TIRSAT|HYPERION|CARBSAR|EMISAR|LASARSAT|SARAMAGO|CESARIO|COLIBRI|DRAGRACER|MONOLITH|PULSAR|CORIOLIS|EGYPTSAT|EMISAT|LUOJIA|KUWAITSAT|TELEOS|GEISAT|DRISHTI|HYPERFIELD|SATELLOGIC|NEONSAT|SPACEEYE|OPTISAT|EROS|DIWATA|MOHAMMED|MAROC|SSOT|ALISIO|BUCCANEER|SAR|SKYMED|GLOBAL|FORMOSAT)(?![A-Z])/],
+
+            // 8. Communications: televisión, teléfono, datos, repetidores e IoT
+            ['comm', /^(?:INTELSAT|IS|SES|ASTRA|EUTELSAT|EUTE|HOT ?BIRD|HISPASAT|AMAZONAS|INMARSAT|VIASAT|ECHOSTAR|DIRECTV|SIRIUS|XM|GALAXY|TELSTAR|ANIK|NIMIQ|AMC|CIEL|CHINASAT|ZHONGXING|APSTAR|ASIASAT|ASIASTAR|JCSAT|SUPERBIRD|BSAT|KOREASAT|THAICOM|IPSTAR|MEASAT|OPTUS|YAMAL|EXPRESS|EKSPRESS|GONETS|RADUGA|ARABSAT|BADR|NILESAT|YAHSAT|AL YAH|THURAYA|TURKSAT|AMOS|HELLAS|AZERSPACE|BELINTERSAT|ABS|NSS|STAR ?ONE|TDRS|TIANLIAN|TIANTONG|IRIDIUM|GLOBALSTAR|ORBCOMM|SWARM|SPACEBEE|KINEIS|TIANQI|ASTROCAST|SATELIOT|CONNECTA|GEESAT|SAUDICOMSAT|COMSATBW|ALCOMSAT|NIGCOMSAT|PAKSAT|RASCOM|QUETZSAT|JUPITER|ASTRANIS|GSAT|INSAT|CMS|TELKOM|NUSANTARA|BRISAT|KACIFIC|ES'HAIL|SKY|HORIZONS|EDRS|SKYTERRA|TERRESTAR|APRIZESAT|AAC-AIS|MEXSAT|MORELOS|SATMEX|ARSAT|SGDC|VINASAT|LAOSAT|KAZSAT|ANGOSAT|TURKMENALEM|BULGARIASAT|GHANASAT|OMNI|KORSAT|SATRIA|NBN|SXM|THOR|HYLAS|ECHO|WILDBLUE|ALPHASAT|AT&T|NORSAT|EXACTVIEW|FOSSASAT|OVZON|BANGABANDHUSAT|DJIBOUTI|AGILA|STRELA|RODNIK|YUBILEINY|MOLNIYA|MERIDIAN-M|BLAGOVEST|EUTELSAT|KA-SAT|SICRAL|ATHENA-FIDUS|TIBA|NILESAT|ETIHAD|MBZ|SCD|LINGQIAO|WNISAT)(?![A-Z])/],
+
+            // 9. Science & Tech: telescopios, ciencia, pruebas tecnológicas, remolcadores, radioaficionados y cubesats
+            ['tech', /^(?:HST|HUBBLE|CXO|SWIFT|FERMI|NUSTAR|TESS|XMM|INTEGRAL|AGILE|IXPE|ICON|MMS|THEMIS|CLUSTER|PUNCH|TIMED|SDO|IRIS|HINODE|SPEKTR|GAIA|ASTROSAT|HXMT|EINSTEIN|SVOM|XRISM|XPOSAT|SPHEREX|NEOSSAT|MOST|SCISAT|SORCE|SWAS|IMAGE|ARASE|DAMPE|ZHANGHENG|TRACERS|EZIE|BRITE|CALSPHERE|LCS|TEMPSAT|SURCAL|SHIYAN|SHIJIAN|SJ|SY|ION|SHERPA|VIGORIDE|MEV|OTV|DISKSAT|STARLING|PATHFINDER|TIANPING|IONOSFERA|AEROCUBE|TECHSAT|TECHNOSAT|PROBA|OSCAR|AO|FO|CAS|XW|FOX|FUNCUBE|LILACSAT|CUBESAT|CUTE|CANX|POLYTECH|CHUANG XIN|CX|PROX|MINXSS|SIRION|AISTECHSAT|ITAMSAT|RADIO|KX|HAMMER|CHAMRAN|DEMO|PAYLOAD|STARS|CUBY|NETSAT|LKW|KSM|VSP|HEAD|BB|RAPTOR|HERMES|AETHER|TOMORROW|GNOMES|CENTAURI|SKYCRAFT|SKYKRAFT|MISR|MISRSAT|NINGXIA|CASSIOPE|SZ|ETV|SWISSCUBE|AISSAT|O\/OREOS|FASTSAT|RIGIDSPHERE|WFOV|MERCURY|SATNOGS|STPSAT|STP|SPAWAR|TYVAK|YAM|TACSAT|MANDRAKE|JACKAL|RAISE|DSX|S-NET|TEN-KOH|NANOSAT|QB50P|UNISAT|FALCONSAT|ZHEDA|XIWANG|HODOYOSHI|POPACS|GRBALPHA|BEESAT|UWE|ESTCUBE|NAYIF|LUCAS|DB|OTB|OTTER|OT-FOREST|IOD|FGN|PRC)(?![A-Z])/],
+        ];
+
+        // Memoria de nombres ya clasificados, para no repetir el trabajo en cada refresco
+        const satTypeCache = new Map();
+
         function getSatelliteType(name) {
             // En modo basura, el "tipo" es el origen del fragmento: así los
             // filtros, el pintado y las stats reutilizan el mismo camino.
             if (dataMode === 'debris') return getDebrisType(name);
-            const n = (name || '').toLowerCase().trim();
-
-            // helper: coincide palabra completa o prefijo típico
-            const has = (kw) => n.includes(kw);
-            const any = (...kws) => kws.some(has);
-            const word = (re) => re.test(n);
-
-            // GPS / Navegación
-            if (
-                any('gps', 'navstar', 'galileo', 'glonass', 'beidou', 'bei dou', 'bds', 'glo', 'navic', 'irnss') ||
-                word(/\bgsat0?\d{2}\b/)
-            ) return 'gps';
-
-            // ISS / Estación Espacial
-            if (
-                any('iss', 'zarya', 'space station', 'css', 'tiangong', 'tianghe', 'tianhe', 'wentian', 'mengtian', 'nauka',
-                    'progress', 'soyuz', 'shenzhou', 'crew dragon', 'dragon ', ' starliner', 'cygnus', 'htv', 'atv') ||
-                word(/\bdragon-?\d\b/)
-            ) return 'iss';
-
-            // Starlink / Internet
-            if (any('starlink', 'oneweb', 'kuiper', 'amazon', 'project kuiper')) return 'starlink';
-
-            // Militares / Espía (PRIORIDAD ALTA - antes que comunicaciones)
-            if (
-                any('yaogan', 'nro', ' spy', 'military', 'classified', 'lacrosse', 'noss', 'electro', 'kosmos', 'cosmos',
-                    'navy', 'kh-', 'sbirs', 'wgs ', 'aehf', 'tjs-', 'meridian', 'spainsat', 'spain sat', 'dscs', 'milstar',
-                    'fltsatcom', 'ufo', 'ops ', 'dsp', 'defense', 'reconnaissance', 'sigint', 'elint', 'keyhole', 'crystal',
-                    'topaz', 'onyx', 'lacrosse', 'mentor', 'trumpet', 'rhyolite', 'chalet', 'vortex', 'mercury', 'advanced orion',
-                    'prowler', 'intruder', 'misty', 'enhanced crystal', 'future imagery architecture', 'fia', 'nrol', 'usa-') ||
-                word(/\busa\s*\d+\b/) || word(/\bnrol[-\s]*\d+\b/) || word(/\bops\s*\d+\b/) || word(/\bdsp[-\s]*\d+\b/)
-            ) return 'military';
-
-            // Comunicaciones
-            if (
-                any('intelsat', 'eutelsat', 'ses ', ' ses-', 'astra', 'hotbird', 'telecom', 'viasat', 'echo', 'echostar', 'comsat',
-                    'inmarsat', 'thuraya', 'arabsat', 'hispasat', 'nilesat', 'optus', 'sky ', 'skynet', 'galaxy', 'telstar',
-                    'anik', 'amos', 'yamal', 'badr', 'yahsat', 'sirius', 'paksat', 'rascom', 'measat', 'apstar', 'horizons',
-                    'quetzsat', 'hellas-sat', 'turksat', 'tdrs', 'tracking', 'data relay', 'communications', 'broadcast',
-                    'directv', 'dish', 'hughes', 'wildblue', 'iridium', 'globalstar', 'orbcomm', 'swarm', 'fleet')
-            ) return 'comm';
-
-            // Meteorológicos / Clima
-            if (
-                any('noaa', 'goes', 'metop', 'himawari', 'weather', 'meteo', 'meteor', 'fy-', 'fengyun', 'arktika', 'meteosat', 'smos', 'ewsg',
-                    'climate', 'atmospheric', 'oceansat', 'scatsat', 'windsat', 'cloudsat', 'calipso', 'aqua', 'terra', 'aura',
-                    'suomi', 'jpss', 'npp', 'modis', 'viirs', 'ceres', 'airs', 'amsu', 'hirs', 'avhrr', 'seviri')
-            ) return 'weather';
-
-            // Geodésicos / Seguimiento / Láser / Observación Tierra
-            if (
-                any('geosat', 'geodesy', 'laser', 'lagesat', 'gravity', 'grace', 'champ', 'goce', 'lageos', 'lares', 'larets',
-                    'starlette', 'stella', 'ajisai', 'etalon', 'landsat', 'spot', 'sentinel', 'worldview', 'quickbird', 'ikonos',
-                    'pleiades', 'terrasar', 'radarsat', 'cosmo', 'skymed', 'alos', 'palsar', 'aster', 'hyperion', 'oli', 'tirs',
-                    'msi', 'olci', 'slstr', 'sral', 'mwr', 'doris', 'poseidon', 'altika', 'earth observation', 'remote sensing',
-                    'imaging', 'radar', 'sar', 'optical', 'multispectral', 'hyperspectral', 'lidar', 'altimeter', 'scatterometer',
-                    'radiometer', 'spectrometer', 'photometer', 'polarimeter', 'interferometer', 'topography', 'bathymetry',
-                    'geodetic', 'cartography', 'mapping', 'surveying', 'positioning', 'navigation', 'timing')
-            ) return 'geo';
-
-                        // Tecnología / Demostración / Experimental
-            if (!any('starlink', 'oneweb', 'kuiper') &&
-                any('demo', 'test', 'tech', 'prototype', 'expres', 'x-', 'demons', 'techdemo', 'proba', 'pathfinder', 'experiment',
-                    'xss', 'otv', 'cubesat', 'cube-sat', 'cute-', 'cubex', 'protosat', 'skysat', 'technology', 'demonstration',
-                    'experimental', 'research', 'science', 'mission', 'payload', 'instrument', 'sensor', 'detector', 'camera',
-                    'telescope', 'spectrograph', 'coronagraph', 'interferometer', 'radiometer', 'photometer', 'polarimeter',
-                    'magnetometer', 'accelerometer', 'gyroscope', 'star tracker', 'sun sensor', 'reaction wheel', 'thruster',
-                    'propulsion', 'solar panel', 'battery', 'antenna', 'transmitter', 'receiver', 'transponder', 'beacon',
-                    'amateur', 'ham', 'radio', 'oscar', 'ao-', 'uo-', 'lo-', 'fo-', 'vo-', 'rs-', 'phase', 'amsat', 'cute',
-                    'canx', 'nanosatellite', 'microsatellite', 'picosatellite', 'femtosatellite', 'smallsat', 'tinysat')
-            ) return 'tech';
-
-            // Otros / Misceláneos
-            return 'misc';
+            const n = (name || '').toUpperCase().trim();
+            let type = satTypeCache.get(n);
+            if (type) return type;
+            type = 'misc';
+            for (const [t, re] of SAT_TYPE_RULES) {
+                if (re.test(n)) { type = t; break; }
+            }
+            satTypeCache.set(n, type);
+            return type;
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -5383,6 +5361,7 @@ const CESIUM_COLOR_MAP = {
     'var(--gps-color)':      '#4285f4',
     'var(--iss-color)':      '#ffffff',
     'var(--starlink-color)': '#00d26a',
+    'var(--internet-color)': '#c6ff00',
     'var(--comm-color)':     '#ff6b35',
     'var(--military-color)': '#ff0000',
     'var(--weather-color)':  '#ffd700',

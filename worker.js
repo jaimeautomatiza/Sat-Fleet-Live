@@ -2731,8 +2731,9 @@ export default {
 // PEOPLE IN SPACE — quién está en el espacio ahora mismo (The Space Devs)
 // ═══════════════════════════════════════════════════════════════
 // Se refresca cada 12 h, colgado del cron de basura espacial (DEBRIS_CRON).
-// Son 2 llamadas a The Space Devs por refresco: la lista de astronautas en el
-// espacio y las expediciones activas (para saber en qué estación está cada uno).
+// Son 3 llamadas a The Space Devs por refresco: la lista de astronautas en el
+// espacio, las expediciones activas y los últimos lanzamientos con tripulación
+// (para saber en qué estación está cada uno).
 // Si algo falla, se conserva el último dato bueno que ya hubiera en KV.
 
 const KV_KEY_PEOPLE      = 'people_in_space_v1';
@@ -2759,9 +2760,11 @@ async function fetchSpaceDevsJson(env, path) {
 async function fetchPeopleInSpaceToKv(env) {
   try {
     const ahora = new Date().toISOString();
-    const [astro, exped] = await Promise.all([
+    const [astro, exped, vuelos] = await Promise.all([
       fetchSpaceDevsJson(env, '/astronauts/?in_space=true&limit=100&format=json'),
       fetchSpaceDevsJson(env, `/expeditions/?mode=detailed&ordering=-start&limit=20&format=json`),
+      // Si esta falla, no pasa nada: esas personas salen en "Other missions"
+      fetchSpaceDevsJson(env, '/launches/previous/?is_crewed=true&mode=detailed&limit=25&format=json').catch(() => null),
     ]);
 
     // Solo personas: fuera Starman (el maniquí del Tesla) y cualquier otro "no humano"
@@ -2788,8 +2791,28 @@ async function fetchPeopleInSpaceToKv(env) {
       }
     }
 
+    // Plan B, para quien aún no está en ninguna expedición (pasa en los relevos):
+    // mirar si la nave de su último vuelo sigue acoplada a una estación.
+    // Es un dato real de Space Devs (acoplada y sin fecha de salida), no una suposición.
+    const atracadoEn = new Map();
+    for (const L of (vuelos?.results || [])) {   // del lanzamiento más reciente al más antiguo
+      const etapas = L?.rocket?.spacecraft_stage;
+      for (const st of (Array.isArray(etapas) ? etapas : (etapas ? [etapas] : []))) {
+        const atraque = (st?.docking_events || []).find(d => d?.docking && !d?.departure);
+        const nombre  = atraque?.space_station_target?.name || '';
+        const conocida = nombre ? PEOPLE_STATIONS.find(s => s.match.test(nombre)) : null;
+        const est = !atraque ? null
+                  : conocida ? { name: conocida.short, norad: conocida.norad }
+                  : { name: nombre || 'Other missions', norad: null };
+        for (const c of (st?.launch_crew || [])) {
+          const id = c?.astronaut?.id;
+          if (id != null && !atracadoEn.has(id)) atracadoEn.set(id, est); // solo cuenta su vuelo más reciente
+        }
+      }
+    }
+
     const people = lista.map(a => {
-      const est = estacionDe.get(a.id) || { name: 'Other missions', norad: null };
+      const est = estacionDe.get(a.id) || atracadoEn.get(a.id) || { name: 'Other missions', norad: null };
       const pais = Array.isArray(a.nationality) ? a.nationality[0] : null;
       return {
         id:       a.id,
