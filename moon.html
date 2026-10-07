@@ -337,10 +337,33 @@
     body.light-mode .overflow-divider { background:rgba(0,0,0,0.08); }
 
     @media (max-width: 768px) {
-        :root { --bar-height: 52px; }
-        #bottomBar { padding:0 10px; gap:6px; }
-        .bar-logo-text { display:none; }
-        .bar-logo img { width:32px; height:32px; }
+    :root { --bar-height: 52px; }
+
+    #bottomBar {
+        padding:0 8px;
+        gap:5px;
+        overflow-x:hidden;
+        overflow-y:hidden;
+        justify-content:flex-start;
+        flex-wrap:nowrap;
+    }
+
+    .bar-logo-text { display:none !important; }
+
+    .bar-logo {
+        gap:0;
+        margin-right:2px;
+        flex-shrink:0;
+    }
+
+    .bar-logo img {
+        width:32px;
+        height:32px;
+    }
+
+    .bar-sep {
+        display:none !important;
+    }
         #guidesBtn, #launchesBtn, #nextPassesBtn, #pisBarBtn, #accountBtn, #exploreBtn { display:none !important; }
         }
 
@@ -353,7 +376,7 @@
         body.is-touch #accountBtn,
         body.is-touch #pisBarBtn,
         body.is-touch #exploreBtn { display:none !important; }
-
+        body.is-touch .bar-sep {display:none !important; }
         body.is-touch #overflowBtn { display:flex !important; }
 
         @media (max-width: 0px) {
@@ -601,26 +624,41 @@ document.addEventListener('DOMContentLoaded', () => {
     <button class="bar-btn" id="moonFiltersBtn" onclick="toggleMoonFiltersPanel()">
         <img src="images/layer.svg" class="layer-icon" alt="">
         Layers
-    </button>
-    <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">
-        <img src="images/book.svg" style="width:14px;height:14px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
-    </button>
-    <button class="bar-btn" id="launchesBtn" onclick="window.location.href='launches.html'">
-        <img src="images/rocket.svg" style="width:14px;height:14px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
-    </button>
-    <button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">
-        <img src="images/telescope.svg" style="width:14px;height:14px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
-    </button>
-    <div class="bar-sep"></div>
-    <button class="bar-btn" id="pisBarBtn" onclick="window.location.href='/?people=1'" title="People in space right now"><img src="images/astronaut.svg" style="width:14px;height:14px;" alt=""> People in space</button>
-    <button class="bar-btn" id="accountBtn" onclick="window.location.href='account.html'"><img src="images/account.svg" alt=""> Account</button>
-    <div class="bar-sep"></div>
-    <button class="bar-btn" id="exploreBtn" onclick="toggleExploreMenu()">
-        <img src="images/planet-switcher.svg" class="explore-icon" alt="">
-        Explore
-    </button>
+    <input type="text" id="moonSearch" placeholder="Search site or orbiter..." onkeyup="searchMoonObjects()" onkeydown="if(event.key==='Enter') this.blur()">
 
-    <button id="overflowBtn" onclick="toggleOverflowMenu()">⋯</button>
+<div class="bar-sep"></div>
+
+<button class="bar-btn" id="moonFiltersBtn" onclick="toggleMoonFiltersPanel()">
+    <img src="images/layer.svg" class="layer-icon" alt="">
+    Layers
+</button>
+
+<button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">
+    <img src="images/book.svg" style="width:14px;height:14px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
+</button>
+
+<button class="bar-btn" id="nextPassesBtn" onclick="window.location.href='next-passes.html'">
+    <img src="images/telescope.svg" style="width:14px;height:14px;filter:invert(48%) sepia(89%) saturate(1907%) hue-rotate(190deg) brightness(101%) contrast(101%);" alt=""> Next Passes
+</button>
+
+<button class="bar-btn" id="launchesBtn" onclick="window.location.href='launches.html'">
+    <img src="images/rocket.svg" style="width:14px;height:14px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> Launches
+</button>
+
+<button class="bar-btn" id="pisBarBtn" onclick="window.location.href='/?people=1'" title="People in space right now">
+    <img src="images/astronaut.svg" style="width:14px;height:14px;" alt=""> People in space
+</button>
+
+<button class="bar-btn" id="accountBtn" onclick="window.location.href='account.html'">
+    <img src="images/account.svg" alt=""> Account
+</button>
+
+<button class="bar-btn" id="exploreBtn" onclick="toggleExploreMenu()">
+    <img src="images/planet-switcher.svg" class="explore-icon" alt="">
+    Explore
+</button>
+
+<button id="overflowBtn" onclick="toggleOverflowMenu()">⋯</button>
 </div>
 
 <div id="bottomFloatBar">
@@ -687,10 +725,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <!-- Menú overflow (móvil) -->
 <div id="overflowMenu">
-    <button class="overflow-item purple" onclick="toggleMoonFiltersPanel(); closeOverflowMenu()">
-        <img src="images/layer.svg" style="width:14px;height:14px;filter:invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%);"> Layers
-    </button>
-    <div class="overflow-divider"></div>
     <button class="overflow-item gold" onclick="window.location.href='/blogs/'">
         <img src="images/book.svg" style="width:16px;height:16px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
     </button>
