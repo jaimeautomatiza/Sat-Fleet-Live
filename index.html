@@ -367,19 +367,6 @@
             border-color: rgba(255, 255, 255, 0.25);
         }
 
-        /* Botón Only Visible */
-        #visibilityToggle {
-            border-color: rgba(0, 210, 106, 0.5);
-            color: var(--starlink-color);
-            background: rgba(0, 210, 106, 0.07);
-        }
-
-        #visibilityToggle:hover, #visibilityToggle.active {
-            background: var(--starlink-color);
-            color: #111;
-            border-color: var(--starlink-color);
-        }
-
         /* Botón Next Passes */
         #nextPassesBtn {
             border-color: rgba(33, 150, 243, 0.5);
@@ -1078,35 +1065,6 @@
             color: var(--primary-purple);
         }
 
-        /* Mobile visibility */
-        .mobile-visibility-toggle {
-            width: 100%;
-            padding: 8px;
-            border: 1.5px solid rgba(0,210,106,0.5);
-            background: rgba(0,210,106,0.06);
-            color: var(--starlink-color);
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            margin-bottom: 10px;
-            transition: all 0.2s;
-        }
-
-        .mobile-visibility-toggle.active {
-            background: var(--starlink-color);
-            color: #111;
-            border-color: var(--starlink-color);
-        }
-
-        .elevation-control {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.6);
-        }
-
-        body.light-mode .elevation-control {
-            color: rgba(0,0,0,0.55);
-        }
-
         /* Mobile legend */
         .mobile-legend {
             display: grid;
@@ -1184,39 +1142,6 @@
             0%   { transform: scale(0.8); opacity: 0.6; }
             50%  { transform: scale(1.2); opacity: 0.3; }
             100% { transform: scale(0.8); opacity: 0.6; }
-        }
-
-        /* ===== ELEVATION CONTROLS ===== */
-        .visibility-filter-controls {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .visibility-filter-controls.open {
-            display: flex;
-        }
-
-        #elevationLabel {
-            font-size: 0.72rem;
-            color: rgba(255,255,255,0.55);
-            white-space: nowrap;
-        }
-
-        body.light-mode #elevationLabel {
-            color: rgba(0,0,0,0.5);
-        }
-
-        #elevationSlider {
-            width: 70px;
-            accent-color: var(--starlink-color);
-        }
-
-        #elevationValue {
-            font-size: 0.72rem;
-            color: var(--starlink-color);
-            min-width: 24px;
         }
 
         /* ===== LAYER SECTIONS IN FILTERS PANEL ===== */
@@ -1498,8 +1423,6 @@ body.light-mode .rocket-filter-chip {
             #nextPassesBtn,
             #themeBtn,
             #toggleViewBtn,
-            #visibilityToggle,
-            #visibilityControls,
             #launchesBtn,
             #accountBtn,
             #arBtn,
@@ -1799,8 +1722,6 @@ body.light-mode .rocket-filter-chip {
         body.is-touch #nextPassesBtn,
         body.is-touch #themeBtn,
         body.is-touch #toggleViewBtn,
-        body.is-touch #visibilityToggle,
-        body.is-touch #visibilityControls,
         body.is-touch #launchesBtn,
         body.is-touch #accountBtn,
         body.is-touch #arBtn,
@@ -2750,18 +2671,6 @@ body.light-mode .rocket-filter-chip {
             </div>
         </div>
 
-        <!-- Visibility -->
-        <div class="mobile-section">
-            <div class="mobile-section-title">Visibility</div>
-            <button class="mobile-visibility-toggle" id="mobileVisibilityToggle" onclick="toggleMobileVisibility()">Show Only Visible</button>
-            <div id="mobileVisibilityControls" style="display:none;">
-                <div class="elevation-control">
-                    <label>Min Elevation: <span id="mobileElevationValue">10°</span></label>
-                    <input type="range" style="width:100%;margin-top:6px;accent-color:var(--starlink-color);" id="mobileElevationSlider" min="0" max="90" value="10" oninput="updateMobileElevationFilter()">
-                </div>
-            </div>
-        </div>
-
         <!-- Legend -->
         <div class="mobile-section">
             <div class="mobile-section-title">Satellite Types</div>
@@ -2882,7 +2791,6 @@ body.light-mode .rocket-filter-chip {
     <button class="overflow-item purple" onclick="toggleFiltersPanel(); closeOverflowMenu()">
         <img src="images/layer.svg" style="width:14px;height:14px;filter:invert(30%) sepia(90%) saturate(2000%) hue-rotate(270deg) brightness(90%) contrast(100%);"> Layers
     </button>
-    <button class="overflow-item" id="overflowVisibility" onclick="toggleVisibility(); closeOverflowMenu()"><svg width="16"height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Only Visible</button>
     <div class="overflow-divider"></div>
     <button class="overflow-item gold" onclick="window.location.href='/blogs/'">
         <img src="images/book.svg" style="width:16px;height:16px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
@@ -2952,7 +2860,6 @@ body.light-mode .rocket-filter-chip {
         <img src="images/layer.svg" class="layer-icon" alt="">
         Layers
     </button>
-    <button class="bar-btn" id="visibilityToggle" onclick="toggleVisibility()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:5px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Only Visible</button>
     <button class="bar-btn" id="guidesBtn" onclick="window.location.href='/blogs/'">
         <img src="images/book.svg" style="width:14px;height:14px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt=""> Guides
     </button>
@@ -2968,14 +2875,6 @@ body.light-mode .rocket-filter-chip {
         <img src="images/planet-switcher.svg" class="explore-icon" alt="">
         Explore
     </button>
-
-    <!-- Elevation controls (visible solo cuando Only Visible activo) -->
-    <div class="visibility-filter-controls" id="visibilityControls">
-        <div class="bar-sep"></div>
-        <span id="elevationLabel">Min elev:</span>
-        <input type="range" id="elevationSlider" min="0" max="90" value="10" oninput="updateElevationFilter()">
-        <span id="elevationValue">10°</span>
-    </div>
 
    <!-- Stats móvil + Botón ⋯ -->
     <div id="mobileStats" style="display:none; flex-direction:column; justify-content:center; flex-shrink:0; font-size:0.58rem; line-height:1.25; color:rgba(255,255,255,0.55); text-align:right; white-space:nowrap;">
@@ -3074,7 +2973,7 @@ body.light-mode .rocket-filter-chip {
         // Son excluyentes: nunca hay 16.000 satélites y 10.000 fragmentos a la
         // vez. Al cambiar de modo se sustituye el contenido de allSatellites y
         // se reinicia el worker, así que TODO el resto del pipeline (pintado,
-        // clic, órbitas, Only Visible, stats) sigue funcionando sin tocarlo.
+        // clic, órbitas, stats) sigue funcionando sin tocarlo.
         let dataMode = 'active';
         let debrisRawData = null;                 // caché en memoria del JSON de basura
         let debrisLoading = false;
@@ -4596,9 +4495,6 @@ if (btnFloat && !isPovActive) {
     // Cesium ya usa el tema al inicializar, no cambia en caliente
 }
 
-// Variables para visibilidad
-let showOnlyVisible = false;
-let minElevation = 10;
 let userLocation = { lat: 40.4168, lng: -3.7038 }; // Madrid por defecto
 let userLocationMarker = null;
 let hasCompass = false;
@@ -4615,7 +4511,6 @@ function getUserLocation() {
             userLocation.lng = parsed.lng;
             console.log('📦 Ubicación cargada de caché:', userLocation);
             updateUserLocationMarker();
-            if (showOnlyVisible) filterVisibleSatellites();
         } catch(e) {}
     }
 
@@ -4633,7 +4528,6 @@ function getUserLocation() {
                     userLocation.lng = position.coords.longitude;
                     localStorage.setItem('userLocation', JSON.stringify(userLocation));
                     updateUserLocationMarker();
-                    if (showOnlyVisible) filterVisibleSatellites();
                     if (is3DMode && cesiumViewer) addUserLocationToCesium();
                 },
                 () => {},
@@ -4653,7 +4547,6 @@ function getUserLocation() {
                 localStorage.setItem('userLocation', JSON.stringify(userLocation));
                 console.log('Ubicación GPS obtenida:', userLocation);
                 updateUserLocationMarker();
-                if (showOnlyVisible) filterVisibleSatellites();
                 // Actualizar marcador en Cesium si estamos en 3D
                 if (is3DMode && cesiumViewer) addUserLocationToCesium();
             },
@@ -4894,155 +4787,6 @@ function updateCompass3DVisibility() {
     el.style.display = (is3DMode && hasCompass) ? 'flex' : 'none';
 }
 
-        // Calcular posición del Sol (mejorado)
-        // BLOQUE 1: Reemplaza la función calculateSunPosition existente
-        function calculateSunPosition(date, lat, lng) {
-            // Calcular día juliano
-            const julianDay = (date.getTime() / 86400000) + 2440587.5;
-            const n = julianDay - 2451545.0;
-
-            // Longitud media del Sol
-            const L = (280.460 + 0.9856474 * n) % 360;
-
-            // Anomalía media del Sol
-            const M = (357.528 + 0.9856003 * n) % 360;
-            const MRad = M * Math.PI / 180;
-
-            // Longitud eclíptica del Sol
-            const lambda = (L + 1.915 * Math.sin(MRad) + 0.020 * Math.sin(2 * MRad)) % 360;
-            const lambdaRad = lambda * Math.PI / 180;
-
-            // Inclinación de la eclíptica
-            const epsilon = 23.439 - 0.0000004 * n;
-            const epsilonRad = epsilon * Math.PI / 180;
-
-            // Coordenadas ecuatoriales del Sol
-            const alpha = Math.atan2(Math.cos(epsilonRad) * Math.sin(lambdaRad), Math.cos(lambdaRad)) * 180 / Math.PI;
-            const delta = Math.asin(Math.sin(epsilonRad) * Math.sin(lambdaRad)) * 180 / Math.PI;
-
-            // Tiempo sideral local
-            const UT = date.getUTCHours() + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
-            const GST = (6.697375 + 0.0657098242 * n + UT) % 24;
-            const LST = (GST + lng / 15) % 24;
-
-            // Ángulo horario
-            const H = (LST * 15 - alpha) % 360;
-            const HRad = H * Math.PI / 180;
-
-            // Coordenadas horizontales
-            const latRad = lat * Math.PI / 180;
-            const deltaRad = delta * Math.PI / 180;
-
-            const elevation = Math.asin(
-                Math.sin(latRad) * Math.sin(deltaRad) +
-                Math.cos(latRad) * Math.cos(deltaRad) * Math.cos(HRad)
-            ) * 180 / Math.PI;
-
-            const azimuth = Math.atan2(
-                -Math.sin(HRad),
-                Math.tan(deltaRad) * Math.cos(latRad) - Math.sin(latRad) * Math.cos(HRad)
-            ) * 180 / Math.PI;
-
-            return { elevation, azimuth };
-        }
-
-        // BLOQUE 2: Reemplaza la función isSatelliteVisible existente
-        function isSatelliteVisible(satellite, observerLat, observerLng) {
-            if (!satellite.lat || !satellite.lng || !satellite.altitude) return false;
-
-            // Convertir a radianes
-            const obsLatRad = observerLat * Math.PI / 180;
-            const obsLngRad = observerLng * Math.PI / 180;
-            const satLatRad = satellite.lat * Math.PI / 180;
-            const satLngRad = satellite.lng * Math.PI / 180;
-
-            // Calcular vector desde observador al satélite
-            const earthRadius = 6371; // km
-            const satRadius = earthRadius + satellite.altitude;
-
-            // Posición del observador
-            const obsX = earthRadius * Math.cos(obsLatRad) * Math.cos(obsLngRad);
-            const obsY = earthRadius * Math.cos(obsLatRad) * Math.sin(obsLngRad);
-            const obsZ = earthRadius * Math.sin(obsLatRad);
-
-            // Posición del satélite
-            const satX = satRadius * Math.cos(satLatRad) * Math.cos(satLngRad);
-            const satY = satRadius * Math.cos(satLatRad) * Math.sin(satLngRad);
-            const satZ = satRadius * Math.sin(satLatRad);
-
-            // Vector del observador al satélite
-            const dx = satX - obsX;
-            const dy = satY - obsY;
-            const dz = satZ - obsZ;
-            const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-            // Vector normal hacia arriba desde el observador
-            const normalX = obsX / earthRadius;
-            const normalY = obsY / earthRadius;
-            const normalZ = obsZ / earthRadius;
-
-            // Calcular elevación usando producto escalar
-            const dotProduct = (dx * normalX + dy * normalY + dz * normalZ) / distance;
-            const elevation = Math.asin(Math.max(-1, Math.min(1, dotProduct))) * 180 / Math.PI;
-
-            // Verificar elevación mínima
-            if (elevation < minElevation) return false;
-
-            const now = new Date();
-            const sunPosition = calculateSunPosition(now, observerLat, observerLng);
-            const satSunPosition = calculateSunPosition(now, satellite.lat, satellite.lng);
-
-            // CONDICIONES MÁS RESTRICTIVAS PARA VISIBILIDAD:
-
-            // 1. El Sol debe estar por debajo del horizonte del observador (noche o crepúsculo)
-            const observerSunElevation = sunPosition.elevation;
-
-            // 2. Diferentes niveles de oscuridad
-            const isDeepNight = observerSunElevation < -18; // Noche astronómica
-            const isNight = observerSunElevation < -12; // Noche náutica
-            const isCivilTwilight = observerSunElevation >= -6 && observerSunElevation < 0; // Crepúsculo civil
-            const isNauticalTwilight = observerSunElevation >= -12 && observerSunElevation < -6; // Crepúsculo náutico
-            const isAstronomicalTwilight = observerSunElevation >= -18 && observerSunElevation < -12; // Crepúsculo astronómico
-
-            // 3. El satélite debe estar iluminado por el Sol
-            const isSatelliteIlluminated = satSunPosition.elevation > -6;
-
-            // 4. Para que sea visible durante el día, debe estar MUY alto y ser muy brillante
-            const isHighElevation = elevation > 80;
-            const isDaylight = observerSunElevation > 0;
-
-            // LÓGICA DE VISIBILIDAD MÁS RESTRICTIVA:
-
-            // Durante el día (sol arriba): solo satélites extremadamente altos
-            if (isDaylight) {
-                return isHighElevation && isSatelliteIlluminated && elevation > 85;
-            }
-
-            // Crepúsculo civil: solo satélites altos y bien iluminados
-            if (isCivilTwilight) {
-                return elevation > 40 && isSatelliteIlluminated;
-            }
-
-            // Crepúsculo náutico: satélites moderadamente altos
-            if (isNauticalTwilight) {
-                return elevation > 25 && isSatelliteIlluminated;
-            }
-
-            // Crepúsculo astronómico: condiciones más permisivas
-            if (isAstronomicalTwilight) {
-                return elevation > 15 && isSatelliteIlluminated;
-            }
-
-            // Noche completa: condiciones más permisivas pero aún restrictivas
-            if (isNight || isDeepNight) {
-                return isSatelliteIlluminated;
-            }
-
-            // Por defecto, no visible
-            return false;
-        }
-
-
         // Filtrar satélites visibles
         function filterVisibleSatellites() {
             // Si la capa de satélites está desactivada, limpiar y salir
@@ -5061,14 +4805,6 @@ function updateCompass3DVisibility() {
                 filteredSatellites = allSatellites.filter(satellite =>
                     activeFilters.has(getSatelliteType(satellite.name))
                 );
-            }
-
-            // Si está activado "solo visibles", filtrar por visibilidad
-            if (showOnlyVisible) {
-                filteredSatellites = filteredSatellites.filter(satellite =>
-                    isSatelliteVisible(satellite, userLocation.lat, userLocation.lng)
-                );
-                console.log(`Satélites visibles encontrados: ${filteredSatellites.length} de ${allSatellites.length}`);
             }
 
             // Aplicar búsqueda si existe
@@ -5170,81 +4906,6 @@ function clickPremiumUpgrade() {
     }
     window.location.href = 'account.html';
 }
-
-        // Only Visible es una función libre: ya no marca candado ni Premium.
-        // La función se mantiene porque se llama desde el arranque.
-        function updateVisibilityLockUI() { }
-
-        // Toggle visibilidad (Desktop) — función libre
-        function toggleVisibility() {
-            showOnlyVisible = !showOnlyVisible;
-            const toggleBtn = document.getElementById('visibilityToggle');
-            const controls = document.getElementById('visibilityControls');
-            const overflowBtn = document.getElementById('overflowVisibility');
-            // SVG en línea con currentColor: el icono sigue el color del texto
-            // automáticamente, así que cambia con el botón sin filtros por estado.
-            const eyeBar = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:-2px;margin-right:5px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-            const eyeMenu = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-
-            if (showOnlyVisible) {
-                toggleBtn.classList.add('active');
-                toggleBtn.innerHTML = eyeBar + 'Showing Visible';
-                controls.style.display = 'flex';
-                if (overflowBtn) { overflowBtn.innerHTML = eyeMenu + 'Showing Visible'; overflowBtn.classList.add('green'); }
-                getUserLocation();
-            } else {
-                toggleBtn.classList.remove('active');
-                toggleBtn.innerHTML = eyeBar + 'Only Visible';
-                controls.style.display = 'none';
-                if (overflowBtn) { overflowBtn.innerHTML = eyeMenu + 'Only Visible'; overflowBtn.classList.remove('green'); }
-            }
-
-            filterVisibleSatellites();
-        }
-
-        // Toggle visibilidad (Mobile) — función libre
-        function toggleMobileVisibility() {
-            showOnlyVisible = !showOnlyVisible;
-            const toggleBtn = document.getElementById('mobileVisibilityToggle');
-            const controls = document.getElementById('mobileVisibilityControls');
-            if (showOnlyVisible) {
-                toggleBtn.classList.add('active');
-                toggleBtn.textContent = 'Showing Visible';
-                controls.style.display = 'block';
-                getUserLocation();
-            } else {
-                toggleBtn.classList.remove('active');
-                toggleBtn.textContent = 'Show Only Visible';
-                controls.style.display = 'none';
-            }
-
-            filterVisibleSatellites();
-        }
-
-        // Actualizar filtro de elevación (Desktop)
-        function updateElevationFilter() {
-            const slider = document.getElementById('elevationSlider');
-            const valueDisplay = document.getElementById('elevationValue');
-            minElevation = parseInt(slider.value);
-            valueDisplay.textContent = minElevation + '°';
-
-            if (showOnlyVisible) {
-                filterVisibleSatellites();
-            }
-        }
-
-        // Actualizar filtro de elevación (Mobile)
-        function updateMobileElevationFilter() {
-            const slider = document.getElementById('mobileElevationSlider');
-            const valueDisplay = document.getElementById('mobileElevationValue');
-            minElevation = parseInt(slider.value);
-            valueDisplay.textContent = minElevation + '°';
-
-            if (showOnlyVisible) {
-                filterVisibleSatellites();
-            }
-        }
-
 
         // Abrir página de detalles del satélite
         function openSatelliteDetail(noradId) {
@@ -5519,9 +5180,6 @@ function loadSatellitesIn3D() {
         }
     } else if (!activeFilters.has('all')) {
         filtered = allSatellites.filter(s => activeFilters.has(getSatelliteType(s.name)));
-    }
-    if (showOnlyVisible) {
-        filtered = filtered.filter(s => isSatelliteVisible(s, userLocation.lat, userLocation.lng));
     }
 
     // Crear colecciones de primitivas
@@ -6408,7 +6066,6 @@ window.toggleExploreMenu = function() {
             // nada. El ancho seguía dando tres comportamientos distintos.
             if (navigator.maxTouchPoints > 0) document.body.classList.add('is-touch');
             initMap();
-            updateVisibilityLockUI();
 
             // Arrancar en modo 3D
             document.getElementById('map').style.display = 'none';
