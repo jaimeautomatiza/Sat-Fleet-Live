@@ -1411,16 +1411,33 @@ function calcSunElevation(date, lat, lng) {
 }
 
 function setArFilter(type) {
-    if (type === 'all' || type === 'visible') {
-        // All y Visible son exclusivos
-        arFilters.clear();
-        arFilters.add(type);
+    // "Rocket bodies" es un extra: se suma a lo que estés viendo, no lo sustituye
+    const rocketsOn = arFilters.has('rocketbody');
+    const baseCount = () => [...arFilters].filter(f => f !== 'rocketbody').length;
+
+    if (type === 'rocketbody') {
+        if (rocketsOn) {
+            arFilters.delete('rocketbody');
+            if (baseCount() === 0) arFilters.add('all');      // nunca la pantalla vacía
+        } else {
+            arFilters.add('rocketbody');
+        }
+    } else if (type === 'all' || type === 'visible') {
+        if (arFilters.has(type) && rocketsOn && baseCount() === 1) {
+            // Volver a pulsar All/Visible con los cohetes puestos: solo cohetes
+            arFilters.delete(type);
+        } else {
+            // All y Visible son exclusivos entre sí (los cohetes se mantienen)
+            arFilters.clear();
+            arFilters.add(type);
+            if (rocketsOn) arFilters.add('rocketbody');
+        }
     } else {
         arFilters.delete('all');
         arFilters.delete('visible');
         if (arFilters.has(type)) {
             arFilters.delete(type);
-            if (arFilters.size === 0) arFilters.add('all');
+            if (baseCount() === 0 && !rocketsOn) arFilters.add('all');
         } else {
             arFilters.add(type);
         }
