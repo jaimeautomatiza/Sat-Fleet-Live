@@ -314,12 +314,11 @@
         .sp-mag b { color: #fff; font-weight: 700; }
         .sp-bright[data-state="off"] .sp-mag { display: none; }
 
-        /* Datos: tres columnas en una fila */
+        /* Datos: rejilla de 2×2 */
         .sp-grid {
             display: grid;
-            grid-template-columns: auto auto auto;
-            justify-content: space-between;
-            gap: 8px;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 10px;
             margin-top: 8px;
             padding-top: 8px;
             border-top: 1px solid rgba(255,255,255,0.07);
@@ -660,12 +659,13 @@
     </div>
     <div class="sp-bright" id="popupBright" data-state="off">
         <span class="sp-chip" id="popupMagStatus">—</span>
-        <span class="sp-mag" id="popupMag" title="Magnitude: the lower the number, the brighter it looks">—</span>
+        <span class="sp-mag" id="popupMag">—</span>
     </div>
     <div class="sp-grid">
         <div><div class="sp-label">Elevation</div><div class="sp-val" id="popupEl">—</div></div>
-        <div><div class="sp-label">Direction</div><div class="sp-val" id="popupAz">—</div></div>
+        <div><div class="sp-label">Look toward</div><div class="sp-val" id="popupAz">—</div></div>
         <div><div class="sp-label">Altitude</div><div class="sp-val" id="popupAlt">—</div></div>
+        <div><div class="sp-label">Speed</div><div class="sp-val" id="popupVel">—</div></div>
     </div>
 </div>
 
@@ -2017,9 +2017,10 @@ function popupTypeLabel(sat) {
     return POPUP_TYPE_LABELS[getSatType(sat.name)] || 'Satellite';
 }
 
-// Punto cardinal a partir del azimut (0 = N, 90 = E...)
+// Hacia dónde mirar: punto cardinal a partir del azimut (0° = N, 90° = E, 180° = S, 270° = W)
 function compassPoint(az) {
-    return ['N','NE','E','SE','S','SW','W','NW'][Math.round((((az % 360) + 360) % 360) / 45) % 8];
+    const pts = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+    return pts[Math.round((((az % 360) + 360) % 360) / 22.5) % 16];
 }
 
 // El brillo en tres piezas: estado (etiqueta de color), magnitud y una frase
@@ -2050,13 +2051,13 @@ function refreshPopupNumbers(sat) {
     const panel = document.getElementById('satPopup');
     if (!panel || !panel.classList.contains('visible')) return;
     document.getElementById('popupAlt').textContent = Math.round(sat.altitude).toLocaleString() + ' km';
+    document.getElementById('popupVel').textContent = Math.round(sat.velocity).toLocaleString() + ' km/h';
     document.getElementById('popupEl').textContent  = Math.round(sat.elevation) + '°';
     document.getElementById('popupAz').textContent  = compassPoint(sat.azimuth) + ' ' + Math.round(sat.azimuth) + '°';
     const b = brightnessParts(sat);
     document.getElementById('popupBright').dataset.state = b.state;
     document.getElementById('popupMag').innerHTML         = 'mag <b>' + b.mag + '</b>';
     document.getElementById('popupMagStatus').textContent = b.status;
-    document.getElementById('popupBright').title          = b.note;   // la explicación, al mantener pulsado / pasar el ratón
 }
 
 function calcOrbitPoints(sat) {
