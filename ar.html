@@ -1529,8 +1529,9 @@ const STATION_NAME = /^(ISS|CSS) \(/;
 const AR_ICON_PLAY  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>';
 const AR_ICON_PAUSE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
 
-function getSatColor(name) {
-    if (ROCKET_BODY_NAME.test(String(name || '').toUpperCase())) return TYPE_COLORS.rocketbody;
+function getSatColor(name, sat) {
+    // Cohetes: por la marca de la lista (algunos no llevan "R/B" en el nombre, como FREGAT o CENTAUR)
+    if ((sat && sat.isRocketBody) || ROCKET_BODY_NAME.test(String(name || '').toUpperCase())) return TYPE_COLORS.rocketbody;
     return TYPE_COLORS[getSatType(name)] || '#ff69b4';
 }
 
@@ -1697,7 +1698,7 @@ function drawSatellites() {
         const pos = projectToScreen(sat.azimuth, sat.elevation);
         if (!pos) return;
 
-        const color = getSatColor(sat.name);
+        const color = getSatColor(sat.name, sat);
         const isSelected = selectedSat && selectedSat.noradId === sat.noradId;
         const isISS = STATION_NAME.test(sat.name.toUpperCase());
 
@@ -1986,7 +1987,7 @@ function calcOrbitPoints(sat) {
 
 function drawOrbit() {
     if (!selectedSat || orbitPoints.length < 2) return;
-    const color = getSatColor(selectedSat.name);
+    const color = getSatColor(selectedSat.name, selectedSat);
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.2;
