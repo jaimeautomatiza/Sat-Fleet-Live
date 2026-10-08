@@ -408,6 +408,7 @@
         <button class="ar-filter-btn" data-type="iss" onclick="setArFilter('iss')">Space Stations</button>
         <button class="ar-filter-btn" data-type="tech" onclick="setArFilter('tech')">Science &amp; Tech</button>
         <button class="ar-filter-btn" data-type="misc" onclick="setArFilter('misc')">Other</button>
+        <button class="ar-filter-btn" data-type="rocketbody" onclick="setArFilter('rocketbody')">Rocket bodies</button>
     </div>
     <!-- LEYENDA -->
     <div style="font-size:0.7rem; font-weight:700; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:8px;">Legend</div>
@@ -422,6 +423,7 @@
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ffffff;flex-shrink:0;display:inline-block;"></span>Space Stations</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#9400d3;flex-shrink:0;display:inline-block;"></span>Science &amp; Tech</div>
         <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#ff69b4;flex-shrink:0;display:inline-block;"></span>Other</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:rgba(255,255,255,0.65);"><span style="width:8px;height:8px;border-radius:50%;background:#b0bec5;flex-shrink:0;display:inline-block;"></span>Rocket bodies</div>
     </div>
 
     <!-- DECLINACIÓN MAGNÉTICA MANUAL (opcional) -->
@@ -803,6 +805,63 @@ async function loadSatellites() {
     startLoop();
 }
 
+// ═══════════════════════════════════════════════
+// CUERPOS DE COHETE (etapas de cohete que se quedan en órbita)
+// ═══════════════════════════════════════════════
+// Son grandes y muchas veces se ven a simple vista (y parpadean al girar).
+// Salen de la misma lista de basura espacial que usa el mapa, pero aquí solo
+// nos quedamos con los cohetes: los fragmentos son demasiado pequeños para
+// verse. Se descargan la primera vez que se elige "Rocket bodies" o
+// "Naked-eye visible", para no gastar datos si nadie los pide.
+const ROCKET_BODY_NAME = /\bR\/B\b|ROCKET BODY/;
+let rocketBodies = [];
+let rocketBodiesState = 'idle';   // 'idle' | 'loading' | 'ready'
+
+async function ensureRocketBodies() {
+    if (rocketBodiesState !== 'idle') return;
+    if (!arFilters.has('rocketbody') && !arFilters.has('visible')) return;
+    rocketBodiesState = 'loading';
+    const btn = document.querySelector('.ar-filter-btn[data-type="rocketbody"]');
+    if (btn) btn.textContent = 'Loading…';
+    try {
+        const res = await fetch('https://worker.satfleetlive.com/api/data/debris');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        const objects = (json && Array.isArray(json.objects)) ? json.objects : [];
+        const known = new Set(allSatellites.map(s => s.noradId));
+        const list = [];
+        for (const obj of objects) {
+            const name = String(obj.OBJECT_NAME || '');
+            const isRocket = ROCKET_BODY_NAME.test(name.toUpperCase()) || obj.OBJECT_TYPE === 'ROCKET BODY';
+            if (!isRocket) continue;
+            const noradId = String(obj.NORAD_CAT_ID);
+            if (known.has(noradId)) continue;
+            try {
+                list.push({
+                    name: name || ('ROCKET BODY ' + noradId),
+                    noradId,
+                    satrec: satellite.json2satrec(obj),
+                    rcs: obj.RCS_SIZE || 'LARGE',      // son objetos grandes → brillo estimado por tamaño
+                    launchId: String(obj.OBJECT_ID || '').slice(0, 8),
+                    isRocketBody: true,
+                });
+            } catch (e) {}
+        }
+        rocketBodies = list;
+        rocketBodiesState = 'ready';
+        console.log(`AR: ${rocketBodies.length} rocket bodies loaded`);
+        if (btn) btn.textContent = 'Rocket bodies';
+        calcSatPositions();
+    } catch (e) {
+        console.warn('AR: could not load rocket bodies', e);
+        rocketBodiesState = 'idle';                  // se reintenta al volver a pulsar
+        if (btn) {
+            btn.textContent = 'Not available, tap to retry';
+            setTimeout(() => { btn.textContent = 'Rocket bodies'; }, 3000);
+        }
+    }
+}
+
 function parseTLE(gpData) {
     const sats = [];
     for (const obj of gpData) {
@@ -1058,10 +1117,14 @@ function calcSatPositions() {
     const onlyThis = (previewPass && !showAllInPreview) ? previewPass.noradId : null;
     const light = arLightContext(now);   // Sol y observador, una vez por cálculo
 
-    for (const sat of allSatellites) {
+    const pool = rocketBodies.length ? allSatellites.concat(rocketBodies) : allSatellites;
+    for (const sat of pool) {
         if (onlyThis && String(sat.noradId) !== onlyThis) continue;
-        // Filtro de tipo — igual que index.html
-        if (!onlyThis && !arFilters.has('all') && !arFilters.has('visible')) {
+        if (!onlyThis && sat.isRocketBody) {
+            // Cuerpos de cohete: solo con su filtro o en "Naked-eye visible"
+            if (!arFilters.has('rocketbody') && !arFilters.has('visible')) continue;
+        } else if (!onlyThis && !arFilters.has('all') && !arFilters.has('visible')) {
+            // Filtro de tipo — igual que index.html
             if (!arFilters.has(getSatType(sat.name))) continue;
         }
 
@@ -1294,6 +1357,7 @@ function setArFilter(type) {
         b.classList.toggle('active', arFilters.has(b.dataset.type));
     });
     calcSatPositions();
+    ensureRocketBodies();
 }
 
 function toggleArFilters() {
@@ -1404,6 +1468,7 @@ const TYPE_COLORS = {
     iss:      '#ffffff',
     tech:     '#9400d3',
     misc:     '#ff69b4',
+    rocketbody: '#b0bec5',   // cuerpos de cohete (etapas abandonadas)
 };
 
 // ===== CLASIFICACIÓN DE SATÉLITES POR NOMBRE =====
@@ -1465,6 +1530,7 @@ const AR_ICON_PLAY  = '<svg width="12" height="12" viewBox="0 0 24 24" fill="cur
 const AR_ICON_PAUSE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
 
 function getSatColor(name) {
+    if (ROCKET_BODY_NAME.test(String(name || '').toUpperCase())) return TYPE_COLORS.rocketbody;
     return TYPE_COLORS[getSatType(name)] || '#ff69b4';
 }
 
