@@ -223,17 +223,20 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ===== SATELLITE POPUP ===== */
+        /* Debajo de la etiqueta "Compass mode", para no taparla */
         #satPopup {
             position: fixed;
-            top: calc(var(--bar) + 12px);
+            top: calc(var(--bar) + 48px);
             right: 12px;
-            background: rgba(15,15,15,0.93);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255,107,53,0.3);
-            border-radius: 14px;
-            padding: 14px 16px;
-            width: 210px;
+            width: 252px;
+            max-width: calc(100vw - 24px);
+            background: rgba(12,12,18,0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 16px;
+            box-shadow: 0 18px 48px rgba(0,0,0,0.55);
+            overflow: hidden;
             z-index: 1000;
             display: none;
             animation: slideIn 0.2s ease;
@@ -244,31 +247,108 @@
             to   { opacity: 1; transform: translateX(0); }
         }
 
-        #satPopupName {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--orange);
-            margin-bottom: 10px;
-            line-height: 1.2;
-        }
-
-        .popup-row {
+        /* Cabecera: punto del mismo color que en el cielo, nombre y tipo */
+        .sp-head {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.75rem;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 14px 12px 12px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
         }
-        .popup-row-label { color: rgba(255,255,255,0.4); }
-        .popup-row-val { font-weight: 600; color: #fff; }
-
+        .sp-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+            background: var(--orange);
+        }
+        .sp-title { flex: 1; min-width: 0; }
+        #satPopupName {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+        .sp-sub {
+            margin-top: 2px;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.45);
+        }
         #satPopupClose {
-            position: absolute;
-            top: 8px; right: 10px;
-            background: none; border: none;
-            color: rgba(255,255,255,0.4);
-            font-size: 1.1rem;
+            position: relative;
+            flex-shrink: 0;
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.6);
             cursor: pointer;
-            line-height: 1;
+        }
+        #satPopupClose::after { content: ""; position: absolute; inset: -8px; } /* zona táctil más grande */
+        #satPopupClose svg { width: 14px; height: 14px; }
+
+        /* Bloque de brillo */
+        .sp-bright {
+            margin: 12px 12px 0;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .sp-bright-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .sp-mag {
+            font-size: 1.4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+        }
+        .sp-mag-cap {
+            margin-top: 2px;
+            font-size: 0.62rem;
+            color: rgba(255,255,255,0.4);
+        }
+        .sp-bright[data-state="off"] .sp-mag-wrap { display: none; }
+        .sp-chip {
+            flex-shrink: 0;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.65);
+        }
+        .sp-bright[data-state="ok"]   .sp-chip { color: #00d26a; border-color: rgba(0,210,106,0.45); background: rgba(0,210,106,0.1); }
+        .sp-bright[data-state="warn"] .sp-chip { color: #ffc14d; border-color: rgba(255,193,77,0.45); background: rgba(255,193,77,0.08); }
+        .sp-note {
+            margin-top: 8px;
+            font-size: 0.7rem;
+            line-height: 1.45;
+            color: rgba(255,255,255,0.55);
+        }
+
+        /* Datos en rejilla de 2×2 */
+        .sp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 12px;
+            padding: 12px 14px 14px;
+        }
+        .sp-label { font-size: 0.64rem; color: rgba(255,255,255,0.4); margin-bottom: 1px; }
+        .sp-val {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
 
         /* ===== MODE PILL ===== */
@@ -587,14 +667,29 @@
 </div>
 
 <!-- SATELLITE POPUP -->
-<div id="satPopup">
-    <button id="satPopupClose" onclick="closePopup()">×</button>
-    <div id="satPopupName">—</div>
-    <div class="popup-row"><span class="popup-row-label">Altitude</span><span class="popup-row-val" id="popupAlt">—</span></div>
-    <div class="popup-row"><span class="popup-row-label">Velocity</span><span class="popup-row-val" id="popupVel">—</span></div>
-    <div class="popup-row"><span class="popup-row-label">Elevation</span><span class="popup-row-val" id="popupEl">—</span></div>
-    <div class="popup-row"><span class="popup-row-label">Azimuth</span><span class="popup-row-val" id="popupAz">—</span></div>
-    <div class="popup-row"><span class="popup-row-label">Brightness</span><span class="popup-row-val" id="popupMag">—</span></div>
+<div id="satPopup" role="dialog" aria-labelledby="satPopupName">
+    <div class="sp-head">
+        <span class="sp-dot" id="satPopupDot"></span>
+        <div class="sp-title">
+            <div id="satPopupName">—</div>
+            <div class="sp-sub" id="satPopupSub"></div>
+        </div>
+        <button id="satPopupClose" onclick="closePopup()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="sp-bright" id="popupBright" data-state="off">
+        <div class="sp-bright-row">
+            <div class="sp-mag sp-mag-wrap" id="popupMag">—</div>
+            <span class="sp-chip" id="popupMagStatus">—</span>
+        </div>
+        <div class="sp-mag-cap sp-mag-wrap">Magnitude, lower is brighter</div>
+        <div class="sp-note" id="popupMagNote"></div>
+    </div>
+    <div class="sp-grid">
+        <div><div class="sp-label">Elevation</div><div class="sp-val" id="popupEl">—</div></div>
+        <div><div class="sp-label">Direction</div><div class="sp-val" id="popupAz">—</div></div>
+        <div><div class="sp-label">Altitude</div><div class="sp-val" id="popupAlt">—</div></div>
+        <div><div class="sp-label">Speed</div><div class="sp-val" id="popupVel">—</div></div>
+    </div>
 </div>
 
 <!-- LOADING / PERMISSION OVERLAY -->
@@ -1934,8 +2029,38 @@ function updatePreviewUI() {
     }
 }
 
+// Nombre del tipo para la cabecera del panel
+const POPUP_TYPE_LABELS = {
+    starlink: 'Starlink', internet: 'Other Internet', comm: 'Communications',
+    gps: 'Navigation', geo: 'Earth Observation', weather: 'Weather',
+    military: 'Military', iss: 'Space Station', tech: 'Science & Tech', misc: 'Other',
+};
+function popupTypeLabel(sat) {
+    if (sat.isRocketBody || ROCKET_BODY_NAME.test(String(sat.name || '').toUpperCase())) return 'Rocket body';
+    return POPUP_TYPE_LABELS[getSatType(sat.name)] || 'Satellite';
+}
+
+// Punto cardinal a partir del azimut (0 = N, 90 = E...)
+function compassPoint(az) {
+    return ['N','NE','E','SE','S','SW','W','NW'][Math.round((((az % 360) + 360) % 360) / 45) % 8];
+}
+
+// El brillo en tres piezas: estado (etiqueta de color), magnitud y una frase
+function brightnessParts(sat) {
+    const L = sat.light;
+    const fmt = m => (m >= 0 ? '+' : '\u2212') + Math.abs(m).toFixed(1);
+    if (!L || sat.elevation <= 0) return { state: 'off',  status: 'Below horizon',  mag: '—', note: 'It will show once it rises above the horizon.' };
+    if (!L.sunlit)                return { state: 'off',  status: 'In shadow',      mag: '—', note: "It's in Earth's shadow, so it isn't reflecting sunlight right now." };
+    if (L.magnitude === null)     return { state: 'off',  status: 'Not visible',    mag: '—', note: 'The Sun is behind it, so the side facing you is dark.' };
+    if (!L.dark)                  return { state: 'warn', status: 'Sky too bright', mag: fmt(L.magnitude), note: 'Bright enough, but wait until the sky gets darker to spot it.' };
+    if (L.nakedEye)               return { state: 'ok',   status: 'Naked eye',      mag: fmt(L.magnitude), note: 'Look for a steady dot of light moving across the sky.' };
+    return { state: 'warn', status: 'Too faint', mag: fmt(L.magnitude), note: `Fainter than ${fmt(L.limit)}, the limit you can see in this sky.` };
+}
+
 function showPopup(sat) {
     document.getElementById('satPopupName').textContent = sat.name;
+    document.getElementById('satPopupDot').style.background = getSatColor(sat.name, sat);
+    document.getElementById('satPopupSub').textContent = popupTypeLabel(sat) + ' · NORAD ' + sat.noradId;
     refreshPopupNumbers(sat);
     document.getElementById('satPopup').classList.add('visible');
     calcOrbitPoints(sat);
@@ -1950,8 +2075,12 @@ function refreshPopupNumbers(sat) {
     document.getElementById('popupAlt').textContent = Math.round(sat.altitude).toLocaleString() + ' km';
     document.getElementById('popupVel').textContent = Math.round(sat.velocity).toLocaleString() + ' km/h';
     document.getElementById('popupEl').textContent  = sat.elevation.toFixed(1) + '°';
-    document.getElementById('popupAz').textContent  = sat.azimuth.toFixed(1) + '°';
-    document.getElementById('popupMag').textContent = brightnessText(sat);
+    document.getElementById('popupAz').textContent  = compassPoint(sat.azimuth) + ' · ' + Math.round(sat.azimuth) + '°';
+    const b = brightnessParts(sat);
+    document.getElementById('popupBright').dataset.state = b.state;
+    document.getElementById('popupMag').textContent       = b.mag;
+    document.getElementById('popupMagStatus').textContent = b.status;
+    document.getElementById('popupMagNote').textContent   = b.note;
 }
 
 function calcOrbitPoints(sat) {
