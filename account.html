@@ -354,6 +354,26 @@
 
         .btn-google svg { width: 17px; height: 17px; flex-shrink: 0; }
 
+        /* Boton de Apple: solo se ve dentro de la app de iOS */
+        .btn-apple {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #fff;
+            border: none;
+            border-radius: 9px;
+            color: #000;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .btn-apple svg { width: 17px; height: 17px; flex-shrink: 0; fill: #000; }
+
         .auth-error {
             display: none;
             background: rgba(239,68,68,0.08);
@@ -841,6 +861,11 @@
 
                 <div class="divider">or</div>
 
+                <button class="btn-apple" onclick="loginWithApple()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+                    Continue with Apple
+                </button>
+
                 <button class="btn-google" onclick="loginWithGoogle()">
                     <svg viewBox="0 0 24 24" fill="none">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -870,6 +895,11 @@
                 <button class="btn-primary" onclick="register()">Create account</button>
 
                 <div class="divider">or</div>
+
+                <button class="btn-apple" onclick="loginWithApple()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+                    Continue with Apple
+                </button>
 
                 <button class="btn-google" onclick="loginWithGoogle()">
                     <svg viewBox="0 0 24 24" fill="none">
@@ -1034,6 +1064,7 @@ import {
     GoogleAuthProvider, 
     signInWithPopup,
     signInWithCredential,
+    OAuthProvider,
     signOut 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
@@ -1062,6 +1093,23 @@ window.onGoogleSignInResult = function(idToken) {
 window.onGoogleSignInError = function(errorMessage) {
     showError('loginError', errorMessage);
 };
+
+// ── Handler: la app de iOS nos devuelve el token de Apple ──
+window.onAppleSignInResult = function(idToken, rawNonce) {
+    const appleProvider = new OAuthProvider('apple.com');
+    const credential = appleProvider.credential({ idToken: idToken, rawNonce: rawNonce });
+    signInWithCredential(auth, credential).catch((error) => {
+        showError('loginError', error.message);
+    });
+};
+window.onAppleSignInError = function(errorMessage) {
+    showError('loginError', errorMessage);
+};
+
+// ¿Estamos dentro de la app de iOS?
+function isIOSApp() {
+    return !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.satfleetAuth);
+}
 
 let currentUser = null;
 let isPremium = false;
@@ -1296,9 +1344,19 @@ function loginWithGoogle() {
     if (typeof window.Android !== 'undefined' && window.Android.startGoogleSignIn) {
         // Android: selector nativo de cuentas Google → sin email/contraseña manual
         window.Android.startGoogleSignIn();
+    } else if (isIOSApp()) {
+        // iOS: ventana nativa de Google
+        window.webkit.messageHandlers.satfleetAuth.postMessage({ action: 'google' });
     } else {
         // Web/PC: popup normal de Google
         signInWithPopup(auth, provider).catch((error) => showError('loginError', error.message));
+    }
+}
+
+function loginWithApple() {
+    clearErrors();
+    if (isIOSApp()) {
+        window.webkit.messageHandlers.satfleetAuth.postMessage({ action: 'apple' });
     }
 }
 
@@ -1433,6 +1491,10 @@ window.switchTab = switchTab;
 window.login = login;
 window.register = register;
 window.loginWithGoogle = loginWithGoogle;
+window.loginWithApple = loginWithApple;
+if (isIOSApp()) {
+    document.querySelectorAll('.btn-apple').forEach((b) => { b.style.display = 'flex'; });
+}
 window.logout = logout;
 window.upgradePremium = upgradePremium;
 window.showDeleteModal = showDeleteModal;
