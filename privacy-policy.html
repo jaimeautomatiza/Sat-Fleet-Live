@@ -58,7 +58,7 @@
   <!-- Español -->
   <div id="es" class="lang-content active">
     <h1>Política de Privacidad - SatFleet Live</h1>
-    <p><strong>Última actualización:</strong> 6 de Mayo de 2026</p>
+    <p><strong>Última actualización:</strong> 10 de octubre de 2026</p>
 
     <p>Esta política de privacidad aplica tanto a la aplicación <strong>SatFleet Live</strong> como al sitio web <strong>satfleetlive.com</strong>, ya que ambos comparten el mismo contenido y funcionamiento.</p>
 
@@ -67,10 +67,12 @@
 <ul>
   <li><strong>Dirección de correo electrónico y contraseña</strong> (si el usuario crea una cuenta): necesarios para la autenticación mediante Firebase Authentication (Google).</li>
   <li><strong>Datos de cuenta de Google</strong> (nombre y email): si el usuario elige iniciar sesión con Google.</li>
+  <li><strong>Datos de cuenta de Apple</strong> (nombre y email): si el usuario elige iniciar sesión con Apple. Apple permite ocultar el email real; en ese caso recibimos una dirección de reenvío de Apple (del tipo <em>@privaterelay.appleid.com</em>) en lugar del email real.</li>
   <li><strong>Identificador de usuario único (UID)</strong>: generado por Firebase, utilizado para vincular la cuenta con el estado de suscripción Premium.</li>
-  <li><strong>Información de suscripción y pago</strong>: procesada por Stripe (pagos web) o Google Play Billing (pagos en la app Android), y gestionada por RevenueCat. No almacenamos datos de tarjetas de crédito en nuestros servidores.</li>
-  <li><strong>Ubicación geográfica aproximada</strong>: solicitada opcionalmente para calcular los pases de satélites visibles desde tu posición. Solo se utiliza en el momento del cálculo y se almacena localmente en tu dispositivo. No se envía a nuestros servidores.</li>
-  <li><strong>Token de notificaciones push</strong>: si el usuario activa las alertas (de pases de satélites o de lanzamientos), se genera un identificador de dispositivo anónimo a través de Firebase Cloud Messaging (Google) para enviar notificaciones.</li>
+  <li><strong>Información de suscripción y pago</strong>: procesada por Stripe (pagos web), Google Play Billing (pagos en la app Android) o Apple (compras dentro de la app de iPhone y iPad), y gestionada por RevenueCat. No almacenamos datos de tarjetas de crédito en nuestros servidores.</li>
+  <li><strong>Ubicación geográfica aproximada</strong>: solicitada opcionalmente para calcular los pases de satélites visibles desde tu posición. Solo se utiliza en el momento del cálculo y se almacena localmente en tu dispositivo. No se envía a nuestros servidores. En la app de iPhone y iPad, la ubicación la obtiene el sistema del dispositivo (con tu permiso) y se entrega a la página solo para este cálculo.</li>
+  <li><strong>Token de notificaciones push</strong>: si el usuario activa las alertas (de pases de satélites o de lanzamientos), se genera un identificador de dispositivo anónimo a través de Firebase Cloud Messaging (Google) para enviar notificaciones. En iPhone y iPad, las notificaciones se entregan además a través del servicio de notificaciones de Apple (APNs). Si programas un aviso de pase (función Premium), guardamos temporalmente en nuestro servidor (Cloudflare) ese identificador, tu UID, el nombre del satélite y la hora del pase, solo hasta enviar el aviso.</li>
+  <li><strong>Widget y Live Activity (app de iPhone y iPad)</strong>: funcionan en tu propio dispositivo. El widget descarga datos orbitales públicos de la Estación Espacial Internacional y la cuenta atrás de lanzamientos usa datos que la app ya tiene guardados. No envían datos personales; los avisos de "recordarme" de los lanzamientos son notificaciones locales programadas en tu dispositivo.</li>
   <li><strong>Dirección IP</strong>: procesada temporalmente por Cloudflare (nuestra infraestructura de servidor) para la prestación del servicio y protección frente a abusos. No la almacenamos de forma permanente.</li>
 </ul>
 
@@ -96,6 +98,7 @@
   <li><strong>Stripe</strong> — Procesamiento de pagos web. <a href="https://stripe.com/es/privacy" target="_blank">Política de privacidad</a></li>
   <li><strong>Google Play Billing</strong> (Google LLC) — Procesamiento de pagos en Android. <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
   <li><strong>Firebase Cloud Messaging</strong> (Google LLC) — Notificaciones push. <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
+  <li><strong>Apple</strong> (Apple Inc. / Apple Distribution International) — Inicio de sesión con Apple, compras dentro de la app de iOS y entrega de notificaciones en iPhone y iPad. <a href="https://www.apple.com/legal/privacy/" target="_blank">Política de privacidad</a></li>
   <li><strong>Cloudflare</strong> — Infraestructura de red y seguridad. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Política de privacidad</a></li>
   <li><strong>Google Analytics</strong> — Estadísticas de uso (solo con consentimiento del usuario). <a href="https://policies.google.com/privacy" target="_blank">Política de privacidad</a></li>
 </ul>
@@ -109,10 +112,10 @@
 </ul>
 
 <h2>Transferencias internacionales de datos</h2>
-<p>Algunos de los proveedores mencionados anteriormente (Firebase, Stripe, RevenueCat, Cloudflare, Google Analytics) tienen su sede en Estados Unidos u otros países fuera del Espacio Económico Europeo. Cuando esto ocurre, la transferencia de datos se realiza amparada en las Cláusulas Contractuales Tipo aprobadas por la Comisión Europea, o en otro mecanismo de adecuación reconocido por el RGPD, garantizando un nivel de protección equivalente al exigido dentro de la UE.</p>
+<p>Algunos de los proveedores mencionados anteriormente (Firebase, Stripe, RevenueCat, Apple, Cloudflare, Google Analytics) tienen su sede en Estados Unidos u otros países fuera del Espacio Económico Europeo. Cuando esto ocurre, la transferencia de datos se realiza amparada en las Cláusulas Contractuales Tipo aprobadas por la Comisión Europea, o en otro mecanismo de adecuación reconocido por el RGPD, garantizando un nivel de protección equivalente al exigido dentro de la UE.</p>
 
 <h2>Conservación de los datos</h2>
-<p>Los datos de cuenta se conservan mientras el usuario mantenga su cuenta activa. Al eliminar la cuenta, los datos de autenticación son borrados de Firebase de forma inmediata. Los datos de suscripción en RevenueCat pueden conservarse durante el período exigido por la normativa fiscal aplicable. El token de notificación permanece activo mientras el usuario mantenga concedido el permiso de notificaciones; se elimina automáticamente si revoca dicho permiso o desinstala la aplicación.p>
+<p>Los datos de cuenta se conservan mientras el usuario mantenga su cuenta activa. Al eliminar la cuenta, los datos de autenticación son borrados de Firebase de forma inmediata. Los datos de suscripción en RevenueCat pueden conservarse durante el período exigido por la normativa fiscal aplicable. El token de notificación permanece activo mientras el usuario mantenga concedido el permiso de notificaciones; se elimina automáticamente si revoca dicho permiso o desinstala la aplicación.</p>
 
 <h2>Derechos del usuario (RGPD)</h2>
 <p>Si reside en el Espacio Económico Europeo, tiene derecho a:</p>
@@ -141,7 +144,7 @@
   <!-- English -->
   <div id="en" class="lang-content">
     <h1>Privacy Policy - SatFleet Live</h1>
-    <p><strong>Last updated:</strong> May 6, 2026</p>
+    <p><strong>Last updated:</strong> October 10, 2026</p>
 
     <p>This privacy policy applies to both the <strong>SatFleet Live</strong> application and the <strong>satfleetlive.com</strong> website, as they share the same content and functionality.</p>
 
@@ -150,10 +153,12 @@
 <ul>
   <li><strong>Email address and password</strong> (if the user creates an account): required for authentication via Firebase Authentication (Google).</li>
   <li><strong>Google account data</strong> (name and email): if the user chooses to sign in with Google.</li>
+  <li><strong>Apple account data</strong> (name and email): if the user chooses to sign in with Apple. Apple lets you hide your real email; in that case we receive an Apple relay address (such as <em>@privaterelay.appleid.com</em>) instead of your real email.</li>
   <li><strong>Unique user identifier (UID)</strong>: generated by Firebase, used to link the account with Premium subscription status.</li>
-  <li><strong>Subscription and payment data</strong>: processed by Stripe (web payments) or Google Play Billing (Android in-app payments), and managed by RevenueCat. We do not store credit card details on our servers.</li>
-  <li><strong>Approximate geographic location</strong>: optionally requested to calculate satellite passes visible from your position. It is only used at the time of calculation and stored locally on your device. It is not sent to our servers.</li>
-  <li><strong>Push notification token</strong>: if the user enables alerts (satellite passes or rocket launches), an anonymous device identifier is generated via Firebase Cloud Messaging (Google) to send notifications.</li>
+  <li><strong>Subscription and payment data</strong>: processed by Stripe (web payments), Google Play Billing (Android in-app payments) or Apple (in-app purchases on iPhone and iPad), and managed by RevenueCat. We do not store credit card details on our servers.</li>
+  <li><strong>Approximate geographic location</strong>: optionally requested to calculate satellite passes visible from your position. It is only used at the time of calculation and stored locally on your device. It is not sent to our servers. In the iPhone and iPad app, the location is obtained by the device's operating system (with your permission) and passed to the page only for this calculation.</li>
+  <li><strong>Push notification token</strong>: if the user enables alerts (satellite passes or rocket launches), an anonymous device identifier is generated via Firebase Cloud Messaging (Google) to send notifications. On iPhone and iPad, notifications are also delivered through the Apple Push Notification service (APNs). If you schedule a pass alert (a Premium feature), we temporarily store on our server (Cloudflare) that identifier, your UID, the satellite name and the pass time, only until the alert is sent.</li>
+  <li><strong>Widget and Live Activity (iPhone and iPad app)</strong>: they run on your own device. The widget downloads public orbital data of the International Space Station, and the launch countdown uses data the app already has stored. They do not send personal data; launch "remind me" alerts are local notifications scheduled on your device.</li>
   <li><strong>IP address</strong>: temporarily processed by Cloudflare (our server infrastructure) to provide the service and protect against abuse. We do not store it permanently.</li>
 </ul>
 
@@ -178,6 +183,7 @@
   <li><strong>Stripe</strong> — Web payment processing. <a href="https://stripe.com/privacy" target="_blank">Privacy policy</a></li>
   <li><strong>Google Play Billing</strong> (Google LLC) — Android in-app payment processing. <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
   <li><strong>Firebase Cloud Messaging</strong> (Google LLC) — Push notifications. <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
+  <li><strong>Apple</strong> (Apple Inc. / Apple Distribution International) — Sign in with Apple, in-app purchases in the iOS app and delivery of notifications on iPhone and iPad. <a href="https://www.apple.com/legal/privacy/" target="_blank">Privacy policy</a></li>
   <li><strong>Cloudflare</strong> — Network infrastructure and security. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank">Privacy policy</a></li>
   <li><strong>Google Analytics</strong> — Usage statistics (only with user consent). <a href="https://policies.google.com/privacy" target="_blank">Privacy policy</a></li>
 </ul>
@@ -191,7 +197,7 @@
 </ul>
 
 <h2>International Data Transfers</h2>
-<p>Some of the providers listed above (Firebase, Stripe, RevenueCat, Cloudflare, Google Analytics) are based in the United States or other countries outside the European Economic Area. Where this occurs, the data transfer is carried out under the Standard Contractual Clauses approved by the European Commission, or another adequacy mechanism recognised under the GDPR, ensuring a level of protection equivalent to that required within the EU.</p>
+<p>Some of the providers listed above (Firebase, Stripe, RevenueCat, Apple, Cloudflare, Google Analytics) are based in the United States or other countries outside the European Economic Area. Where this occurs, the data transfer is carried out under the Standard Contractual Clauses approved by the European Commission, or another adequacy mechanism recognised under the GDPR, ensuring a level of protection equivalent to that required within the EU.</p>
 
 <h2>Data Retention</h2>
 <p>Account data is retained while the user's account remains active. Upon account deletion, authentication data is immediately removed from Firebase. Subscription data in RevenueCat may be retained for the period required by applicable tax regulations. The notification token remains active as long as the user keeps notification permissions granted; it is automatically deleted if permission is revoked or the app is uninstalled.</p>
@@ -231,4 +237,3 @@
   </script>
 </body>
 </html>
-
