@@ -288,6 +288,21 @@
         }
         .card-btn.map:hover { background: var(--blue); color: #fff; }
 
+        /* Boton de la cuenta atras en la pantalla de bloqueo (solo dentro de la app de iOS) */
+        .ios-live-slot { margin-top: 12px; }
+        .ios-live-slot:empty { display: none; }
+        .card-btn.live-follow {
+            width: 100%;
+            justify-content: center;
+            background: rgba(156,39,176,0.15);
+            color: #c084fc;
+            border: 1px solid rgba(156,39,176,0.4);
+        }
+        .card-btn.live-follow:hover { background: rgba(156,39,176,0.28); }
+        .card-btn.live-follow.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+        .card-btn.live-follow:disabled { opacity: 0.6; cursor: default; }
+        .card-btn.live-follow svg { flex-shrink: 0; }
+
         /* Mission image */
         .card-image {
             width: 100%;
@@ -907,6 +922,7 @@ card.onclick = (e) => {
             </div>
             <div class="card-actions">${watchBtn}${mapBtn}</div>
         </div>
+        <div class="ios-live-slot" data-launch-id="${escHtml(String(launch.id))}"></div>
         ${descHtml}
         <div id="yt-card-${launch.id}"></div>
     `;
@@ -921,9 +937,83 @@ card.onclick = (e) => {
     }
     updateCd();
     countdownTimers.push(setInterval(updateCd, 1000));
+    fillIOSLiveSlot(card.querySelector('.ios-live-slot'), launch);
 
     return card;
 }
+
+// ===== LIVE ACTIVITY: cuenta atras en la pantalla de bloqueo =====
+// Solo funciona dentro de la app de iOS (la app crea window.SatFleetLiveActivity).
+// En la web normal y en la app de Android no existe, y no se pinta nada.
+const iosLiveLaunches = {};
+const IOS_ICON_PHONE = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 8v4l2.5 1.5"/></svg>';
+const IOS_ICON_BELL = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
+const IOS_ICON_STOP = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+
+function iosLiveApi() {
+    const api = window.SatFleetLiveActivity;
+    return (api && api.state && api.state.supported) ? api : null;
+}
+
+function iosLivePayload(launch) {
+    return {
+        id: String(launch.id),
+        rocket: launch.rocket?.configuration?.name || '',
+        mission: launch.name || '',
+        pad: launch.pad?.location?.name || launch.pad?.name || '',
+        net: launch.net,
+        status: launch.status?.abbrev || '',
+        webcast: launch.webcast_live === true
+    };
+}
+
+function fillIOSLiveSlot(slot, launch) {
+    if (!slot || !launch) return;
+    const id = String(launch.id);
+    iosLiveLaunches[id] = launch;
+    slot.innerHTML = '';
+    const api = iosLiveApi();
+    if (!api) return;
+    const abbrev = launch.status?.abbrev;
+    if (abbrev === 'Success' || abbrev === 'Failure') return;
+    const diffMs = new Date(launch.net) - Date.now();
+    if (isNaN(diffMs) || diffMs < -30 * 60 * 1000) return;   // despego hace mas de 30 min
+
+    const st = api.state;
+    const reminders = st.reminders || [];
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'card-btn live-follow';
+    let action;
+    if (st.following === id) {
+        btn.classList.add('active');
+        btn.innerHTML = IOS_ICON_STOP + 'On your Lock Screen · Stop';
+        action = () => api.unfollow();
+    } else if (diffMs <= (st.followWindowHours || 7) * 3600000) {
+        btn.innerHTML = IOS_ICON_PHONE + 'Follow on Lock Screen';
+        action = () => api.follow(iosLivePayload(launch));
+    } else if (reminders.indexOf(id) >= 0) {
+        btn.classList.add('active');
+        btn.innerHTML = IOS_ICON_BELL + 'Reminder set · Cancel';
+        action = () => api.cancelReminder(id);
+    } else {
+        btn.innerHTML = IOS_ICON_BELL + 'Remind me ' + (st.reminderHours || 2) + ' h before';
+        action = () => api.remind(iosLivePayload(launch));
+    }
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        btn.disabled = true;   // se vuelve a pintar cuando la app responde
+        action();
+    });
+    slot.appendChild(btn);
+}
+
+function refreshIOSLiveSlots() {
+    document.querySelectorAll('.ios-live-slot').forEach(slot => {
+        fillIOSLiveSlot(slot, iosLiveLaunches[slot.dataset.launchId]);
+    });
+}
+document.addEventListener('satfleet-live-state', refreshIOSLiveSlots);
 
 function flyToPad(lat, lng, missionName, launchId) {
     sessionStorage.setItem('flyToLat', lat);
