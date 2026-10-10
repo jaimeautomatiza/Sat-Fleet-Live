@@ -354,7 +354,7 @@
 
         .btn-google svg { width: 17px; height: 17px; flex-shrink: 0; }
 
-        /* Boton de Apple: solo se ve dentro de la app de iOS */
+        /* Boton de Apple: web, app Android y app iOS */
         .btn-apple {
             width: 100%;
             padding: 10px;
@@ -366,7 +366,7 @@
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            display: none;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 9px;
@@ -401,6 +401,34 @@
             line-height: 1.45;
         }
         .auth-error.visible { display: block; }
+
+        /* Mensaje informativo (verde), por ejemplo "te hemos enviado un email" */
+        .auth-info {
+            display: none;
+            background: rgba(0,210,106,0.08);
+            border: 1px solid rgba(0,210,106,0.25);
+            border-radius: 8px;
+            padding: 9px 13px;
+            font-size: 0.78rem;
+            color: #4ade80;
+            margin-top: 12px;
+            line-height: 1.45;
+        }
+        .auth-info.visible { display: block; }
+
+        /* Enlace "Forgot your password?" */
+        .forgot-link {
+            display: block;
+            margin: -4px 0 8px auto;
+            padding: 2px 0;
+            background: none;
+            border: none;
+            color: var(--purple-light);
+            font-size: 0.76rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .forgot-link:hover { text-decoration: underline; }
 
         /* ════════════════
            STATE: LOGGED IN
@@ -872,6 +900,7 @@
                     <label>Password</label>
                     <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
                 </div>
+                <button type="button" class="forgot-link" onclick="resetPassword()">Forgot your password?</button>
                 <button class="btn-primary" onclick="login()">Sign in</button>
 
                 <div class="divider">or</div>
@@ -891,6 +920,7 @@
                     Continue with Google
                 </button>
                 <div class="auth-error" id="loginError"></div>
+                <div class="auth-info" id="loginInfo"></div>
             </div>
 
             <!-- REGISTER FORM -->
@@ -1081,6 +1111,7 @@ import {
     signInWithPopup,
     signInWithCredential,
     OAuthProvider,
+    sendPasswordResetEmail,
     signOut 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
@@ -1369,6 +1400,7 @@ function switchTab(tab) {
 function clearErrors() {
     document.getElementById('loginError').classList.remove('visible');
     document.getElementById('registerError').classList.remove('visible');
+    document.getElementById('loginInfo').classList.remove('visible');
 }
 
 function showError(id, msg) {
@@ -1421,8 +1453,47 @@ function loginWithGoogle() {
 function loginWithApple() {
     clearErrors();
     if (isIOSApp()) {
+        // App de iOS: ventana nativa de Apple
         window.webkit.messageHandlers.satfleetAuth.postMessage({ action: 'apple' });
+    } else {
+        // Web y app Android: ventana de Apple
+        const appleProvider = new OAuthProvider('apple.com');
+        appleProvider.addScope('email');
+        appleProvider.addScope('name');
+        signInWithPopup(auth, appleProvider).catch((error) => {
+            if (error && (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request')) return;
+            showError('loginError', authErrorMessage(error));
+        });
     }
+}
+
+// ── Restablecer la contraseña (cuentas con email y contraseña) ──
+function showInfo(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('visible');
+}
+
+function resetPassword() {
+    clearErrors();
+    const email = document.getElementById('loginEmail').value.trim();
+    if (!email) {
+        showError('loginError', 'Type your email in the box above and then press "Forgot your password?" again.');
+        return;
+    }
+    const genericMsg = 'If there is an account with a password for ' + email + ', we have sent you an email to reset it. Check your spam folder too.';
+    sendPasswordResetEmail(auth, email)
+        .then(() => showInfo('loginInfo', genericMsg))
+        .catch((error) => {
+            if (error && error.code === 'auth/invalid-email') {
+                showError('loginError', 'That email address is not valid.');
+            } else if (error && error.code === 'auth/too-many-requests') {
+                showError('loginError', 'Too many attempts. Please wait a few minutes and try again.');
+            } else {
+                // Por seguridad no decimos si el email existe o no
+                showInfo('loginInfo', genericMsg);
+            }
+        });
 }
 
 function logout() {
@@ -1589,6 +1660,7 @@ window.login = login;
 window.register = register;
 window.loginWithGoogle = loginWithGoogle;
 window.loginWithApple = loginWithApple;
+window.resetPassword = resetPassword;
 if (isIOSApp()) {
     document.querySelectorAll('.btn-apple').forEach((b) => { b.style.display = 'flex'; });
 }
