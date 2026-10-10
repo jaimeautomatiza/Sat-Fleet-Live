@@ -323,7 +323,17 @@ async function sendFcmMessage(env, target, targetType, title, body, data = {}, t
         ttl: `${ttlSeconds}s`,
       },
       apns: {
-        headers: { 'apns-expiration': String(Math.floor(Date.now() / 1000) + ttlSeconds) },
+        headers: {
+          'apns-expiration': String(Math.floor(Date.now() / 1000) + ttlSeconds),
+          'apns-priority': '10',
+        },
+        // App de iPhone/iPad: sin este bloque, iOS recibe el aviso pero no lo enseña
+        payload: {
+          aps: {
+            alert: { title, body },
+            sound: 'default',
+          },
+        },
       },
     },
   };
