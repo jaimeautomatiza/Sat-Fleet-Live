@@ -374,6 +374,21 @@
         }
         .btn-apple svg { width: 17px; height: 17px; flex-shrink: 0; fill: #000; }
 
+        /* Enlace "Restore purchases": solo se ve dentro de la app de iOS */
+        .ios-restore {
+            display: block;
+            width: 100%;
+            margin-top: 6px;
+            padding: 6px 0;
+            background: none;
+            border: none;
+            color: inherit;
+            opacity: 0.75;
+            font-size: 0.8rem;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
         .auth-error {
             display: none;
             background: rgba(239,68,68,0.08);
@@ -950,7 +965,8 @@
                 <!-- Purchase button (free users), right under the price -->
                 <div class="plan-buy" id="upgradeSection">
                     <button class="plan-cta" onclick="upgradePremium()">Start 7-day free trial</button>
-                    <p class="fine">7 days free, then €2.99/month (VAT included). Renews automatically. Cancel anytime from Manage Subscription. <a href="/terms-of-service">Terms of Service</a></p>
+                    <p class="fine" id="planFine">7 days free, then €2.99/month (VAT included). Renews automatically. Cancel anytime from Manage Subscription. <a href="/terms-of-service">Terms of Service</a></p>
+                    <button type="button" class="ios-restore" id="iosRestoreBtn" onclick="restorePurchases()" style="display:none;">Restore purchases</button>
                 </div>
 
                 <p class="list-intro">Everything in Free, plus:</p>
@@ -1087,7 +1103,7 @@ const provider = new GoogleAuthProvider();
 window.onGoogleSignInResult = function(idToken) {
     const credential = GoogleAuthProvider.credential(idToken);
     signInWithCredential(auth, credential).catch((error) => {
-        showError('loginError', error.message);
+        showError('loginError', authErrorMessage(error));
     });
 };
 window.onGoogleSignInError = function(errorMessage) {
@@ -1099,7 +1115,7 @@ window.onAppleSignInResult = function(idToken, rawNonce) {
     const appleProvider = new OAuthProvider('apple.com');
     const credential = appleProvider.credential({ idToken: idToken, rawNonce: rawNonce });
     signInWithCredential(auth, credential).catch((error) => {
-        showError('loginError', error.message);
+        showError('loginError', authErrorMessage(error));
     });
 };
 window.onAppleSignInError = function(errorMessage) {
@@ -1110,6 +1126,39 @@ window.onAppleSignInError = function(errorMessage) {
 function isIOSApp() {
     return !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.satfleetAuth);
 }
+
+// ¿La app de iOS puede comprar con Apple?
+function isIOSPurchases() {
+    return !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.satfleetPurchase);
+}
+
+// Mensaje claro cuando el email ya existe con otro método de inicio de sesión
+function authErrorMessage(error) {
+    if (error && error.code === 'auth/account-exists-with-different-credential') {
+        return 'This email is already registered with a different sign-in method. Please sign in the way you did the first time (Google, or email and password).';
+    }
+    return (error && error.message) ? error.message : 'Sign in failed. Please try again.';
+}
+
+// ── iOS: la app nos dice el precio real en la moneda del usuario ──
+window.onIOSPriceInfo = function(price) {
+    if (!price) return;
+    const amount = document.querySelector('.plan-premium .price-amount');
+    const per    = document.querySelector('.plan-premium .price-per');
+    const fine   = document.getElementById('planFine');
+    if (amount) amount.textContent = price;
+    if (per) per.textContent = 'per month';
+    if (fine) {
+        fine.innerHTML = '7 days free, then ' + price + '/month. Renews automatically unless cancelled at least 24 hours before the end of the current period. ' +
+            'Manage or cancel anytime in your Apple ID subscription settings. ' +
+            '<a href="/terms-of-service">Terms of Service</a> · <a href="/privacy-policy">Privacy Policy</a>';
+    }
+};
+
+// ── iOS: compra o restauración completada ──
+window.onIOSPurchaseDone = function() {
+    window.location.href = window.location.pathname + '?upgraded=1';
+};
 
 let currentUser = null;
 let isPremium = false;
@@ -1212,6 +1261,22 @@ function onUserLoggedIn(user) {
             manageBtn.textContent = 'Manage Subscription';
             
             manageBtn.onclick = () => {
+                // CASO 0: Pagó con Apple (App Store)
+                if (subscriptionStore === 'app_store') {
+                    if (isIOSPurchases()) {
+                        window.webkit.messageHandlers.satfleetPurchase.postMessage({ action: 'manage' });
+                    } else {
+                        alert('Your subscription was purchased through the App Store. You can manage it on your iPhone or iPad in Settings > your name > Subscriptions.');
+                    }
+                    return;
+                }
+                // Dentro de la app de iOS no enlazamos a otros sistemas de pago (norma de Apple)
+                if (isIOSPurchases()) {
+                    alert(subscriptionStore === 'play_store'
+                        ? 'Your subscription was purchased on Google Play. You can manage it from Google Play on your Android device.'
+                        : 'Your subscription was purchased on our website. You can manage it from your account at satfleetlive.com in a web browser.');
+                    return;
+                }
                 // CASO A: Pagó por Google Play
                 if (subscriptionStore === 'play_store') {
                     if (typeof window.Android !== 'undefined' && window.Android.openPlayStoreSubscription) {
@@ -1322,7 +1387,7 @@ function login() {
     if (!email || !password) { showError('loginError', 'Please enter your email and password.'); return; }
 
     signInWithEmailAndPassword(auth, email, password)
-        .catch((error) => showError('loginError', error.message));
+        .catch((error) => showError('loginError', authErrorMessage(error)));
 }
 
 function register() {
@@ -1349,7 +1414,7 @@ function loginWithGoogle() {
         window.webkit.messageHandlers.satfleetAuth.postMessage({ action: 'google' });
     } else {
         // Web/PC: popup normal de Google
-        signInWithPopup(auth, provider).catch((error) => showError('loginError', error.message));
+        signInWithPopup(auth, provider).catch((error) => showError('loginError', authErrorMessage(error)));
     }
 }
 
@@ -1364,6 +1429,16 @@ function logout() {
     signOut(auth).catch((error) => console.log(error));
 }
 
+function restorePurchases() {
+    if (!currentUser || !currentUser.uid) {
+        alert('Please sign in first to restore your purchases.');
+        return;
+    }
+    if (isIOSPurchases()) {
+        window.webkit.messageHandlers.satfleetPurchase.postMessage({ action: 'restore', uid: currentUser.uid });
+    }
+}
+
 async function upgradePremium() {
     if (!currentUser || !currentUser.uid) {
         alert('Please sign in first to upgrade.');
@@ -1374,6 +1449,12 @@ async function upgradePremium() {
         gtag('event', 'premium_purchase_started', {
             method: (typeof window.Android !== 'undefined' && window.Android.startPremiumPurchase) ? 'android' : 'stripe'
         });
+    }
+
+    // iPhone/iPad: compra con Apple (obligatorio dentro de la app de iOS)
+    if (isIOSPurchases()) {
+        window.webkit.messageHandlers.satfleetPurchase.postMessage({ action: 'buy', uid: currentUser.uid });
+        return;
     }
 
     // Android: sigue usando el flujo nativo de Google Play
@@ -1433,12 +1514,27 @@ async function deleteAccount() {
 
     // 1. ANTES de borrar, comprobamos las variables globales que guardamos al iniciar sesión
     if (isPremium) {
-        if (subscriptionStore === 'play_store') {
+        if (subscriptionStore === 'app_store') {
+            // App Store: no podemos cancelarlo por ellos, hay que avisarles muy claro
+            if (isIOSPurchases()) {
+                window.webkit.messageHandlers.satfleetPurchase.postMessage({ action: 'manage' });
+            }
+            const confirmedApple = confirm(
+                'Attention: you have an active App Store subscription.\n\n' +
+                'Deleting your account will not cancel your billing automatically. ' +
+                'Please cancel it in your Apple ID subscription settings before continuing.\n\n' +
+                'Delete your account anyway?'
+            );
+            if (!confirmedApple) {
+                hideDeleteModal();
+                return;
+            }
+        } else if (subscriptionStore === 'play_store') {
             
             // Google Play: Abrir Play Store para que cancelen ellos antes de borrar
             if (typeof window.Android !== 'undefined' && window.Android.openPlayStoreSubscription) {
                 window.Android.openPlayStoreSubscription(); // App Android
-            } else {
+            } else if (!isIOSPurchases()) {
                 window.open('https://play.google.com/store/account/subscriptions', '_blank'); // PC Web
             }
             
@@ -1460,6 +1556,7 @@ async function deleteAccount() {
                 'To avoid future charges, please cancel your subscription before deleting your account.'
             );
             hideDeleteModal();
+            if (isIOSPurchases()) return; // en la app de iOS no enlazamos a Stripe (norma de Apple)
             const stripePortalUrl = "https://billing.stripe.com/p/login/dRm00ibzM9yXc2ObbVcs800";
             window.open(`${stripePortalUrl}?prefilled_email=${encodeURIComponent(auth.currentUser.email)}`, '_blank');
             return; // BLOQUEAMOS el borrado hasta que vuelva sin ser Premium
@@ -1494,6 +1591,12 @@ window.loginWithGoogle = loginWithGoogle;
 window.loginWithApple = loginWithApple;
 if (isIOSApp()) {
     document.querySelectorAll('.btn-apple').forEach((b) => { b.style.display = 'flex'; });
+}
+window.restorePurchases = restorePurchases;
+if (isIOSPurchases()) {
+    const restoreBtn = document.getElementById('iosRestoreBtn');
+    if (restoreBtn) restoreBtn.style.display = 'block';
+    window.webkit.messageHandlers.satfleetPurchase.postMessage({ action: 'price' });
 }
 window.logout = logout;
 window.upgradePremium = upgradePremium;
