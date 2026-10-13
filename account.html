@@ -681,6 +681,33 @@
 
         .plan-buy { margin-top: 18px; }
 
+        /* Duracion de la suscripcion, debajo del nombre */
+        .plan-period {
+            margin-top: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--purple-light);
+        }
+
+        /* Enlaces legales justo debajo del boton de compra (los pide Apple) */
+        .plan-legal {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            font-size: 0.82rem;
+        }
+        .plan-legal a {
+            color: var(--purple-light);
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            padding: 4px 2px;
+        }
+        .plan-legal a:hover { color: #e0b8ff; }
+        .plan-legal span { color: rgba(240,240,245,0.35); }
+
         /* ── FREE: calm, muted ── */
         .plan-free {
             background: rgba(255,255,255,0.025);
@@ -985,7 +1012,8 @@
             <section class="plan-card plan-premium" aria-labelledby="premiumTitle">
                 <div class="plan-ribbon" id="premiumRibbon">Recommended</div>
 
-                <h3 class="plan-name" id="premiumTitle">Premium</h3>
+                <h3 class="plan-name" id="premiumTitle">SatFleet Premium</h3>
+                <p class="plan-period">Monthly subscription, auto-renewable</p>
                 <div class="plan-price">
                     <span class="price-amount">€2.99</span>
                     <span class="price-per">per month, VAT included</span>
@@ -995,7 +1023,12 @@
                 <!-- Purchase button (free users), right under the price -->
                 <div class="plan-buy" id="upgradeSection">
                     <button class="plan-cta" onclick="upgradePremium()">Start 7-day free trial</button>
-                    <p class="fine" id="planFine">7 days free, then €2.99/month (VAT included). Renews automatically. Cancel anytime from Manage Subscription. <a href="/terms-of-service">Terms of Service</a></p>
+                    <nav class="plan-legal" aria-label="Legal">
+                        <a href="/terms-of-service">Terms of Use</a>
+                        <span aria-hidden="true">|</span>
+                        <a href="/privacy-policy">Privacy Policy</a>
+                    </nav>
+                    <p class="fine" id="planFine">SatFleet Premium, monthly subscription: 7 days free, then €2.99/month (VAT included). Renews automatically. Cancel anytime from Manage Subscription.</p>
                     <button type="button" class="ios-restore" id="iosRestoreBtn" onclick="restorePurchases()" style="display:none;">Restore purchases</button>
                 </div>
 
@@ -1110,6 +1143,7 @@ import {
     GoogleAuthProvider, 
     signInWithPopup,
     signInWithCredential,
+    reauthenticateWithCredential,
     OAuthProvider,
     sendPasswordResetEmail,
     signOut 
@@ -1180,9 +1214,9 @@ window.onIOSPriceInfo = function(price) {
     if (amount) amount.textContent = price;
     if (per) per.textContent = 'per month';
     if (fine) {
-        fine.innerHTML = '7 days free, then ' + price + '/month. Renews automatically unless cancelled at least 24 hours before the end of the current period. ' +
-            'Manage or cancel anytime in your Apple ID subscription settings. ' +
-            '<a href="/terms-of-service">Terms of Service</a> · <a href="/privacy-policy">Privacy Policy</a>';
+        fine.textContent = 'SatFleet Premium, monthly subscription: 7 days free, then ' + price + '/month. ' +
+            'Renews automatically unless cancelled at least 24 hours before the end of the current period. ' +
+            'Manage or cancel anytime in your Apple ID subscription settings.';
     }
 };
 
@@ -1580,6 +1614,53 @@ function hideDeleteModal() {
     m.style.display = 'none';
 }
 
+// ── iOS: al borrar una cuenta de Apple hay que revocar su acceso (norma 5.1.1(v) de Apple) ──
+// Solo en la app de iOS nueva (la que sabe hacerlo) y solo si la cuenta usa Apple
+function needsAppleRevoke() {
+    const u = auth.currentUser;
+    return !!(u && isIOSApp() && window.SatFleetIOS && window.SatFleetIOS.appleRevoke &&
+        u.providerData.some((p) => p.providerId === 'apple.com'));
+}
+
+// Pide un paso a la app de iOS y espera su respuesta (máximo 2 minutos)
+let _appleStep = null;
+function askIOSApp(action, extra) {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            _appleStep = null;
+            reject(new Error('Apple did not respond. Please try again.'));
+        }, 120000);
+        _appleStep = {
+            resolve: (v) => { clearTimeout(timer); _appleStep = null; resolve(v); },
+            reject:  (e) => { clearTimeout(timer); _appleStep = null; reject(e); }
+        };
+        window.webkit.messageHandlers.satfleetAuth.postMessage(Object.assign({ action: action }, extra || {}));
+    });
+}
+window.onAppleReauthResult    = (idToken, rawNonce, code) => { if (_appleStep) _appleStep.resolve({ idToken, rawNonce, code }); };
+window.onAppleReauthCancelled = () => { if (_appleStep) _appleStep.reject({ cancelled: true }); };
+window.onAppleReauthError     = (msg) => { if (_appleStep) _appleStep.reject(new Error(msg)); };
+window.onAppleRevokeResult    = () => { if (_appleStep) _appleStep.resolve(); };
+window.onAppleRevokeError     = (msg) => { if (_appleStep) _appleStep.reject(new Error(msg)); };
+
+async function revokeAppleSignIn() {
+    // a) Confirmar otra vez con Apple (devuelve un código nuevo)
+    const apple = await askIOSApp('appleReauth');
+    // Firebase comprueba que es la misma cuenta de Apple y renueva la sesión
+    const credential = new OAuthProvider('apple.com').credential({ idToken: apple.idToken, rawNonce: apple.rawNonce });
+    try {
+        await reauthenticateWithCredential(auth.currentUser, credential);
+    } catch (e) {
+        if (e && e.code === 'auth/user-mismatch') {
+            throw new Error('Please confirm with the same Apple ID you used to sign in.');
+        }
+        throw e;
+    }
+    // b) Revocar el acceso de Apple con ese código
+    const firebaseToken = await auth.currentUser.getIdToken(true);
+    await askIOSApp('appleRevoke', { code: apple.code, idToken: firebaseToken });
+}
+
 async function deleteAccount() {
     if (!auth.currentUser) return;
 
@@ -1631,6 +1712,23 @@ async function deleteAccount() {
             const stripePortalUrl = "https://billing.stripe.com/p/login/dRm00ibzM9yXc2ObbVcs800";
             window.open(`${stripePortalUrl}?prefilled_email=${encodeURIComponent(auth.currentUser.email)}`, '_blank');
             return; // BLOQUEAMOS el borrado hasta que vuelva sin ser Premium
+        }
+    }
+
+    // iOS + cuenta de Apple: confirmar con Apple y revocar ANTES de borrar.
+    // Si cancela o algo falla, no se borra nada.
+    if (needsAppleRevoke()) {
+        const appleText = document.getElementById('deleteModalText');
+        const originalText = appleText ? appleText.textContent : '';
+        if (appleText) appleText.textContent = 'Please confirm with Apple to continue…';
+        try {
+            await revokeAppleSignIn();
+        } catch (err) {
+            if (appleText) appleText.textContent = originalText;
+            hideDeleteModal();
+            if (err && err.cancelled) return; // ha cerrado la ventana de Apple
+            alert('Your account was not deleted. ' + ((err && err.message) ? err.message : 'Please try again.'));
+            return;
         }
     }
 
