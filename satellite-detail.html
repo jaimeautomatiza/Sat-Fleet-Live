@@ -529,6 +529,8 @@
             &nbsp;&middot;&nbsp;
             Satellite info from <a href="https://www.wikidata.org" id="wikiLink" target="_blank" rel="noopener">Wikidata</a>
             &nbsp;&middot;&nbsp;
+            Map tiles &copy; <a href="https://www.esri.com" target="_blank" rel="noopener">Esri</a> &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap
+            &nbsp;&middot;&nbsp;
             <a href="https://satfleetlive.com" rel="noopener">SatFleet Live</a>
         </div>
 
@@ -615,8 +617,10 @@ function initMiniMap(lat, lng) {
         dragging: true, scrollWheelZoom: false
     }).setView([lat, lng], 2);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd', maxZoom: 10
+    // Esri World Dark Gray Canvas, igual que en la página principal.
+    // CARTO exige API key desde el 23/09/2026. Ojo: Esri usa {z}/{y}/{x}.
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        maxNativeZoom: 16, maxZoom: 10
     }).addTo(miniMap);
 
     const satIcon = L.divIcon({
