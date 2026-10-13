@@ -20,6 +20,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Banner inteligente de Safari (App Store) -->
+    <meta name="apple-itunes-app" content="app-id=6820979830">
+
+    <!-- Insignias de tiendas: decide si se muestran y cuales -->
+    <script>
+    // Abre el panel About, donde estan las insignias
+    window.openGetApp = function () {
+        if (typeof closeOverflowMenu === 'function') closeOverflowMenu();
+        var panel = document.getElementById('aboutPanel');
+        var bd = document.getElementById('aboutBackdrop');
+        if (panel) panel.classList.add('open');
+        if (bd) bd.classList.add('open');
+    };
+    (function () {
+        try {
+            var ua = navigator.userAgent || '';
+            var w = window;
+            // Dentro de la app de Android
+            var inAndroidApp = typeof w.Android !== 'undefined';
+            // Dentro de la app de iOS
+            var inIOSApp = !!(w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.satfleetAuth)
+                || ua.indexOf('SatFleetLiveiOS') !== -1
+                || typeof w.SatFleetIOS !== 'undefined';
+            if (inAndroidApp || inIOSApp) return; // dentro de una app: no se muestra nada
+
+            // Web normal: que insignia toca
+            var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+            var isAndroid = /Android/i.test(ua);
+            var root = document.documentElement;
+            root.classList.add('show-getapp');
+            root.classList.add(isIOS ? 'getapp-ios' : (isAndroid ? 'getapp-android' : 'getapp-desktop'));
+        } catch (e) {}
+    })();
+    </script>
+
     <!-- Descripción optimizada -->
     <meta name="description"
         content="Track the ISS, Starlink and every active satellite live on an interactive 3D globe. Free real-time positions, visible passes for your location and upcoming launches.">
@@ -1679,6 +1714,42 @@ body.light-mode .rocket-filter-chip {
         }
         body.light-mode #aboutPanel-inner { color: rgba(0,0,0,0.65); }
 
+        /* ===== Insignias App Store / Google Play ===== */
+        /* Ocultas por defecto: solo se ven en la web normal, nunca en las apps */
+        .getapp-only { display: none !important; }
+        html.show-getapp .getapp-only { display: block !important; }
+        html.show-getapp #infoFooter .getapp-only { display: inline !important; }
+
+        #getAppBlock { margin-top: 12px; }
+        #getAppBlock .getapp-label {
+            display: block; margin-bottom: 8px;
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3px;
+            opacity: 0.7;
+        }
+        #getAppBadges {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+        }
+        #getAppBadges a { display: none; line-height: 0; }
+        html.getapp-ios #getAppBadges .badge-ios,
+        html.getapp-android #getAppBadges .badge-android,
+        html.getapp-desktop #getAppBadges a { display: inline-block; }
+        #getAppBadges img { display: block; height: 40px; width: auto; }
+
+        /* El panel About crece un poco para que quepan las insignias */
+        html.show-getapp #aboutPanel.open { max-height: 300px; }
+        @media (min-width: 601px) {
+            /* En ordenador, el panel abierto queda por encima de los botones flotantes */
+            html.show-getapp #aboutPanel.open { z-index: 860; }
+        }
+
+        @media (max-width: 600px) {
+            html.show-getapp #infoFooter .getapp-only { display: none !important; }
+            html.show-getapp #aboutPanel.open {
+                max-height: min(460px, calc(100vh - 40px));
+                overflow-y: auto;
+            }
+        }
+
         /* El mapWrapper deja espacio para el footer */
         #mapWrapper {
             bottom: 22px;
@@ -2782,6 +2853,8 @@ body.light-mode .rocket-filter-chip {
     <span class="footer-sep">|</span>
     <button class="about-link" onclick="openCookieSettings()">Cookies</button>
     <span class="footer-sep">|</span>
+    <button class="about-link getapp-only" onclick="openGetApp()">Get the app</button>
+    <span class="footer-sep getapp-only">|</span>
     <button class="about-link" onclick="toggleAboutPanel()">About</button>
 </div>
 <div id="aboutBackdrop" onclick="toggleAboutPanel()"></div>
@@ -2789,6 +2862,17 @@ body.light-mode .rocket-filter-chip {
 <div id="aboutPanel">
     <div id="aboutPanel-inner">
         SatFleet Live tracks nearly 30,000 objects in real time — active satellites (including the ISS, Starlink, GPS, and military satellites) plus space debris — using live orbital data from CelesTrak and Space-Track. Explore the Moon, Mars, and the whole solar system too, completely free. <a href="/blogs/what-is-satfleet-live/">Learn more about SatFleet Live →</a>
+        <div id="getAppBlock" class="getapp-only">
+            <span class="getapp-label">Get the app</span>
+            <div id="getAppBadges">
+                <a class="badge-ios" href="https://apps.apple.com/app/id6820979830" target="_blank" rel="noopener">
+                    <img src="/images/badges/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" alt="Download on the App Store">
+                </a>
+                <a class="badge-android" href="https://play.google.com/store/apps/details?id=com.satfleetlive.app" target="_blank" rel="noopener">
+                    <img src="/images/badges/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play">
+                </a>
+            </div>
+        </div>
         <div id="dataFreshness" style="margin-top:8px; opacity:0.6; font-size:0.85em;"></div>
     </div>
 </div>
@@ -2816,6 +2900,14 @@ body.light-mode .rocket-filter-chip {
     <div class="overflow-divider"></div>
     
     <a class="overflow-item gold" href="account.html" style="font-weight:600;"><img src="images/account.svg" style="width: 18px; height: 18px; filter: invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt="Account"> Account / Premium</a>
+
+    <div class="getapp-only">
+        <div class="overflow-divider"></div>
+        <button class="overflow-item" onclick="openGetApp()" style="color:#c084fc;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7"/><path d="M9 11.5l3 3 3-3"/><path d="M10.5 18.5h3"/></svg>
+            Get the app
+        </button>
+    </div>
 </div>
 
 <!-- Loading -->
