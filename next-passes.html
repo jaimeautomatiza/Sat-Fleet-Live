@@ -19,6 +19,8 @@
     <!-- Leaflet (para el location picker) -->
     <link rel="stylesheet" href="css/leaflet.css" />
     <script src="js/leaflet.js"></script>
+    <!-- Sun & Moon transits: estilos y pestaña inicial -->
+    <script src="/js/transits.js" data-hide=".page-header, .controls-section, #loading, #savedAlertsSection, #passesContainer"></script>
     
     <!-- General Sans font -->
 <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
@@ -1657,6 +1659,18 @@ body.light-mode .brightness-normal      { color: #1565c0; background: transparen
 <!-- Main Content -->
 <main class="container">
 
+  <!-- Pestañas: Passes / Sun & Moon transits -->
+  <div class="sft-tabs" role="tablist" aria-label="Page sections">
+    <button type="button" class="sft-tab" role="tab" id="tabPasses" data-sft-tab="passes" aria-selected="true" aria-controls="passesContainer">
+      <svg class="sft-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9.5" y="9.5" width="5" height="5" rx="1" transform="rotate(45 12 12)"/><path d="M8.2 8.2 4.6 4.6M15.8 15.8l3.6 3.6M3 8l5-5M16 21l5-5"/></svg>
+      Passes
+    </button>
+    <button type="button" class="sft-tab" role="tab" id="tabTransits" data-sft-tab="transits" aria-selected="false" aria-controls="transitsPanel" tabindex="-1">
+      <svg class="sft-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><path d="M3 15.5 21 8.5"/></svg>
+      Sun &amp; Moon transits
+    </button>
+  </div>
+
   <!-- Page Header -->
   <div class="page-header">
     <h2 class="page-title">Next <span>Visible Passes</span></h2>
@@ -1781,6 +1795,9 @@ body.light-mode .brightness-normal      { color: #1565c0; background: transparen
       </ul>
     </div>
   </div>
+
+  <!-- Pestaña Sun & Moon transits (la rellena /js/transits.js) -->
+  <section id="transitsPanel" class="sft-panel" role="tabpanel" aria-labelledby="tabTransits"></section>
 
 </main>
     </div>
@@ -3863,6 +3880,15 @@ window.toggleAboutPanel = function() {
     const bd = document.getElementById('aboutBackdrop');
     if (bd) bd.classList.toggle('open');
 };
+</script>
+<!-- Sun & Moon transits: conexión con esta página -->
+<script>
+SatFleetTransits.init({
+    getLocation:    function () { return userLocation; },
+    isPremium:      function () { return isPremiumUser(); },
+    getSatellites:  function () { return allSatellites; },
+    changeLocation: function () { openLocationPicker(); }
+});
 </script>
 </body>
 </html>
