@@ -9161,6 +9161,103 @@ maybeShowTrialPromo();
     <button class="tp-cta" onclick="trialPromoClick()">Try free for 7 days</button>
     <button class="tp-close" onclick="trialPromoClose()">×</button>
 </div>
+<!-- ══════════════ TARJETA "DESCARGA LA APP" (solo Android, solo navegador) ══════════════
+     Sale a los 10 segundos. Si la cierran con la X: no vuelve en 3 dias.
+     Si pulsan Google Play: no vuelve en 20 dias. Nunca sale dentro de las apps.
+     Si a la vez esta visible la tarjeta de premium, esta se coloca encima de ella. -->
+<style>
+    #appPromoBanner {
+        position: fixed; bottom: 78px; left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        width: calc(100% - 32px); max-width: 480px;
+        background: rgba(10,10,10,0.95);
+        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+        padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+        z-index: 901; opacity: 0; pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s ease, bottom 0.3s ease;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        box-sizing: border-box;
+    }
+    #appPromoBanner.visible { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+    #trialPromoBanner.visible ~ #appPromoBanner { bottom: 200px; }
+    #appPromoBanner img.ap-logo { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+    #appPromoBanner .ap-content { flex: 1; min-width: 0; }
+    #appPromoBanner .ap-title { font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.92); margin-bottom: 2px; }
+    #appPromoBanner .ap-sub { font-size: 0.72rem; color: rgba(255,255,255,0.55); line-height: 1.35; }
+    #appPromoBanner .ap-badge { line-height: 0; flex-shrink: 0; }
+    #appPromoBanner .ap-badge img { height: 36px; width: auto; display: block; }
+    #appPromoBanner .ap-close {
+        background: none; border: none; color: rgba(255,255,255,0.4);
+        cursor: pointer; padding: 2px; flex-shrink: 0; line-height: 0;
+    }
+    #appPromoBanner .ap-close:hover { color: rgba(255,255,255,0.8); }
+    @media (max-width: 480px) {
+        #appPromoBanner { flex-wrap: wrap; }
+        #appPromoBanner .ap-badge { order: 3; width: 100%; margin-top: 6px; display: flex; justify-content: center; }
+        #appPromoBanner .ap-badge img { height: 40px; }
+    }
+</style>
+
+<div id="appPromoBanner" role="dialog" aria-label="Get the SatFleet Live app">
+    <img class="ap-logo" src="/images/logo.png" alt="SatFleet Live">
+    <div class="ap-content">
+        <div class="ap-title">SatFleet Live is on Google Play</div>
+        <div class="ap-sub">Free app with a live satellite widget for your home screen</div>
+    </div>
+    <a class="ap-badge" href="https://play.google.com/store/apps/details?id=com.satfleetlive.app" target="_blank" rel="noopener" onclick="appPromoClick()">
+        <img src="/images/badges/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play">
+    </a>
+    <button class="ap-close" onclick="appPromoClose()" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+    </button>
+</div>
+
+<script>
+(function () {
+    var KEY = 'satfleet_app_promo_hide_until';
+    var DAY = 24 * 60 * 60 * 1000;
+
+    function hideFor(days) {
+        try { localStorage.setItem(KEY, String(Date.now() + days * DAY)); } catch (e) {}
+    }
+    function track(name) {
+        if (typeof gtag === 'function') gtag('event', name, { page_path: window.location.pathname });
+    }
+    function hideCard() {
+        var el = document.getElementById('appPromoBanner');
+        if (el) el.classList.remove('visible');
+    }
+
+    window.appPromoClick = function () {
+        track('app_promo_clicked');
+        hideFor(20);
+        hideCard();
+    };
+    window.appPromoClose = function () {
+        track('app_promo_closed');
+        hideFor(3);
+        hideCard();
+    };
+
+    // Solo en Android y en el navegador. Usa la misma comprobacion que el "Get the app"
+    // del About, que ya excluye las apps de Android e iOS.
+    var root = document.documentElement;
+    if (!root.classList.contains('show-getapp') || !root.classList.contains('getapp-android')) return;
+
+    var hideUntil = 0;
+    try { hideUntil = parseInt(localStorage.getItem(KEY) || '0', 10); } catch (e) {}
+    if (Date.now() < hideUntil) return;
+
+    setTimeout(function () {
+        var el = document.getElementById('appPromoBanner');
+        if (!el) return;
+        el.classList.add('visible');
+        track('app_promo_shown');
+    }, 10000);
+})();
+</script>
+<!-- ══════════════ FIN TARJETA "DESCARGA LA APP" ══════════════ -->
 <!-- ══════════════ PEOPLE IN SPACE (gente en el espacio ahora mismo) ══════════════
      Bloque autocontenido: estilos + panel + código. Añade la línea "X in space"
      en la barra de arriba (PC y móvil), una opción en el menú ⋯ del móvil y la
