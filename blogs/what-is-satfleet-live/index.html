@@ -371,8 +371,8 @@ td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .link-button:hover { color: var(--ink); }
 
 @media (max-width: 1000px) {
-    .hero-inner { grid-template-columns: 1fr; gap: 32px; padding-bottom: 40px; }
-    .layout { grid-template-columns: 1fr; gap: 0; padding-top: 32px; }
+    .hero-inner { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-bottom: 40px; }
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 32px; }
     .toc { display: none; }
     .toc-mobile {
         display: block; font-family: var(--sans); background: var(--surface);

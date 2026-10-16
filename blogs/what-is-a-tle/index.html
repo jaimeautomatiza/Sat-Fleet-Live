@@ -1,715 +1,1092 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<script>
+(function () {
+    try {
+        var w = window, ua = navigator.userAgent || '';
+        var inApp = typeof w.Android !== 'undefined'
+            || !!(w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.satfleetAuth)
+            || ua.indexOf('SatFleetLiveiOS') !== -1
+            || typeof w.SatFleetIOS !== 'undefined';
+        if (inApp) document.documentElement.classList.add('in-app');
+    } catch (e) {}
+})();
+</script>
 <script src="/cookie-consent.js"></script>
-    
-    
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/images/logo.png">
-    <link rel="shortcut icon" href="/images/logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="/images/logo.png">
+<title>What Is a TLE? How to Read Two-Line Element Sets (2026) | SatFleet Live</title>
+<meta name="description" content="What a TLE (two-line element set) is and how to read it, column by column, on today's live ISS TLE. Free TLE decoder, checksum, accuracy, OMM and the 2026 six-digit catalogue change.">
+<meta name="author" content="SatFleet Live">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<link rel="canonical" href="https://satfleetlive.com/blogs/what-is-a-tle/">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
 <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#121A44">
 
-    <!-- SEO -->
-    <title>What is a TLE and How to Read It | SatFleetLive</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Learn what a TLE (Two-Line Element) is, how to read it, and how it helps track satellites in real time.">
-    <meta name="keywords" content="TLE satellite, read TLE data, satellite orbit tracking, interpret TLE, two-line element set">
-    <meta name="author" content="SatFleetLive">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://satfleetlive.com/blogs/what-is-a-tle/">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="SatFleet Live">
+<meta property="og:title" content="What Is a TLE? How to Read Two-Line Element Sets (2026)">
+<meta property="og:description" content="Today's ISS TLE decoded column by column, a free TLE decoder, how accurate TLEs are, TLE vs OMM, and why satellites numbered 100000+ have no classic TLE.">
+<meta property="og:url" content="https://satfleetlive.com/blogs/what-is-a-tle/">
+<meta property="og:image" content="https://satfleetlive.com/images/logo.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="SatFleet Live logo">
+<meta property="article:published_time" content="2025-02-28">
+<meta property="article:modified_time" content="2026-10-16">
+<meta property="article:section" content="Guides">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What Is a TLE? How to Read Two-Line Element Sets (2026)">
+<meta name="twitter:description" content="Today's ISS TLE decoded column by column, a free TLE decoder, how accurate TLEs are, TLE vs OMM, and why satellites numbered 100000+ have no classic TLE.">
+<meta name="twitter:image" content="https://satfleetlive.com/images/logo.png">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="What is a TLE and How to Read It | SatFleetLive">
-    <meta property="og:description" content="Learn what a TLE (Two-Line Element) is, how to read it, and how it helps track satellites in real time.">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="https://satfleetlive.com/blogs/what-is-a-tle/">
-    <meta property="og:image" content="/images/logo.png">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="What is a TLE and How to Read It | SatFleetLive">
-    <meta name="twitter:description" content="Learn what a TLE (Two-Line Element) is, how to read it, and how it helps track satellites in real time.">
-    <meta name="twitter:image" content="/images/logo.png">
-
-    <!-- Schema.org -->
-    <script type="application/ld+json">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": "https://satfleetlive.com/#organization",
+      "name": "SatFleet Live",
+      "url": "https://satfleetlive.com/",
+      "logo": { "@type": "ImageObject", "url": "https://satfleetlive.com/images/logo.png", "width": 512, "height": 512 }
+    },
+    {
+      "@type": "DefinedTerm",
+      "@id": "https://satfleetlive.com/blogs/what-is-a-tle/#term",
+      "name": "Two-line element set",
+      "alternateName": ["TLE", "2LE", "3LE", "Two-Line Element set"],
+      "description": "A fixed-width text format, two 69-character lines, that gives the mean orbital elements of an Earth-orbiting object at one moment (the epoch). It is designed to be used with the SGP4/SDP4 propagation models."
+    },
+    {
       "@type": "BlogPosting",
-      "headline": "What is a TLE and How to Read It",
-      "description": "Learn what a TLE (Two-Line Element) is, how to read it, and how it helps track satellites in real time.",
-      "author": { "@type": "Organization", "name": "SatFleetLive" },
-      "publisher": { "@type": "Organization", "name": "SatFleetLive", "url": "https://satfleetlive.com" },
+      "@id": "https://satfleetlive.com/blogs/what-is-a-tle/#article",
+      "headline": "What Is a TLE? How to Read Two-Line Element Sets (2026)",
+      "description": "What a TLE (two-line element set) is and how to read it, column by column, on a live ISS TLE. Covers the checksum, implied decimals, epoch and accuracy, SGP4 and SDP4, TLE vs OMM, Alpha-5 and the July 2026 move to six-digit catalogue numbers.",
+      "image": "https://satfleetlive.com/images/logo.png",
       "datePublished": "2025-02-28",
-      "url": "https://satfleetlive.com/blogs/what-is-a-tle/"
+      "dateModified": "2026-10-16",
+      "inLanguage": "en",
+      "author": { "@id": "https://satfleetlive.com/#organization" },
+      "publisher": { "@id": "https://satfleetlive.com/#organization" },
+      "about": { "@id": "https://satfleetlive.com/blogs/what-is-a-tle/#term" },
+      "mainEntityOfPage": "https://satfleetlive.com/blogs/what-is-a-tle/",
+      "citation": ["https://celestrak.org/", "https://www.space-track.org/documentation", "https://en.wikipedia.org/wiki/Satellite_Catalog_Number", "https://en.wikipedia.org/wiki/Two-line_element_set"]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://satfleetlive.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://satfleetlive.com/blogs/" },
+        { "@type": "ListItem", "position": 3, "name": "What Is a TLE?", "item": "https://satfleetlive.com/blogs/what-is-a-tle/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What does TLE stand for?", "acceptedAnswer": { "@type": "Answer", "text": "TLE stands for two-line element set. It is two lines of fixed-width text, 69 characters each, that describe a satellite's orbit at one moment called the epoch. With a name line on top it is sometimes called a 3LE." } },
+        { "@type": "Question", "name": "How do I read a TLE?", "acceptedAnswer": { "@type": "Answer", "text": "Read it by column position, not by spaces. Line 1 holds the catalogue number, launch designator, epoch and drag terms. Line 2 holds the inclination, right ascension of the ascending node, eccentricity (with an implied leading decimal point), argument of perigee, mean anomaly, mean motion in revolutions per day and the revolution count. The last character of each line is a checksum." } },
+        { "@type": "Question", "name": "Where can I get TLE data for free?", "acceptedAnswer": { "@type": "Answer", "text": "Space-Track.org is the official source, run for the US Space Force, and needs a free account. CelesTrak republishes the data without an account, grouped by type, in TLE and in the newer OMM formats. Per-satellite pages on sites such as N2YO and SatNOGS also show the latest TLE." } },
+        { "@type": "Question", "name": "How accurate is a TLE?", "acceptedAnswer": { "@type": "Answer", "text": "For a low Earth orbit satellite, a fresh TLE typically puts it within about a kilometre or two of its true position. The error grows by a few kilometres for each day you move away from the epoch, faster during geomagnetic storms or after the satellite manoeuvres. TLEs are fine for tracking and pass predictions, not for collision avoidance." } },
+        { "@type": "Question", "name": "How is the TLE checksum calculated?", "acceptedAnswer": { "@type": "Answer", "text": "Add every digit in the first 68 characters of the line, count each minus sign as 1, ignore letters, spaces, periods and plus signs, and take the last digit of the total (the sum modulo 10). That digit must match character 69." } },
+        { "@type": "Question", "name": "Why do some new satellites have no TLE?", "acceptedAnswer": { "@type": "Answer", "text": "The TLE has room for a five-digit catalogue number. The five-digit range ran out on 11 July 2026, when catalogue number 100000 was given to the Portuguese CubeSat Saramago. CelesTrak does not publish classic TLEs for objects numbered 100000 and above; their data is available in the OMM format, which has no such limit." } },
+        { "@type": "Question", "name": "What is Alpha-5?", "acceptedAnswer": { "@type": "Answer", "text": "Alpha-5 is a stopgap that squeezes catalogue numbers from 100000 to 339999 into the five-character TLE field by replacing the first two digits with a letter: A means 10, B means 11 and so on to Z for 33, skipping I and O. Catalogue number 100000 becomes A0000. Not every data provider or program supports it." } },
+        { "@type": "Question", "name": "What is the difference between a TLE and OMM?", "acceptedAnswer": { "@type": "Answer", "text": "They carry the same SGP4 mean elements. A TLE packs them into fixed columns with implied decimals and two-digit years. OMM (CCSDS Orbit Mean-Elements Message) labels every value and comes as XML, JSON, CSV or KVN, uses four-digit years and allows catalogue numbers up to nine digits. CelesTrak has offered OMM since May 2020." } },
+        { "@type": "Question", "name": "Can I use TLE elements with a normal Kepler orbit calculator?", "acceptedAnswer": { "@type": "Answer", "text": "Not reliably. TLE values are mean elements fitted for the SGP4/SDP4 models, which include drag and Earth's oblateness. Plugging them into a simple Keplerian propagator gives position errors that grow quickly. Use an SGP4 library such as satellite.js, python-sgp4 or Skyfield." } },
+        { "@type": "Question", "name": "Why does the ISS TLE show only about 58,000 orbits?", "acceptedAnswer": { "@type": "Answer", "text": "The revolution number has five columns, so it rolls over after 99999. The ISS has flown well over 150,000 orbits since 1998, but the field only shows the last five digits." } },
+        { "@type": "Question", "name": "Does SatFleet Live use TLE data?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. SatFleet Live downloads the same SGP4 elements for active satellites from Space-Track every two hours, in JSON (OMM) form, and calculates every position in your browser with satellite.js, a JavaScript implementation of SGP4. Playback keeps one snapshot per day as classic TLE text." } }
+      ]
     }
-    </script>
+  ]
+}
+</script>
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<style>
+:root{--night:#121A44;--paper:#F6F7FB;--surface:#fff;--ink:#1B1E2E;--muted:#555B74;--line:#DCDFEA;--brand:#6A1B9A;--brand-soft:#F1E8F7;--brand-on-night:#C9A2E6;--sans:"Avenir Next","Segoe UI Variable Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--serif:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:80px;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.7 var(--serif)}
+img,svg,iframe{max-width:100%}
+a{color:var(--brand);text-underline-offset:.18em;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid #8E44C4;outline-offset:2px;border-radius:3px}
+html.in-app .store-only{display:none!important}
+.skip-link{position:absolute;left:12px;top:-48px;z-index:100;background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:6px;font:600 .9rem var(--sans)}
+.skip-link:focus{top:12px}
 
-        :root {
-            --primary-purple: #9c27b0;
-            --primary-blue: #2196f3;
-            --dark-bg: #1a1a1a;
-            --dark-secondary: #2d2d2d;
-            --dark-tertiary: #3d3d3d;
-            --text-primary-dark: #ffffff;
-            --text-secondary-dark: #cccccc;
-        }
+.site-header{background:var(--night);border-bottom:1px solid rgba(255,255,255,.08);font-family:var(--sans)}
+.site-header-inner{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:700;font-size:1.05rem;flex-shrink:0}
+.brand img{width:32px;height:32px;border-radius:7px}
+.site-nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+.site-nav::-webkit-scrollbar{display:none}
+.site-nav a{color:rgba(255,255,255,.78);text-decoration:none;white-space:nowrap;font-size:.92rem;font-weight:500;padding:8px 12px;border-radius:6px}
+.site-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-primary-dark);
-            overflow-x: hidden;
-        }
+.hero{background:var(--night);color:#fff}
+.hero-inner{max-width:1200px;margin:0 auto;padding:28px 24px 56px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:48px;align-items:center}
+.breadcrumb{font:500 .85rem var(--sans);color:rgba(255,255,255,.6);margin-bottom:28px}
+.breadcrumb ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.breadcrumb li+li::before{content:"/";margin-right:6px;color:rgba(255,255,255,.35)}
+.breadcrumb a{color:rgba(255,255,255,.75);text-decoration:none}
+.breadcrumb a:hover{color:#fff;text-decoration:underline}
+.hero h1{font:700 clamp(2.1rem,4.6vw,3.3rem)/1.08 var(--sans);letter-spacing:-.02em;margin:0 0 20px}
+.hero-standfirst{font-size:1.12rem;line-height:1.6;color:rgba(255,255,255,.86);margin:0 0 24px;max-width:34em}
+.hero-meta{font:500 .88rem var(--sans);color:rgba(255,255,255,.6);margin:0 0 28px;display:flex;flex-wrap:wrap;gap:4px 20px}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 20px;border-radius:8px;font:600 .98rem var(--sans);text-decoration:none;background:#fff;color:var(--night)}
+.button:hover{background:#ECE4F4}
+.store-badges{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.store-badges a{line-height:0}
+.store-badges img{height:44px;width:auto;display:block}
+.hero-figure{margin:0}
+.frame{position:relative;border-radius:14px;overflow:hidden;background:#070B24;border:1px solid rgba(255,255,255,.12);aspect-ratio:4/3}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.hero-figure figcaption{font:400 .85rem/1.5 var(--sans);color:rgba(255,255,255,.62);margin-top:10px}
+.hero-figure figcaption a{color:var(--brand-on-night)}
 
-        /* HEADER */
-        .header {
-            background-color: var(--dark-secondary);
-            padding: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .logo-section { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
-        .logo { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
-        .logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 50%; }
-        .logo-placeholder { width: 40px; height: 40px; background-color: var(--primary-purple); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; font-weight: bold; }
-        .site-title { font-size: 1.5rem; font-weight: 650; color: var(--primary-purple); text-shadow: 2px 2px 4px rgba(0,0,0,0.6); text-decoration: none; }
-        .header-nav { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-        .nav-btn { background: none; border: 2px solid var(--primary-purple); color: var(--primary-purple); padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem; text-decoration: none; display: inline-block; }
-        .nav-btn:hover { background-color: var(--primary-purple); color: white; }
-        .nav-btn.blue { border-color: var(--primary-blue); color: var(--primary-blue); }
-        .nav-btn.blue:hover { background-color: var(--primary-blue); color: white; }
+.layout{max-width:1200px;margin:0 auto;padding:48px 24px 72px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:56px;align-items:start}
+.toc{position:sticky;top:24px;font-family:var(--sans);max-height:calc(100vh - 48px);overflow-y:auto}
+.toc-title{font-size:.95rem;font-weight:700;margin:0 0 10px}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc li a{display:block;padding:5px 0 5px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--muted);text-decoration:none;font-size:.86rem;line-height:1.4}
+.toc li a:hover{color:var(--ink);border-left-color:var(--brand)}
+.toc-mobile{display:none}
 
-        /* HERO */
-        .article-hero {
-            background: linear-gradient(135deg, #1a1a1a 0%, #1a2030 50%, #2d1b33 100%);
-            border-bottom: 2px solid var(--primary-purple);
-            padding: 3.5rem 1.5rem 2.5rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .article-hero::before { content: '🔢'; position: absolute; font-size: 10rem; opacity: 0.04; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
-        .breadcrumb { font-size: 0.85rem; color: var(--text-secondary-dark); margin-bottom: 1rem; }
-        .breadcrumb a { color: var(--primary-blue); text-decoration: none; }
-        .breadcrumb a:hover { text-decoration: underline; }
-        .article-hero h1 { font-size: 2.2rem; font-weight: 700; color: #ffffff; line-height: 1.25; max-width: 780px; margin: 0 auto 1rem; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
-        .article-hero h1 span { color: var(--primary-purple); }
-        .article-meta { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-secondary-dark); margin-top: 1rem; }
+article{max-width:70ch}
+article h2{font:700 clamp(1.5rem,2.6vw,1.9rem)/1.2 var(--sans);letter-spacing:-.01em;margin:64px 0 16px;padding-top:8px}
+article h2:first-child{margin-top:0}
+article h3{font:700 1.2rem/1.3 var(--sans);margin:36px 0 10px}
+article p,article ul,article ol{margin:0 0 18px}
+article ul,article ol{padding-left:1.3em}
+article li{margin-bottom:6px}
+.lead{font-size:1.2rem;line-height:1.65}
 
-        /* LAYOUT */
-        .blog-container { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.facts{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 28px;margin:28px 0 8px}
+.facts-title{font:700 1.05rem var(--sans);margin:0 0 14px}
+.facts dl{margin:0;display:grid;grid-template-columns:8em minmax(0,1fr);gap:12px 20px}
+.facts dt{font:600 .92rem/1.6 var(--sans);color:var(--muted)}
+.facts dd{margin:0;line-height:1.6}
 
-        /* TOC */
-        .toc { background-color: var(--dark-secondary); border-left: 4px solid var(--primary-purple); border-radius: 0 10px 10px 0; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
-        .toc-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
-        .toc ol { margin-left: 1.2rem; }
-        .toc li { margin-bottom: 0.4rem; }
-        .toc a { color: var(--primary-blue); text-decoration: none; font-size: 0.95rem; }
-        .toc a:hover { text-decoration: underline; color: #64b5f6; }
+.glance{margin:24px 0;padding:0!important;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}
+.glance li{padding:14px 0;border-top:1px solid var(--line);margin:0}
+.glance strong{display:block;font:700 1rem/1.35 var(--sans);margin-bottom:2px}
+.glance span{color:var(--muted);font-size:.97rem;line-height:1.55}
 
-        /* ARTICLE */
-        .article-body p { color: var(--text-secondary-dark); line-height: 1.85; margin-bottom: 1.25rem; font-size: 1.02rem; }
-        .article-body strong { color: #ffffff; }
-        .article-body a { color: var(--primary-blue); text-decoration: none; }
-        .article-body a:hover { text-decoration: underline; }
-        .article-body h2 { font-size: 1.55rem; font-weight: 700; color: #ffffff; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-purple); scroll-margin-top: 80px; }
-        .article-body h3 { font-size: 1.15rem; font-weight: 600; color: var(--primary-purple); margin: 1.75rem 0 0.75rem; }
+.table-wrap{overflow-x:auto;margin:20px 0 24px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font:400 .95rem/1.5 var(--sans)}
+caption{text-align:left;font-weight:700;padding:14px 16px 4px}
+th,td{text-align:left;padding:11px 16px;vertical-align:top;border-top:1px solid var(--line)}
+thead th{border-top:0;background:#EEF0F7;font-weight:600;white-space:nowrap}
+tbody th{font-weight:700}
+.cmp{min-width:760px}
+.cmp tr.us{background:var(--brand-soft)}
+.table-note{font:400 .88rem/1.5 var(--sans);color:var(--muted);margin:-10px 0 24px}
 
-        /* HIGHLIGHT BOX */
-        .highlight-box { background: linear-gradient(135deg, rgba(156,39,176,0.12), rgba(33,150,243,0.08)); border: 1px solid rgba(156,39,176,0.35); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.75rem 0; }
-        .highlight-box p { margin-bottom: 0 !important; color: #e0d0e8 !important; }
-        .highlight-label { font-size: 0.78rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; display: block; }
+.steps{counter-reset:step;list-style:none;padding:0!important;margin:20px 0 24px}
+.steps li{counter-increment:step;position:relative;padding:0 0 14px 44px;margin:0}
+.steps li::before{content:counter(step);position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font:700 .9rem/28px var(--sans);text-align:center}
+.steps strong{font-family:var(--sans)}
 
-        /* TLE CODE BLOCK */
-        .tle-block {
-            background-color: #0d1117;
-            border: 1px solid var(--dark-tertiary);
-            border-left: 4px solid var(--primary-purple);
-            border-radius: 0 8px 8px 0;
-            padding: 1.25rem 1.5rem;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-        }
-        .tle-block pre {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.9rem;
-            color: #00d26a;
-            line-height: 1.8;
-            white-space: pre;
-        }
-        .tle-block .tle-label {
-            font-size: 0.75rem;
-            color: var(--primary-purple);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 0.6rem;
-            font-family: 'Segoe UI', sans-serif;
-        }
+.note{border-left:3px solid var(--brand);background:var(--surface);padding:16px 20px;margin:24px 0;border-radius:0 10px 10px 0}
+.note p{margin:0}
+.note-title{font:700 1rem var(--sans);margin-bottom:4px!important}
 
-        /* TLE FIELD TABLE */
-        .tle-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0 2rem;
-            font-size: 0.93rem;
-        }
-        .tle-table thead tr { background-color: var(--primary-purple); color: white; }
-        .tle-table th { padding: 0.8rem 1rem; text-align: left; font-weight: 600; }
-        .tle-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--dark-tertiary); color: var(--text-secondary-dark); vertical-align: top; }
-        .tle-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,0.03); }
-        .tle-table tbody tr:hover { background-color: rgba(156,39,176,0.08); }
-        .tle-table td:first-child { font-family: 'Courier New', monospace; color: #00d26a; font-size: 0.88rem; white-space: nowrap; }
-        .tle-table td:nth-child(2) { color: #ffffff; font-weight: 500; }
+.faq h3{font-size:1.08rem;margin:30px 0 6px}
+.faq p{margin-bottom:0}
 
-        /* ANNOTATED TLE */
-        .tle-annotated {
-            background-color: #0d1117;
-            border: 1px solid var(--dark-tertiary);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            overflow-x: auto;
-        }
-        .tle-annotated .tle-line {
-            font-family: 'Courier New', monospace;
-            font-size: 0.88rem;
-            line-height: 2.2;
-            white-space: pre;
-            position: relative;
-        }
-        .tle-annotated .tle-line .seg { position: relative; cursor: default; border-radius: 3px; padding: 1px 0; }
-        .seg-name   { background: rgba(156,39,176,0.25); color: #e1aaed; }
-        .seg-norad  { background: rgba(33,150,243,0.25); color: #90caf9; }
-        .seg-epoch  { background: rgba(255,183,77,0.2);  color: #ffe082; }
-        .seg-inc    { background: rgba(0,210,106,0.2);   color: #69f0ae; }
-        .seg-ecc    { background: rgba(255,107,53,0.2);  color: #ffab91; }
-        .seg-mean   { background: rgba(0,206,209,0.2);   color: #80deea; }
+.explore{list-style:none;padding:0!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.explore li{margin:0}
+.explore a{display:block;height:100%;padding:16px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none;color:var(--ink)}
+.explore a:hover{border-color:var(--brand)}
+.explore strong{display:block;font:700 1rem var(--sans);color:var(--brand);margin-bottom:2px}
+.explore span{font-size:.94rem;color:var(--muted);line-height:1.5}
 
-        .tle-legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            margin-top: 1rem;
-        }
-        .tle-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.8rem;
-            color: var(--text-secondary-dark);
-        }
-        .tle-legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            flex-shrink: 0;
-        }
+.closing{background:var(--night);color:#fff;border-radius:14px;padding:32px;margin-top:64px}
+.closing h2{margin:0 0 8px;color:#fff}
+.closing p{color:rgba(255,255,255,.82)}
+.closing .hero-actions{margin-top:20px}
 
-        /* STEP LIST */
-        .step-list { counter-reset: step-counter; list-style: none; padding: 0; margin: 1.25rem 0 1.75rem; }
-        .step-list li { counter-increment: step-counter; display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; background-color: var(--dark-secondary); border-radius: 10px; padding: 1rem 1.25rem; }
-        .step-list li::before { content: counter(step-counter); background-color: var(--primary-purple); color: white; font-weight: 700; font-size: 0.9rem; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-        .step-list li span { color: var(--text-secondary-dark); line-height: 1.7; font-size: 0.98rem; }
-        .step-list li strong { color: #ffffff; display: block; margin-bottom: 0.2rem; }
+.site-footer{border-top:1px solid var(--line);font:400 .9rem/1.6 var(--sans);color:var(--muted)}
+.site-footer-inner{max-width:1200px;margin:0 auto;padding:28px 24px 48px}
+.site-footer ul{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-wrap:wrap;gap:6px 20px}
+.site-footer a{color:var(--muted)}
+.site-footer a:hover{color:var(--ink)}
+.link-button{background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;text-underline-offset:.18em;cursor:pointer}
+.link-button:hover{color:var(--ink)}
 
-        /* FAQ */
-        .faq-item { background-color: var(--dark-secondary); border-radius: 10px; margin-bottom: 0.85rem; overflow: hidden; }
-        .faq-question { width: 100%; background: none; border: none; color: #ffffff; font-size: 1rem; font-weight: 600; text-align: left; padding: 1.1rem 1.25rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: background 0.2s; font-family: inherit; }
-        .faq-question:hover { background-color: rgba(156,39,176,0.12); }
-        .faq-arrow { color: var(--primary-purple); font-size: 1.1rem; transition: transform 0.3s ease; flex-shrink: 0; }
-        .faq-question.open .faq-arrow { transform: rotate(180deg); }
-        .faq-answer { display: none; padding: 0 1.25rem 1.1rem; color: var(--text-secondary-dark); line-height: 1.75; font-size: 0.97rem; border-top: 1px solid var(--dark-tertiary); }
-        .faq-answer.visible { display: block; }
-        .faq-answer a { color: var(--primary-blue); text-decoration: none; }
-        .faq-answer a:hover { text-decoration: underline; }
+@media (max-width:1000px){
+.hero-inner{grid-template-columns:1fr;gap:32px;padding-bottom:40px}
+.layout{grid-template-columns:1fr;gap:0;padding-top:32px}
+.toc{display:none}
+.toc-mobile{display:block;font-family:var(--sans);background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:36px}
+.toc-mobile summary{cursor:pointer;padding:14px 18px;font-weight:700}
+.toc-mobile ol{margin:0;padding:0 18px 14px 36px;font-size:.95rem;line-height:1.5}
+.toc-mobile li{margin-bottom:4px}
+}
+@media (max-width:640px){
+body{font-size:1rem}
+.site-header-inner{padding:10px 16px;gap:12px}
+.brand span{display:none}
+.hero-inner,.layout,.site-footer-inner{padding-left:16px;padding-right:16px}
+.frame{aspect-ratio:1/1}
+.facts{padding:20px}
+.facts dl{grid-template-columns:1fr;gap:2px}
+.facts dd{margin-bottom:10px}
+.glance,.explore{grid-template-columns:1fr}
+.closing{padding:24px 20px}
+}
 
-        /* RELATED ARTICLES */
-        .related-articles { margin: 2.5rem 0 1.5rem; }
-        .related-title { font-size: 1rem; font-weight: 700; color: var(--primary-purple); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
-        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
-        .related-card { background-color: var(--dark-secondary); border-radius: 10px; padding: 1.1rem 1.25rem; display: flex; align-items: flex-start; gap: 0.85rem; text-decoration: none; border: 1px solid var(--dark-tertiary); transition: border-color 0.3s, background 0.3s; }
-        .related-card:hover { border-color: var(--primary-purple); background-color: rgba(156,39,176,0.08); }
-        .related-icon { font-size: 1.6rem; flex-shrink: 0; margin-top: 2px; }
-        .related-text strong { display: block; color: #ffffff; font-size: 0.95rem; margin-bottom: 0.2rem; }
-        .related-text span { color: var(--text-secondary-dark); font-size: 0.84rem; line-height: 1.5; }
+.mono{font-family:ui-monospace,"SF Mono","Cascadia Mono","Segoe UI Mono",Consolas,"Liberation Mono",monospace}
 
-        /* CTA */
-        .cta-banner { background: linear-gradient(135deg, rgba(156,39,176,0.2), rgba(33,150,243,0.15)); border: 1px solid rgba(156,39,176,0.4); border-radius: 14px; padding: 2rem; text-align: center; margin: 3rem 0 2rem; }
-        .cta-banner h2 { font-size: 1.4rem; color: #ffffff; margin-bottom: 0.75rem; border: none !important; padding: 0 !important; }
-        .cta-banner p { color: var(--text-secondary-dark); margin-bottom: 1.25rem; font-size: 1rem; }
-        .cta-btn { display: inline-block; background-color: var(--primary-purple); color: white; padding: 0.75rem 2rem; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; border: 2px solid var(--primary-purple); }
-        .cta-btn:hover { background-color: transparent; color: var(--primary-purple); }
+.tle-card{background:#0B1030;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px 18px 16px;color:#E8EAF6;font-family:var(--sans)}
+.tle-card-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:.88rem;font-weight:600;margin-bottom:12px}
+.tle-card-head .name{color:#fff}
+.tle-status{margin-left:auto;font-weight:500;font-size:.8rem;color:rgba(255,255,255,.62)}
+.live-dot{width:9px;height:9px;border-radius:50%;background:#7E8AA8;flex-shrink:0}
+.is-live .live-dot{background:#3DDC97;box-shadow:0 0 0 0 rgba(61,220,151,.55)}
+@media (prefers-reduced-motion:no-preference){.is-live .live-dot{animation:pulse 2s infinite}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(61,220,151,.55)}70%{box-shadow:0 0 0 8px rgba(61,220,151,0)}100%{box-shadow:0 0 0 0 rgba(61,220,151,0)}}
+.tle-pre{margin:0;overflow-x:auto;font:500 .76rem/1.85 ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;white-space:pre;color:#C9CEE3;background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px}
+.tle-pre span{border-radius:3px}
+.c-id{color:#9CC7FF;background:rgba(80,140,255,.16)}
+.c-epoch{color:#FFD88A;background:rgba(255,190,70,.15)}
+.c-drag{color:#FFB3C7;background:rgba(255,100,150,.14)}
+.c-orient{color:#9EF0C2;background:rgba(60,210,140,.14)}
+.c-shape{color:#FFC29E;background:rgba(255,140,70,.15)}
+.c-mm{color:#8EE8F2;background:rgba(40,200,220,.15)}
+.c-sum{color:#D9B8FF;background:rgba(170,110,255,.22)}
+.tle-legend{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;color:rgba(255,255,255,.72)}
+.tle-legend li{display:flex;align-items:center;gap:6px;margin:0}
+.tle-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.tle-legend .k-id{background:#9CC7FF}.tle-legend .k-epoch{background:#FFD88A}.tle-legend .k-drag{background:#FFB3C7}
+.tle-legend .k-orient{background:#9EF0C2}.tle-legend .k-shape{background:#FFC29E}.tle-legend .k-mm{background:#8EE8F2}.tle-legend .k-sum{background:#D9B8FF}
+.tle-derived{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 0;padding:12px 0 0;border-top:1px solid rgba(255,255,255,.1)}
+.tle-derived div{margin:0}
+.tle-derived dt{font-size:.72rem;letter-spacing:.02em;color:rgba(255,255,255,.55)}
+.tle-derived dd{margin:2px 0 0;font-weight:700;font-size:.98rem;color:#fff;font-variant-numeric:tabular-nums}
 
-        /* FOOTER */
-        .footer { background-color: var(--dark-secondary); padding: 1.5rem 1rem; text-align: center; font-size: 12px; color: var(--text-secondary-dark); border-top: 1px solid var(--dark-tertiary); }
-        .footer a { color: #4da6ff; text-decoration: none; }
-        .footer a:hover { text-decoration: underline; }
-        .footer-row { margin-bottom: 0.4rem; }
+.code-block{background:#0B1030;color:#C9CEE3;border-radius:10px;padding:14px 16px;overflow-x:auto;margin:20px 0 24px;font:500 .86rem/1.8 ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;white-space:pre}
+.ruler{color:#6F7896}
+.code-cap{font:400 .88rem/1.5 var(--sans);color:var(--muted);margin:-14px 0 24px}
 
-        /* RESPONSIVE */
-        @media (max-width: 640px) {
-            .article-hero h1 { font-size: 1.55rem; }
-            .header { flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
-            .header-nav { justify-content: center; }
-            .blog-container { padding: 1.75rem 1rem 3rem; }
-            .article-body h2 { font-size: 1.3rem; }
-            .tle-block pre { font-size: 0.78rem; }
-            .tle-annotated .tle-line { font-size: 0.72rem; }
-            .tle-table { font-size: 0.83rem; }
-            .tle-table th, .tle-table td { padding: 0.55rem 0.65rem; }
-            .related-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+.fields td:first-child,.fields td.mono{font-family:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;white-space:nowrap}
+.fields td.raw{font-family:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;white-space:pre;color:var(--brand)}
+
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:24px 0 8px;font-family:var(--sans)}
+.tool label{display:block;font-weight:700;font-size:.95rem;margin-bottom:8px}
+.tool textarea{display:block;width:100%;min-height:118px;resize:vertical;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#FBFBFE;color:var(--ink);font:500 .84rem/1.7 ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;white-space:pre;overflow-x:auto}
+.tool textarea:focus{outline:3px solid #8E44C4;outline-offset:1px}
+.tool-actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:8px;font:600 .95rem var(--sans);cursor:pointer;border:1px solid var(--brand);background:var(--brand);color:#fff}
+.btn:hover{background:#561580}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn.ghost:hover{background:var(--brand-soft)}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tool-out{margin-top:18px}
+.tool-out:empty{display:none}
+.tool-msg{padding:12px 14px;border-radius:8px;font-size:.95rem;line-height:1.5;margin:0 0 14px}
+.tool-msg.ok{background:#E8F7EF;color:#14532D}
+.tool-msg.err{background:#FDECEC;color:#7F1D1D}
+.tool-msg.warn{background:#FFF6E0;color:#6B4400}
+.tool-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 16px}
+.tool-sum div{background:var(--paper);border-radius:8px;padding:10px 12px}
+.tool-sum dt{font-size:.78rem;color:var(--muted)}
+.tool-sum dd{margin:2px 0 0;font-weight:700;font-variant-numeric:tabular-nums}
+.tool .table-wrap{margin:0}
+.tool table{font-size:.88rem}
+.tool td,.tool th{padding:8px 12px}
+
+.json-toggle{margin:14px 0 0}
+.json-toggle summary{cursor:pointer;font:600 .85rem var(--sans);color:rgba(255,255,255,.8)}
+.json-toggle pre{margin:10px 0 0;max-height:260px;overflow:auto;font:500 .78rem/1.6 ui-monospace,"SF Mono",Consolas,monospace;color:#C9CEE3;background:rgba(255,255,255,.03);border-radius:8px;padding:10px 12px}
+
+@media (max-width:640px){
+.tle-pre{font-size:.66rem;padding:8px}
+.code-block{font-size:.7rem;padding:12px}
+.tle-derived{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tool{padding:18px 16px}
+.tool textarea{font-size:.72rem}
+}
+
+/* evita que tablas y bloques de código ensanchen la página en móvil */
+@media (max-width:1000px){.hero-inner,.layout{grid-template-columns:minmax(0,1fr)}}
+</style>
 <script src="/legal-footer.js" defer></script>
 </head>
-
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
-    <!-- HEADER -->
-    <header class="header">
-        <a class="logo-section" href="/">
-            <div class="logo">
-                <img src="/images/logo.png" alt="SatFleet Live Logo"
-                    onerror="this.parentElement.innerHTML='<div class=\'logo-placeholder\'>🛰️</div>'">
-            </div>
-            <span class="site-title">SatFleet Live</span>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="/">
+            <img src="/images/logo.png" alt="" width="32" height="32">
+            <span>SatFleet Live</span>
         </a>
-        <nav class="header-nav">
-            <a href="/" class="nav-btn">🌍 Live Map</a>
-            <a href="/next-passes.html" class="nav-btn blue">Next Passes</a>
+        <nav class="site-nav" aria-label="Site">
+            <a href="/">Live map</a>
+            <a href="/moon.html">Moon</a>
+            <a href="/mars.html">Mars</a>
+            <a href="/deep-space.html">Deep Space</a>
+            <a href="/next-passes.html">Next Passes</a>
+            <a href="/launches.html">Launches</a>
+            <a href="/blogs/">Guides</a>
         </nav>
-    </header>
-
-    <!-- HERO -->
-    <div class="article-hero">
-        <p class="breadcrumb">
-            <a href="/">Home</a> &rsaquo; <a href="/blogs/">Guides</a> &rsaquo; What is a TLE
-        </p>
-        <h1>What is a <span>TLE</span> and How to Read It</h1>
-        <div class="article-meta">
-            <span>✍️ SatFleetLive</span>
-            <span>📅 February 2025</span>
-            <span>⏱️ 6 min read</span>
-        </div>
     </div>
+</header>
 
-    <!-- CONTENT -->
-    <main class="blog-container">
-
-        <nav class="toc" aria-label="Table of contents">
-            <div class="toc-title">📋 Contents</div>
-            <ol>
-                <li><a href="#what-is-tle">What is a TLE?</a></li>
-                <li><a href="#structure">The Structure of a TLE</a></li>
-                <li><a href="#how-to-read">How to Read Each Field</a></li>
-                <li><a href="#example">Practical Example: The ISS</a></li>
-                <li><a href="#how-used">How TLEs Power Real-Time Satellite Tracking</a></li>
-                <li><a href="#faq">Frequently Asked Questions</a></li>
-            </ol>
-        </nav>
-
-        <article class="article-body">
-
-            <p>
-                Every satellite tracker you have ever used — including <a href="/">SatFleet Live</a> — relies on a surprisingly compact piece of data called a <strong>TLE</strong>. Two lines of plain text, each exactly 69 characters long, contain everything needed to calculate where a satellite is at any moment in time. Understanding how to read TLE data gives you a much deeper insight into how <strong>satellite orbit tracking</strong> actually works.
+<section class="hero" aria-labelledby="page-title">
+    <div class="hero-inner">
+        <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/blogs/">Guides</a></li>
+                    <li aria-current="page">What Is a TLE?</li>
+                </ol>
+            </nav>
+            <h1 id="page-title">What is a TLE, and how do you read one?</h1>
+            <p class="hero-standfirst">
+                A TLE, or two-line element set, is two lines of text, 69 characters each, that describe a
+                satellite's orbit at one moment. Give it to the SGP4 model and you get the satellite's position
+                at any time near that moment. Here is today's ISS TLE, decoded column by column, plus what changed
+                in July 2026 when the satellite catalogue ran out of five-digit numbers.
             </p>
-
-            <!-- SECTION 1 -->
-            <h2 id="what-is-tle">What is a TLE?</h2>
-
-            <p>
-                TLE stands for <strong>Two-Line Element set</strong>. It is a standardised data format developed by NORAD (North American Aerospace Defense Command) to describe the orbital parameters of an Earth-orbiting object. The format has been in use since the 1960s and remains the universal standard for sharing satellite orbital data today.
+            <p class="hero-meta">
+                <span>By SatFleet Live</span>
+                <span>Updated <time datetime="2026-10-16">16 October 2026</time></span>
+                <span>12-minute read</span>
             </p>
-
-            <p>
-                A complete TLE entry actually consists of <strong>three lines</strong>: a name line followed by Line 1 and Line 2. Together they encode the satellite's identity, its orbital shape, its orientation in space, and its position at a specific moment in time — called the <em>epoch</em>.
-            </p>
-
-            <div class="highlight-box">
-                <span class="highlight-label">💡 Key fact</span>
-                <p>TLE data is published for free by <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak / NORAD</a> and updated regularly. SatFleet Live refreshes its TLE data every 48 hours to keep satellite positions accurate.</p>
+            <div class="hero-actions">
+                <a class="button" href="#decoder">Decode a TLE</a>
+                <a class="button" href="/" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35)">Open the live map</a>
             </div>
-
-            <!-- SECTION 2 -->
-            <h2 id="structure">The Structure of a TLE</h2>
-
-            <p>
-                Here is what a raw <strong>TLE satellite</strong> entry looks like, using the International Space Station as an example:
-            </p>
-
-            <div class="tle-block">
-                <div class="tle-label">📄 ISS TLE — raw format</div>
-                <pre>ISS (ZARYA)
-1 25544U 98067A   24058.51795370  .00016717  00000-0  30029-3 0  9993
-2 25544  51.6413 179.2137 0003828  90.5455 269.6118 15.50041732447771</pre>
-            </div>
-
-            <p>
-                At first glance it looks like gibberish. But every single character has a precise meaning. Let's break it down field by field.
-            </p>
-
-            <!-- SECTION 3 -->
-            <h2 id="how-to-read">How to Read Each Field</h2>
-
-            <h3>The name line</h3>
-            <p>
-                The first line is simply the satellite's common name — in this case <code style="color:#00d26a; font-family:monospace;">ISS (ZARYA)</code>. This is not part of the official two-line format but is always included for human readability. Zarya was the first module of the ISS launched in 1998.
-            </p>
-
-            <h3>Line 1 — Identity and orbital timing</h3>
-
-            <div style="overflow-x:auto;">
-                <table class="tle-table">
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Name</th>
-                            <th>Explanation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Line number</td>
-                            <td>Always "1" for the first data line.</td>
-                        </tr>
-                        <tr>
-                            <td>25544</td>
-                            <td>NORAD Catalog Number</td>
-                            <td>Unique ID assigned to every tracked object. The ISS is 25544.</td>
-                        </tr>
-                        <tr>
-                            <td>U</td>
-                            <td>Classification</td>
-                            <td>U = Unclassified, C = Classified, S = Secret.</td>
-                        </tr>
-                        <tr>
-                            <td>98067A</td>
-                            <td>International Designator</td>
-                            <td>Launch year (98 = 1998), launch number (067), piece identifier (A = primary payload).</td>
-                        </tr>
-                        <tr>
-                            <td>24058.51795370</td>
-                            <td>Epoch</td>
-                            <td>The reference time for this TLE. Year (24 = 2024) + day of year with decimal fraction (058.517... = day 58, about 12:25 UTC).</td>
-                        </tr>
-                        <tr>
-                            <td>.00016717</td>
-                            <td>First derivative of mean motion</td>
-                            <td>How fast the orbital speed is changing. Reflects atmospheric drag. Small positive value = orbit decaying slowly.</td>
-                        </tr>
-                        <tr>
-                            <td>00000-0</td>
-                            <td>Second derivative of mean motion</td>
-                            <td>Rate of change of drag. Usually zero for most satellites.</td>
-                        </tr>
-                        <tr>
-                            <td>30029-3</td>
-                            <td>BSTAR drag term</td>
-                            <td>Aerodynamic drag coefficient used in the SGP4 propagation model. Written in decimal exponent form: 0.30029 × 10⁻³.</td>
-                        </tr>
-                        <tr>
-                            <td>0</td>
-                            <td>Ephemeris type</td>
-                            <td>Always 0 for published TLEs.</td>
-                        </tr>
-                        <tr>
-                            <td>9993</td>
-                            <td>Element set number</td>
-                            <td>Version counter, incremented each time the TLE is updated. Higher = more recent.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3>Line 2 — Orbital shape and position</h3>
-
-            <div style="overflow-x:auto;">
-                <table class="tle-table">
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Name</th>
-                            <th>Explanation</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>2</td>
-                            <td>Line number</td>
-                            <td>Always "2" for the second data line.</td>
-                        </tr>
-                        <tr>
-                            <td>51.6413</td>
-                            <td>Inclination (°)</td>
-                            <td>Angle between the orbital plane and the equator. 51.64° means the ISS passes over latitudes up to ±51.6°.</td>
-                        </tr>
-                        <tr>
-                            <td>179.2137</td>
-                            <td>Right Ascension of Ascending Node (°)</td>
-                            <td>Describes where the orbit crosses the equator going northward, measured from the vernal equinox. Defines the orbital plane's orientation in space.</td>
-                        </tr>
-                        <tr>
-                            <td>0003828</td>
-                            <td>Eccentricity</td>
-                            <td>How elliptical the orbit is, with the decimal point omitted. Read as 0.0003828 — very close to circular (0 = perfect circle, 1 = parabolic escape).</td>
-                        </tr>
-                        <tr>
-                            <td>90.5455</td>
-                            <td>Argument of Perigee (°)</td>
-                            <td>Angle from the ascending node to the orbit's closest point to Earth (perigee). Defines the orbit's orientation within its plane.</td>
-                        </tr>
-                        <tr>
-                            <td>269.6118</td>
-                            <td>Mean Anomaly (°)</td>
-                            <td>Where along the orbit the satellite was at the epoch. 0° = perigee, 180° = apogee. Together with mean motion, this pins the satellite's exact position.</td>
-                        </tr>
-                        <tr>
-                            <td>15.50041732</td>
-                            <td>Mean Motion (revolutions/day)</td>
-                            <td>How many complete orbits the satellite completes per day. 15.5 rev/day = one orbit every ~93 minutes for the ISS.</td>
-                        </tr>
-                        <tr>
-                            <td>447771</td>
-                            <td>Revolution number</td>
-                            <td>Total number of orbits completed since launch at the epoch time.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- SECTION 4 -->
-            <h2 id="example">Practical Example: The ISS</h2>
-
-            <p>
-                Let's use the colour-coded view below to see all the fields at a glance on the actual ISS TLE. Hover over each highlighted section to identify the field:
-            </p>
-
-            <div class="tle-annotated">
-                <div class="tle-label" style="font-family:'Segoe UI',sans-serif; font-size:0.75rem; color:var(--primary-purple); font-weight:700; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">🎨 Colour-annotated ISS TLE</div>
-                <div class="tle-line">ISS (ZARYA)</div>
-                <div class="tle-line">1 <span class="seg seg-norad" title="NORAD ID: 25544">25544</span>U <span class="seg seg-name" title="International Designator: 98067A">98067A</span>   <span class="seg seg-epoch" title="Epoch: day 58.517 of 2024">24058.51795370</span>  .00016717  00000-0  30029-3 0  9993</div>
-                <div class="tle-line">2 <span class="seg seg-norad" title="NORAD ID: 25544">25544</span>  <span class="seg seg-inc" title="Inclination: 51.64°">51.6413</span> 179.2137 <span class="seg seg-ecc" title="Eccentricity: 0.0003828">0003828</span>  90.5455 269.6118 <span class="seg seg-mean" title="Mean Motion: 15.50 rev/day">15.50041732</span>447771</div>
-                <div class="tle-legend">
-                    <div class="tle-legend-item"><div class="tle-legend-dot" style="background:rgba(33,150,243,0.5);"></div> NORAD ID</div>
-                    <div class="tle-legend-item"><div class="tle-legend-dot" style="background:rgba(156,39,176,0.5);"></div> Int. Designator</div>
-                    <div class="tle-legend-item"><div class="tle-legend-dot" style="background:rgba(255,183,77,0.4);"></div> Epoch</div>
-                    <div class="tle-legend-item"><div class="tle-legend-dot" style="background:rgba(0,210,106,0.4);"></div> Inclination</div>
-                    <div class="tle-legend-item"><div class="tle-legend-dot" style="background:rgba(255,107,53,0.4);"></div> Eccentricity</div>
-                    <div class="tle-legend-item"><div class="tle-legend-dot" style="background:rgba(0,206,209,0.4);"></div> Mean Motion</div>
+        </div>
+        <figure class="hero-figure">
+            <div class="tle-card" id="tle-card">
+                <div class="tle-card-head">
+                    <span class="live-dot" aria-hidden="true"></span>
+                    <span class="name">ISS (ZARYA) &middot; NORAD 25544</span>
+                    <span class="tle-status" id="tle-status">Example element set, 5 Oct 2026</span>
                 </div>
+<pre class="tle-pre" id="tle-live" aria-label="International Space Station two-line element set">ISS (ZARYA)
+1 <span class="c-id" title="Catalogue number">25544</span>U <span class="c-id" title="International designator">98067A  </span> <span class="c-epoch" title="Epoch">26278.49823669</span> <span class="c-drag" title="Mean motion, 1st derivative / 2"> .00005123</span> <span class="c-drag" title="Mean motion, 2nd derivative / 6"> 00000+0</span> <span class="c-drag" title="BSTAR drag term"> 10196-3</span> 0  999<span class="c-sum" title="Checksum">2</span>
+2 <span class="c-id" title="Catalogue number">25544</span> <span class="c-orient" title="Inclination"> 51.6314</span> <span class="c-orient" title="Right ascension of the ascending node">114.1795</span> <span class="c-shape" title="Eccentricity">0006877</span> <span class="c-orient" title="Argument of perigee">225.7345</span> <span class="c-shape" title="Mean anomaly">134.3079</span> <span class="c-mm" title="Mean motion (revolutions per day)">15.48742155</span>58885<span class="c-sum" title="Checksum">9</span></pre>
+                <ul class="tle-legend" aria-hidden="true">
+                    <li><i class="k-id"></i>Catalogue and launch ID</li>
+                    <li><i class="k-epoch"></i>Epoch</li>
+                    <li><i class="k-drag"></i>Drag terms</li>
+                    <li><i class="k-orient"></i>Orientation</li>
+                    <li><i class="k-shape"></i>Shape and position</li>
+                    <li><i class="k-mm"></i>Mean motion</li>
+                    <li><i class="k-sum"></i>Checksum</li>
+                </ul>
+                <dl class="tle-derived">
+                    <div><dt>Orbit period</dt><dd id="d-period">92.98 min</dd></div>
+                    <div><dt>Altitude</dt><dd id="d-alt">416&ndash;425 km</dd></div>
+                    <div><dt>Inclination</dt><dd id="d-inc">51.63&deg;</dd></div>
+                </dl>
+                <details class="json-toggle">
+                    <summary>Show the same orbit as OMM (JSON)</summary>
+                    <pre id="tle-json">{
+  "OBJECT_NAME": "ISS (ZARYA)",
+  "OBJECT_ID": "1998-067A",
+  "EPOCH": "2026-10-05T11:57:27.650016",
+  "MEAN_MOTION": 15.48742155,
+  "ECCENTRICITY": 0.0006877,
+  "INCLINATION": 51.6314,
+  "RA_OF_ASC_NODE": 114.1795,
+  "ARG_OF_PERICENTER": 225.7345,
+  "MEAN_ANOMALY": 134.3079,
+  "EPHEMERIS_TYPE": 0,
+  "CLASSIFICATION_TYPE": "U",
+  "NORAD_CAT_ID": 25544,
+  "ELEMENT_SET_NO": 999,
+  "REV_AT_EPOCH": 58885,
+  "BSTAR": 0.00010196,
+  "MEAN_MOTION_DOT": 5.123e-05,
+  "MEAN_MOTION_DDOT": 0
+}</pre>
+                </details>
             </div>
+            <figcaption>The ISS element set that SatFleet Live is using right now, refreshed from Space-Track. Hover a coloured block to see which field it is.</figcaption>
+        </figure>
+    </div>
+</section>
 
-            <p>
-                What can we immediately tell about the ISS from this TLE? Quite a lot:
+<div class="layout">
+    <nav class="toc" aria-label="In this guide">
+        <p class="toc-title">In this guide</p>
+        <ol>
+            <li><a href="#short-answer">The short answer</a></li>
+<li><a href="#live">The ISS TLE right now</a></li>
+<li><a href="#format">The TLE format, column by column</a></li>
+<li><a href="#decode">Decoding the ISS TLE</a></li>
+<li><a href="#notation">Implied decimals and the checksum</a></li>
+<li><a href="#decoder">Decode any TLE (free tool)</a></li>
+<li><a href="#accuracy">How old is too old?</a></li>
+<li><a href="#sgp4">From TLE to position: SGP4</a></li>
+<li><a href="#six-digit">2026: the six-digit catalogue</a></li>
+<li><a href="#omm">TLE vs OMM</a></li>
+<li><a href="#sources">Where to get TLE data</a></li>
+<li><a href="#satfleet">How SatFleet Live uses it</a></li>
+<li><a href="#faq">FAQ</a></li>
+        </ol>
+    </nav>
+
+    <main id="main">
+        <details class="toc-mobile">
+            <summary>In this guide</summary>
+            <ol>
+                <li><a href="#short-answer">The short answer</a></li>
+<li><a href="#live">The ISS TLE right now</a></li>
+<li><a href="#format">The TLE format, column by column</a></li>
+<li><a href="#decode">Decoding the ISS TLE</a></li>
+<li><a href="#notation">Implied decimals and the checksum</a></li>
+<li><a href="#decoder">Decode any TLE (free tool)</a></li>
+<li><a href="#accuracy">How old is too old?</a></li>
+<li><a href="#sgp4">From TLE to position: SGP4</a></li>
+<li><a href="#six-digit">2026: the six-digit catalogue</a></li>
+<li><a href="#omm">TLE vs OMM</a></li>
+<li><a href="#sources">Where to get TLE data</a></li>
+<li><a href="#satfleet">How SatFleet Live uses it</a></li>
+<li><a href="#faq">FAQ</a></li>
+            </ol>
+        </details>
+
+        <article>
+            <h2 id="short-answer">The short answer</h2>
+            <p class="lead">
+                A <strong>TLE (two-line element set)</strong> is a compact, fixed-width text format that lists the
+                orbital elements of an Earth-orbiting object at a specific time, called the <strong>epoch</strong>.
+                Every column has a fixed meaning: line 1 identifies the object and describes drag, line 2 describes
+                the size, shape and orientation of the orbit and where the object was along it. The values are
+                <em>mean elements</em> fitted for the SGP4 and SDP4 models, so a TLE is only accurate when it is
+                propagated with one of those models.
             </p>
 
-            <ul style="list-style:none; padding:0; margin:0 0 1.5rem;">
-                <li style="padding:0.55rem 0; border-bottom:1px solid #3d3d3d; color:#cccccc;">🌍 &nbsp;Orbit passes over latitudes up to <strong style="color:#fff;">±51.6°</strong> — covering most populated areas of Earth</li>
-                <li style="padding:0.55rem 0; border-bottom:1px solid #3d3d3d; color:#cccccc;">⏱️ &nbsp;Completes an orbit every <strong style="color:#fff;">~93 minutes</strong> (15.5 orbits per day)</li>
-                <li style="padding:0.55rem 0; border-bottom:1px solid #3d3d3d; color:#cccccc;">⭕ &nbsp;Nearly perfectly <strong style="color:#fff;">circular orbit</strong> (eccentricity of only 0.00038)</li>
-                <li style="padding:0.55rem 0; border-bottom:1px solid #3d3d3d; color:#cccccc;">🚀 &nbsp;Launched in <strong style="color:#fff;">1998</strong>, 67th launch of that year</li>
-                <li style="padding:0.55rem 0; color:#cccccc;">🔢 &nbsp;Had completed <strong style="color:#fff;">447,771 orbits</strong> by the epoch date</li>
+            <section class="facts" aria-labelledby="facts-title">
+                <p class="facts-title" id="facts-title">TLE at a glance</p>
+                <dl>
+                    <dt>Stands for</dt>
+                    <dd>Two-line element set. With a name line on top it is called a three-line element set (3LE).</dd>
+                    <dt>Size</dt>
+                    <dd>Two lines of exactly 69 characters, read by column, not by spaces.</dd>
+                    <dt>Who makes it</dt>
+                    <dd>The US Space Force catalogue (18th Space Defense Squadron), published on Space-Track.org and republished by CelesTrak.</dd>
+                    <dt>Works with</dt>
+                    <dd>The SGP4 model (orbits under 225 minutes) and SDP4 (deep space). Not a plain Kepler propagator.</dd>
+                    <dt>Accuracy</dt>
+                    <dd>Around a kilometre or two in low orbit when fresh, degrading by a few kilometres a day.</dd>
+                    <dt>2026 change</dt>
+                    <dd>Catalogue number 100000 was assigned on 11 July 2026. Newer objects need OMM or Alpha-5, because the TLE field holds five characters.</dd>
+                </dl>
+            </section>
+
+            <h2 id="live">The ISS TLE right now</h2>
+            <p>
+                The panel at the top of this page shows the element set SatFleet Live is currently using for the
+                International Space Station, catalogue number 25544. It is the same data the
+                <a href="/">live map</a>, <a href="/next-passes.html">Next Passes</a> and the
+                <a href="/next-passes.html?tab=transits">Sun &amp; Moon transit finder</a> use. If it fails to load,
+                you see a real ISS element set from 5 October 2026 instead, which is the one decoded below:
+            </p>
+<pre class="code-block" aria-label="ISS TLE with column ruler">ISS (ZARYA)
+1 25544U 98067A   26278.49823669  .00005123  00000+0  10196-3 0  9992
+2 25544  51.6314 114.1795 0006877 225.7345 134.3079 15.48742155588859
+<span class="ruler">         1         2         3         4         5         6
+123456789012345678901234567890123456789012345678901234567890123456789</span></pre>
+            <p class="code-cap">The column ruler underneath is how a TLE is meant to be read: by position. Fields can touch each other or be padded with spaces, so splitting on spaces breaks on some objects.</p>
+
+            <h2 id="format">The TLE format, column by column</h2>
+            <p>
+                The optional name line holds up to 24 characters. The two data lines follow the layout below, which
+                has not changed since the format was designed for punched cards.
+            </p>
+            <div class="table-wrap">
+                <table class="fields">
+                    <caption>Line 1</caption>
+                    <thead><tr><th scope="col">Columns</th><th scope="col">Field</th><th scope="col">ISS example</th><th scope="col">What it means</th></tr></thead>
+                    <tbody>
+                        <tr><td>01</td><th scope="row">Line number</th><td class="raw">1</td><td>Always 1.</td></tr>
+                        <tr><td>03&ndash;07</td><th scope="row">Catalogue number</th><td class="raw">25544</td><td>The object's NORAD / satellite catalogue number.</td></tr>
+                        <tr><td>08</td><th scope="row">Classification</th><td class="raw">U</td><td>U for unclassified, which is what public data uses.</td></tr>
+                        <tr><td>10&ndash;11</td><th scope="row">Launch year</th><td class="raw">98</td><td>Last two digits of the launch year (1998).</td></tr>
+                        <tr><td>12&ndash;14</td><th scope="row">Launch number</th><td class="raw">067</td><td>The 67th launch of that year.</td></tr>
+                        <tr><td>15&ndash;17</td><th scope="row">Piece</th><td class="raw">A  </td><td>Which object from that launch. A is usually the main payload.</td></tr>
+                        <tr><td>19&ndash;20</td><th scope="row">Epoch year</th><td class="raw">26</td><td>Two-digit year: 57&ndash;99 means 1957&ndash;1999, 00&ndash;56 means 2000&ndash;2056.</td></tr>
+                        <tr><td>21&ndash;32</td><th scope="row">Epoch day</th><td class="raw">278.49823669</td><td>Day of the year plus the fraction of the day, in UTC.</td></tr>
+                        <tr><td>34&ndash;43</td><th scope="row">Mean motion, 1st derivative &divide; 2</th><td class="raw"> .00005123</td><td>Revolutions per day squared. Shows the orbit speeding up as drag lowers it.</td></tr>
+                        <tr><td>45&ndash;52</td><th scope="row">Mean motion, 2nd derivative &divide; 6</th><td class="raw"> 00000+0</td><td>Revolutions per day cubed, implied decimal and exponent. Almost always zero.</td></tr>
+                        <tr><td>54&ndash;61</td><th scope="row">BSTAR drag term</th><td class="raw"> 10196-3</td><td>How strongly drag acts on the object, in inverse Earth radii. Here 0.10196 &times; 10<sup>-3</sup>.</td></tr>
+                        <tr><td>63</td><th scope="row">Ephemeris type</th><td class="raw">0</td><td>Always 0 in distributed data.</td></tr>
+                        <tr><td>65&ndash;68</td><th scope="row">Element set number</th><td class="raw"> 999</td><td>A counter for element sets. Many current public TLEs show 999, so use the epoch to tell which set is newer.</td></tr>
+                        <tr><td>69</td><th scope="row">Checksum</th><td class="raw">2</td><td>Modulo-10 check digit for the line.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-wrap">
+                <table class="fields">
+                    <caption>Line 2</caption>
+                    <thead><tr><th scope="col">Columns</th><th scope="col">Field</th><th scope="col">ISS example</th><th scope="col">What it means</th></tr></thead>
+                    <tbody>
+                        <tr><td>01</td><th scope="row">Line number</th><td class="raw">2</td><td>Always 2.</td></tr>
+                        <tr><td>03&ndash;07</td><th scope="row">Catalogue number</th><td class="raw">25544</td><td>Must match line 1.</td></tr>
+                        <tr><td>09&ndash;16</td><th scope="row">Inclination</th><td class="raw"> 51.6314</td><td>Tilt of the orbit against the equator, in degrees.</td></tr>
+                        <tr><td>18&ndash;25</td><th scope="row">Right ascension of the ascending node (RAAN)</th><td class="raw">114.1795</td><td>Where the orbit crosses the equator heading north, measured in degrees from the vernal equinox.</td></tr>
+                        <tr><td>27&ndash;33</td><th scope="row">Eccentricity</th><td class="raw">0006877</td><td>Implied leading decimal point: 0.0006877. Zero is a perfect circle.</td></tr>
+                        <tr><td>35&ndash;42</td><th scope="row">Argument of perigee</th><td class="raw">225.7345</td><td>Angle from the ascending node to the lowest point of the orbit, in degrees.</td></tr>
+                        <tr><td>44&ndash;51</td><th scope="row">Mean anomaly</th><td class="raw">134.3079</td><td>Where the object was along its orbit at the epoch, in degrees from perigee.</td></tr>
+                        <tr><td>53&ndash;63</td><th scope="row">Mean motion</th><td class="raw">15.48742155</td><td>Orbits per day.</td></tr>
+                        <tr><td>64&ndash;68</td><th scope="row">Revolution number</th><td class="raw">58885</td><td>Orbits completed at the epoch. Five digits only, so it rolls over after 99999.</td></tr>
+                        <tr><td>69</td><th scope="row">Checksum</th><td class="raw">9</td><td>Modulo-10 check digit for the line.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="table-note">Column layout as documented by Space-Track and CelesTrak. Values from the ISS element set of 5 October 2026.</p>
+
+            <h2 id="decode">Decoding the ISS TLE</h2>
+            <p>
+                Read in plain language, the ISS element set above says this:
+            </p>
+            <ul class="glance">
+                <li><strong>It was valid at 11:57:28 UTC on 5 October 2026</strong><span>Day 278 of 2026 is 5 October, and 0.49823669 of a day is 11 hours 57 minutes 28 seconds.</span></li>
+                <li><strong>It circles Earth every 92.98 minutes</strong><span>1,440 minutes in a day divided by 15.48742155 orbits per day.</span></li>
+                <li><strong>It flies about 416 to 425 km up</strong><span>Mean motion gives the orbit size (semi-major axis about 6,799 km); eccentricity 0.0006877 makes it almost circular.</span></li>
+                <li><strong>It passes over latitudes up to 51.6&deg; north and south</strong><span>The inclination sets how far from the equator the ground track reaches.</span></li>
+                <li><strong>It was the 67th launch of 1998</strong><span>Designator 98067A: the Zarya module, the first piece of the station.</span></li>
+                <li><strong>It is losing height slowly</strong><span>A positive first derivative of mean motion means drag is shrinking the orbit, so the station speeds up.</span></li>
+            </ul>
+            <p>
+                Two fields are easy to misread. The last four characters of line 1, <code>9992</code>, are the element
+                set number <code>999</code> followed by the checksum <code>2</code>, not one number. And the last six
+                characters of line 2, <code>588859</code>, are the revolution number <code>58885</code> plus the checksum
+                <code>9</code>. Because that counter rolls over after 99999, the ISS shows 58,885 even though it had
+                flown about 158,900 orbits by October 2026.
+            </p>
+
+            <h2 id="notation">Implied decimals, exponents and the checksum</h2>
+            <p>
+                The format saves space with a few conventions that trip up anyone parsing TLEs by hand:
+            </p>
+            <ul>
+                <li><strong>Implied decimal point.</strong> Eccentricity is written without <code>0.</code>, so <code>0006877</code> is 0.0006877.</li>
+                <li><strong>Packed exponent.</strong> The second derivative and BSTAR use a five-digit mantissa with an implied leading decimal point, then the sign and power of ten. <code> 10196-3</code> means +0.10196 &times; 10<sup>-3</sup>, and <code> 00000+0</code> (or <code> 00000-0</code>, depending on the provider) means zero.</li>
+                <li><strong>Halved and sixth derivatives.</strong> The two mean-motion derivative fields are already divided by 2 and by 6. SGP4 does not use them at all; they are left over from older models. Drag in SGP4 comes from BSTAR.</li>
+                <li><strong>Two-digit years.</strong> 57 to 99 are 1957 to 1999, and 00 to 56 are 2000 to 2056, so the format runs out of years in 2057.</li>
+            </ul>
+            <h3>How the checksum works</h3>
+            <p>
+                Each line ends with a check digit. Add up every digit in the first 68 characters, count each minus sign
+                as 1, ignore letters, spaces, full stops and plus signs, and keep the last digit of the total. For the
+                ISS line 1 above the digits add up to 182, so the checksum is 2. A wrong check digit almost always
+                means the line was cut, wrapped or edited by hand.
+            </p>
+
+            <h2 id="decoder">Decode any TLE (free tool)</h2>
+            <p>
+                Paste a TLE with or without its name line. The decoder checks both checksums, reads every field,
+                and works out the period, altitude and orbit type. It runs in your browser and does not send what you
+                paste anywhere.
+            </p>
+            <div class="tool" id="tle-tool">
+                <label for="tle-input">TLE to decode</label>
+                <textarea id="tle-input" spellcheck="false" autocomplete="off" autocapitalize="off" aria-describedby="tle-help">ISS (ZARYA)
+1 25544U 98067A   26278.49823669  .00005123  00000+0  10196-3 0  9992
+2 25544  51.6314 114.1795 0006877 225.7345 134.3079 15.48742155588859</textarea>
+                <p id="tle-help" class="table-note" style="margin:8px 0 0">Two or three lines. Alpha-5 catalogue numbers such as A0000 are accepted.</p>
+                <div class="tool-actions">
+                    <button type="button" class="btn" id="tle-decode"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>Decode</button>
+                    <button type="button" class="btn ghost" id="tle-load-iss"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 3.5V8H16"/></svg>Load today's ISS TLE</button>
+                </div>
+                <div class="tool-out" id="tle-out" aria-live="polite"></div>
+            </div>
+
+            <h2 id="accuracy">How old is too old? Epoch and accuracy</h2>
+            <p>
+                A TLE is a snapshot. It is most accurate at its epoch and gets worse the further you propagate from it,
+                forwards or backwards. For a satellite in low Earth orbit, a fresh element set typically places it within
+                about a kilometre or two, and the error grows by a few kilometres for every day of propagation.
+                It grows faster when the upper atmosphere swells during geomagnetic storms, and an element set is simply
+                wrong after a manoeuvre until a new one is published. The ISS, for example, raises its orbit with reboosts.
+            </p>
+            <p>
+                Higher orbits are calmer. GPS and geostationary satellites feel almost no drag, so their element sets stay
+                usable for much longer. As a rule of thumb, a TLE a day or two old is fine for watching a low satellite
+                pass overhead; one a week old will put the ISS noticeably early or late. TLEs are good enough for tracking
+                and pass predictions, but they are not precise enough to judge collision risk on their own.
+            </p>
+            <div class="note">
+                <p class="note-title">What this means for spotting satellites</p>
+                <p>Predictions more than two or three days ahead are estimates. Check a pass or a transit again the day before, when a newer element set is out.</p>
+            </div>
+
+            <h2 id="sgp4">From TLE to position: SGP4 and SDP4</h2>
+            <p>
+                The elements in a TLE are not the textbook Keplerian elements of the orbit at that instant. They are
+                <strong>mean elements</strong>, fitted so that the <strong>SGP4</strong> model (Simplified General
+                Perturbations 4) reproduces the observed motion. SGP4 accounts for Earth's flattening and for
+                atmospheric drag through BSTAR. Objects whose orbit takes 225 minutes or longer switch to the
+                <strong>SDP4</strong> branch, which adds the pull of the Moon and Sun and resonance effects.
+            </p>
+            <p>
+                SGP4 returns a position and velocity in a frame called TEME (true equator, mean equinox). A tracker then
+                rotates it into Earth-fixed coordinates to get latitude, longitude and altitude, and from there the
+                direction to look from your location. Every position on the <a href="/">SatFleet Live map</a> goes
+                through these steps, recalculated continuously in your browser.
+            </p>
+            <p>
+                Because the elements only make sense inside SGP4, feeding them into a simple Kepler calculator gives
+                errors that grow quickly. Well-tested SGP4 implementations exist for most languages, including
+                satellite.js for JavaScript and python-sgp4 and Skyfield for Python.
+            </p>
+
+            <h2 id="six-digit">2026: the catalogue outgrew the TLE</h2>
+            <p>
+                The TLE has five columns for the catalogue number, and that limit arrived in 2026. Numbers 70000 to 99999
+                are set aside for temporary uses, such as analyst objects, so permanent numbers stopped at 69999. On
+                <strong>11 July 2026</strong> the US Space Force catalogue gave number <strong>100000</strong> to
+                <strong>Saramago</strong>, a Portuguese CubeSat launched on 30 March 2026 on the Transporter-16 rideshare
+                (designator 2026-067CY). Every object catalogued since then has a six-digit number.
+            </p>
+            <p>
+                CelesTrak, the most widely used free source, does not publish classic TLEs for objects numbered 100000 or
+                more. It has offered the same data in the OMM format since May 2020, and its legacy fixed-width catalogue
+                file also stops below 70000. Software that only reads TLE text quietly misses every new satellite, which is
+                why many trackers moved to OMM in 2026.
+            </p>
+            <h3>Alpha-5: the stopgap</h3>
+            <p>
+                Alpha-5 squeezes larger numbers into the same five columns by replacing the first two digits with a letter:
+                A stands for 10, B for 11 and so on up to Z for 33, skipping I and O so they are not confused with 1 and 0.
+                Saramago's 100000 becomes <code>A0000</code>, and the scheme tops out at Z9999, which is 339999. An Alpha-5
+                line looks like this:
+            </p>
+<pre class="code-block" aria-label="Alpha-5 TLE for catalogue number 100000">SARAMAGO
+1 A0000U 26067CY  26228.87294806  .00005425  00000-0  24826-3 0  9996
+2 A0000  97.4630 186.7381 0008890 142.7306 217.4548 15.20903303 20923</pre>
+            <p class="code-cap">Saramago's element set of 16 August 2026, as shown by N2YO. Letters are ignored by the checksum.</p>
+            <p>
+                Alpha-5 only buys time, and not every program or provider understands it. The long-term answer is OMM.
+            </p>
+
+            <h2 id="omm">TLE vs OMM</h2>
+            <p>
+                <strong>OMM</strong> (Orbit Mean-Elements Message) is an international standard from CCSDS, the
+                consultative committee for space data systems. It carries exactly the same SGP4 mean elements as a TLE,
+                but every value has a name, so nothing depends on column positions.
+            </p>
+            <div class="table-wrap">
+                <table>
+                    <caption>TLE compared with OMM</caption>
+                    <thead><tr><th scope="col"></th><th scope="col">TLE</th><th scope="col">OMM</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row">Layout</th><td>Fixed columns, implied decimals</td><td>Named fields in XML, JSON, CSV or KVN</td></tr>
+                        <tr><th scope="row">Catalogue number</th><td>Five characters (Alpha-5 up to 339999)</td><td>Integer, up to nine digits</td></tr>
+                        <tr><th scope="row">Epoch</th><td>Two-digit year plus day of year</td><td>Full date and time, for example 2026-10-05T11:57:27.650016</td></tr>
+                        <tr><th scope="row">Precision</th><td>Eccentricity to 7 digits, BSTAR to 5</td><td>Values as stored, no rounding to fit a column</td></tr>
+                        <tr><th scope="row">Model</th><td>SGP4 / SDP4</td><td>SGP4 / SDP4 (same elements)</td></tr>
+                        <tr><th scope="row">Best for</th><td>Old software, quick copy and paste</td><td>Anything new, and every object numbered 100000+</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>
+                Open the OMM view in the panel at the top of this page to see the ISS in both forms side by side. Most
+                SGP4 libraries read OMM directly; in satellite.js the function is <code>json2satrec</code> instead of
+                <code>twoline2satrec</code>.
+            </p>
+
+            <h2 id="sources">Where to get TLE data</h2>
+            <ul>
+                <li><strong><a href="https://www.space-track.org" target="_blank" rel="noopener">Space-Track.org</a></strong>: the official public catalogue, run for the US Space Force. Free, but you need an account, must accept its user agreement and must stay within its query limits. It serves TLE, 3LE and OMM.</li>
+                <li><strong><a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak</a></strong>: a non-profit run by Dr T.S. Kelso that republishes the data with no account, grouped into handy lists (space stations, active satellites, Starlink, GPS, weather). It offers TLE for five-digit objects and OMM for everything. Respect its usage policy and do not download the same file more often than it changes.</li>
+                <li><strong>Per-satellite pages</strong>: N2YO, SatNOGS and the <a href="/">SatFleet Live satellite pages</a> show the current elements for one object, which is handy for a quick look.</li>
             </ul>
 
-            <div class="highlight-box">
-                <span class="highlight-label">🔭 Try it now</span>
-                <p>Search for the ISS on <a href="/">SatFleet Live</a> by typing <strong>ISS</strong> or NORAD ID <strong>25544</strong> in the search box. All the data on screen is computed in real time from TLE data exactly like the one above.</p>
-            </div>
-
-            <!-- SECTION 5 -->
-            <h2 id="how-used">How TLEs Power Real-Time Satellite Tracking</h2>
-
-            <p>
-                A TLE alone is just a snapshot — it describes where a satellite was and how it was moving at the epoch moment. To find its current position, you need a <strong>propagation model</strong> that applies the laws of orbital mechanics to project that snapshot forward in time.
-            </p>
-
-            <p>
-                The standard model for TLE-based tracking is called <strong>SGP4/SDP4</strong> (Simplified General Perturbations). It accounts for:
-            </p>
-
-            <ol class="step-list">
-                <li>
-                    <span>
-                        <strong>Atmospheric drag</strong>
-                        In low Earth orbit, trace amounts of atmosphere cause satellites to slow down and gradually lower their orbit. The BSTAR drag term in Line 1 quantifies this effect.
-                    </span>
-                </li>
-                <li>
-                    <span>
-                        <strong>Earth's non-spherical shape</strong>
-                        Earth is slightly flattened at the poles. This causes the orbital plane to precess (rotate slowly) over time — accounted for in the RAAN and argument of perigee fields.
-                    </span>
-                </li>
-                <li>
-                    <span>
-                        <strong>Lunar and solar gravity</strong>
-                        For higher orbits, the gravitational pull of the Moon and Sun causes measurable perturbations. SDP4 handles these for deep-space objects.
-                    </span>
-                </li>
-                <li>
-                    <span>
-                        <strong>Solar radiation pressure</strong>
-                        Photons from the Sun exert a tiny but real force on satellites, especially those with large solar panels like the ISS.
-                    </span>
-                </li>
+            <h2 id="satfleet">How SatFleet Live uses orbital elements</h2>
+            <ol class="steps">
+                <li><strong>Every 2 hours</strong>, SatFleet Live's server downloads the latest elements for active satellites from Space-Track, in JSON (OMM) form.</li>
+                <li><strong>It keeps the active ones.</strong> Satellites must be on CelesTrak's active list or have launched in the last 30 days, still be in orbit and have elements less than 30 days old. Objects with incomplete data are skipped rather than drawn in the wrong place. Today that is <strong data-live-count>16,000+</strong> satellites.</li>
+                <li><strong>Your browser does the maths.</strong> satellite.js runs SGP4 for every satellite on the map, in 2D, 3D and AR, and for <a href="/next-passes.html">Next Passes</a> and the <a href="/next-passes.html?tab=transits">Sun &amp; Moon transit finder</a>.</li>
+                <li><strong>Once a day</strong>, a snapshot is saved as classic TLE text for <a href="/blogs/satellite-time-travel/">Playback</a>. Today and yesterday are free; older dates, up to 30 days, are part of Premium.</li>
             </ol>
-
             <p>
-                SatFleet Live runs SGP4 calculations entirely in your browser using the <a href="https://github.com/shashwatak/satellite-js" target="_blank" rel="noopener">satellite.js</a> library — every dot you see on the map is a live SGP4 result, updated every second.
+                Because SatFleet Live reads elements as OMM rather than parsing TLE text, the catalogue number is just a
+                number to it, and satellites numbered 100000 and above show up like any other.
             </p>
 
-            <p>
-                This is also why TLE data needs to be refreshed regularly. The further in time you propagate from the epoch, the less accurate the result. For most LEO satellites, a TLE that is more than <strong>7–10 days old</strong> will start to show meaningful position errors. SatFleet Live updates its data every 48 hours to stay well within that window.
+            <section class="faq" aria-labelledby="faq">
+                <h2 id="faq">Frequently asked questions</h2>
+                <h3>What does TLE stand for?</h3>
+                <p>Two-line element set. It is two lines of fixed-width text, 69 characters each, that describe a satellite's orbit at one moment called the epoch. With a name line on top it is sometimes called a 3LE.</p>
+                <h3>How do I read a TLE?</h3>
+                <p>By column position, not by spaces. Line 1 holds the catalogue number, launch designator, epoch and drag terms. Line 2 holds the inclination, right ascension of the ascending node, eccentricity (with an implied leading decimal point), argument of perigee, mean anomaly, mean motion in revolutions per day and the revolution count. The last character of each line is a checksum. The <a href="#format">column tables</a> above list every field, and the <a href="#decoder">decoder</a> does it for you.</p>
+                <h3>Where can I get TLE data for free?</h3>
+                <p>Space-Track.org is the official source, run for the US Space Force, and needs a free account. CelesTrak republishes the data without an account, grouped by type, in TLE and in the newer OMM formats. Per-satellite pages on sites such as N2YO and SatNOGS also show the latest TLE.</p>
+                <h3>How accurate is a TLE?</h3>
+                <p>For a low Earth orbit satellite, a fresh TLE typically puts it within about a kilometre or two of its true position. The error grows by a few kilometres for each day you move away from the epoch, faster during geomagnetic storms or after the satellite manoeuvres. TLEs are fine for tracking and pass predictions, not for collision avoidance.</p>
+                <h3>How is the TLE checksum calculated?</h3>
+                <p>Add every digit in the first 68 characters of the line, count each minus sign as 1, ignore letters, spaces, full stops and plus signs, and take the last digit of the total. That digit must match character 69.</p>
+                <h3>Why do some new satellites have no TLE?</h3>
+                <p>The TLE has room for a five-digit catalogue number. The five-digit range ran out on 11 July 2026, when catalogue number 100000 was given to the Portuguese CubeSat Saramago. CelesTrak does not publish classic TLEs for objects numbered 100000 and above; their data is available in the OMM format, which has no such limit.</p>
+                <h3>What is Alpha-5?</h3>
+                <p>A stopgap that squeezes catalogue numbers from 100000 to 339999 into the five-character TLE field by replacing the first two digits with a letter: A means 10, B means 11 and so on to Z for 33, skipping I and O. Catalogue number 100000 becomes A0000. Not every data provider or program supports it.</p>
+                <h3>What is the difference between a TLE and OMM?</h3>
+                <p>They carry the same SGP4 mean elements. A TLE packs them into fixed columns with implied decimals and two-digit years. OMM (CCSDS Orbit Mean-Elements Message) labels every value and comes as XML, JSON, CSV or KVN, uses four-digit years and allows catalogue numbers up to nine digits. CelesTrak has offered OMM since May 2020.</p>
+                <h3>Can I use TLE elements with a normal Kepler orbit calculator?</h3>
+                <p>Not reliably. TLE values are mean elements fitted for the SGP4/SDP4 models, which include drag and Earth's flattening. Plugging them into a simple Keplerian propagator gives position errors that grow quickly. Use an SGP4 library such as satellite.js, python-sgp4 or Skyfield.</p>
+                <h3>Why does the ISS TLE show only about 58,000 orbits?</h3>
+                <p>The revolution number has five columns, so it rolls over after 99999. The ISS has flown well over 150,000 orbits since 1998, but the field only shows the last five digits.</p>
+                <h3>Does SatFleet Live use TLE data?</h3>
+                <p>Yes. SatFleet Live downloads the same SGP4 elements for active satellites from Space-Track every two hours, in JSON (OMM) form, and calculates every position in your browser with satellite.js, a JavaScript implementation of SGP4. Playback keeps one snapshot per day as classic TLE text.</p>
+            </section>
+
+            <h2>Keep reading</h2>
+            <ul class="explore">
+                <li><a href="/blogs/how-satellite-orbits-work/"><strong>How satellite orbits work</strong><span>LEO, MEO and GEO, and what inclination and altitude change.</span></a></li>
+                <li><a href="/blogs/how-many-satellites-in-orbit/"><strong>How many satellites are in orbit?</strong><span>A live count built from the same element sets.</span></a></li>
+                <li><a href="/blogs/iss-transit-finder/"><strong>ISS transit finder</strong><span>Where to stand to see the ISS cross the Sun or Moon.</span></a></li>
+                <li><a href="/blogs/next-passes-predict-satellites/"><strong>Next Passes</strong><span>Turn element sets into pass times for your location.</span></a></li>
+                <li><a href="/blogs/satellite-time-travel/"><strong>Satellite time travel</strong><span>Replay past days from archived element sets.</span></a></li>
+                <li><a href="/blogs/space-debris/"><strong>What is space debris?</strong><span>The other half of the catalogue.</span></a></li>
+            </ul>
+
+            <h2>Sources and changes</h2>
+            <p class="table-note" style="margin-top:0">
+                Field layout and checksum rule: <a href="https://www.space-track.org/documentation" target="_blank" rel="noopener">Space-Track documentation</a> and CelesTrak.
+                Six-digit catalogue change: <a href="https://celestrak.org/" target="_blank" rel="noopener">CelesTrak</a> notice and the
+                <a href="https://en.wikipedia.org/wiki/Satellite_Catalog_Number" target="_blank" rel="noopener">Satellite Catalog Number</a> article.
+                ISS element set of 5 October 2026 as published by KeepTrack; Saramago Alpha-5 element set as shown by N2YO.
+                Checked on 16 October 2026.
             </p>
+            <ul class="table-note" style="margin-top:0">
+                <li><strong>16 October 2026:</strong> rewritten. Added a live ISS element set, a free decoder, the 2026 six-digit catalogue change, Alpha-5 and OMM. Corrected the element set number and revolution number of the example, which previously included the checksum digit. Updated SatFleet Live's data source and refresh interval to Space-Track every 2 hours (previously described as every 48 hours).</li>
+                <li><strong>28 February 2025:</strong> first published.</li>
+            </ul>
 
-            <!-- FAQ -->
-            <h2 id="faq">Frequently Asked Questions</h2>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
-                    Where can I download TLE data for free?
-                    <span class="faq-arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    The best source is <a href="https://celestrak.org" target="_blank" rel="noopener">CelesTrak.org</a>, which publishes regularly updated TLE files for all tracked satellites organised by category — GPS, weather, Starlink, space stations, and more. Space-Track.org also provides comprehensive data but requires free registration.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
-                    How often should TLE data be updated?
-                    <span class="faq-arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    For low Earth orbit satellites (like the ISS or Starlink), TLEs should ideally be refreshed every 24–48 hours. Position accuracy degrades roughly 1–5 km per day depending on the satellite's altitude and drag. Satellites in higher orbits (GPS, GEO) are more stable and can use older TLEs without significant error.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
-                    Why does the TLE eccentricity have no decimal point?
-                    <span class="faq-arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    To save space in the fixed-width format, the decimal point is implied and omitted. The value <code style="color:#00d26a;">0003828</code> should be read as <strong>0.0003828</strong>. This is one of several formatting conventions inherited from the era when TLEs were punched onto physical cards.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
-                    Can TLE data be wrong?
-                    <span class="faq-arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    Yes, occasionally. Satellites that perform manoeuvres (like ISS reboosts, or Starlink collision avoidance burns) will have outdated TLEs until a new observation and update is published. Some decayed or non-existent objects may also remain in the catalogue with invalid data, which is why SatFleet Live silently skips satellites whose SGP4 propagation fails.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <button class="faq-question" onclick="toggleFAQ(this)" aria-expanded="false">
-                    What is the difference between SGP4 and SDP4?
-                    <span class="faq-arrow">▼</span>
-                </button>
-                <div class="faq-answer">
-                    Both are propagation models for TLE data. <strong>SGP4</strong> (Simplified General Perturbations 4) is used for satellites with orbital periods under 225 minutes — essentially everything in low and medium Earth orbit. <strong>SDP4</strong> handles deep-space objects with longer periods, adding corrections for lunar and solar gravity. Most satellite tracking software applies whichever model is appropriate automatically based on the mean motion value in Line 2.
-                </div>
-            </div>
-
-            <!-- Related Articles -->
-            <div class="related-articles">
-                <div class="related-title">📖 Related Guides</div>
-                <div class="related-grid">
-                    <a href="/blogs/how-to-track-satellites/" class="related-card">
-                        <span class="related-icon">🛰️</span>
-                        <div class="related-text">
-                            <strong>How to Track Satellites in Real Time</strong>
-                            <span>A complete beginner's guide to real-time satellite tracking with SatFleet Live.</span>
-                        </div>
-                    </a>
-                    <a href="/blogs/best-free-satellite-tracker/" class="related-card">
-                        <span class="related-icon">📡</span>
-                        <div class="related-text">
-                            <strong>Best Free Satellite Tracker Online</strong>
-                            <span>Compare the top free satellite tracking websites and discover what makes SatFleet Live stand out.</span>
-                        </div>
-                    </a>
-                    <a href="/blogs/how-satellite-orbits-work/" class="related-card">
-                    <span class="related-icon">🌍</span>
-                    <div class="related-text">
-                        <strong>How Satellite Orbits Work</strong>
-                        <span>Learn the difference between LEO, MEO, and GEO orbits.</span>
+            <section class="closing" aria-labelledby="closing-title">
+                <h2 id="closing-title">Watch these numbers move</h2>
+                <p>Every dot on SatFleet Live is an element set like the one above, propagated with SGP4 in your browser. Free, with no account.</p>
+                <div class="hero-actions">
+                    <a class="button" href="/">Open the live map</a>
+                    <div class="store-badges store-only">
+                        <a href="https://apps.apple.com/app/id6820979830" target="_blank" rel="noopener">
+                            <img src="/images/badges/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" alt="Download on the App Store" width="132" height="44" loading="lazy">
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=com.satfleetlive.app" target="_blank" rel="noopener">
+                            <img src="/images/badges/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" width="148" height="44" loading="lazy">
+                        </a>
                     </div>
-                </a>
-                <a href="/blogs/next-passes-predict-satellites/" class="related-card">
-                    <span class="related-icon">🔭</span>
-                    <div class="related-text">
-                        <strong>Next Passes: Predict Satellite Overheads</strong>
-                        <span>Plan an ISS sighting or spot a Starlink train from your location.</span>
-                    </div>
-                </a>
-                <a href="/blogs/why-are-satellites-so-bright/" class="related-card">
-                    <span class="related-icon">✨</span>
-                    <div class="related-text">
-                        <strong>Why Are Satellites So Bright?</strong>
-                        <span>Understand satellite flares, Starlink trains, and visibility explained.</span>
-                    </div>
-                </a>
-                <a href="/blogs/starlink-satellites/" class="related-card">
-    <span class="related-icon">🟢</span>
-    <div class="related-text">
-        <strong>Starlink Satellites: How Many, How Fast & How to See Them</strong>
-        <span>10,000+ satellites in orbit. Altitude, speed, orbital specs and how to spot them tonight.</span>
-    </div>
-</a>
                 </div>
-            </div>
-
-            <!-- CTA -->
-            <div class="cta-banner">
-                <h2>See TLE data in action</h2>
-                <p>Every satellite on SatFleet Live is tracked using real TLE data. Open the map and watch 14,000+ satellites move in real time — powered by the same orbital mechanics you just learned.</p>
-                <a href="/" class="cta-btn">🛰️ Open Live Satellite Map</a>
-            </div>
-
+            </section>
         </article>
     </main>
+</div>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="footer-row">© 2026 SatFleetLive</div>
-        <div class="footer-row">
-            Source: <a href="https://celestrak.org" target="_blank">CelesTrak / NORAD</a> |
-            <a href="https://www.wikidata.org" target="_blank">Wikidata</a> |
-            <a href="mailto:jaime.automatiza@gmail.com">Contact</a> |
-            <a href="/privacy-policy" target="_blank">Privacy Policy</a> |
-            <a href="#" onclick="openCookieSettings();return false;">Cookie settings</a>
-        </div>
-    </footer>
+<footer class="site-footer">
+    <div class="site-footer-inner">
+        <ul>
+            <li><a href="/">Live map</a></li>
+            <li><a href="/moon.html">Moon</a></li>
+            <li><a href="/mars.html">Mars</a></li>
+            <li><a href="/deep-space.html">Deep Space</a></li>
+            <li><a href="/launches.html">Launches</a></li>
+            <li><a href="/next-passes.html">Next Passes</a></li>
+            <li><a href="/blogs/">Guides</a></li>
+            <li><a href="/account.html">Account</a></li>
+            <li><a href="/privacy-policy">Privacy Policy</a></li>
+            <li><button type="button" class="link-button" onclick="if (typeof openCookieSettings === 'function') openCookieSettings();">Cookie settings</button></li>
+        </ul>
+        <p>© 2026 SatFleet Live. Real-time tracking of satellites, space debris, the Moon, Mars and deep space.</p>
+    </div>
+</footer>
+<script>
+(function () {
+    'use strict';
 
-    <script>
-        function toggleFAQ(btn) {
-            const answer = btn.nextElementSibling;
-            const isOpen = answer.classList.contains('visible');
-            document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('visible'));
-            document.querySelectorAll('.faq-question').forEach(b => { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); });
-            if (!isOpen) { answer.classList.add('visible'); btn.classList.add('open'); btn.setAttribute('aria-expanded', 'true'); }
+    var API = 'https://worker.satfleetlive.com';
+    var MU = 398600.4418;        // km^3/s^2
+    var RE = 6378.137;           // km
+    var ALPHA5 = 'ABCDEFGHJKLMNPQRSTUVWXYZ';   // A=10 ... Z=33, no I and no O
+    var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    var liveTle = null;          // { name, line1, line2 } once loaded
+
+    function $(id) { return document.getElementById(id); }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function fmt(n, d) { return Number(n).toLocaleString('en-GB', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+
+    // ---------- OMM (JSON) -> classic TLE text, same rules as the SatFleet Worker ----------
+    function isLeap(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); }
+    function satnumStr(id) {
+        if (id <= 99999) return String(id).padStart(5, '0');
+        var t = Math.floor(id / 10000), r = id % 10000;
+        if (t - 10 >= ALPHA5.length) return null;          // above 339999: no TLE possible
+        return ALPHA5[t - 10] + String(r).padStart(4, '0');
+    }
+    function intlDesg(objectId) {
+        var m = /^(\d{4})-(\d{3})([A-Za-z]*)/.exec(objectId || '');
+        if (!m) return '        ';
+        return (m[1].slice(2) + m[2] + m[3]).padEnd(8, ' ');
+    }
+    function epochField(iso) {
+        var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?/.exec(iso);
+        var y = +m[1], mo = +m[2], d = +m[3];
+        var us = +((m[7] || '').padEnd(6, '0').slice(0, 6));
+        var doy = d;
+        for (var i = 1; i < mo; i++) { doy += DAYS_IN_MONTH[i - 1]; if (i === 2 && isLeap(y)) doy += 1; }
+        var frac = (+m[4] * 3600 + +m[5] * 60 + +m[6] + us / 1e6) / 86400;
+        return String(y % 100).padStart(2, '0') + (doy + frac).toFixed(8).padStart(12, '0');
+    }
+    function ndotField(v) {
+        var s = (v < 0 ? '-' : ' ') + Math.abs(v).toFixed(8);
+        var i = s.indexOf('0');
+        return s.slice(0, i) + s.slice(i + 1) + ' ';
+    }
+    function expField(v, zero) {
+        var e = v.toExponential(4);
+        var m = /^(-?)(\d(?:\.\d+)?)e([+-])(\d+)$/.exec(e);
+        var s = (m[1] ? '-' : ' ') + m[2] + 'e' + m[3] + m[4].padStart(2, '0') + ' ';
+        return s.replace('.', '').replace('e+00', zero).replace('e-0', '-').replace('e+0', '+');
+    }
+    function deg(v) { var s = Math.abs(v).toFixed(4); return (v < 0 ? '-' + s : s).padStart(8, ' '); }
+    function checksum(line) {
+        var t = 0;
+        for (var i = 0; i < 68 && i < line.length; i++) {
+            var c = line[i];
+            if (c >= '0' && c <= '9') t += +c; else if (c === '-') t += 1;
         }
-    </script>
+        return t % 10;
+    }
+    function ommToTle(o) {
+        var sat = satnumStr(+o.NORAD_CAT_ID);
+        if (!sat) return null;
+        var cls = (o.CLASSIFICATION_TYPE || 'U').trim() || 'U';
+        var l1 = '1 ' + sat + cls + ' ' + intlDesg(o.OBJECT_ID) + ' ' + epochField(o.EPOCH) + ' ' +
+            ndotField(+o.MEAN_MOTION_DOT || 0) + expField((+o.MEAN_MOTION_DDOT || 0) * 10, '-0') +
+            expField((+o.BSTAR || 0) * 10, '+0') + (o.EPHEMERIS_TYPE == null ? 0 : o.EPHEMERIS_TYPE) + ' ' +
+            String(o.ELEMENT_SET_NO == null ? 0 : o.ELEMENT_SET_NO).padStart(4, ' ');
+        l1 += checksum(l1);
+        var l2 = '2 ' + sat + ' ' + deg(+o.INCLINATION) + ' ' + deg(+o.RA_OF_ASC_NODE) + ' ' +
+            (+o.ECCENTRICITY).toFixed(7).replace('0.', '') + ' ' + deg(+o.ARG_OF_PERICENTER) + ' ' +
+            deg(+o.MEAN_ANOMALY) + ' ' + (+o.MEAN_MOTION).toFixed(8).padStart(11, ' ') +
+            String(o.REV_AT_EPOCH == null ? 0 : o.REV_AT_EPOCH).padStart(5, ' ');
+        l2 += checksum(l2);
+        return { name: o.OBJECT_NAME || 'UNKNOWN', line1: l1, line2: l2 };
+    }
 
+    // ---------- Coloured rendering (columns are 1-based, inclusive) ----------
+    var SEG1 = [[3, 7, 'c-id', 'Catalogue number'], [10, 17, 'c-id', 'International designator'], [19, 32, 'c-epoch', 'Epoch'],
+                [34, 43, 'c-drag', 'Mean motion, 1st derivative / 2'], [45, 52, 'c-drag', 'Mean motion, 2nd derivative / 6'],
+                [54, 61, 'c-drag', 'BSTAR drag term'], [69, 69, 'c-sum', 'Checksum']];
+    var SEG2 = [[3, 7, 'c-id', 'Catalogue number'], [9, 16, 'c-orient', 'Inclination'], [18, 25, 'c-orient', 'Right ascension of the ascending node'],
+                [27, 33, 'c-shape', 'Eccentricity'], [35, 42, 'c-orient', 'Argument of perigee'], [44, 51, 'c-shape', 'Mean anomaly'],
+                [53, 63, 'c-mm', 'Mean motion (revolutions per day)'], [69, 69, 'c-sum', 'Checksum']];
+    function colour(line, segs) {
+        var out = '', pos = 1;
+        segs.forEach(function (s) {
+            if (s[0] > line.length) return;
+            out += esc(line.slice(pos - 1, s[0] - 1));
+            out += '<span class="' + s[2] + '" title="' + s[3] + '">' + esc(line.slice(s[0] - 1, s[1])) + '</span>';
+            pos = s[1] + 1;
+        });
+        return out + esc(line.slice(pos - 1));
+    }
+    function colourTle(t) { return esc(t.name) + '\n' + colour(t.line1, SEG1) + '\n' + colour(t.line2, SEG2); }
+
+    // ---------- Parsing a pasted TLE ----------
+    function decodeSatnum(f) {
+        f = f.trim();
+        if (/^\d{1,5}$/.test(f)) return +f;
+        var m = /^([A-HJ-NP-Z])(\d{4})$/.exec(f);
+        if (m) return (ALPHA5.indexOf(m[1]) + 10) * 10000 + +m[2];
+        return NaN;
+    }
+    function packedExp(f) {
+        var s = f.trim();
+        if (!s) return 0;
+        var m = /^([+-]?)(\d{1,5})([+-])(\d)$/.exec(s);
+        if (!m) return NaN;
+        return (m[1] === '-' ? -1 : 1) * parseFloat('0.' + m[2]) * Math.pow(10, (m[3] === '-' ? -1 : 1) * +m[4]);
+    }
+    function col(l, a, b) { return l.slice(a - 1, b); }
+
+    function parseTle(text) {
+        var lines = text.replace(/\r/g, '').split('\n').map(function (l) { return l.replace(/\s+$/, ''); }).filter(function (l) { return l.length; });
+        var i1 = -1, i2 = -1;
+        for (var i = 0; i < lines.length; i++) {
+            if (i1 < 0 && /^1 /.test(lines[i])) i1 = i;
+            else if (i1 >= 0 && /^2 /.test(lines[i])) { i2 = i; break; }
+        }
+        if (i1 < 0 || i2 < 0) return { error: 'Could not find a line starting with "1 " followed by a line starting with "2 ".' };
+        var name = i1 > 0 ? lines[i1 - 1].replace(/^0 /, '').trim() : '';
+        var l1 = lines[i1], l2 = lines[i2], warn = [];
+        if (l1.length < 68 || l2.length < 68) return { error: 'The data lines are too short. Each should be 69 characters, so the TLE may have been cut or wrapped.' };
+        if (l1.length > 69 || l2.length > 69) warn.push('A line is longer than 69 characters; extra characters were ignored.');
+        l1 = l1.slice(0, 69); l2 = l2.slice(0, 69);
+
+        var r = { name: name, line1: l1, line2: l2, warn: warn };
+        r.sat1 = decodeSatnum(col(l1, 3, 7)); r.sat2 = decodeSatnum(col(l2, 3, 7));
+        if (isNaN(r.sat1)) return { error: 'Columns 3 to 7 of line 1 are not a valid catalogue number.' };
+        if (r.sat1 !== r.sat2) warn.push('The catalogue numbers on line 1 and line 2 do not match.');
+        r.cls = col(l1, 8, 8);
+        r.intl = col(l1, 10, 17).trim();
+        var yy = +col(l1, 19, 20), doy = parseFloat(col(l1, 21, 32));
+        r.year = yy < 57 ? 2000 + yy : 1900 + yy;
+        r.epoch = new Date(Date.UTC(r.year, 0, 1) + (doy - 1) * 86400000);
+        r.ndot = parseFloat(col(l1, 34, 43));
+        r.nddot = packedExp(col(l1, 45, 52));
+        r.bstar = packedExp(col(l1, 54, 61));
+        r.eph = col(l1, 63, 63);
+        r.elset = col(l1, 65, 68).trim();
+        r.inc = parseFloat(col(l2, 9, 16));
+        r.raan = parseFloat(col(l2, 18, 25));
+        r.ecc = parseFloat('0.' + col(l2, 27, 33).trim());
+        r.argp = parseFloat(col(l2, 35, 42));
+        r.ma = parseFloat(col(l2, 44, 51));
+        r.mm = parseFloat(col(l2, 53, 63));
+        r.rev = col(l2, 64, 68).trim();
+        if ([doy, r.inc, r.raan, r.ecc, r.argp, r.ma, r.mm].some(isNaN) || !(r.mm > 0)) {
+            return { error: 'Some fields are not numbers where they should be. Check that the columns line up and nothing was retyped.' };
+        }
+        r.ck1 = l1.length === 69 ? { want: checksum(l1), got: +l1[68] } : null;
+        r.ck2 = l2.length === 69 ? { want: checksum(l2), got: +l2[68] } : null;
+
+        var nRad = r.mm * 2 * Math.PI / 86400;
+        r.period = 1440 / r.mm;
+        r.a = Math.cbrt(MU / (nRad * nRad));
+        r.perigee = r.a * (1 - r.ecc) - RE;
+        r.apogee = r.a * (1 + r.ecc) - RE;
+        r.model = r.period >= 225 ? 'SDP4 (deep space)' : 'SGP4 (near Earth)';
+        if (r.ecc < 0.05 && Math.abs(r.period - 1436.07) < 30) r.orbit = 'Geosynchronous orbit';
+        else if (r.ecc > 0.25) r.orbit = 'Highly elliptical orbit';
+        else if (r.apogee < 2000) r.orbit = 'Low Earth orbit (LEO)';
+        else if (r.a - RE < 35786) r.orbit = 'Medium Earth orbit (MEO)';
+        else r.orbit = 'High Earth orbit';
+        return r;
+    }
+
+    function age(d) {
+        var h = (Date.now() - d.getTime()) / 3600000;
+        if (h < 0) return 'in the future (' + fmt(-h, 1) + ' h ahead)';
+        if (h < 48) return fmt(h, 1) + ' hours old';
+        return fmt(h / 24, 1) + ' days old';
+    }
+    function utc(d) {
+        return d.toLocaleString('en-GB', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' UTC';
+    }
+
+    function renderDecoded(r) {
+        var out = $('tle-out');
+        if (r.error) { out.innerHTML = '<p class="tool-msg err" role="alert">' + esc(r.error) + '</p>'; return; }
+        var msgs = [];
+        var bad = [];
+        if (r.ck1 && r.ck1.want !== r.ck1.got) bad.push('line 1 (should be ' + r.ck1.want + ', is ' + r.ck1.got + ')');
+        if (r.ck2 && r.ck2.want !== r.ck2.got) bad.push('line 2 (should be ' + r.ck2.want + ', is ' + r.ck2.got + ')');
+        if (bad.length) msgs.push('<p class="tool-msg err">Checksum mismatch on ' + bad.join(' and ') + '. The line was probably cut, wrapped or edited.</p>');
+        else if (r.ck1 && r.ck2) msgs.push('<p class="tool-msg ok">Both checksums are valid.</p>');
+        else msgs.push('<p class="tool-msg warn">A line has no checksum character, so it could not be verified.</p>');
+        r.warn.forEach(function (w) { msgs.push('<p class="tool-msg warn">' + esc(w) + '</p>'); });
+
+        var satTxt = String(r.sat1) + (/^[A-Z]/.test(col(r.line1, 3, 7)) ? ' (Alpha-5 ' + esc(col(r.line1, 3, 7)) + ')' : '');
+        var sum = '<dl class="tool-sum">' +
+            '<div><dt>Object</dt><dd>' + esc(r.name || 'No name line') + '</dd></div>' +
+            '<div><dt>Catalogue number</dt><dd>' + satTxt + '</dd></div>' +
+            '<div><dt>Epoch</dt><dd>' + esc(utc(r.epoch)) + '</dd></div>' +
+            '<div><dt>Age</dt><dd>' + esc(age(r.epoch)) + '</dd></div>' +
+            '<div><dt>Period</dt><dd>' + fmt(r.period, 2) + ' min</dd></div>' +
+            '<div><dt>Altitude</dt><dd>' + fmt(r.perigee, 0) + '&ndash;' + fmt(r.apogee, 0) + ' km</dd></div>' +
+            '<div><dt>Orbit type</dt><dd>' + r.orbit + '</dd></div>' +
+            '<div><dt>Model to use</dt><dd>' + r.model + '</dd></div>' +
+            '</dl>';
+
+        var rows = [
+            ['Line 1, 03&ndash;07', 'Catalogue number', col(r.line1, 3, 7), satTxt],
+            ['Line 1, 08', 'Classification', r.cls, r.cls === 'U' ? 'Unclassified' : r.cls],
+            ['Line 1, 10&ndash;17', 'International designator', col(r.line1, 10, 17), r.intl ? 'Launch ' + esc(r.intl.slice(2, 5)) + ' of ' + (+r.intl.slice(0, 2) < 57 ? 2000 + +r.intl.slice(0, 2) : 1900 + +r.intl.slice(0, 2)) + ', piece ' + esc(r.intl.slice(5) || '?') : 'Not given'],
+            ['Line 1, 19&ndash;32', 'Epoch', col(r.line1, 19, 32), esc(utc(r.epoch))],
+            ['Line 1, 34&ndash;43', '1st derivative of mean motion &divide; 2', col(r.line1, 34, 43), r.ndot + ' rev/day&sup2;'],
+            ['Line 1, 45&ndash;52', '2nd derivative of mean motion &divide; 6', col(r.line1, 45, 52), isNaN(r.nddot) ? 'Unreadable' : r.nddot + ' rev/day&sup3;'],
+            ['Line 1, 54&ndash;61', 'BSTAR drag term', col(r.line1, 54, 61), isNaN(r.bstar) ? 'Unreadable' : r.bstar.toExponential(4) + ' per Earth radius'],
+            ['Line 1, 63', 'Ephemeris type', r.eph, r.eph],
+            ['Line 1, 65&ndash;68', 'Element set number', col(r.line1, 65, 68), r.elset],
+            ['Line 2, 09&ndash;16', 'Inclination', col(r.line2, 9, 16), fmt(r.inc, 4) + '&deg;'],
+            ['Line 2, 18&ndash;25', 'RAAN', col(r.line2, 18, 25), fmt(r.raan, 4) + '&deg;'],
+            ['Line 2, 27&ndash;33', 'Eccentricity', col(r.line2, 27, 33), r.ecc.toFixed(7)],
+            ['Line 2, 35&ndash;42', 'Argument of perigee', col(r.line2, 35, 42), fmt(r.argp, 4) + '&deg;'],
+            ['Line 2, 44&ndash;51', 'Mean anomaly', col(r.line2, 44, 51), fmt(r.ma, 4) + '&deg;'],
+            ['Line 2, 53&ndash;63', 'Mean motion', col(r.line2, 53, 63), r.mm + ' orbits/day'],
+            ['Line 2, 64&ndash;68', 'Revolution number', col(r.line2, 64, 68), r.rev + ' (last five digits)']
+        ];
+        var t = '<div class="table-wrap"><table class="fields"><thead><tr><th scope="col">Columns</th><th scope="col">Field</th><th scope="col">Raw</th><th scope="col">Value</th></tr></thead><tbody>' +
+            rows.map(function (x) { return '<tr><td>' + x[0] + '</td><th scope="row">' + x[1] + '</th><td class="raw">' + esc(x[2]) + '</td><td>' + x[3] + '</td></tr>'; }).join('') +
+            '</tbody></table></div>';
+        out.innerHTML = msgs.join('') + sum + t;
+    }
+
+    function decodeNow() { renderDecoded(parseTle($('tle-input').value)); }
+
+    // ---------- Live data ----------
+    function showLive(t, omm) {
+        var card = $('tle-card');
+        $('tle-live').innerHTML = colourTle(t);
+        var r = parseTle(t.name + '\n' + t.line1 + '\n' + t.line2);
+        if (!r.error) {
+            $('d-period').textContent = fmt(r.period, 2) + ' min';
+            $('d-alt').innerHTML = fmt(r.perigee, 0) + '&ndash;' + fmt(r.apogee, 0) + ' km';
+            $('d-inc').innerHTML = fmt(r.inc, 2) + '&deg;';
+            $('tle-status').textContent = 'Live \u00b7 epoch ' + utc(r.epoch).replace(/:\d\d UTC$/, ' UTC') + ', ' + age(r.epoch);
+        }
+        if (omm) $('tle-json').textContent = JSON.stringify(omm, null, 2);
+        card.classList.add('is-live');
+    }
+
+    function loadIss() {
+        return fetch(API + '/api/tle/25544')
+            .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            .then(function (data) {
+                var o = Array.isArray(data) ? data[0] : data;
+                if (!o || !o.EPOCH || !o.MEAN_MOTION) throw new Error('No data');
+                var t = ommToTle(o);
+                if (!t) throw new Error('Not convertible');
+                liveTle = t;
+                showLive(t, o);
+                return t;
+            });
+    }
+
+    function loadCount() {
+        fetch(API + '/api/satellite-stats')
+            .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(function (d) {
+                if (!d || !(d.total >= 5000)) return;
+                document.querySelectorAll('[data-live-count]').forEach(function (el) { el.textContent = fmt(d.total, 0); });
+            })
+            .catch(function () {});
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        $('tle-decode').addEventListener('click', decodeNow);
+        $('tle-input').addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') decodeNow(); });
+        $('tle-load-iss').addEventListener('click', function () {
+            var btn = this;
+            function put(t) { $('tle-input').value = t.name + '\n' + t.line1 + '\n' + t.line2; decodeNow(); }
+            if (liveTle) { put(liveTle); return; }
+            btn.disabled = true;
+            loadIss().then(put).catch(function () {
+                $('tle-out').innerHTML = '<p class="tool-msg warn">Could not load the live ISS element set right now. The example above is still a real ISS TLE.</p>';
+            }).then(function () { btn.disabled = false; });
+        });
+        decodeNow();
+        loadIss().catch(function () { /* keep the static example */ });
+        loadCount();
+    });
+})();
+</script>
 </body>
 </html>

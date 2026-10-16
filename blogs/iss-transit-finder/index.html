@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+(function () {
+    try {
+        var w = window, ua = navigator.userAgent || '';
+        var inApp = typeof w.Android !== 'undefined'
+            || !!(w.webkit && w.webkit.messageHandlers && w.webkit.messageHandlers.satfleetAuth)
+            || ua.indexOf('SatFleetLiveiOS') !== -1
+            || typeof w.SatFleetIOS !== 'undefined';
+        if (inApp) document.documentElement.classList.add('in-app');
+    } catch (e) {}
+})();
+</script>
+<script src="/cookie-consent.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ISS Transit Finder: See the ISS Cross the Sun or Moon | SatFleet Live</title>
+<meta name="description" content="Free ISS transit finder: where to stand and when to look to see the ISS, Tiangong or Hubble cross the Sun or the Moon in the next 7 days. Exact path, timing, duration and camera settings.">
+<meta name="author" content="SatFleet Live">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<link rel="canonical" href="https://satfleetlive.com/blogs/iss-transit-finder/">
+<link rel="icon" type="image/png" href="/images/logo.png">
+<link rel="apple-touch-icon" href="/images/logo.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#121A44">
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="SatFleet Live">
+<meta property="og:title" content="ISS Transit Finder: See the ISS Cross the Sun or Moon">
+<meta property="og:description" content="Find ISS, Tiangong and Hubble transits of the Sun and Moon near you. Free, no account: exact centre line, time to a tenth of a second, duration, path width and camera settings.">
+<meta property="og:url" content="https://satfleetlive.com/blogs/iss-transit-finder/">
+<meta property="og:image" content="https://satfleetlive.com/images/logo.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta property="og:image:alt" content="SatFleet Live logo">
+<meta property="article:published_time" content="2026-10-16">
+<meta property="article:modified_time" content="2026-10-16">
+<meta property="article:section" content="Guides">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ISS Transit Finder: See the ISS Cross the Sun or Moon">
+<meta name="twitter:description" content="Find ISS, Tiangong and Hubble transits of the Sun and Moon near you. Free, no account: exact centre line, time to a tenth of a second, duration, path width and camera settings.">
+<meta name="twitter:image" content="https://satfleetlive.com/images/logo.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://satfleetlive.com/#organization",
+      "name": "SatFleet Live",
+      "url": "https://satfleetlive.com/",
+      "logo": { "@type": "ImageObject", "url": "https://satfleetlive.com/images/logo.png", "width": 512, "height": 512 }
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://satfleetlive.com/next-passes.html?tab=transits#app",
+      "name": "SatFleet Live Sun & Moon Transit Finder",
+      "url": "https://satfleetlive.com/next-passes.html?tab=transits",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web browser, Android, iOS",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+      "featureList": [
+        "Transits of the Sun and the Moon by the ISS, Tiangong and the Hubble Space Telescope",
+        "Search radius of 25, 50, 100 or 200 km over the next 7 days",
+        "Centre line and visible path on a map, with the closest point to you",
+        "Time to a tenth of a second in local time and UTC, transit duration and path width",
+        "Drawing of the crossing on the disc, as seen or north up",
+        "Equipment details: angular speed, position angles, shutter speed and video frame counts"
+      ],
+      "publisher": { "@id": "https://satfleetlive.com/#organization" }
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://satfleetlive.com/blogs/iss-transit-finder/#article",
+      "headline": "ISS Transit Finder: How to See the ISS Cross the Sun or Moon",
+      "description": "How to find and watch transits of the Sun and Moon by the ISS, Tiangong and Hubble with SatFleet Live's free transit finder: what a transit is, how long it lasts, how wide the path is, how to read each prediction, how to photograph one safely and how the calculation works.",
+      "image": "https://satfleetlive.com/images/logo.png",
+      "datePublished": "2026-10-16",
+      "dateModified": "2026-10-16",
+      "inLanguage": "en",
+      "author": { "@id": "https://satfleetlive.com/#organization" },
+      "publisher": { "@id": "https://satfleetlive.com/#organization" },
+      "about": { "@id": "https://satfleetlive.com/next-passes.html?tab=transits#app" },
+      "mainEntityOfPage": "https://satfleetlive.com/blogs/iss-transit-finder/"
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://satfleetlive.com/blogs/iss-transit-finder/#howto",
+      "name": "How to find an ISS transit of the Sun or Moon near you",
+      "totalTime": "PT2M",
+      "tool": [{ "@type": "HowToTool", "name": "A browser or the SatFleet Live app" }],
+      "step": [
+        { "@type": "HowToStep", "position": 1, "name": "Open the transit finder", "text": "Open Next Passes on SatFleet Live and choose the Sun & Moon transits tab.", "url": "https://satfleetlive.com/next-passes.html?tab=transits" },
+        { "@type": "HowToStep", "position": 2, "name": "Set your location", "text": "Allow location access or pick your spot on the map. Without a location the finder shows Madrid." },
+        { "@type": "HowToStep", "position": 3, "name": "Choose satellites and radius", "text": "Tick the ISS, Tiangong and Hubble, and choose how far you are willing to travel: 25, 50, 100 or 200 km." },
+        { "@type": "HowToStep", "position": 4, "name": "Pick a transit", "text": "Each result shows the time to a tenth of a second, the duration, the path width and a map with the centre line and the closest point to you." },
+        { "@type": "HowToStep", "position": 5, "name": "Go to the centre line", "text": "Use Open in Google Maps to navigate to the closest point on the centre line, where the transit lasts longest." },
+        { "@type": "HowToStep", "position": 6, "name": "Check again the day before", "text": "Orbits change, so recalculate the day before and again shortly before you set up." }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://satfleetlive.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Guides", "item": "https://satfleetlive.com/blogs/" },
+        { "@type": "ListItem", "position": 3, "name": "ISS Transit Finder", "item": "https://satfleetlive.com/blogs/iss-transit-finder/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What is an ISS transit?", "acceptedAnswer": { "@type": "Answer", "text": "An ISS transit is the moment the International Space Station passes in front of the Sun or the Moon as seen from a particular spot on Earth. The station appears as a small dark silhouette crossing the disc. It is only visible from a narrow strip of ground a few kilometres wide." } },
+        { "@type": "Question", "name": "How long does an ISS transit last?", "acceptedAnswer": { "@type": "Answer", "text": "About half a second when the ISS passes nearly overhead, and up to about two or three seconds when it is low in the sky and therefore farther away. It is longest on the centre line and gets shorter towards the edges of the path. SatFleet Live gives the exact duration for each transit." } },
+        { "@type": "Question", "name": "How wide is the ISS transit path?", "acceptedAnswer": { "@type": "Answer", "text": "Usually a few kilometres to about 15 kilometres. It is narrowest when the Sun or Moon is high and the station is close, and wider when they are low in the sky. Outside the path the ISS passes beside the disc instead of in front of it." } },
+        { "@type": "Question", "name": "How do I find ISS transits near me?", "acceptedAnswer": { "@type": "Answer", "text": "Open the Sun & Moon transits tab in Next Passes on SatFleet Live, set your location and choose a search radius of 25, 50, 100 or 200 km. It lists every transit of the Sun or Moon by the ISS, Tiangong and Hubble within that distance over the next 7 days, with a map of where to stand." } },
+        { "@type": "Question", "name": "Is the SatFleet Live transit finder free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The Sun & Moon transit finder is free for everyone, with no account and nothing behind Premium. It works in the browser and in the SatFleet Live apps." } },
+        { "@type": "Question", "name": "Which satellites can cross the Sun or Moon visibly?", "acceptedAnswer": { "@type": "Answer", "text": "Only large, low satellites show a recognisable outline. The finder covers the ISS (about 109 m across), the Chinese space station Tiangong (about 55 m) and the Hubble Space Telescope (about 13 m). Hubble is so small that you need a telescope or a long telephoto lens to make it out." } },
+        { "@type": "Question", "name": "Can I see an ISS transit with the naked eye?", "acceptedAnswer": { "@type": "Answer", "text": "It is very hard. The ISS covers less than a thirtieth of the Moon's width and is gone in about a second. Most people watch through a telescope or record with a camera on a long lens. Never look at the Sun, even briefly, without a certified solar filter." } },
+        { "@type": "Question", "name": "Is it safe to watch an ISS transit of the Sun?", "acceptedAnswer": { "@type": "Answer", "text": "Only with proper protection. Use eclipse glasses that meet ISO 12312-2 for your eyes, and a certified full-aperture solar filter on the front of any telescope, binoculars or camera lens. Never point unfiltered optics at the Sun." } },
+        { "@type": "Question", "name": "How accurate are ISS transit predictions?", "acceptedAnswer": { "@type": "Answer", "text": "With fresh orbit data a day or so ahead, a prediction is usually right to well under a second and to within about a kilometre of the path. Further ahead it drifts, because drag and engine burns change the orbit. Anything more than two or three days away is a rough guide; SatFleet Live marks transits more than 48 hours away as less reliable. Recalculate the day before." } },
+        { "@type": "Question", "name": "What is the difference between a transit and a close pass?", "acceptedAnswer": { "@type": "Answer", "text": "From inside the path the satellite crosses the disc: that is a transit. From outside it the satellite passes beside the Sun or Moon: that is a close pass. SatFleet Live shows which one you will see from your current spot and by how much it misses." } },
+        { "@type": "Question", "name": "Can Tiangong and Hubble be seen from my country?", "acceptedAnswer": { "@type": "Answer", "text": "It depends on your latitude. Tiangong's orbit is inclined 41.5 degrees and Hubble's 28.5 degrees, so they pass high overhead only nearer the equator. Hubble never rises above the horizon north of about 50 degrees latitude, which rules out the UK, and Tiangong is out of reach beyond about 60 degrees. The ISS, at 51.6 degrees, reaches much further." } }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+:root{--night:#121A44;--paper:#F6F7FB;--surface:#fff;--ink:#1B1E2E;--muted:#555B74;--line:#DCDFEA;--brand:#6A1B9A;--brand-soft:#F1E8F7;--brand-on-night:#C9A2E6;--sans:"Avenir Next","Segoe UI Variable Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--serif:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,serif;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:80px;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.7 var(--serif)}
+img,svg,iframe{max-width:100%}
+a{color:var(--brand);text-underline-offset:.18em;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid #8E44C4;outline-offset:2px;border-radius:3px}
+html.in-app .store-only{display:none!important}
+.skip-link{position:absolute;left:12px;top:-48px;z-index:100;background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:6px;font:600 .9rem var(--sans)}
+.skip-link:focus{top:12px}
+
+.site-header{background:var(--night);border-bottom:1px solid rgba(255,255,255,.08);font-family:var(--sans)}
+.site-header-inner{max-width:1200px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:700;font-size:1.05rem;flex-shrink:0}
+.brand img{width:32px;height:32px;border-radius:7px}
+.site-nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+.site-nav::-webkit-scrollbar{display:none}
+.site-nav a{color:rgba(255,255,255,.78);text-decoration:none;white-space:nowrap;font-size:.92rem;font-weight:500;padding:8px 12px;border-radius:6px}
+.site-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+
+.hero{background:var(--night);color:#fff}
+.hero-inner{max-width:1200px;margin:0 auto;padding:28px 24px 56px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:48px;align-items:center}
+.breadcrumb{font:500 .85rem var(--sans);color:rgba(255,255,255,.6);margin-bottom:28px}
+.breadcrumb ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.breadcrumb li+li::before{content:"/";margin-right:6px;color:rgba(255,255,255,.35)}
+.breadcrumb a{color:rgba(255,255,255,.75);text-decoration:none}
+.breadcrumb a:hover{color:#fff;text-decoration:underline}
+.hero h1{font:700 clamp(2.1rem,4.6vw,3.3rem)/1.08 var(--sans);letter-spacing:-.02em;margin:0 0 20px}
+.hero-standfirst{font-size:1.12rem;line-height:1.6;color:rgba(255,255,255,.86);margin:0 0 24px;max-width:34em}
+.hero-meta{font:500 .88rem var(--sans);color:rgba(255,255,255,.6);margin:0 0 28px;display:flex;flex-wrap:wrap;gap:4px 20px}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 20px;border-radius:8px;font:600 .98rem var(--sans);text-decoration:none;background:#fff;color:var(--night)}
+.button:hover{background:#ECE4F4}
+.store-badges{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.store-badges a{line-height:0}
+.store-badges img{height:44px;width:auto;display:block}
+.hero-figure{margin:0}
+.frame{position:relative;border-radius:14px;overflow:hidden;background:#070B24;border:1px solid rgba(255,255,255,.12);aspect-ratio:4/3}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.hero-figure figcaption{font:400 .85rem/1.5 var(--sans);color:rgba(255,255,255,.62);margin-top:10px}
+.hero-figure figcaption a{color:var(--brand-on-night)}
+
+.layout{max-width:1200px;margin:0 auto;padding:48px 24px 72px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:56px;align-items:start}
+.toc{position:sticky;top:24px;font-family:var(--sans);max-height:calc(100vh - 48px);overflow-y:auto}
+.toc-title{font-size:.95rem;font-weight:700;margin:0 0 10px}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc li a{display:block;padding:5px 0 5px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--muted);text-decoration:none;font-size:.86rem;line-height:1.4}
+.toc li a:hover{color:var(--ink);border-left-color:var(--brand)}
+.toc-mobile{display:none}
+
+article{max-width:70ch}
+article h2{font:700 clamp(1.5rem,2.6vw,1.9rem)/1.2 var(--sans);letter-spacing:-.01em;margin:64px 0 16px;padding-top:8px}
+article h2:first-child{margin-top:0}
+article h3{font:700 1.2rem/1.3 var(--sans);margin:36px 0 10px}
+article p,article ul,article ol{margin:0 0 18px}
+article ul,article ol{padding-left:1.3em}
+article li{margin-bottom:6px}
+.lead{font-size:1.2rem;line-height:1.65}
+
+.facts{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:24px 28px;margin:28px 0 8px}
+.facts-title{font:700 1.05rem var(--sans);margin:0 0 14px}
+.facts dl{margin:0;display:grid;grid-template-columns:8em minmax(0,1fr);gap:12px 20px}
+.facts dt{font:600 .92rem/1.6 var(--sans);color:var(--muted)}
+.facts dd{margin:0;line-height:1.6}
+
+.glance{margin:24px 0;padding:0!important;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}
+.glance li{padding:14px 0;border-top:1px solid var(--line);margin:0}
+.glance strong{display:block;font:700 1rem/1.35 var(--sans);margin-bottom:2px}
+.glance span{color:var(--muted);font-size:.97rem;line-height:1.55}
+
+.table-wrap{overflow-x:auto;margin:20px 0 24px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font:400 .95rem/1.5 var(--sans)}
+caption{text-align:left;font-weight:700;padding:14px 16px 4px}
+th,td{text-align:left;padding:11px 16px;vertical-align:top;border-top:1px solid var(--line)}
+thead th{border-top:0;background:#EEF0F7;font-weight:600;white-space:nowrap}
+tbody th{font-weight:700}
+.cmp{min-width:760px}
+.cmp tr.us{background:var(--brand-soft)}
+.table-note{font:400 .88rem/1.5 var(--sans);color:var(--muted);margin:-10px 0 24px}
+
+.steps{counter-reset:step;list-style:none;padding:0!important;margin:20px 0 24px}
+.steps li{counter-increment:step;position:relative;padding:0 0 14px 44px;margin:0}
+.steps li::before{content:counter(step);position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font:700 .9rem/28px var(--sans);text-align:center}
+.steps strong{font-family:var(--sans)}
+
+.note{border-left:3px solid var(--brand);background:var(--surface);padding:16px 20px;margin:24px 0;border-radius:0 10px 10px 0}
+.note p{margin:0}
+.note-title{font:700 1rem var(--sans);margin-bottom:4px!important}
+
+.faq h3{font-size:1.08rem;margin:30px 0 6px}
+.faq p{margin-bottom:0}
+
+.explore{list-style:none;padding:0!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.explore li{margin:0}
+.explore a{display:block;height:100%;padding:16px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none;color:var(--ink)}
+.explore a:hover{border-color:var(--brand)}
+.explore strong{display:block;font:700 1rem var(--sans);color:var(--brand);margin-bottom:2px}
+.explore span{font-size:.94rem;color:var(--muted);line-height:1.5}
+
+.closing{background:var(--night);color:#fff;border-radius:14px;padding:32px;margin-top:64px}
+.closing h2{margin:0 0 8px;color:#fff}
+.closing p{color:rgba(255,255,255,.82)}
+.closing .hero-actions{margin-top:20px}
+
+.site-footer{border-top:1px solid var(--line);font:400 .9rem/1.6 var(--sans);color:var(--muted)}
+.site-footer-inner{max-width:1200px;margin:0 auto;padding:28px 24px 48px}
+.site-footer ul{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-wrap:wrap;gap:6px 20px}
+.site-footer a{color:var(--muted)}
+.site-footer a:hover{color:var(--ink)}
+.link-button{background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;text-underline-offset:.18em;cursor:pointer}
+.link-button:hover{color:var(--ink)}
+
+@media (max-width:1000px){
+.hero-inner{grid-template-columns:1fr;gap:32px;padding-bottom:40px}
+.layout{grid-template-columns:1fr;gap:0;padding-top:32px}
+.toc{display:none}
+.toc-mobile{display:block;font-family:var(--sans);background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:36px}
+.toc-mobile summary{cursor:pointer;padding:14px 18px;font-weight:700}
+.toc-mobile ol{margin:0;padding:0 18px 14px 36px;font-size:.95rem;line-height:1.5}
+.toc-mobile li{margin-bottom:4px}
+}
+@media (max-width:640px){
+body{font-size:1rem}
+.site-header-inner{padding:10px 16px;gap:12px}
+.brand span{display:none}
+.hero-inner,.layout,.site-footer-inner{padding-left:16px;padding-right:16px}
+.frame{aspect-ratio:1/1}
+.facts{padding:20px}
+.facts dl{grid-template-columns:1fr;gap:2px}
+.facts dd{margin-bottom:10px}
+.glance,.explore{grid-template-columns:1fr}
+.closing{padding:24px 20px}
+}
+
+.frame svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.figure{margin:28px 0 28px}
+.figure svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.figure figcaption{font:400 .88rem/1.5 var(--sans);color:var(--muted);margin-top:10px}
+.geo-label{font:600 13px var(--sans);fill:var(--ink)}
+.geo-small{font:400 12px var(--sans);fill:var(--muted)}
+.geo-brand{fill:var(--brand)}
+.note.danger{border-left-color:#C62828;background:#FFF5F5}
+.note.danger .note-title{color:#8E1B1B}
+.note-title svg,.icon-inline{width:18px;height:18px;vertical-align:-3px;margin-right:6px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0 8px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:8px;font:600 .98rem var(--sans);text-decoration:none;border:1px solid var(--brand);background:var(--brand);color:#fff}
+.btn:hover{background:#561580;color:#fff}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn.ghost:hover{background:var(--brand-soft);color:var(--brand)}
+.btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cmp3 td,.cmp3 th{white-space:normal}
+.cmp3{min-width:620px}
+.legend-list{list-style:none;padding:0!important;margin:16px 0 22px}
+.legend-list li{display:flex;gap:12px;align-items:flex-start;margin:0 0 10px}
+.legend-list .sw{flex-shrink:0;width:14px;height:14px;border-radius:50%;margin-top:6px;border:2px solid #1a1a1a}
+.legend-list .sw.you{background:#2196f3;border-color:#fff;box-shadow:0 0 0 1px #9aa}
+.legend-list .sw.near{background:#ffb547}
+.legend-list .sw.line{border-radius:2px;height:4px;margin-top:11px;border:0;background:#c084fc}
+.legend-list .sw.path{border-radius:3px;background:rgba(192,132,252,.28);border:1px solid #c084fc}
+@media (max-width:640px){.cta-row .btn{flex:1;justify-content:center}}
+
+/* evita que tablas y bloques de código ensanchen la página en móvil */
+@media (max-width:1000px){.hero-inner,.layout{grid-template-columns:minmax(0,1fr)}}
+</style>
+<script src="/legal-footer.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+    <div class="site-header-inner">
+        <a class="brand" href="/">
+            <img src="/images/logo.png" alt="" width="32" height="32">
+            <span>SatFleet Live</span>
+        </a>
+        <nav class="site-nav" aria-label="Site">
+            <a href="/">Live map</a>
+            <a href="/moon.html">Moon</a>
+            <a href="/mars.html">Mars</a>
+            <a href="/deep-space.html">Deep Space</a>
+            <a href="/next-passes.html">Next Passes</a>
+            <a href="/launches.html">Launches</a>
+            <a href="/blogs/">Guides</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero" aria-labelledby="page-title">
+    <div class="hero-inner">
+        <div>
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/blogs/">Guides</a></li>
+                    <li aria-current="page">ISS Transit Finder</li>
+                </ol>
+            </nav>
+            <h1 id="page-title">ISS transit finder: see the ISS cross the Sun or the Moon</h1>
+            <p class="hero-standfirst">
+                For about half a second, the International Space Station can pass in front of the Sun or the Moon.
+                You only see it from a strip of ground a few kilometres wide. SatFleet Live's free transit finder tells
+                you where that strip is and when to look, for the ISS, the Chinese space station Tiangong and the
+                Hubble Space Telescope, up to 7 days ahead.
+            </p>
+            <p class="hero-meta">
+                <span>By SatFleet Live</span>
+                <span>Published <time datetime="2026-10-16">16 October 2026</time></span>
+                <span>10-minute read</span>
+            </p>
+            <div class="hero-actions">
+                <a class="button" href="/next-passes.html?tab=transits">Find transits near me</a>
+                <div class="store-badges store-only">
+                    <a href="https://apps.apple.com/app/id6820979830" target="_blank" rel="noopener">
+                        <img src="/images/badges/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" alt="Download on the App Store" width="132" height="44">
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.satfleetlive.app" target="_blank" rel="noopener">
+                        <img src="/images/badges/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" width="148" height="44">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <figure class="hero-figure">
+            <div class="frame">
+                <svg viewBox="0 0 560 420" role="img" aria-labelledby="hero-svg-title">
+                    <title id="hero-svg-title">Illustration of the ISS silhouette crossing the face of the Sun</title>
+                    <defs>
+                        <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0" stop-color="#FFF1C4"/>
+                            <stop offset=".55" stop-color="#FFC75A"/>
+                            <stop offset=".88" stop-color="#F59A2E"/>
+                            <stop offset="1" stop-color="#D9701C"/>
+                        </radialGradient>
+                        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                            <stop offset=".6" stop-color="#FFB547" stop-opacity=".25"/>
+                            <stop offset="1" stop-color="#FFB547" stop-opacity="0"/>
+                        </radialGradient>
+                        <symbol id="iss" viewBox="-26 -14 52 28">
+                            <rect x="-24" y="-1" width="48" height="2" rx=".5"/>
+                            <rect x="-23" y="-12" width="4.5" height="10"/><rect x="-16" y="-12" width="4.5" height="10"/>
+                            <rect x="11.5" y="-12" width="4.5" height="10"/><rect x="18.5" y="-12" width="4.5" height="10"/>
+                            <rect x="-23" y="2" width="4.5" height="10"/><rect x="-16" y="2" width="4.5" height="10"/>
+                            <rect x="11.5" y="2" width="4.5" height="10"/><rect x="18.5" y="2" width="4.5" height="10"/>
+                            <rect x="-3" y="-4" width="6" height="12" rx="1"/>
+                            <rect x="-8" y="3" width="16" height="3" rx="1"/>
+                        </symbol>
+                    </defs>
+                    <circle cx="280" cy="210" r="205" fill="url(#glow)"/>
+                    <circle cx="280" cy="210" r="165" fill="url(#sunGrad)"/>
+                    <ellipse cx="335" cy="150" rx="6" ry="4.5" fill="#8A4A12" opacity=".55"/>
+                    <ellipse cx="346" cy="156" rx="3" ry="2.2" fill="#8A4A12" opacity=".45"/>
+                    <ellipse cx="210" cy="285" rx="4.5" ry="3.5" fill="#8A4A12" opacity=".45"/>
+                    <line x1="118" y1="145.5" x2="442" y2="266.5" stroke="#3A2208" stroke-width="1.2" stroke-dasharray="4 6" opacity=".45"/>
+                    <g fill="#1E1408">
+                        <use href="#iss" x="138" y="146" width="44" height="24" transform="rotate(20.5 160 158)" opacity=".28"/>
+                        <use href="#iss" x="198" y="168.5" width="44" height="24" transform="rotate(20.5 220 180.5)" opacity=".45"/>
+                        <use href="#iss" x="258" y="191" width="44" height="24" transform="rotate(20.5 280 203)" opacity=".65"/>
+                        <use href="#iss" x="318" y="213.5" width="44" height="24" transform="rotate(20.5 340 225.5)" opacity=".85"/>
+                        <use href="#iss" x="378" y="236" width="44" height="24" transform="rotate(20.5 400 248)"/>
+                    </g>
+                    <text x="24" y="398" fill="#C9CEE3" font-family="Avenir Next, Segoe UI, Roboto, Arial, sans-serif" font-size="14">Five moments of one crossing, about 0.1 s apart</text>
+                </svg>
+            </div>
+            <figcaption>Illustration, not to scale: the ISS outline is enlarged. Never look at the Sun without a certified solar filter.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<div class="layout">
+    <nav class="toc" aria-label="In this guide">
+        <p class="toc-title">In this guide</p>
+        <ol>
+            <li><a href="#short-answer">The short answer</a></li>
+<li><a href="#what-is">What is a satellite transit?</a></li>
+<li><a href="#how-to">How to find a transit near you</a></li>
+<li><a href="#read-results">How to read a prediction</a></li>
+<li><a href="#which-satellite">ISS, Tiangong or Hubble?</a></li>
+<li><a href="#sun-vs-moon">Sun and Moon transits</a></li>
+<li><a href="#photograph">How to photograph one</a></li>
+<li><a href="#how-it-works">How the calculation works</a></li>
+<li><a href="#accuracy">How accurate is it?</a></li>
+<li><a href="#other-tools">Other transit finders</a></li>
+<li><a href="#faq">FAQ</a></li>
+        </ol>
+    </nav>
+
+    <main id="main">
+        <details class="toc-mobile">
+            <summary>In this guide</summary>
+            <ol>
+                <li><a href="#short-answer">The short answer</a></li>
+<li><a href="#what-is">What is a satellite transit?</a></li>
+<li><a href="#how-to">How to find a transit near you</a></li>
+<li><a href="#read-results">How to read a prediction</a></li>
+<li><a href="#which-satellite">ISS, Tiangong or Hubble?</a></li>
+<li><a href="#sun-vs-moon">Sun and Moon transits</a></li>
+<li><a href="#photograph">How to photograph one</a></li>
+<li><a href="#how-it-works">How the calculation works</a></li>
+<li><a href="#accuracy">How accurate is it?</a></li>
+<li><a href="#other-tools">Other transit finders</a></li>
+<li><a href="#faq">FAQ</a></li>
+            </ol>
+        </details>
+
+        <article>
+            <h2 id="short-answer">The short answer</h2>
+            <p class="lead">
+                An <strong>ISS transit</strong> is the moment the International Space Station passes in front of the
+                Sun or the Moon as seen from one spot on Earth. It lasts about <strong>half a second to two seconds</strong>
+                and is only visible from a path on the ground roughly <strong>4 to 15 km wide</strong>, so it has to be
+                predicted for an exact place. Open the <a href="/next-passes.html?tab=transits">Sun &amp; Moon transits</a>
+                tab in SatFleet Live's Next Passes, set your location and choose how far you are willing to travel: it lists
+                every transit by the ISS, Tiangong and Hubble in the next 7 days, with a map of where to stand.
+            </p>
+
+            <section class="facts" aria-labelledby="facts-title">
+                <p class="facts-title" id="facts-title">The transit finder at a glance</p>
+                <dl>
+                    <dt>Satellites</dt>
+                    <dd>ISS (NORAD 25544), Tiangong (48274) and the Hubble Space Telescope (20580).</dd>
+                    <dt>Bodies</dt>
+                    <dd>The Sun and the Moon, whenever they are above your horizon.</dd>
+                    <dt>Range</dt>
+                    <dd>The next 7 days, within 25, 50, 100 or 200 km of you (50 km by default).</dd>
+                    <dt>You get</dt>
+                    <dd>Time to a tenth of a second, duration, path width, a map with the centre line and a drawing of the crossing.</dd>
+                    <dt>Orbit data</dt>
+                    <dd>Refreshed every 2 hours from Space-Track, calculated in your browser.</dd>
+                    <dt>Cost</dt>
+                    <dd>Free for everyone, no account, nothing behind Premium.</dd>
+                </dl>
+            </section>
+            <div class="cta-row">
+                <a class="btn" href="/next-passes.html?tab=transits"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>Open the transit finder</a>
+                <a class="btn ghost" href="/next-passes.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Normal ISS passes</a>
+            </div>
+
+            <h2 id="what-is">What is a satellite transit?</h2>
+            <p>
+                A satellite transit happens when a satellite lines up exactly between you and the Sun or the Moon. Both
+                discs are about half a degree wide in the sky, roughly 30 to 33 arcminutes. The ISS, 109 metres across
+                and about 420 km up, looks around 50 arcseconds wide when it is overhead: less than a thirtieth of the
+                disc. Against the Sun or a bright Moon it shows up as a sharp dark silhouette, solar panels included.
+            </p>
+            <p>
+                The line-up only works along a narrow band. The Sun is 150 million km away and the Moon about 384,000 km,
+                while the station is a few hundred kilometres up, so moving just a few kilometres sideways is enough for
+                the station to slide off the disc. Picture the lines that run from the edges of the Sun or Moon through the
+                station and down to the ground: everything between them is the <strong>visible path</strong>, and the middle
+                of it is the <strong>centre line</strong>.
+            </p>
+            <figure class="figure">
+                <svg viewBox="0 0 720 300" role="img" aria-labelledby="geo-title geo-desc">
+                    <title id="geo-title">Why a transit is only visible from a narrow path</title>
+                    <desc id="geo-desc">Lines from opposite edges of the Sun pass through the satellite, cross there and reach the ground a few kilometres apart. An observer between them sees a transit; one outside sees a close pass.</desc>
+                    <defs>
+                        <radialGradient id="sunGrad2" cx="50%" cy="50%" r="50%">
+                            <stop offset="0" stop-color="#FFE9A8"/><stop offset=".8" stop-color="#FFB547"/><stop offset="1" stop-color="#F08A2A"/>
+                        </radialGradient>
+                    </defs>
+                    <circle cx="50" cy="46" r="26" fill="url(#sunGrad2)"/>
+                    <text x="18" y="100" class="geo-label">Sun or Moon</text>
+                    <text x="18" y="117" class="geo-small">about half a degree wide</text>
+                    <line x1="39.7" y1="69.9" x2="360" y2="180" stroke="#8A8FA8" stroke-width="1.2" stroke-dasharray="5 5"/>
+                    <line x1="60.3" y1="22.1" x2="360" y2="180" stroke="#8A8FA8" stroke-width="1.2" stroke-dasharray="5 5"/>
+                    <polygon points="360,180 512,260 593,260" fill="#6A1B9A" opacity=".14"/>
+                    <line x1="360" y1="180" x2="593" y2="260" stroke="#6A1B9A" stroke-width="1.5"/>
+                    <line x1="360" y1="180" x2="512" y2="260" stroke="#6A1B9A" stroke-width="1.5"/>
+                    <line x1="360" y1="180" x2="545" y2="260" stroke="#6A1B9A" stroke-width="1" stroke-dasharray="3 4"/>
+                    <g transform="translate(360 180)" fill="#1B1E2E">
+                        <rect x="-16" y="-1" width="32" height="2"/>
+                        <rect x="-15" y="-9" width="3.5" height="7"/><rect x="-10" y="-9" width="3.5" height="7"/>
+                        <rect x="6.5" y="-9" width="3.5" height="7"/><rect x="11.5" y="-9" width="3.5" height="7"/>
+                        <rect x="-15" y="2" width="3.5" height="7"/><rect x="-10" y="2" width="3.5" height="7"/>
+                        <rect x="6.5" y="2" width="3.5" height="7"/><rect x="11.5" y="2" width="3.5" height="7"/>
+                        <rect x="-2.5" y="-3" width="5" height="9" rx="1"/>
+                    </g>
+                    <text x="232" y="204" class="geo-label">Satellite</text>
+                    <text x="232" y="220" class="geo-small">a few hundred km up</text>
+                    <line x1="300" y1="260" x2="720" y2="260" stroke="#1B1E2E" stroke-width="2"/>
+                    <rect x="512" y="257" width="81" height="6" fill="#6A1B9A"/>
+                    <circle cx="552" cy="250" r="5" fill="#2196F3" stroke="#fff" stroke-width="1.5"/>
+                    <circle cx="672" cy="250" r="5" fill="#8A8FA8" stroke="#fff" stroke-width="1.5"/>
+                    <text x="470" y="282" class="geo-label geo-brand">Visible path</text>
+                    <text x="470" y="298" class="geo-small">about 4 to 15 km wide</text>
+                    <text x="622" y="210" class="geo-small">outside:</text>
+                    <text x="622" y="224" class="geo-small">close pass,</text>
+                    <text x="622" y="238" class="geo-small">no transit</text>
+                </svg>
+                <figcaption>Not to scale. Lines from opposite edges of the disc cross at the satellite and spread out again below it. Inside the purple strip the satellite crosses the disc; outside it, the satellite passes beside it. The dotted line is the centre line, where the crossing lasts longest.</figcaption>
+            </figure>
+            <p>
+                Like a solar eclipse, the transit is longest on the centre line and shortens towards the edges, where the
+                station only clips the rim of the disc. Unlike an eclipse, it is over in about a second.
+            </p>
+
+            <h2 id="how-to">How to find an ISS transit near you</h2>
+            <ol class="steps">
+                <li><strong>Open the finder.</strong> Go to <a href="/next-passes.html?tab=transits">Next Passes</a> and choose the <em>Sun &amp; Moon transits</em> tab. It works the same in the browser and in the SatFleet Live apps.</li>
+                <li><strong>Set your location.</strong> Allow location access or pick your spot on the map. Until you do, the finder shows results for Madrid and says so.</li>
+                <li><strong>Choose satellites and distance.</strong> Tick the ISS, Tiangong and Hubble (all three are on by default) and choose how far you would travel: 25, 50, 100 or 200 km.</li>
+                <li><strong>Wait a few seconds.</strong> The finder loads the latest orbits and searches the next 7 days. A progress bar shows how far it has got.</li>
+                <li><strong>Pick a transit and go to the centre line.</strong> Each card shows where the centre line is from you and how far. <em>Open in Google Maps</em> takes you to the closest point on it.</li>
+                <li><strong>Check again the day before.</strong> Press <em>Recalculate</em> the day before and shortly before you set up. Orbits change, and the path can move by kilometres.</li>
+            </ol>
+            <p>
+                If nothing falls within your radius, the finder tells you where the nearest one is and offers to search
+                200 km. How many you get depends on your latitude, the season and how much of the week the Sun and Moon
+                are above your horizon, so widening the radius usually turns up more.
+            </p>
+
+            <h2 id="read-results">How to read a transit prediction</h2>
+            <p>Each transit is a card, with the most important information first.</p>
+            <h3>At the centre line</h3>
+            <p>
+                The big time is when the satellite crosses the middle of the disc as seen from the closest point on the
+                centre line, in your local time to a tenth of a second, with UTC underneath. Below it you get the
+                <strong>duration</strong>, the <strong>path width</strong> and where the Sun or Moon will be in your sky
+                (height above the horizon and compass direction), so you can check that no building or hill is in the way.
+                For the Sun, a red safety warning always comes first.
+            </p>
+            <h3>The map</h3>
+            <ul class="legend-list">
+                <li><span class="sw you"></span><span><strong>You</strong>: your location.</span></li>
+                <li><span class="sw near"></span><span><strong>Closest point</strong>: where the centre line passes nearest to you. This is where the big time applies.</span></li>
+                <li><span class="sw line"></span><span><strong>Centre line</strong>: the track where the satellite crosses the exact middle of the disc.</span></li>
+                <li><span class="sw path"></span><span><strong>Visible path</strong>: the whole strip from which you see a transit at all.</span></li>
+            </ul>
+            <p>
+                The card also says whether you are already inside the path, and if not, how many kilometres to go and in
+                which compass direction.
+            </p>
+            <h3>The drawing of the crossing</h3>
+            <p>
+                A small drawing shows the satellite's track across the disc: through the centre, and along two side chords
+                (A and B) part of the way to each edge of the path, each with its own duration. If you are inside the path,
+                your own chord is drawn too. Choose <em>Up = zenith</em> to see it the way it looks to your eye or camera, or
+                <em>North up</em> for a telescope without a diagonal. Entry and exit points are given as position angles,
+                in degrees round the disc from north through east.
+            </p>
+            <h3>From where you are now</h3>
+            <p>
+                This tells you what you would see without moving: a <strong>transit</strong>, if you are inside the path,
+                or a <strong>close pass</strong>, with how far from the centre of the disc the satellite goes by. It also
+                gives the exact moment of closest approach from your spot and the satellite's height and direction in the
+                sky.
+            </p>
+            <h3>Equipment details</h3>
+            <p>
+                For photographers there is a table comparing your spot with the centre line: angular separation, altitude
+                and azimuth of the satellite and the Sun or Moon, parallactic angle, angular speed, speeds across and along
+                the line of sight, direction of motion, and whether the satellite is lit by the Sun or in Earth's shadow.
+                It also suggests the slowest <strong>shutter speed</strong> that keeps the outline sharp and how many
+                video frames the crossing will take at 30, 60 and 120 frames per second.
+            </p>
+
+            <h2 id="which-satellite">ISS, Tiangong or Hubble?</h2>
+            <p>
+                Only large, low satellites show an outline you can recognise, which is why the finder covers these three.
+            </p>
+            <div class="table-wrap">
+                <table class="cmp3">
+                    <caption>The three satellites the transit finder covers</caption>
+                    <thead><tr><th scope="col"></th><th scope="col">ISS</th><th scope="col">Tiangong</th><th scope="col">Hubble</th></tr></thead>
+                    <tbody>
+                        <tr><th scope="row">NORAD ID</th><td>25544</td><td>48274</td><td>20580</td></tr>
+                        <tr><th scope="row">Size</th><td>About 109 m</td><td>About 55 m</td><td>About 13 m</td></tr>
+                        <tr><th scope="row">Height</th><td>About 420 km</td><td>About 390 km</td><td>Roughly 500 km</td></tr>
+                        <tr><th scope="row">Orbit inclination</th><td>51.6&deg;</td><td>41.5&deg;</td><td>28.5&deg;</td></tr>
+                        <tr><th scope="row">Apparent size overhead</th><td>About 50&Prime;, 1/36 of the disc</td><td>About 30&Prime;</td><td>About 5&Prime;</td></tr>
+                        <tr><th scope="row">Crossing time overhead</th><td>About 0.5 s</td><td>About 0.5 s</td><td>About 0.6 s</td></tr>
+                        <tr><th scope="row">Can rise above the horizon up to</th><td>About 70&deg; latitude</td><td>About 60&deg; latitude</td><td>About 50&deg; latitude</td></tr>
+                        <tr><th scope="row">What you need</th><td>A long lens or small telescope</td><td>A telescope or long lens</td><td>A telescope; the outline is tiny</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="table-note">Apparent sizes and times are approximate, for a satellite straight overhead. Lower in the sky the satellite is farther away, so it looks smaller and crosses more slowly, up to about two or three seconds.</p>
+            <p>
+                The <strong>ISS</strong> is the easiest: biggest, brightest and seen from most of the populated world.
+                <strong>Tiangong</strong> is half the size but just as quick, and its lower inclination means fewer chances
+                from northern Europe or Canada. <strong>Hubble</strong> is a challenge for experienced imagers: never above
+                the horizon from the UK, and so small that a short focal length shows only a dot. Read more in our
+                <a href="/blogs/tiangong-space-station/">Tiangong guide</a>.
+            </p>
+
+            <h2 id="sun-vs-moon">Sun transits and Moon transits</h2>
+            <div class="note danger" role="note">
+                <p class="note-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18.2A2 2 0 0 0 3.5 21h17a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4.5"/><path d="M12 17.2h.01"/></svg>Never look at the Sun without a certified filter</p>
+                <p>Even a glance through a camera, binoculars or telescope can blind you instantly. Use eclipse glasses meeting ISO 12312-2 for your eyes, and a certified full-aperture solar filter fitted to the front of any optics before you point them anywhere near the Sun.</p>
+            </div>
+            <p>
+                <strong>Solar transits</strong> are the most dramatic: the outline is crisp against a bright, even disc,
+                sometimes with sunspots in the frame. They happen in daylight, so you can plan them for an afternoon.
+            </p>
+            <p>
+                <strong>Lunar transits</strong> need no solar filter and look best when the Moon is well lit. The finder
+                warns you when the Moon is almost new and barely visible, and when the sky will still be bright enough to
+                wash it out. Because the Moon is often up in daylight too, not every lunar transit happens at night.
+            </p>
+
+            <h2 id="photograph">How to see and photograph an ISS transit</h2>
+            <ul class="glance">
+                <li><strong>Go to the centre line</strong><span>The crossing is longest there and the timing least sensitive to small errors.</span></li>
+                <li><strong>Use a synchronised clock</strong><span>Set your phone to network time. The prediction is given to a tenth of a second.</span></li>
+                <li><strong>Start early, stop late</strong><span>Record video or a burst from several seconds before until a few seconds after the predicted time.</span></li>
+                <li><strong>Use a long focal length</strong><span>Around 1,000 mm or more, on a telescope or a long lens with a teleconverter, shows the solar panels.</span></li>
+                <li><strong>Keep the shutter fast</strong><span>Use at least the shutter speed the finder suggests; raise the ISO rather than slow down.</span></li>
+                <li><strong>Frame the whole disc</strong><span>You may not know exactly where the satellite will enter, so keep the full Sun or Moon in view.</span></li>
+            </ul>
+            <p>
+                Afterwards, stack the frames that show the satellite into one image to show its whole track across the disc.
+                The finder's video frame count tells you how many frames to expect, which is handy for checking you caught it.
+            </p>
+
+            <h2 id="how-it-works">How SatFleet Live calculates transits</h2>
+            <p>
+                Everything runs in your browser, in a background worker so the page stays responsive. Your location is used
+                there for the calculation.
+            </p>
+            <ol class="steps">
+                <li><strong>Fresh orbits.</strong> The finder loads the latest orbital elements for the three satellites, the same data SatFleet Live refreshes from Space-Track every 2 hours. See <a href="/blogs/what-is-a-tle/">what a TLE is</a>.</li>
+                <li><strong>Positions.</strong> Satellite positions come from the SGP4 model (satellite.js). The Sun and Moon come from Astronomy Engine, calculated exactly every 10 minutes and interpolated in between, with an error below 0.1 arcseconds.</li>
+                <li><strong>Search.</strong> It scans the next 7 days for moments when a satellite and the Sun or Moon are close together in the sky and both above the horizon, with a margin generous enough to cover anywhere within 200 km of you.</li>
+                <li><strong>Centre line.</strong> For each candidate it projects the line from the centre of the Sun or Moon through the satellite down to the ground, sampled every 0.2 seconds. That moving point is the centre line.</li>
+                <li><strong>Width and duration.</strong> It works out how long the satellite takes to cross the disc on the centre line, then steps sideways until the satellite only touches the edge of the disc, which gives the path width.</li>
+                <li><strong>Your view.</strong> Finally it calculates everything as seen from your own spot and from the centre line, which fills the equipment table.</li>
+            </ol>
+            <p>
+                Results are kept in your browser and recalculated automatically when newer orbit data arrives, at least
+                twice a day, or when you move more than 1 km.
+            </p>
+
+            <h2 id="accuracy">How accurate are the predictions?</h2>
+            <p>
+                With fresh orbit data a day or so ahead, a prediction is usually right to well under a second and to within
+                about a kilometre of the path. Further ahead it drifts: the thin upper atmosphere slows the satellites
+                down, more so when solar activity is high, and the ISS and Tiangong fire their engines from time to time
+                to raise their orbits or dodge debris. A single burn can move a transit by seconds and its path by many
+                kilometres.
+            </p>
+            <p>
+                That is why the finder marks transits more than 48 hours away as <em>less reliable</em>. Use them to plan,
+                then recalculate the day before and on the day. For a once-off trip, it is worth checking the
+                <a href="/">live map</a> for the station's current position too.
+            </p>
+
+            <h2 id="other-tools">Other transit finders</h2>
+            <p>
+                SatFleet Live is not the only option. <a href="https://transit-finder.com" target="_blank" rel="noopener">Transit Finder</a>
+                is the long-standing reference used by many astrophotographers, and satellitemap.space and Orbital Radar
+                also offer transit predictions. They use similar public orbit data, so it is worth comparing a prediction
+                across two tools before a long drive. What SatFleet Live adds is the transit finder next to normal
+                <a href="/next-passes.html">pass predictions</a>, the live map and the apps, in one free place.
+            </p>
+
+            <section class="faq" aria-labelledby="faq">
+                <h2 id="faq">Frequently asked questions</h2>
+                <h3>What is an ISS transit?</h3>
+                <p>The moment the International Space Station passes in front of the Sun or the Moon as seen from a particular spot on Earth. The station appears as a small dark silhouette crossing the disc. It is only visible from a narrow strip of ground a few kilometres wide.</p>
+                <h3>How long does an ISS transit last?</h3>
+                <p>About half a second when the ISS passes nearly overhead, and up to about two or three seconds when it is low in the sky and therefore farther away. It is longest on the centre line and gets shorter towards the edges of the path. SatFleet Live gives the exact duration for each transit.</p>
+                <h3>How wide is the ISS transit path?</h3>
+                <p>Usually a few kilometres to about 15 kilometres. It is narrowest when the Sun or Moon is high and the station is close, and wider when they are low in the sky. Outside the path the ISS passes beside the disc instead of in front of it.</p>
+                <h3>How do I find ISS transits near me?</h3>
+                <p>Open the <a href="/next-passes.html?tab=transits">Sun &amp; Moon transits</a> tab in Next Passes on SatFleet Live, set your location and choose a search radius of 25, 50, 100 or 200 km. It lists every transit of the Sun or Moon by the ISS, Tiangong and Hubble within that distance over the next 7 days, with a map of where to stand.</p>
+                <h3>Is the SatFleet Live transit finder free?</h3>
+                <p>Yes. The Sun &amp; Moon transit finder is free for everyone, with no account and nothing behind Premium. It works in the browser and in the SatFleet Live apps.</p>
+                <h3>Which satellites can cross the Sun or Moon visibly?</h3>
+                <p>Only large, low satellites show a recognisable outline. The finder covers the ISS (about 109 m across), the Chinese space station Tiangong (about 55 m) and the Hubble Space Telescope (about 13 m). Hubble is so small that you need a telescope or a long telephoto lens to make it out.</p>
+                <h3>Can I see an ISS transit with the naked eye?</h3>
+                <p>It is very hard. The ISS covers less than a thirtieth of the Moon's width and is gone in about a second. Most people watch through a telescope or record with a camera on a long lens. Never look at the Sun, even briefly, without a certified solar filter.</p>
+                <h3>Is it safe to watch an ISS transit of the Sun?</h3>
+                <p>Only with proper protection. Use eclipse glasses that meet ISO 12312-2 for your eyes, and a certified full-aperture solar filter on the front of any telescope, binoculars or camera lens. Never point unfiltered optics at the Sun.</p>
+                <h3>How accurate are ISS transit predictions?</h3>
+                <p>With fresh orbit data a day or so ahead, a prediction is usually right to well under a second and to within about a kilometre of the path. Further ahead it drifts, because drag and engine burns change the orbit. Anything more than two or three days away is a rough guide; SatFleet Live marks transits more than 48 hours away as less reliable. Recalculate the day before.</p>
+                <h3>What is the difference between a transit and a close pass?</h3>
+                <p>From inside the path the satellite crosses the disc: that is a transit. From outside it the satellite passes beside the Sun or Moon: that is a close pass. SatFleet Live shows which one you will see from your current spot and by how much it misses.</p>
+                <h3>Can Tiangong and Hubble be seen from my country?</h3>
+                <p>It depends on your latitude. Tiangong's orbit is inclined 41.5 degrees and Hubble's 28.5 degrees, so they pass high overhead only nearer the equator. Hubble never rises above the horizon north of about 50 degrees latitude, which rules out the UK, and Tiangong is out of reach beyond about 60 degrees. The ISS, at 51.6 degrees, reaches much further.</p>
+            </section>
+
+            <h2>Keep reading</h2>
+            <ul class="explore">
+                <li><a href="/blogs/iss-pass-tonight/"><strong>ISS pass tonight</strong><span>When and where to see the station as a bright moving star.</span></a></li>
+                <li><a href="/blogs/next-passes-predict-satellites/"><strong>Next Passes</strong><span>How pass predictions work for any satellite.</span></a></li>
+                <li><a href="/blogs/where-is-the-iss-right-now/"><strong>Where is the ISS right now?</strong><span>Its live position on the map.</span></a></li>
+                <li><a href="/blogs/tiangong-space-station/"><strong>Tiangong space station</strong><span>China's station, its modules and how to see it.</span></a></li>
+                <li><a href="/blogs/what-is-a-tle/"><strong>What is a TLE?</strong><span>The orbit data behind every prediction.</span></a></li>
+                <li><a href="/blogs/moon-phase-tonight/"><strong>Moon phase tonight</strong><span>Plan a lunar transit around a well-lit Moon.</span></a></li>
+            </ul>
+
+            <h2>Sources and changes</h2>
+            <p class="table-note" style="margin-top:0">
+                Predictions, durations, path widths and equipment figures are calculated by SatFleet Live from Space-Track
+                orbital elements, satellite.js (SGP4) and Astronomy Engine. Sizes are the longest dimension used by the finder.
+                Apparent sizes and overhead crossing times in the comparison table are our own approximations.
+                Eye safety follows the ISO 12312-2 standard for direct solar viewers.
+            </p>
+            <ul class="table-note" style="margin-top:0">
+                <li><strong>16 October 2026:</strong> first published, alongside the launch of the Sun &amp; Moon transit finder.</li>
+            </ul>
+
+            <section class="closing" aria-labelledby="closing-title">
+                <h2 id="closing-title">Find your next transit</h2>
+                <p>The ISS, Tiangong and Hubble against the Sun and the Moon, within your travel distance, for the next 7 days. Free, with no account.</p>
+                <div class="hero-actions">
+                    <a class="button" href="/next-passes.html?tab=transits">Open the transit finder</a>
+                    <div class="store-badges store-only">
+                        <a href="https://apps.apple.com/app/id6820979830" target="_blank" rel="noopener">
+                            <img src="/images/badges/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" alt="Download on the App Store" width="132" height="44" loading="lazy">
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=com.satfleetlive.app" target="_blank" rel="noopener">
+                            <img src="/images/badges/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" width="148" height="44" loading="lazy">
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </article>
+    </main>
+</div>
+
+<footer class="site-footer">
+    <div class="site-footer-inner">
+        <ul>
+            <li><a href="/">Live map</a></li>
+            <li><a href="/moon.html">Moon</a></li>
+            <li><a href="/mars.html">Mars</a></li>
+            <li><a href="/deep-space.html">Deep Space</a></li>
+            <li><a href="/launches.html">Launches</a></li>
+            <li><a href="/next-passes.html">Next Passes</a></li>
+            <li><a href="/blogs/">Guides</a></li>
+            <li><a href="/account.html">Account</a></li>
+            <li><a href="/privacy-policy">Privacy Policy</a></li>
+            <li><button type="button" class="link-button" onclick="if (typeof openCookieSettings === 'function') openCookieSettings();">Cookie settings</button></li>
+        </ul>
+        <p>© 2026 SatFleet Live. Real-time tracking of satellites, space debris, the Moon, Mars and deep space.</p>
+    </div>
+</footer>
+</body>
+</html>
