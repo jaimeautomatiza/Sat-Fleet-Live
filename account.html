@@ -1336,20 +1336,14 @@ onAuthStateChanged(auth, async (user) => {
             _wantsTrial = false;
             history.replaceState({}, '', 'account.html');
             if (typeof gtag === 'function') gtag('event', 'trial_autostart', {});
-            if (isIOSPurchases()) {
-                // iPhone/iPad: Apple quiere que se vean precio y condiciones antes de comprar,
-                // así que llevamos a la tarjeta Premium en vez de abrir el pago directamente
-                setTimeout(() => {
-                    const card = document.querySelector('.plan-premium');
-                    if (card) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        card.classList.add('trial-highlight');
-                    }
-                }, 400);
-            } else {
-                // Web y Android: abrimos directamente Stripe o Google Play
-                setTimeout(() => upgradePremium(), 400);
-            }
+            // Llevamos a la tarjeta Premium (precio, ventajas y condiciones) y la resaltamos
+            setTimeout(() => {
+                const card = document.querySelector('.plan-premium');
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('trial-highlight');
+                }
+            }, 400);
         }
     } else {
         onUserLoggedOut();
