@@ -221,6 +221,23 @@
             line-height: 1.5;
         }
 
+        /* Bloque de prueba gratis (solo si viene de un botón "Try free") */
+        .trial-intro {
+            background: rgba(156,39,176,0.10);
+            border: 1px solid rgba(192,132,252,0.30);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin: -12px 0 24px;
+        }
+        .trial-intro[hidden] { display: none; }
+        .trial-intro-title { font-size: 0.92rem; font-weight: 700; color: var(--text); margin: 0 0 10px; }
+        .trial-intro ol { margin: 0 0 12px; padding-left: 20px; font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+        .trial-perks { list-style: none; margin: 0 0 10px; padding: 0; }
+        .trial-perks li { display: flex; gap: 8px; align-items: flex-start; font-size: 0.82rem; color: var(--text); line-height: 1.45; margin-bottom: 6px; }
+        .trial-perks svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; fill: none; stroke: var(--purple-light); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .trial-note { font-size: 0.76rem; color: var(--text2); margin: 0; }
+        .plan-premium.trial-highlight { box-shadow: 0 0 0 2px var(--purple-light), 0 0 32px rgba(192,132,252,0.35); transition: box-shadow .3s; }
+
         /* Tabs */
         .auth-tabs {
             display: flex;
@@ -912,6 +929,20 @@
                 <p>Access your account and manage your Premium plan</p>
             </div>
 
+            <div class="trial-intro" id="trialIntro" hidden>
+                <p class="trial-intro-title">Your 7-day free trial is one step away</p>
+                <ol>
+                    <li>Sign in or create a free account</li>
+                    <li>Confirm the free trial. You are not charged during the 7 days</li>
+                </ol>
+                <ul class="trial-perks">
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Push alerts before the ISS and other satellites pass over you</li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>7-day pass forecasts and the full satellite catalogue</li>
+                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>All upcoming launches and 30 days of satellite history</li>
+                </ul>
+                <p class="trial-note">Cancel anytime before the trial ends and you pay nothing.</p>
+            </div>
+
             <div class="auth-tabs">
                 <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Sign in</button>
                 <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Create account</button>
@@ -1125,6 +1156,17 @@
 <script type="module">
 // Detectamos si el usuario viene de completar el pago
 const _justUpgraded = new URLSearchParams(location.search).get('upgraded') === '1';
+
+// Viene de un botón "Try free": explicamos la prueba y, al iniciar sesión, vamos directos al pago
+let _wantsTrial = new URLSearchParams(location.search).get('start') === 'trial';
+if (_wantsTrial) {
+    const _intro = document.getElementById('trialIntro');
+    if (_intro) _intro.hidden = false;
+    const _h = document.querySelector('.auth-logo-area h1');
+    if (_h) _h.textContent = 'Start your free trial';
+    const _p = document.querySelector('.auth-logo-area p');
+    if (_p) _p.textContent = 'Sign in or create a free account to continue';
+}
 if (_justUpgraded) {
     history.replaceState({}, '', 'account.html');
     // Borramos el caché de premium para que index.html
@@ -1289,6 +1331,26 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         onUserLoggedIn(user);
+
+        if (_wantsTrial && !isPremium) {
+            _wantsTrial = false;
+            history.replaceState({}, '', 'account.html');
+            if (typeof gtag === 'function') gtag('event', 'trial_autostart', {});
+            if (isIOSPurchases()) {
+                // iPhone/iPad: Apple quiere que se vean precio y condiciones antes de comprar,
+                // así que llevamos a la tarjeta Premium en vez de abrir el pago directamente
+                setTimeout(() => {
+                    const card = document.querySelector('.plan-premium');
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.classList.add('trial-highlight');
+                    }
+                }, 400);
+            } else {
+                // Web y Android: abrimos directamente Stripe o Google Play
+                setTimeout(() => upgradePremium(), 400);
+            }
+        }
     } else {
         onUserLoggedOut();
     }
