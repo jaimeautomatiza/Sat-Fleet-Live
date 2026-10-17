@@ -66,6 +66,10 @@
             var dec = el.getAttribute('data-sfl-dec');
             show(el, el.getAttribute('data-sfl-kind'), parseFloat(el.getAttribute('data-sfl-val')), dec === '' ? null : +dec);
         }
+        var shorts = document.querySelectorAll('.sfl-units-short');
+        for (var k = 0; k < shorts.length; k++) {
+            shorts[k].textContent = isImperial() ? 'mi' : 'km';
+        }
         var labels = document.querySelectorAll('.sfl-units-label');
         for (var j = 0; j < labels.length; j++) {
             labels[j].textContent = isImperial() ? 'Units: miles, mph' : 'Units: km, km/h';

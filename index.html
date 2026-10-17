@@ -1467,6 +1467,7 @@ body.light-mode .rocket-filter-chip {
             #toggleViewBtn,
             #launchesBtn,
             #accountBtn,
+            #unitsBtn,
             #pisBarBtn,
             #arBtn,
             #exploreBtn { display: none !important; }
@@ -1804,6 +1805,7 @@ body.light-mode .rocket-filter-chip {
         body.is-touch #toggleViewBtn,
         body.is-touch #launchesBtn,
         body.is-touch #accountBtn,
+        body.is-touch #unitsBtn,
         body.is-touch #pisBarBtn,
         body.is-touch #arBtn,
         body.is-touch #exploreBtn { display: none !important; }
@@ -2979,6 +2981,7 @@ body.light-mode .rocket-filter-chip {
     <button class="bar-btn pis-stat" id="pisBarBtn" onclick="openPeoplePanel()" style="display:none;" title="People in space right now"><img src="images/astronaut.svg" style="width:14px;height:14px;" alt=""> People in space</button>
     <button class="bar-btn" id="arBtn" onclick="window.location.href='ar.html'" style="display:none;">AR (Beta)</button>
     <button class="bar-btn" id="accountBtn" onclick="window.location.href='account.html'"><img src="images/account.svg" style="width:14px;height:14px;"> Account</button>
+    <button class="bar-btn" id="unitsBtn" onclick="SFUnits.toggle()" title="Switch between km and miles" style="display:inline-flex; align-items:center; color:#8e8e98; font-size:0.72rem; padding-left:9px; padding-right:9px; gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15.5 15.5 3 21 8.5 8.5 21z"/><path d="m7 12 1.5 1.5M10 9l1.5 1.5M13 6l1.5 1.5"/></svg><span class="sfl-units-short">km</span></button>
     <button class="bar-btn" id="exploreBtn" onclick="toggleExploreMenu()">
         <img src="images/planet-switcher.svg" class="explore-icon" alt="">
         Explore
