@@ -580,6 +580,7 @@
 </style>
 <style id="cookie-footer-fit">@media (max-width:600px){#infoFooter{gap:4px !important;padding:0 6px !important}}</style>
 <script src="/legal-footer.js" defer></script>
+<script src="/js/units.js"></script>
 </head>
 <body>
 <script>
@@ -714,6 +715,10 @@ document.addEventListener('DOMContentLoaded', () => {
     </button>
     <button class="overflow-item" id="overflowArBtn" onclick="window.location.href='ar.html'; closeOverflowMenu()" style="color:#ff6b35;">
         <img src="images/ar.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> AR Sky (Beta)
+    </button>
+    <button class="overflow-item" onclick="SFUnits.toggle()" style="color:#5b8def;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15.5 15.5 3 21 8.5 8.5 21z"/><path d="m7 12 1.5 1.5M10 9l1.5 1.5M13 6l1.5 1.5"/></svg>
+        <span class="sfl-units-label">Units: km, km/h</span>
     </button>
     <div class="overflow-divider"></div>
     <a class="overflow-item gold" href="account.html" style="font-weight:600;">
@@ -1152,11 +1157,11 @@ function refreshRoverDistanceInfo() {
     const km = getRoverDistanceKm(site.id, orbiterTimeOverride);
     if (km == null) return;
 
-    const kmText = km < 10 ? km.toFixed(2) : km.toFixed(1);
+    const kmText = SFUnits.dist(km, km < 10 ? 2 : 1);
     const label = orbiterTimeOverride !== null
         ? ' Distance driven by this date: ~'
         : ' Distance driven so far: ~';
-    const text = site.desc + label + kmText + ' km.';
+    const text = site.desc + label + kmText + '.';
 
     const el = document.getElementById('siteInfoDesc');
     if (el.textContent !== text) el.textContent = text; // solo toca la pantalla si cambia
@@ -1336,11 +1341,11 @@ function refreshOrbiterInfoNumbers(orbiterData) {
     const altRow = document.getElementById('siteInfoAltitudeRow');
     const spdRow = document.getElementById('siteInfoSpeedRow');
     if (p) {
-        document.getElementById('siteInfoAltitude').textContent = Math.round(p.alt).toLocaleString() + ' km';
+        SFUnits.show(document.getElementById('siteInfoAltitude'), 'dist', p.alt);
         altRow.style.display = '';
         const speed = estimateOrbiterSpeedKmh(orbiterData.points, nowT);
         if (speed != null) {
-            document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
+            SFUnits.show(document.getElementById('siteInfoSpeed'), 'speed', speed);
             spdRow.style.display = '';
         } else {
             spdRow.style.display = 'none';
@@ -1372,12 +1377,12 @@ function showOrbiterInfo(orbiterData) {
     const altRow = document.getElementById('siteInfoAltitudeRow');
     const spdRow = document.getElementById('siteInfoSpeedRow');
     if (p) {
-        document.getElementById('siteInfoAltitude').textContent = Math.round(p.alt).toLocaleString() + ' km';
+        SFUnits.show(document.getElementById('siteInfoAltitude'), 'dist', p.alt);
         altRow.style.display = '';
 
         const speed = estimateOrbiterSpeedKmh(orbiterData.points, orbiterTimeOverride !== null ? orbiterTimeOverride : Date.now());
         if (speed != null) {
-            document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
+            SFUnits.show(document.getElementById('siteInfoSpeed'), 'speed', speed);
             spdRow.style.display = '';
         } else {
             spdRow.style.display = 'none';

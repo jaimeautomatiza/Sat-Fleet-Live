@@ -2423,6 +2423,7 @@ body.light-mode .rocket-filter-chip {
     </style>
 <style id="cookie-footer-fit">@media (max-width:600px){#infoFooter{gap:4px !important;padding:0 6px !important}}</style>
 <script src="/legal-footer.js" defer></script>
+<script src="/js/units.js"></script>
 </head>
 
 <body>
@@ -2446,11 +2447,11 @@ body.light-mode .rocket-filter-chip {
     </div>
     <div class="info-item">
         <div class="info-label">Altitude</div>
-        <div class="info-value" id="satelliteAltitude">--- km</div>
+        <div class="info-value sfl-unit" id="satelliteAltitude" title="Tap to switch km / miles">--- km</div>
     </div>
     <div class="info-item">
         <div class="info-label">Velocity</div>
-        <div class="info-value" id="satelliteVelocity">--- km/h</div>
+        <div class="info-value sfl-unit" id="satelliteVelocity" title="Tap to switch km / miles">--- km/h</div>
     </div>
     <div class="info-item">
         <div class="info-label">Latitude</div>
@@ -2652,11 +2653,11 @@ body.light-mode .rocket-filter-chip {
                 <div class="mobile-info-grid">
                     <div class="mobile-info-item">
                         <div class="info-label">Altitude</div>
-                        <div class="info-value" id="mobileSatelliteAltitude">--- km</div>
+                        <div class="info-value sfl-unit" id="mobileSatelliteAltitude" title="Tap to switch km / miles">--- km</div>
                     </div>
                     <div class="mobile-info-item">
                         <div class="info-label">Velocity</div>
-                        <div class="info-value" id="mobileSatelliteVelocity">--- km/h</div>
+                        <div class="info-value sfl-unit" id="mobileSatelliteVelocity" title="Tap to switch km / miles">--- km/h</div>
                     </div>
                     <div class="mobile-info-item">
                         <div class="info-label">Latitude</div>
@@ -2897,6 +2898,10 @@ body.light-mode .rocket-filter-chip {
         <img src="images/ar.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> AR Sky (Beta)
     </button>
     
+    <button class="overflow-item" onclick="SFUnits.toggle()" style="color:#5b8def;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15.5 15.5 3 21 8.5 8.5 21z"/><path d="m7 12 1.5 1.5M10 9l1.5 1.5M13 6l1.5 1.5"/></svg>
+        <span class="sfl-units-label">Units: km, km/h</span>
+    </button>
     <div class="overflow-divider"></div>
     
     <a class="overflow-item gold" href="account.html" style="font-weight:600;"><img src="images/account.svg" style="width: 18px; height: 18px; filter: invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt="Account"> Account / Premium</a>
@@ -4091,8 +4096,8 @@ function refreshSatelliteInfoNumbers() {
     const lng = sat.targetLng ?? sat.lng;
     if (alt == null || sat.velocity == null) return;
 
-    const altText = Math.round(alt).toLocaleString() + ' km';
-    const velText = Math.round(sat.velocity).toLocaleString() + ' km/h';
+    const altText = SFUnits.dist(alt);
+    const velText = SFUnits.speed(sat.velocity);
     const latText = lat.toFixed(4) + '°';
     const lngText = lng.toFixed(4) + '°';
 
@@ -4139,8 +4144,8 @@ function refreshSatelliteInfoNumbers() {
         } catch(e) {}
     }
 
-    const altText = sat.altitude ? Math.round(sat.altitude).toLocaleString() + ' km'  : 'Calculating...';
-    const velText = sat.velocity ? Math.round(sat.velocity).toLocaleString()  + ' km/h': 'Calculating...';
+    const altText = sat.altitude ? SFUnits.dist(sat.altitude) : 'Calculating...';
+    const velText = sat.velocity ? SFUnits.speed(sat.velocity) : 'Calculating...';
     const latText = sat.lat      ? sat.lat.toFixed(4) + '°' : 'Calculating...';
     const lngText = sat.lng      ? sat.lng.toFixed(4) + '°' : 'Calculating...';
 

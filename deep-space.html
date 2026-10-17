@@ -543,6 +543,7 @@
 </style>
 <style id="cookie-footer-fit">@media (max-width:600px){#infoFooter{gap:4px !important;padding:0 6px !important}}</style>
 <script src="/legal-footer.js" defer></script>
+<script src="/js/units.js"></script>
 </head>
 <body>
 <script>
@@ -672,6 +673,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <button class="overflow-item" id="overflowArBtn" onclick="window.location.href='ar.html'; closeOverflowMenu()" style="color:#ff6b35;">
         <img src="images/ar.svg" style="width:16px;height:16px;filter:invert(46%) sepia(83%) saturate(1749%) hue-rotate(346deg) brightness(101%) contrast(101%);" alt=""> AR Sky (Beta)
     </button>
+    <button class="overflow-item" onclick="SFUnits.toggle()" style="color:#5b8def;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 15.5 15.5 3 21 8.5 8.5 21z"/><path d="m7 12 1.5 1.5M10 9l1.5 1.5M13 6l1.5 1.5"/></svg>
+        <span class="sfl-units-label">Units: km, km/h</span>
+    </button>
     <div class="overflow-divider"></div>
     <a class="overflow-item gold" href="account.html" style="font-weight:600;"><img src="images/account.svg" style="width:18px;height:18px;filter:invert(85%) sepia(90%) saturate(600%) hue-rotate(355deg) brightness(105%);" alt="Account"> Account / Premium</a>
 </div>
@@ -736,7 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <div class="info-item" id="siteInfoDistanceRow" style="display:none;">
         <div class="info-label" id="siteInfoDistanceLabel">Distance from Sun</div>
-        <div class="info-value" id="siteInfoDistance">—</div>
+        <div class="info-value sfl-unit" id="siteInfoDistance" title="Tap to switch km / miles">—</div>
         <div class="info-subvalue" id="siteInfoLightTime">—</div>
     </div>
     <div class="info-item" id="siteInfoSpeedRow" style="display:none;">
@@ -1331,10 +1336,9 @@ function estimateRelativeSpeedKmh(selfId, refId, nowMs) {
 // equivalente en millones de km al lado, para que se entienda igual sin
 // conocer la unidad.
 function formatDistanceKm(km) {
-    if (km < 1000000) return Math.round(km).toLocaleString() + ' km';
+    if (km < 1000000) return SFUnits.dist(km);
     const au = km / AU_KM;
-    const millionKm = km / 1000000;
-    return au.toFixed(2) + ' AU (≈ ' + millionKm.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' million km)';
+    return au.toFixed(2) + ' AU (≈ ' + SFUnits.millions(km) + ')';
 }
 
 const LIGHT_SPEED_KM_S = 299792.458;
@@ -1387,7 +1391,7 @@ function updateReferenceCalc() {
 
     const speed = estimateRelativeSpeedKmh(currentInfoObjId, referenceBodyId, nowMs);
     if (speed != null) {
-        document.getElementById('siteInfoSpeed').textContent = Math.round(speed).toLocaleString() + ' km/h';
+        SFUnits.show(document.getElementById('siteInfoSpeed'), 'speed', speed);
         document.getElementById('siteInfoSpeedLabel').textContent = 'Velocity (vs. ' + refName + ')';
         speedRow.style.display = '';
     } else {

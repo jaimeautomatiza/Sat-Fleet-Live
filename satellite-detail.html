@@ -413,6 +413,7 @@
 }
     </style>
 <script src="/legal-footer.js" defer></script>
+<script src="/js/units.js"></script>
 </head>
 <body>
 
@@ -602,8 +603,8 @@ function updateLive() {
 
     if (isNaN(lat) || isNaN(lng)) return;
 
-    document.getElementById('liveAlt').textContent = Math.round(alt).toLocaleString() + ' km';
-    document.getElementById('liveVel').textContent = Math.round(vel).toLocaleString() + ' km/h';
+    SFUnits.show(document.getElementById('liveAlt'), 'dist', alt);
+    SFUnits.show(document.getElementById('liveVel'), 'speed', vel);
     document.getElementById('liveLat').textContent = lat.toFixed(3) + '\u00b0';
     document.getElementById('liveLng').textContent = lng.toFixed(3) + '\u00b0';
 
@@ -807,8 +808,8 @@ async function init() {
         const p = calcOrbitalParams(satrec);
         document.getElementById('paramInc').textContent     = p.inc.toFixed(2) + '\u00b0';
         document.getElementById('paramPeriod').textContent  = Math.round(p.period) + ' min';
-        document.getElementById('paramApogee').textContent  = Math.round(p.apogee).toLocaleString() + ' km';
-        document.getElementById('paramPerigee').textContent = Math.round(p.perigee).toLocaleString() + ' km';
+        SFUnits.show(document.getElementById('paramApogee'), 'dist', p.apogee);
+        SFUnits.show(document.getElementById('paramPerigee'), 'dist', p.perigee);
         document.getElementById('paramEcc').textContent     = p.ecc.toFixed(5);
         document.getElementById('paramRevs').textContent    = p.revDay.toFixed(2);
 

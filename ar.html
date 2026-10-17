@@ -394,6 +394,7 @@
         #calibHint.show { opacity: 1; }
     </style>
 <script src="/legal-footer.js" defer></script>
+<script src="/js/units.js"></script>
 </head>
 <body>
 
@@ -2067,8 +2068,8 @@ function refreshPopupNumbers(sat) {
     if (!sat) return;
     const panel = document.getElementById('satPopup');
     if (!panel || !panel.classList.contains('visible')) return;
-    document.getElementById('popupAlt').textContent = Math.round(sat.altitude).toLocaleString() + ' km';
-    document.getElementById('popupVel').textContent = Math.round(sat.velocity).toLocaleString() + ' km/h';
+    SFUnits.show(document.getElementById('popupAlt'), 'dist', sat.altitude);
+    SFUnits.show(document.getElementById('popupVel'), 'speed', sat.velocity);
     document.getElementById('popupEl').textContent  = Math.round(sat.elevation) + '°';
     document.getElementById('popupAz').textContent  = compassPoint(sat.azimuth) + ' ' + Math.round(sat.azimuth) + '°';
     const b = brightnessParts(sat);
