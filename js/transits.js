@@ -249,7 +249,20 @@
   }
   var COMPASS = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
   function compass(deg) { return COMPASS[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16]; }
-  function km(d) { return d < 1 ? Math.round(d * 1000) + ' m' : (d < 10 ? d.toFixed(1) : Math.round(d)) + ' km'; }
+  // Units follow the choice saved by /js/units.js (km by default, miles if the user picked them)
+  var KM_TO_MI = 0.621371;
+  function imperial() { return !!(global.SFUnits && global.SFUnits.isImperial()); }
+  function km(d) {
+    if (imperial()) {
+      var mi = d * KM_TO_MI;
+      return mi < 0.2 ? (Math.round(mi * 5280 / 10) * 10) + ' ft' : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + ' mi';
+    }
+    return d < 1 ? Math.round(d * 1000) + ' m' : (d < 10 ? d.toFixed(1) : Math.round(d)) + ' km';
+  }
+  function km1(d) { return imperial() ? (d * KM_TO_MI).toFixed(1) + ' mi' : d.toFixed(1) + ' km'; }
+  function kms(v) { return imperial() ? (v * KM_TO_MI).toFixed(2) + ' mi/s' : v.toFixed(2) + ' km/s'; }
+  function radiusLabel(r) { return imperial() ? Math.round(r * KM_TO_MI) + ' mi' : r + ' km'; }
+  function sizeLabel(k) { return imperial() ? Math.round(k * 3280.84) + ' ft' : Math.round(k * 1000) + ' m'; }
 
   function roundSec(t) { return new Date(Math.round(t / 1000) * 1000); }
   function tzName(d) {
@@ -675,7 +688,7 @@
 
   function shell() {
     var radios = RADII.map(function (r) {
-      return '<label><input type="radio" name="sftRadius" value="' + r + '"' + (r === state.radius ? ' checked' : '') + '><span>' + r + ' km</span></label>';
+      return '<label><input type="radio" name="sftRadius" value="' + r + '"' + (r === state.radius ? ' checked' : '') + '><span>' + radiusLabel(r) + '</span></label>';
     }).join('');
     var chips = SATS.map(function (c) {
       return '<label class="sft-chip" title="' + esc(c.full) + '"><input type="checkbox" name="sftSat" value="' + c.id + '"' +
@@ -799,11 +812,11 @@
 
     if (!inRadius.length) {
       var next = all.filter(function (x) { return x.p.distKm <= 200; })[0];
-      var html = '<div class="sft-empty"><p>Nothing crossing the Sun or the Moon within ' + state.radius + ' km of you in the next ' + DAYS + ' days.</p>';
+      var html = '<div class="sft-empty"><p>Nothing crossing the Sun or the Moon within ' + radiusLabel(state.radius) + ' of you in the next ' + DAYS + ' days.</p>';
       if (next && state.radius < 200) {
         var nd = roundSec(next.p.t);
         html += '<p>The closest one is ' + esc(satInfo(next.r.sat).label) + ' crossing the ' + next.r.body + ' on ' + esc(fmtDate(nd)) + ', ' + km(next.p.distKm) + ' away.</p>' +
-          '<button type="button" class="sft-recalc" data-sft-act="radius200">Search 200 km</button>';
+          '<button type="button" class="sft-recalc" data-sft-act="radius200">Search ' + radiusLabel(200) + '</button>';
       } else {
         html += '<p>Transits over any one spot are rare. Have another look in a few days, once the orbits have been updated.</p>';
       }
@@ -854,6 +867,17 @@
   function signed1(x) { return (x < 0 ? '\u2212' : x > 0 ? '+' : '') + Math.abs(x).toFixed(1); }
   function signed2(x) { return (x < 0 ? '\u2212' : x > 0 ? '+' : '') + Math.abs(x).toFixed(2); }
   function arcsec(x) { return (x < 10 ? x.toFixed(2) : x.toFixed(1)) + '\u2033'; }
+  // Repaint when the units change (another tab, or the Units option on the maps)
+  document.addEventListener('sfl-units-change', function () {
+    if (!panel || !state.rendered) return;
+    var inputs = panel.querySelectorAll('input[name="sftRadius"]');
+    for (var i = 0; i < inputs.length; i++) {
+      var sp = inputs[i].nextElementSibling;
+      if (sp) sp.textContent = radiusLabel(+inputs[i].value);
+    }
+    if (state.tab === 'transits') renderBody();
+  });
+
   function secs(x) { return (x < 1 ? x.toFixed(2) : x.toFixed(1)) + ' s'; }
 
   function cardHtml(r, p, i, now) {
@@ -942,14 +966,14 @@
       t += row(S + ' altitude / azimuth', deg1(Y.satAlt) + ' / ' + deg1(Y.satAz), deg1(Cn.satAlt) + ' / ' + deg1(Cn.satAz));
       t += row(B + ' altitude / azimuth', deg1(Y.bodyAlt) + ' / ' + deg1(Y.bodyAz), deg1(Cn.bodyAlt) + ' / ' + deg1(Cn.bodyAz));
       t += row(S + ' angular size', arcsec(Y.sizeArcsec), arcsec(Cn.sizeArcsec));
-      t += row(S + ' distance', Y.rangeKm.toFixed(1) + ' km', Cn.rangeKm.toFixed(1) + ' km');
+      t += row(S + ' distance', km1(Y.rangeKm), km1(Cn.rangeKm));
       t += row(S + ' R.A. / Dec', fmtRA(Y.satRaH) + '<br>' + fmtDMS(Y.satDecDeg), fmtRA(Cn.satRaH) + '<br>' + fmtDMS(Cn.satDecDeg));
       t += row(B + ' R.A. / Dec', fmtRA(Y.bodyRaH) + '<br>' + fmtDMS(Y.bodyDecDeg), fmtRA(Cn.bodyRaH) + '<br>' + fmtDMS(Cn.bodyDecDeg));
       t += row('Parallactic angle', signed1(Y.parallactic) + '\u00b0', signed1(Cn.parallactic) + '\u00b0');
       t += row('Angular speed', Y.angSpeedArcminS.toFixed(1) + '\u2032/s', Cn.angSpeedArcminS.toFixed(1) + '\u2032/s');
-      t += row('Speed: transverse', Y.vTransverse.toFixed(2) + ' km/s', Cn.vTransverse.toFixed(2) + ' km/s');
-      t += row('Speed: radial', signed2(Y.vRadial) + ' km/s', signed2(Cn.vRadial) + ' km/s');
-      t += row('Speed: total', Y.vTotal.toFixed(2) + ' km/s', Cn.vTotal.toFixed(2) + ' km/s');
+      t += row('Speed: transverse', kms(Y.vTransverse), kms(Cn.vTransverse));
+      t += row('Speed: radial', signed2(imperial() ? Y.vRadial * KM_TO_MI : Y.vRadial) + (imperial() ? ' mi/s' : ' km/s'), signed2(imperial() ? Cn.vRadial * KM_TO_MI : Cn.vRadial) + (imperial() ? ' mi/s' : ' km/s'));
+      t += row('Speed: total', kms(Y.vTotal), kms(Cn.vTotal));
       t += row('Direction of motion from straight up (clockwise)', deg1(Y.dirZenith), deg1(Cn.dirZenith));
       t += row('Direction of motion (position angle)', deg1(Y.dirPA), deg1(Cn.dirPA));
       t += row(B + ' angular size', Y.bodyDiamArcmin.toFixed(1) + '\u2032, ' + (Y.bodyDiamArcmin * 60 / Y.sizeArcsec).toFixed(1) + '\u00d7 ' + S,
@@ -966,7 +990,7 @@
       t += one('Shutter for a sharp outline', '1/' + shutter + ' s or faster (blur under a tenth of its size)');
       t += one('Video frames during the transit', Math.round(r.duration * 30) + ' at 30 fps, ' + Math.round(r.duration * 60) + ' at 60 fps, ' + Math.round(r.duration * 120) + ' at 120 fps');
       t += one('Entry and exit, centre line', pa(Zc));
-      t += one('Size used for ' + S, Math.round(sat.sizeKm * 1000) + ' m');
+      t += one('Size used for ' + S, sizeLabel(sat.sizeKm));
       t += '</tbody></table>';
       h += '<details class="sft-details"><summary>' + svg('sat') + 'Equipment details</summary>' +
         '<p class="sft-small">"From you" is the moment ' + S + ' gets closest to the ' + B + ' as seen from your location, the same numbers Transit Finder gives. "Centre line" is the best spot, shown on the map. R.A. and Dec are for the true equator and equinox of date. Parallactic angle uses Transit Finder\u2019s sign.</p>' +

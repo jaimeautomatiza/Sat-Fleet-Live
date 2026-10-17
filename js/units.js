@@ -99,7 +99,11 @@
 
     // Si cambia en otra pestaña, lo aplicamos aquí también
     window.addEventListener('storage', function (e) {
-        if (e.key === KEY) { system = read(); refreshAll(); }
+        if (e.key === KEY) {
+            system = read();
+            refreshAll();
+            try { document.dispatchEvent(new CustomEvent('sfl-units-change', { detail: system })); } catch (err) {}
+        }
     });
 
     // Tocar cualquier valor con unidades cambia el sistema
